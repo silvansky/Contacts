@@ -21,12 +21,27 @@ public:
 class NetworkingPrivate : public QObject
 {
 	Q_OBJECT
+	struct RequestProperties
+	{
+		enum Type
+		{
+			String,
+			Image
+		};
+		Type type;
+		QUrl url;
+		QObject *receiver;
+		const char *slot;
+	};
+
 public:
 	NetworkingPrivate();
-	~NetworkingPrivate();
+	virtual ~NetworkingPrivate();
+	void httpGetAsync(RequestProperties::Type type, const QUrl& src, QObject * receiver, const char * slot);
 	QImage httpGetImage(const QUrl& src) const;
 	void httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot);
 	QString httpGetString(const QUrl& src) const;
+	void httpGetStringAsync(const QUrl& src, QObject * receiver, const char * slot);
 	void setCookiePath(const QString & path);
 	QString cookiePath() const;
 public slots:
@@ -34,7 +49,7 @@ public slots:
 private:
 	QNetworkAccessManager * nam;
 	QEventLoop * loop;
-	QMap<QNetworkReply*, QPair<QObject*, QPair<QUrl, const char *> > > requests;
+	QMap<QNetworkReply*, RequestProperties> requests;
 	QString _cookiePath;
 	CookieJar * jar;
 };

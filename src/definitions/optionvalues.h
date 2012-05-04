@@ -138,6 +138,14 @@
 #define OPV_AVATARS_SHOW                                "roster.avatars.show"
 #define OPV_AVATARS_SHOWEMPTY                           "roster.avatars.show-empty"
 
+// Statistics
+#define OPV_STATISTICS_ROOT                             "statistics"
+#define OPV_STATISTICS_COUNTERS                         "statistics.counters"
+#define OPV_STATISTICS_COUNTER_URL                      "statistics.counters.url"
+#define OPV_STATISTICS_COUNTER_TIMEOUT                  "statistics.counters.timeout"
+#define OPV_STATISTICS_COUNTER_LAST_TIMEOUT             "statistics.counters.lasttimeout"
+#define OPV_STATISTICS_COUNTER_IMAGE                    "statistics.counters.image"
+
 // StatusChanger
 #define OPV_STATUSES_ROOT                               "statuses"
 #define OPV_STATUSES_MOOD                               "statuses.mood"

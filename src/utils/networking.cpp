@@ -74,6 +74,19 @@ NetworkingPrivate::~NetworkingPrivate()
 	loop->deleteLater();
 }
 
+void NetworkingPrivate::httpGetAsync(NetworkingPrivate::RequestProperties::Type type, const QUrl &src, QObject *receiver, const char *slot)
+{
+	QNetworkRequest request;
+	request.setUrl(src);
+	RequestProperties props;
+	props.type = type;
+	props.url = src;
+	props.receiver = receiver;
+	props.slot = slot;
+	QNetworkReply * reply = nam->get(request);
+	requests.insert(reply, props);
+}
+
 QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
 {
 	QNetworkRequest request;
@@ -110,14 +123,7 @@ QImage NetworkingPrivate::httpGetImage(const QUrl& src) const
 
 void NetworkingPrivate::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
 {
-	QNetworkRequest request;
-	request.setUrl(src);
-	QPair<QObject*, QPair<QUrl, const char *> > obj;
-	obj.first = receiver;
-	obj.second.first = src;
-	obj.second.second = slot;
-	QNetworkReply * reply = nam->get(request);
-	requests.insert(reply, obj);
+	httpGetAsync(RequestProperties::Image, src, receiver, slot);
 }
 
 QString NetworkingPrivate::httpGetString(const QUrl& src) const
@@ -153,6 +159,11 @@ QString NetworkingPrivate::httpGetString(const QUrl& src) const
 	}
 }
 
+void NetworkingPrivate::httpGetStringAsync(const QUrl& src, QObject * receiver, const char * slot)
+{
+	httpGetAsync(RequestProperties::String, src, receiver, slot);
+}
+
 void NetworkingPrivate::setCookiePath(const QString & path)
 {
 	_cookiePath = path;
@@ -168,7 +179,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 {
 	if (requests.contains(reply))
 	{
-		QPair<QObject*, QPair<QUrl, const char *> > obj = requests.value(reply);
+		RequestProperties props = requests.value(reply);
 		QVariant redirectedUrl = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
 		QUrl redirectedTo = redirectedUrl.toUrl();
 		if (redirectedTo.isValid())
@@ -176,7 +187,7 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 			// guard from infinite redirect loop
 			if (redirectedTo != reply->request().url())
 			{
-				httpGetImageAsync(redirectedTo, obj.first, obj.second.second);
+				httpGetImageAsync(redirectedTo, props.receiver, props.slot);
 			}
 			else
 			{
@@ -185,14 +196,40 @@ void NetworkingPrivate::onFinished(QNetworkReply* reply)
 		}
 		else
 		{
-			QImage img;
-			QImageReader reader(reply);
-			if (reply->error() == QNetworkReply::NoError)
-				reader.read(&img);
-			else
-				LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
-			if (obj.first && obj.second.second)
-				QMetaObject::invokeMethod(obj.first, obj.second.second, Qt::DirectConnection, Q_ARG(QUrl, obj.second.first), Q_ARG(QImage, img));
+			switch (props.type)
+			{
+			case RequestProperties::Image:
+				{
+					QImage img;
+					QImageReader reader(reply);
+					if (reply->error() == QNetworkReply::NoError)
+					{
+						reader.read(&img);
+						if (props.receiver && props.slot)
+							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::DirectConnection, Q_ARG(QUrl, props.url), Q_ARG(QImage, img));
+					}
+					else
+						LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+					break;
+				}
+			case RequestProperties::String:
+				{
+					QString result;
+					if (reply->error() == QNetworkReply::NoError)
+					{
+						result = QString::fromUtf8(reply->readAll().constData());
+						if (props.receiver && props.slot)
+							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::DirectConnection, Q_ARG(QUrl, props.url), Q_ARG(QString, result));
+					}
+					else
+						LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+					break;
+				}
+			default:
+				break;
+			}
+
+
 		}
 		requests.remove(reply);
 		reply->deleteLater();
@@ -206,19 +243,16 @@ NetworkingPrivate *Networking::networkingPrivate = 0;
 
 QImage Networking::httpGetImage(const QUrl& src)
 {
-	init();
-	return networkingPrivate->httpGetImage(src);
+	return p()->httpGetImage(src);
 }
 
 void Networking::httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot)
 {
-	init();
-	networkingPrivate->httpGetImageAsync(src, receiver, slot);
+	p()->httpGetImageAsync(src, receiver, slot);
 }
 
 bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& property)
 {
-	init();
 	QImage img = httpGetImage(src);
 	if (!img.isNull())
 	{
@@ -230,24 +264,27 @@ bool Networking::insertPixmap(const QUrl& src, QObject* target, const QString& p
 
 QString Networking::httpGetString(const QUrl& src)
 {
-	init();
-	return networkingPrivate->httpGetString(src);
+	return p()->httpGetString(src);
+}
+
+void Networking::httpGetStringAsync(const QUrl &src, QObject *receiver, const char *slot)
+{
+	p()->httpGetStringAsync(src, receiver, slot);
 }
 
 QString Networking::cookiePath()
 {
-	init();
-	return networkingPrivate->cookiePath();
+	return p()->cookiePath();
 }
 
 void Networking::setCookiePath(const QString & path)
 {
-	init();
-	networkingPrivate->setCookiePath(path);
+	p()->setCookiePath(path);
 }
 
-void Networking::init()
+NetworkingPrivate *Networking::p()
 {
 	if (!networkingPrivate)
 		networkingPrivate = new NetworkingPrivate;
+	return networkingPrivate;
 }

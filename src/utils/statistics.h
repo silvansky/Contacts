@@ -2,6 +2,7 @@
 #define STATISTICS_H
 
 #include "utilsexport.h"
+#include "options.h"
 #include <QObject>
 
 class UTILS_EXPORT Statistics : public QObject
@@ -11,12 +12,15 @@ class UTILS_EXPORT Statistics : public QObject
 private:
 	Statistics();
 public:
+	virtual ~Statistics();
 	static Statistics * instance();
 	void initCounters();
 	void release();
-	void addCounter(const QString &url, bool image, int interval, QObject * delegate, const char * method);
+	void addCounter(const QString &url, bool image, int interval);
 protected slots:
-	void onTimer();
+	void onOptionsOpened();
+	void onOptionsClosed();
+	void onCounterDestroyed();
 private:
 	static Statistics * inst;
 	QList<Counter *> counters;
