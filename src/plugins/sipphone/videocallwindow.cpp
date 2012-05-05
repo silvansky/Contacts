@@ -118,6 +118,19 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 	}
 }
 
+void VideoCallWindow::resizeEvent(QResizeEvent *AEvent)
+{
+	QWidget::resizeEvent(AEvent);
+	if (ui.wdtVideo->isVisible() && ui.wdtVideo->height()<100)
+	{
+		ui.wdtVideo->setVisible(false);
+	}
+	else if (!ui.wdtVideo->isVisible() && ui.vspSpacer->geometry().height()>3)
+	{
+		ui.wdtVideo->setVisible(true);
+	}
+}
+
 void VideoCallWindow::onCallStateChanged(int AState)
 {
 	switch (AState)

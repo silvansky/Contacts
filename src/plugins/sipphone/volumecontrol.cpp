@@ -98,6 +98,7 @@ QSize VolumeControl::sizeHint() const
 
 void VolumeControl::paintEvent(QPaintEvent *AEvent)
 {
+	Q_UNUSED(AEvent);
 	QPainter p(this);
 	QRect paintRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignLeft|Qt::AlignVCenter, FCurPixmap.size(),rect());
 	p.drawPixmap(paintRect, FCurPixmap);
@@ -130,5 +131,6 @@ void VolumeControl::mouseMoveEvent(QMouseEvent *AEvent)
 
 void VolumeControl::mouseReleaseEvent(QMouseEvent *AEvent)
 {
+	Q_UNUSED(AEvent);
 	FPressed = false;
 }

@@ -207,6 +207,17 @@ QRect VideoLayout::adjustLocalVideoSize(const QRect &AGeometry) const
 			newGeometry.setTop(newGeometry.top() + delta/2);
 			newGeometry.setBottom(newGeometry.bottom() - delta + delta/2);
 		}
+
+		if (!FLocalVideo->isEmpty() && !FLocalVideo->isCollapsed())
+		{
+			QSize videoSize = FLocalVideo->sizeHint();
+			int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
+			int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
+			if (newGeometry.width() > newWidth)
+				newGeometry.setWidth(newWidth);
+			else if (newGeometry.height() > newHeight)
+				newGeometry.setHeight(newHeight);
+		}
 	}
 	return newGeometry;
 }
@@ -293,6 +304,28 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 		else if (ACorner==Qt::BottomLeftCorner || ACorner==Qt::BottomRightCorner)
 			newGeometry.setBottom(newGeometry.bottom()-(newGeometry.height()-FLocalVideo->maximumVideoSize().height()));
 	}
+
+	if (!FLocalVideo->isEmpty() && !FLocalVideo->isCollapsed())
+	{
+		QSize videoSize = FLocalVideo->sizeHint();
+		int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
+		int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
+		if (newGeometry.width() > newWidth)
+		{
+			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::BottomLeftCorner)
+				newGeometry.setLeft(newGeometry.left()+(newGeometry.width()-newWidth));
+			else if (ACorner==Qt::TopRightCorner || ACorner==Qt::BottomRightCorner)
+				newGeometry.setRight(newGeometry.right()-(newGeometry.left()+newGeometry.width()-newWidth));
+		}
+		else if (newGeometry.height() > newHeight)
+		{
+			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::TopRightCorner)
+				newGeometry.setTop(newGeometry.top()+(newGeometry.height()-newHeight));
+			else if (ACorner==Qt::BottomLeftCorner || ACorner==Qt::BottomRightCorner)
+				newGeometry.setBottom(newGeometry.bottom()-(newGeometry.height()-newHeight));
+		}
+	}
+
 	return newGeometry;
 }
 

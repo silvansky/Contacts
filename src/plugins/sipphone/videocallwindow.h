@@ -23,6 +23,8 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void closeWindowWithAnimation();
 	void restoreGeometryWithAnimation();
+protected:
+	void resizeEvent(QResizeEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
