@@ -74,9 +74,15 @@ ISipCall *VideoCallWindow::sipCall() const
 	return FCtrlWidget->sipCall();
 }
 
+QSize VideoCallWindow::sizeHint() const
+{
+	static const QSize minHint(460,50);
+	return QWidget::sizeHint().expandedTo(minHint);
+}
+
 void VideoCallWindow::initialize(IPluginManager *APluginManager)
 {
-
+	Q_UNUSED(APluginManager);
 }
 
 void VideoCallWindow::closeWindowWithAnimation()
@@ -93,14 +99,14 @@ void VideoCallWindow::closeWindowWithAnimation()
 
 void VideoCallWindow::restoreGeometryWithAnimation()
 {
-	if (true/*sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA) == ISipDevice::DS_ENABLED*/)
+	if (sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA) != ISipDevice::DS_UNAVAIL)
 	{
 		FVideoVisible = true;
 		ui.wdtVideo->setVisible(true);
 
 		QRect newGeometry = Options::fileValue("sipphone.videocall-window.geometry").toRect();
 		if (newGeometry.isEmpty())
-			newGeometry = WidgetManager::alignGeometry(QSize(640,480),window());
+			newGeometry = WidgetManager::alignGeometry(QSize(500,480),window());
 
 		QPropertyAnimation *animation = new QPropertyAnimation(window(),"geometry");
 		animation->setDuration(200);
@@ -108,7 +114,7 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 		animation->setEndValue(newGeometry);
 		connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
 		connect(animation,SIGNAL(finished()),FVideoLayout,SLOT(restoreLocalVideoGeometry()));
-		animation->start();		
+		animation->start();
 	}
 }
 

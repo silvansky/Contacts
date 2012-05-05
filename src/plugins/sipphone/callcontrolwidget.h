@@ -29,6 +29,9 @@ public:
 	void playSound(const QString &ASoundKey, int ALoops = 0);
 protected:
 	void initialize(IPluginManager *APluginManager);
+	void updateDevicesStateAndProperties();
+protected:
+	void resizeEvent(QResizeEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);

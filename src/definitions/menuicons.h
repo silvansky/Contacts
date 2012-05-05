@@ -203,9 +203,15 @@
 #define MNI_SIPPHONE_CALL_HANGUP                 "sipCallHangup"
 #define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"
 // Used after refactoring
+#define MNI_SIPPHONE_CALL_REJECT                 "sipCallReject"
+#define MNI_SIPPHONE_CALL_SILENT                 "sipCallSilent"
 #define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
 #define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"
 #define MNI_SIPPHONE_VIDEO_COLLAPSED             "sipVideoCollapsed"
+#define MNI_SIPPHONE_CAMERA_ENABLED              "sipCameraEnabled"
+#define MNI_SIPPHONE_CAMERA_DISABLED             "sipCameraDisabled"
+#define MNI_SIPPHONE_MICROPHONE_ENABLED          "sipMicrophoneEnabled"
+#define MNI_SIPPHONE_MICROPHONE_DISABLED         "sipMicrophoneDisabled"
 #define MNI_SIPPHONE_VOLUMECONTROL_VOLUME        "sipVolumeControlVolume"
 #define MNI_SIPPHONE_VOLUMECONTROL_DISABLED      "sipVolumeControlDisabled"
 

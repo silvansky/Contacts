@@ -172,6 +172,14 @@
 
 
   <icon>
+    <key>sipCallReject</key>
+    <object mime="image/png">sipphonecallreject.png</object>
+  </icon>
+  <icon>
+    <key>sipCallSilent</key>
+    <object mime="image/png">sipphonecallsilent.png</object>
+  </icon>
+  <icon>
     <key>sipVideoWait</key>
     <object mime="image/gif">sipphonevideowait.gif</object>
   </icon>
@@ -182,6 +190,22 @@
   <icon>
     <key>sipVideoCollapsed</key>
     <object mime="image/png">sipphonevideocollapsed.png</object>
+  </icon>
+  <icon>
+    <key>sipCameraEnabled</key>
+    <object mime="image/png">sipphonecameraenabled.png</object>
+  </icon>
+  <icon>
+    <key>sipCameraDisabled</key>
+    <object mime="image/png">sipphonecameradisabled.png</object>
+  </icon>
+  <icon>
+    <key>sipMicrophoneEnabled</key>
+    <object mime="image/png">sipphonemicrophoneenabled.png</object>
+  </icon>
+  <icon>
+    <key>sipMicrophoneDisabled</key>
+    <object mime="image/png">sipphonemicrophonedisabled.png</object>
   </icon>
   <icon>
     <key>sipVolumeControlVolume</key>

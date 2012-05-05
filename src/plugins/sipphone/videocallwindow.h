@@ -17,6 +17,8 @@ public:
 	VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent = NULL);
 	~VideoCallWindow();
 	ISipCall *sipCall() const;
+public:
+	QSize sizeHint() const;
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void closeWindowWithAnimation();

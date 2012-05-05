@@ -205,7 +205,8 @@ quint32 SipCall::callTime() const
 
 QString SipCall::callTimeString() const
 {
-	return QTime(0, 0, 0, 0).addMSecs(callTime()).toString("hh:mm:ss");
+	QTime time = QTime(0, 0, 0, 0).addMSecs(callTime());
+	return time.toString(time.hour()>0 ? "hh:mm:ss" : "mm:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)

@@ -21,12 +21,15 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>32</width>
-       <height>32</height>
+       <width>38</width>
+       <height>38</height>
       </size>
      </property>
      <property name="text">
       <string notr="true">Avatar</string>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -81,6 +84,12 @@
            <property name="text">
             <string notr="true">LC</string>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
            <property name="checkable">
             <bool>true</bool>
            </property>
@@ -93,6 +102,12 @@
           <widget class="QToolButton" name="tlbLocalMicrophone">
            <property name="text">
             <string notr="true">LM</string>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -143,12 +158,24 @@
         <property name="text">
          <string notr="true">R</string>
         </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QToolButton" name="tlbSilent">
         <property name="text">
          <string notr="true">S</string>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
         </property>
        </widget>
       </item>

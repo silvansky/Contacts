@@ -1,6 +1,7 @@
 #include "callcontrolwidget.h"
 
 #include <QFile>
+#include <QResizeEvent>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/soundfiles.h>
@@ -35,7 +36,6 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	connect(ui.tlbLocalCamera,SIGNAL(clicked(bool)),SLOT(onLocalCameraStateButtonClicked(bool)));
 	connect(ui.tlbLocalMicrophone,SIGNAL(clicked(bool)),SLOT(onLocalMicrophoneStateButtonClicked(bool)));
 
-	ui.vlcRemoteMicrophome->setMaximumValume(4.0);
 	connect(ui.vlcRemoteMicrophome,SIGNAL(volumeChanged(qreal)),SLOT(onRemoteMicrophoneVolumeChanged(qreal)));
 
 	initialize(APluginManager);
@@ -72,12 +72,13 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 		ui.lblName->setText(contactJid().bare());
 
 	if (FSipCall->role() == ISipCall::CR_INITIATOR)
-		setWindowTitle(tr("Call to %1").arg(contactJid().full()));
+		setWindowTitle(tr("Call to %1").arg(ui.lblName->text()));
 	else
-		setWindowTitle(tr("Call from %1").arg(contactJid().full()));
+		setWindowTitle(tr("Call from %1").arg(ui.lblName->text()));
 
-	foreach(ISipDevice::Type deviceType, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE<<ISipDevice::DT_REMOTE_MICROPHONE) {
-		onCallDeviceStateChanged(deviceType,FSipCall->deviceState(deviceType)); }
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbReject,MNI_SIPPHONE_CALL_REJECT);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
+
 	onCallStateChanged(FSipCall->state());
 }
 
@@ -160,6 +161,31 @@ void CallControlWidget::initialize(IPluginManager *APluginManager)
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 	}
 }
+
+void CallControlWidget::updateDevicesStateAndProperties()
+{
+	foreach(ISipDevice::Type deviceType, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE<<ISipDevice::DT_REMOTE_MICROPHONE) {
+		onCallDeviceStateChanged(deviceType,FSipCall->deviceState(deviceType)); }
+	
+	ui.vlcRemoteMicrophome->setVolume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat());
+	ui.vlcRemoteMicrophome->setMaximumValume(4.0/*FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat()*/);
+}
+
+void CallControlWidget::resizeEvent(QResizeEvent *AEvent)
+{
+	QWidget::resizeEvent(AEvent);
+
+	int freeWidth = ui.hspSpacer->geometry().width();
+	if (freeWidth<5 && ui.lblAvatar->isVisible())
+		ui.lblAvatar->setVisible(false);
+	else if (freeWidth<5 && ui.lblName->isVisible() && !ui.lblAvatar->isVisible())
+		ui.lblName->setVisible(false);
+	else if (freeWidth>ui.lblName->minimumSizeHint().width()-ui.lblNotice->width()+10 && !ui.lblName->isVisible())
+		ui.lblName->setVisible(true);
+	else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible() && ui.lblName->isVisible())
+		ui.lblAvatar->setVisible(true);
+}
+
 void CallControlWidget::onCallStateChanged(int AState)
 {
 	switch (AState)
@@ -195,6 +221,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbSilent->setVisible(false);
 		ui.wdtDeviceControls->setVisible(true);
 		ui.lblNotice->setText(tr("Talking"));
+		updateDevicesStateAndProperties();
 		break;
 	case ISipCall::CS_FINISHED:
 		ui.pbtAccept->setVisible(false);
@@ -220,7 +247,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		FCallTimer.stop();
 
 	if (AState == ISipCall::CS_CALLING)
-		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 30);
+		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 50);
 	else if (AState == ISipCall::CS_TALKING)
 		playSound(SDF_SIPPHONE_CALL_START);
 	else if (AState == ISipCall::CS_FINISHED)
@@ -242,15 +269,17 @@ void CallControlWidget::onCallDeviceStateChanged(int AType, int AState)
 	switch (AType)
 	{
 	case ISipDevice::DT_LOCAL_CAMERA:
-		//ui.tlbLocalCamera->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
+		ui.tlbLocalCamera->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalCamera->setChecked(AState==ISipDevice::DS_ENABLED);
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalCamera,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_CAMERA_ENABLED : MNI_SIPPHONE_CAMERA_DISABLED);
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
-		//ui.tlbLocalMicrophone->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
+		ui.tlbLocalMicrophone->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalMicrophone->setChecked(AState==ISipDevice::DS_ENABLED);
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalMicrophone,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_MICROPHONE_ENABLED : MNI_SIPPHONE_MICROPHONE_DISABLED);
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
-		//ui.vlcRemoteMicrophome->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
+		ui.vlcRemoteMicrophome->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		break;
 	default:
 		break;
@@ -283,11 +312,13 @@ void CallControlWidget::onSilentButtonClicked()
 void CallControlWidget::onLocalCameraStateButtonClicked(bool AChecked)
 {
 	FSipCall->setDeviceState(ISipDevice::DT_LOCAL_CAMERA, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalCamera,AChecked ? MNI_SIPPHONE_CAMERA_ENABLED : MNI_SIPPHONE_CAMERA_DISABLED);
 }
 
 void CallControlWidget::onLocalMicrophoneStateButtonClicked(bool AChecked)
 {
 	FSipCall->setDeviceState(ISipDevice::DT_LOCAL_MICROPHONE, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalMicrophone,AChecked ? MNI_SIPPHONE_MICROPHONE_ENABLED : MNI_SIPPHONE_MICROPHONE_DISABLED);
 }
 
 void CallControlWidget::onRemoteMicrophoneVolumeChanged(qreal AVolume)

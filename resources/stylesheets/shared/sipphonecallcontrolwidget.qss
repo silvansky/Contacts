@@ -1,0 +1,18 @@
+QToolButton
+{
+	border: none;
+	padding: 0px;
+	border-image: none;
+	min-width: 30px;
+	min-height: 30px;
+}
+
+QToolButton:hover:enabled
+{
+	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
+}
+
+QToolButton:enabled:pressed
+{
+	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
+}
