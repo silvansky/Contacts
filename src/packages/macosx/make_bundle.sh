@@ -75,6 +75,7 @@ copyframework QtCore
 copyframework QtGui
 copyframework QtNetwork
 copyframework QtMultimedia
+copyframework QtSvg
 copyframework QtXml
 copyframework QtXmlPatterns
 copyframework QtWebKit
@@ -98,7 +99,7 @@ echo -n "*** Copying imageformats plugins to bundle..."
 
 mkdir $APP_PLUGINS_PATH/imageformats
 
-for codec in "jpeg" "ico" "tga" "tiff" "mng" "svg"; do
+for codec in "jpeg" "ico" "tga" "tiff" "mng" "svg" "gif"; do
 	copyImageFormatPlugin $codec
 done
 
@@ -159,6 +160,11 @@ patchFile Frameworks/QtNetwork.framework/Versions/Current/QtNetwork QtCore 4
 patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtCore 4
 patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtGui 4
 
+# svg deps - core, gui
+
+patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtCore 4
+patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtGui 4
+
 # xml deps - core
 
 patchFile Frameworks/QtXml.framework/Versions/Current/QtXml QtCore 4
@@ -201,6 +207,7 @@ done
 for i in `cd $APPNAME/Contents/PlugIns/imageformats/ && ls *.dylib`; do
 	patchFile PlugIns/imageformats/$i QtCore 4
 	patchFile PlugIns/imageformats/$i QtGui 4
+	patchFile PlugIns/imageformats/$i QtSvg 4
 done
 
 echo "done!"
