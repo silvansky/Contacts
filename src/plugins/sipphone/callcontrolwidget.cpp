@@ -307,6 +307,7 @@ void CallControlWidget::onRejectButtonClicked()
 void CallControlWidget::onSilentButtonClicked()
 {
 	playSound(QString::null);
+	emit silentButtonClicked();
 }
 
 void CallControlWidget::onLocalCameraStateButtonClicked(bool AChecked)

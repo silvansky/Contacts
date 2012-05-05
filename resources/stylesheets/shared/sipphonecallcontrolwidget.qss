@@ -1,3 +1,19 @@
+QWidget#wdtControlls,
+QWidget#wdtDeviceControls
+{
+	background-color: transparent;
+}
+
+QLabel#lblNotice
+{
+	font-size: 16px; 
+}
+
+QLabel#lblName
+{
+	color: #acacac;
+}
+
 QToolButton
 {
 	border: none;
@@ -15,4 +31,34 @@ QToolButton:hover:enabled
 QToolButton:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
+}
+
+QPushButton#pbtAccept
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
+}
+
+QPushButton#pbtAccept:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokhover.png);
+}
+
+QPushButton#pbtAccept:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokclick.png);
+}
+
+QPushButton#pbtReject
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancel.png);
+}
+
+QPushButton#pbtReject:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelhover.png);
+}
+
+QPushButton#pbtReject:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelclick.png);
 }

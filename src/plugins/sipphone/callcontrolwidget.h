@@ -27,6 +27,8 @@ public:
 	Jid contactJid() const;
 	ISipCall *sipCall() const;
 	void playSound(const QString &ASoundKey, int ALoops = 0);
+signals:
+	void silentButtonClicked();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateDevicesStateAndProperties();

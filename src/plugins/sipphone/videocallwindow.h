@@ -29,6 +29,8 @@ protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
 	void onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
+protected slots:
+	void onSilentButtonClicked();
 private:
 	Ui::VideoCallWindowClass ui;
 private:

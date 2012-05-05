@@ -25,7 +25,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		border->setResizable(true);
 		border->setStaysOnTop(true);
 		border->setCloseButtonVisible(false);
-		border->setMinimizeButtonVisible(true);
+		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
 		border->setAttribute(Qt::WA_DeleteOnClose,true);
 	}
@@ -55,6 +55,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	ui.wdtControls->setLayout(new QHBoxLayout);
 	ui.wdtControls->layout()->setMargin(0);
 	ui.wdtControls->layout()->addWidget(FCtrlWidget);
+	connect(FCtrlWidget,SIGNAL(silentButtonClicked()),SLOT(onSilentButtonClicked()));
 
 	connect(sipCall()->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
 	connect(sipCall()->instance(),SIGNAL(deviceStateChanged(int, int)),SLOT(onCallDeviceStateChanged(int, int)));
@@ -104,6 +105,9 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 		FVideoVisible = true;
 		ui.wdtVideo->setVisible(true);
 
+		if (CustomBorderStorage::isBordered(window()))
+			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(true);
+
 		QRect newGeometry = Options::fileValue("sipphone.videocall-window.geometry").toRect();
 		if (newGeometry.isEmpty())
 			newGeometry = WidgetManager::alignGeometry(QSize(500,480),window());
@@ -121,14 +125,6 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 void VideoCallWindow::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
-	if (ui.wdtVideo->isVisible() && ui.wdtVideo->height()<100)
-	{
-		ui.wdtVideo->setVisible(false);
-	}
-	else if (!ui.wdtVideo->isVisible() && ui.vspSpacer->geometry().height()>3)
-	{
-		ui.wdtVideo->setVisible(true);
-	}
 }
 
 void VideoCallWindow::onCallStateChanged(int AState)
@@ -172,4 +168,12 @@ void VideoCallWindow::onCallDevicePropertyChanged(int AType, int AProperty, cons
 		QImage frame = AValue.value<QImage>();
 		FLocalCamera->setPixmap(QPixmap::fromImage(frame));
 	}
+}
+
+void VideoCallWindow::onSilentButtonClicked()
+{
+	if (CustomBorderStorage::isBordered(window()))
+		CustomBorderStorage::widgetBorder(window())->minimizeWidget();
+	else
+		window()->showMinimized();
 }
