@@ -1,11 +1,14 @@
 #include "optionsmanager.h"
 
-#include <QSettings>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QApplication>
 #include <QCryptographicHash>
 #include <definitions/customborder.h>
+
+#ifdef Q_WS_WIN
+# include <QSettings>
+#endif
 
 #define DIR_PROFILES                    "profiles"
 #define DIR_BINARY                      "binary"

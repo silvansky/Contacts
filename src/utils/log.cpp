@@ -109,7 +109,7 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 		if (FLogFile.isNull())
 		{
 #ifndef DEBUG_ENABLED
-			// Устанавливаем перехватчик Qt-шных сообщений только для релиза, чтобы видеть во время отладки
+			// Release only: installing handler for Qt messages
 			qInstallMsgHandler(qtMessagesHandler);
 #endif
 			// creating name with current date and time: log_YYYY-MM-DDTHH-MM-SS+TZ.txt
@@ -194,7 +194,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 	free(strs);
 #endif
 
-	// Заполняем общие параметры
+	// common attributes
 	AParams.insert(ARP_REPORT_TIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());
 	
 	AParams.insert(ARP_APPLICATION_GUID,CLIENT_GUID);
@@ -207,7 +207,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 
 	AParams.insert(ARP_LOCALE_NAME,QLocale().name());
 	
-	// Добавляем фаил лога
+	// log file
 	if (AIncludeLog && !FLogFile.isEmpty())
 	{
 		QFile file(FLogPath + "/" + FLogFile + ".txt");
@@ -224,14 +224,14 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 		}
 	}
 
-	// Добавляем заранее установленные параметры
+	// predefined attributes
 	for (QMap<QString,QString>::const_iterator it = FReportParams.constBegin(); it!=FReportParams.constEnd(); it++)
 	{
 		if (!AParams.contains(it.key()))
 			AParams.insert(it.key(),it.value());
 	}
 
-	// Создаем XML документ отчета
+	// creating XML
 	QDomElement reportElem = report.appendChild(report.createElement("report")).toElement();
 	reportElem.setAttribute("version",APP_REPORT_VERSION);
 	for (QMap<QString,QString>::const_iterator it = AParams.constBegin(); it!=AParams.constEnd(); it++)

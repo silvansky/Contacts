@@ -5,7 +5,6 @@
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
-#include <QSettings>
 #include <QMessageBox>
 #include <QLibraryInfo>
 #include <QFontDatabase>
@@ -17,12 +16,11 @@
 #include <utils/networking.h>
 #include <utils/custominputdialog.h>
 #include <utils/customborderstorage.h>
+#include <utils/statistics.h>
+#include <utils/options.h>
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
-
-#define ORGANIZATION_NAME           "Rambler"
-#define APPLICATION_NAME            "Contacts"
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
@@ -42,15 +40,15 @@
 #define DIR_COOKIES                 "cookies"
 #if defined(Q_WS_WIN)
 #  define ENV_APP_DATA              "APPDATA"
-#  define DIR_APP_DATA              APPLICATION_NAME
-#  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
+#  define DIR_APP_DATA              CLIENT_NAME
+#  define PATH_APP_DATA             CLIENT_ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
 #  define DIR_APP_DATA              ".ramblercontacts"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              APPLICATION_NAME
+#  define DIR_APP_DATA              CLIENT_NAME
 #  define PATH_APP_DATA             "Library/Application Support/"DIR_APP_DATA
 #endif
 
@@ -110,17 +108,15 @@ QString PluginManager::homePath() const
 
 void PluginManager::setHomePath(const QString &APath)
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
-	settings.setValue(SVN_DATA_PATH, APath);
+	Options::setGlobalValue(SVN_DATA_PATH, APath);
 }
 
 void PluginManager::setLocale(QLocale::Language ALanguage, QLocale::Country ACountry)
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
 	if (ALanguage != QLocale::C)
-		settings.setValue(SVN_LOCALE_NAME, QLocale(ALanguage, ACountry).name());
+		Options::setGlobalValue(SVN_LOCALE_NAME, QLocale(ALanguage, ACountry).name());
 	else
-		settings.remove(SVN_LOCALE_NAME);
+		Options::removeGlobalValue(SVN_LOCALE_NAME);
 }
 
 IPlugin *PluginManager::pluginInstance(const QUuid &AUuid) const
@@ -262,16 +258,15 @@ void PluginManager::showMainWindow()
 void PluginManager::loadSettings()
 {
 	QStringList args = qApp->arguments();
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
 
 	QLocale locale(QLocale::C,  QLocale::AnyCountry);
 	if (args.contains(CLO_LOCALE))
 	{
 		locale = QLocale(args.value(args.indexOf(CLO_LOCALE)+1));
 	}
-	if (locale.language()==QLocale::C && !settings.value(SVN_LOCALE_NAME).toString().isEmpty())
+	if (locale.language()==QLocale::C && !Options::globalValue(SVN_LOCALE_NAME).toString().isEmpty())
 	{
-		locale = QLocale(settings.value(SVN_LOCALE_NAME).toString());
+		locale = QLocale(Options::globalValue(SVN_LOCALE_NAME).toString());
 	}
 	if (locale.language() == QLocale::C)
 	{
@@ -292,9 +287,9 @@ void PluginManager::loadSettings()
 		if (dir.exists(DIR_APP_DATA) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
-	if (FDataPath.isNull() && !settings.value(SVN_DATA_PATH).toString().isEmpty())
+	if (FDataPath.isNull() && !Options::globalValue(SVN_DATA_PATH).toString().isEmpty())
 	{
-		QDir dir(settings.value(SVN_DATA_PATH).toString());
+		QDir dir(Options::globalValue(SVN_DATA_PATH).toString());
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
@@ -331,9 +326,9 @@ void PluginManager::loadSettings()
 
 	// Borders
 #ifndef Q_WS_MAC
-	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,true).toBool());
+	CustomBorderStorage::setBordersEnabled(Options::globalValue(SVN_BORDERS_ENABLED,true).toBool());
 #else
-	CustomBorderStorage::setBordersEnabled(settings.value(SVN_BORDERS_ENABLED,false).toBool());
+	CustomBorderStorage::setBordersEnabled(Options::globalValue(SVN_BORDERS_ENABLED,false).toBool());
 #endif
 
 	QDir cookiesDir(FDataPath);
@@ -343,7 +338,7 @@ void PluginManager::loadSettings()
 	}
 
 	// TNS Counter
-	Networking::httpGetImageAsync(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"), NULL, NULL);
+	Statistics::instance()->addCounter("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/", Statistics::Image, -1);
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
@@ -395,8 +390,7 @@ void PluginManager::loadSettings()
 
 void PluginManager::saveSettings()
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
-	settings.setValue(SVN_BORDERS_ENABLED,CustomBorderStorage::isBordersEnabled());
+	Options::setGlobalValue(SVN_BORDERS_ENABLED, CustomBorderStorage::isBordersEnabled());
 
 	if (!FPluginsSetup.documentElement().isNull())
 	{
@@ -409,6 +403,8 @@ void PluginManager::saveSettings()
 			file.close();
 		}
 	}
+
+	Statistics::release();
 }
 
 void PluginManager::loadPlugins()

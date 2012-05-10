@@ -9,20 +9,29 @@ class UTILS_EXPORT Statistics : public QObject
 {
 	Q_OBJECT
 	class Counter;
+	friend class Counter;
 private:
 	Statistics();
 public:
+	enum CounterContentType
+	{
+		Text,
+		Image
+	};
 	virtual ~Statistics();
 	static Statistics * instance();
+	static void release();
 	void initCounters();
-	void release();
-	void addCounter(const QString &url, bool image, int interval);
-protected slots:
-	void onOptionsOpened();
-	void onOptionsClosed();
-	void onCounterDestroyed();
+	void addCounter(const QString &url, CounterContentType type, int interval);
+protected:
+	static bool isReleased();
+	void removeCounter(Counter *c);
+	void clearCounters();
+	void saveSettings() const;
+	void loadSettings();
 private:
 	static Statistics * inst;
+	static bool released;
 	QList<Counter *> counters;
 };
 

@@ -1,7 +1,10 @@
 #include "options.h"
 
+#include <definitions/version.h>
+
 #include <QFile>
 #include <QRect>
+#include <QSettings>
 #include <QDataStream>
 #include <QStringList>
 #include <QKeySequence>
@@ -466,10 +469,12 @@ struct OptionItem
 
 struct Options::OptionsData
 {
+	OptionsData() : globalSettings(QSettings::IniFormat, QSettings::UserScope, CLIENT_ORGANIZATION_NAME, CLIENT_NAME){}
 	QString filesPath;
 	QByteArray cryptKey;
 	QDomDocument options;
 	QHash<QString, OptionItem> items;
+	QSettings globalSettings;
 };
 
 Options::OptionsData *Options::d = new Options::OptionsData;
@@ -680,4 +685,25 @@ void Options::importNode(const QString &APath, const QDomElement &AFromElem)
 		OptionsNode node = Options::node(APath);
 		importOptionNode(node,nodeElem);
 	}
+}
+
+void Options::setGlobalValue(const QString &key, const QVariant &value)
+{
+	d->globalSettings.setValue(key, value);
+	d->globalSettings.sync();
+}
+
+QVariant Options::globalValue(const QString &key, const QVariant &defaultValue)
+{
+	return d->globalSettings.value(key, defaultValue);
+}
+
+bool Options::hasGlobalValue(const QString &key)
+{
+	return d->globalSettings.contains(key);
+}
+
+void Options::removeGlobalValue(const QString &key)
+{
+	d->globalSettings.remove(key);
 }

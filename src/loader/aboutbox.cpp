@@ -51,7 +51,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 
 	//ui.lblName->setText(tr("Contacts"));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
-	ui.lblVersion->setText(styleBegin + tr("Version: %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed() + styleEnd);
+	ui.lblVersion->setText(styleBegin + tr("Version: %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFFIX).trimmed() + styleEnd);
 	ui.lblVersion->setProperty("ignoreFilter", true);
 	ui.lblHomePage->setText(styleBegin + tr("Site: %1").arg("<a href='http://contacts.rambler.ru'>contacts.rambler.ru</a>") + "</font>");
 	ui.lblCopyright->setText(styleBegin + tr("© 2011, \"Rambler Internet Holding LLC\".<br>%1").arg(QString("<a href='http://help.rambler.ru/legal/?s=44761'>%1</a>").arg(tr("Terms of Use"))) + styleEnd);

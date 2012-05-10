@@ -148,7 +148,7 @@ bool ClientInfo::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &
 		Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 		QDomElement elem = result.addElement("query",NS_JABBER_VERSION);
 		elem.appendChild(result.createElement("name")).appendChild(result.createTextNode(CLIENT_NAME));
-		elem.appendChild(result.createElement("version")).appendChild(result.createTextNode(QString("%1.%2 %3").arg(FPluginManager->version()).arg(FPluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed()));
+		elem.appendChild(result.createElement("version")).appendChild(result.createTextNode(QString("%1.%2 %3").arg(FPluginManager->version()).arg(FPluginManager->revision()).arg(CLIENT_VERSION_SUFFIX).trimmed()));
 		if (Options::node(OPV_MISC_SHAREOSVERSION).value().toBool())
 			elem.appendChild(result.createElement("os")).appendChild(result.createTextNode(SystemManager::systemOSVersion()));
 		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
