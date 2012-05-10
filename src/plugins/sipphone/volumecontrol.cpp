@@ -4,19 +4,20 @@
 #include <QPainter>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <QApplication>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
 
-VolumeControl::VolumeControl(QWidget *AParent) : QWidget(AParent)
+VolumeControl::VolumeControl(QWidget *AParent) : QFrame(AParent)
 {
 	FVolume = 1.0;
+	FSavedVolume = 1.0;
 	FMaximumVolume = 4.0;
-	FPressed = false;
 
 	setProperty("ignoreFilter", true);
 	setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-	FSizeHint = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_VOLUMECONTROL_VOLUME,4).size();
+	FSizeHint = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_VOLUMECONTROL_VOLUME,4).size() + QSize(7,7);
 
 	updatePixmap();
 }
@@ -58,17 +59,19 @@ void VolumeControl::setMaximumValume(qreal AVolume)
 	}
 }
 
+bool VolumeControl::isMutedVolume(qreal AVolume) const
+{
+	return AVolume*100/FMaximumVolume<1.0;
+}
+
 qreal VolumeControl::positionToVolume(const QPoint &APos) const
 {
 	QRect curRect = rect();
 	if (!curRect.isEmpty() && curRect.contains(APos))
 	{
+		static const int mutePercent = 18*100/50;
 		int percent = (APos.x() - curRect.left()) * 100 / (curRect.right() - curRect.left());
-		if (percent > 25)
-		{
-			return FMaximumVolume*(percent-25)/75;
-		}
-		return 0.0;
+		return percent > mutePercent ? FMaximumVolume*(percent-mutePercent)/(100-mutePercent) : 0.0; 
 	}
 	return FVolume;
 }
@@ -98,9 +101,9 @@ QSize VolumeControl::sizeHint() const
 
 void VolumeControl::paintEvent(QPaintEvent *AEvent)
 {
-	Q_UNUSED(AEvent);
+	QFrame::paintEvent(AEvent);
 	QPainter p(this);
-	QRect paintRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignLeft|Qt::AlignVCenter, FCurPixmap.size(),rect());
+	QRect paintRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, FCurPixmap.size(),rect());
 	p.drawPixmap(paintRect, FCurPixmap);
 }
 
@@ -116,21 +119,42 @@ void VolumeControl::mousePressEvent(QMouseEvent *AEvent)
 {
 	if(AEvent->button() == Qt::LeftButton)
 	{
-		FPressed = true;
-		setVolume(positionToVolume(AEvent->pos()));
+		FPressedPos = AEvent->pos();
 	}
 }
 
 void VolumeControl::mouseMoveEvent(QMouseEvent *AEvent)
 {
-	if (FPressed)
+	if (!FPressedPos.isNull())
 	{
-		setVolume(positionToVolume(AEvent->pos()));
+		FMoved = FMoved || (AEvent->pos()-FPressedPos).manhattanLength()>qApp->startDragDistance();
+		if (FMoved)
+			setVolume(positionToVolume(AEvent->pos()));
 	}
 }
 
 void VolumeControl::mouseReleaseEvent(QMouseEvent *AEvent)
 {
 	Q_UNUSED(AEvent);
-	FPressed = false;
+	if (!FPressedPos.isNull() && !FMoved)
+	{
+		if (positionToVolume(FPressedPos)<0.001 && positionToVolume(AEvent->pos())<0.001)
+		{
+			if (!isMutedVolume(FVolume))
+			{
+				FSavedVolume = FVolume;
+				setVolume(0.0);
+			}
+			else
+			{
+				setVolume(FSavedVolume);
+			}
+		}
+		else
+		{
+			setVolume(positionToVolume(AEvent->pos()));
+		}
+	}
+	FMoved =false;
+	FPressedPos = QPoint();
 }

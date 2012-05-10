@@ -1,10 +1,10 @@
 #ifndef VOLUMECONTROL_H
 #define VOLUMECONTROL_H
 
-#include <QWidget>
+#include <QFrame>
 
 class VolumeControl : 
-	public QWidget
+	public QFrame
 {
 	Q_OBJECT;
 public:
@@ -19,6 +19,7 @@ signals:
 	void maximumVolumeChanged(qreal AVolume);
 protected:
 	void updatePixmap();
+	bool isMutedVolume(qreal AVolume) const;
 	qreal positionToVolume(const QPoint &APos) const;
 protected:
 	QSize sizeHint() const;
@@ -29,9 +30,11 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *AEvent);
 private:
 	qreal FVolume;
+	qreal FSavedVolume;
 	qreal FMaximumVolume;
 private:
-	bool FPressed;
+	bool FMoved;
+	QPoint FPressedPos;
 	QSize FSizeHint;
 	QPixmap FCurPixmap;
 };

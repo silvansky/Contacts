@@ -1,5 +1,4 @@
-QWidget#wdtControlls,
-QWidget#wdtDeviceControls
+QWidget
 {
 	background-color: transparent;
 }
@@ -23,7 +22,7 @@ QToolButton
 	min-height: 30px;
 }
 
-QToolButton:hover:enabled
+QToolButton:hover:enabled, VolumeControl:hover:enabled
 {
 	border-image: url(%IMAGES_PATH%/buttonborderhover.png);
 }
