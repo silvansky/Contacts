@@ -1021,6 +1021,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "accept");
 				queryElem.setAttribute("sid", sessionId());
+				queryElem.setAttribute("peer", streamJid().pBare());
 				if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
 					FCallRequests.insert(accept.id(), contactJid());
 				else
