@@ -257,7 +257,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 	else
 		FCallTimer.stop();
 
-	if (AState == ISipCall::CS_CALLING)
+	if (AState==ISipCall::CS_CALLING || (FSipCall->isDirectCall() && AState==ISipCall::CS_CONNECTING))
 		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 50);
 	else if (AState == ISipCall::CS_TALKING)
 		playSound(SDF_SIPPHONE_CALL_START);

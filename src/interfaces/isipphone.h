@@ -160,6 +160,7 @@ public:
 	};
 
 	virtual QObject *instance() = 0;
+	virtual bool isDirectCall() const =0;
 	virtual Jid streamJid() const = 0;
 	virtual Jid contactJid() const = 0;
 	virtual QString sessionId() const = 0;

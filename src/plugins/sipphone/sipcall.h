@@ -21,6 +21,7 @@ public:
 	virtual ~SipCall();
 	virtual QObject *instance();
 	// ISipCall
+	virtual bool isDirectCall() const;
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual QString sessionId() const;
@@ -108,6 +109,7 @@ private:
 	int FCallId;
 	int FAccountId;
 private:
+	bool FDirectCall;
 	Jid FStreamJid;
 	Jid FContactJid;
 	QString FSessionId;
