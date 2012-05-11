@@ -21,6 +21,7 @@ APP_PLUGINS_PATH=$APPNAME/Contents/PlugIns
 SYS_TRANSLATIONS_DIR=`$PATH_TO_QMAKE -query QT_INSTALL_TRANSLATIONS`
 SYS_PLUGINS_DIR=`$PATH_TO_QMAKE -query QT_INSTALL_PLUGINS`
 SYSTEM_FRAMEWORKS_PATH=/Library/Frameworks
+SYSTEM_DYLIBS_PATH=/usr/local/lib
 
 if [ -f Makefile ]
 then
@@ -52,37 +53,55 @@ cd /Applications
 
 mkdir $APP_FRAMEWORKS_PATH
 
-function copyframework {
+function copyFramework {
 	# copy all
+	FW_NAME=$1
 	echo -n "."
-	cp -R $SYSTEM_FRAMEWORKS_PATH/$1.framework $APP_FRAMEWORKS_PATH/
+	cp -R ${SYSTEM_FRAMEWORKS_PATH}/${FW_NAME}.framework ${APP_FRAMEWORKS_PATH}/
 	#remove debug libs
-	cd $APP_FRAMEWORKS_PATH/$1.framework
-	rm -rf $1_debug.dSYM
-	rm -f $1_debug
-	rm -f $1_debug.prl
+	cd ${APP_FRAMEWORKS_PATH}/${FW_NAME}.framework
+	echo -n "."
+	rm -rf ${FW_NAME}_debug.dSYM
+	rm -f ${FW_NAME}_debug
+	rm -f ${FW_NAME}_debug.prl
 	rm -f Headers
 	cd Versions/Current/
-	rm -f $1_debug
+	rm -f ${FW_NAME}_debug
 	rm -rf Headers
 	# return to apps dir
 	cd /Applications
+	echo -n "."
+}
+
+function copyDylib {
+	LIB_NAME=lib$1.dylib
+	echo -n "."
+	cp -R ${SYSTEM_DYLIBS_PATH}/${LIB_NAME} ${APP_FRAMEWORKS_PATH}/
+	echo -n "."
+	install_name_tool -id ${LIB_NAME} ${APP_FRAMEWORKS_PATH}/${LIB_NAME} 
+	echo -n "."
 }
 
 echo -n "*** Copying frameworks to bundle..."
 
-copyframework QtCore
-copyframework QtGui
-copyframework QtNetwork
-copyframework QtMultimedia
-copyframework QtSvg
-copyframework QtXml
-copyframework QtXmlPatterns
-copyframework QtWebKit
-copyframework QtDBus
-copyframework phonon
-copyframework Growl
-copyframework Sparkle
+copyFramework QtCore
+copyFramework QtGui
+copyFramework QtNetwork
+copyFramework QtMultimedia
+copyFramework QtSvg
+copyFramework QtXml
+copyFramework QtXmlPatterns
+copyFramework QtWebKit
+copyFramework QtDBus
+copyFramework phonon
+copyFramework Growl
+copyFramework Sparkle
+
+echo " done!"
+
+echo -n "*** Copying dylibs to bundle..."
+
+copyDylib dbus-1.3
 
 echo " done!"
 
@@ -93,6 +112,7 @@ function copyImageFormatPlugin {
 	CODEC=$1
 	PLUGIN="${SYS_PLUGINS_DIR}/imageformats/libq${CODEC}.dylib"
 	cp ${PLUGIN} $APP_PLUGINS_PATH/imageformats/
+	echo -n ".."
 }
 
 echo -n "*** Copying imageformats plugins to bundle..."
@@ -105,11 +125,11 @@ done
 
 echo " done!"
 
-# usage: "patchFile file frameworkName version"
-function patchFile {
+# usage: "patchFileFW file frameworkName version"
+function patchFileFW {
 	# file to patch
 	file=$1
-	# frmework
+	# framework
 	FW=$2
 	# version
 	VER=$3
@@ -117,100 +137,125 @@ function patchFile {
 	install_name_tool -change $FW.framework/Versions/$VER/$FW @executable_path/../Frameworks/$FW.framework/Versions/$VER/$FW $APPNAME/Contents/$file
 }
 
-echo -n "*** Patching frameworks, libraries and plugins... "
+# usage: "patchFileDylib file dylibNameWithVersion"
+function patchFileDylib {
+	# file to patch
+	file=$1
+	# dylib
+	DYLIB=lib$2.dylib
+	# patching...
+	install_name_tool -change ${SYSTEM_DYLIBS_PATH}/${DYLIB} @executable_path/../Frameworks/${DYLIB} $APPNAME/Contents/$file
+}
+
+echo -n "*** Patching frameworks, libraries and plugins..."
 
 # Contacts deps - core, network, gui, multimedia, xml, xmlpatterns, webkit, phonon, growl, sparkle
 
-patchFile MacOS/Contacts QtNetwork 4
-patchFile MacOS/Contacts QtCore 4
-patchFile MacOS/Contacts QtGui 4
-patchFile MacOS/Contacts QtMultimedia 4
-patchFile MacOS/Contacts QtXml 4
-patchFile MacOS/Contacts QtXmlPatterns 4
-patchFile MacOS/Contacts QtWebKit 4
-patchFile MacOS/Contacts phonon 4
-patchFile MacOS/Contacts Growl A
-patchFile MacOS/Contacts Sparkle A
+patchFileFW MacOS/Contacts QtNetwork 4
+patchFileFW MacOS/Contacts QtCore 4
+patchFileFW MacOS/Contacts QtGui 4
+patchFileFW MacOS/Contacts QtMultimedia 4
+patchFileFW MacOS/Contacts QtXml 4
+patchFileFW MacOS/Contacts QtXmlPatterns 4
+patchFileFW MacOS/Contacts QtWebKit 4
+patchFileFW MacOS/Contacts phonon 4
+patchFileFW MacOS/Contacts Growl A
+patchFileFW MacOS/Contacts Sparkle A
+echo -n "."
 
 # utils deps - core, gui, xml, webkit, network
 
-patchFile Frameworks/libramblercontactsutils.1.dylib QtCore 4
-patchFile Frameworks/libramblercontactsutils.1.dylib QtXml 4
-patchFile Frameworks/libramblercontactsutils.1.dylib QtGui 4
-patchFile Frameworks/libramblercontactsutils.1.dylib QtWebKit 4
-patchFile Frameworks/libramblercontactsutils.1.dylib QtNetwork 4
+patchFileFW Frameworks/libramblercontactsutils.1.dylib QtCore 4
+patchFileFW Frameworks/libramblercontactsutils.1.dylib QtXml 4
+patchFileFW Frameworks/libramblercontactsutils.1.dylib QtGui 4
+patchFileFW Frameworks/libramblercontactsutils.1.dylib QtWebKit 4
+patchFileFW Frameworks/libramblercontactsutils.1.dylib QtNetwork 4
+echo -n "."
 
 # phonon deps - gui, core, xml, dbus
 
-patchFile Frameworks/phonon.framework/Versions/Current/phonon QtCore 4
-patchFile Frameworks/phonon.framework/Versions/Current/phonon QtGui 4
-patchFile Frameworks/phonon.framework/Versions/Current/phonon QtXml 4
-patchFile Frameworks/phonon.framework/Versions/Current/phonon QtDBus 4
+patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtCore 4
+patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtGui 4
+patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtXml 4
+patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtDBus 4
+echo -n "."
 
 # gui deps - core
 
-patchFile Frameworks/QtGui.framework/Versions/Current/QtGui QtCore 4
+patchFileFW Frameworks/QtGui.framework/Versions/Current/QtGui QtCore 4
+echo -n "."
 
 # network deps - core
 
-patchFile Frameworks/QtNetwork.framework/Versions/Current/QtNetwork QtCore 4
+patchFileFW Frameworks/QtNetwork.framework/Versions/Current/QtNetwork QtCore 4
+echo -n "."
 
 # mm deps - core, gui
 
-patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtCore 4
-patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtGui 4
+patchFileFW Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtCore 4
+patchFileFW Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtGui 4
+echo -n "."
 
 # svg deps - core, gui
 
-patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtCore 4
-patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtGui 4
+patchFileFW Frameworks/QtSvg.framework/Versions/Current/QtSvg QtCore 4
+patchFileFW Frameworks/QtSvg.framework/Versions/Current/QtSvg QtGui 4
+echo -n "."
 
 # xml deps - core
 
-patchFile Frameworks/QtXml.framework/Versions/Current/QtXml QtCore 4
+patchFileFW Frameworks/QtXml.framework/Versions/Current/QtXml QtCore 4
+echo -n "."
 
 # xmlpat deps - core, network
 
-patchFile Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtCore 4
-patchFile Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtNetwork 4
+patchFileFW Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtCore 4
+patchFileFW Frameworks/QtXmlPatterns.framework/Versions/Current/QtXmlPatterns QtNetwork 4
+echo -n "."
 
 # dbus deps - xml, core
 
-patchFile Frameworks/QtDBus.framework/Versions/Current/QtDBus QtCore 4
-patchFile Frameworks/QtDBus.framework/Versions/Current/QtDBus QtXml 4
+patchFileFW Frameworks/QtDBus.framework/Versions/Current/QtDBus QtCore 4
+patchFileFW Frameworks/QtDBus.framework/Versions/Current/QtDBus QtXml 4
+echo -n "."
 
 # webkit deps - core, gui, xml, dbus, phonon, network
 
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtCore 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtGui 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXml 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXmlPatterns 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit phonon 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtDBus 4
-patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtNetwork 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtCore 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtGui 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXml 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtXmlPatterns 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit phonon 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtDBus 4
+patchFileFW Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtNetwork 4
+echo -n "."
 
 # plugins deps - core, gui, xml, xmlpatterns, network, webkit, phonon, growl, sparkle
 
 for i in `cd $APPNAME/Contents/PlugIns/ && ls *.dylib`; do
-	patchFile PlugIns/$i QtCore 4
-	patchFile PlugIns/$i QtGui 4
-	patchFile PlugIns/$i QtNetwork 4
-	patchFile PlugIns/$i QtWebKit 4
-	patchFile PlugIns/$i QtXml 4
-	patchFile PlugIns/$i QtXmlPatterns 4
-	patchFile PlugIns/$i QtDBus 4
-	patchFile PlugIns/$i phonon 4
-	patchFile PlugIns/$i Growl A
-	patchFile PlugIns/$i Sparkle A
+	patchFileFW PlugIns/$i QtCore 4
+	patchFileFW PlugIns/$i QtGui 4
+	patchFileFW PlugIns/$i QtNetwork 4
+	patchFileFW PlugIns/$i QtWebKit 4
+	patchFileFW PlugIns/$i QtMultimedia 4
+	patchFileFW PlugIns/$i QtXml 4
+	patchFileFW PlugIns/$i QtXmlPatterns 4
+	patchFileFW PlugIns/$i QtDBus 4
+	patchFileFW PlugIns/$i phonon 4
+	patchFileFW PlugIns/$i Growl A
+	patchFileFW PlugIns/$i Sparkle A
+	patchFileDylib PlugIns/$i dbus-1.3
+	echo -n "."
 done
 
 for i in `cd $APPNAME/Contents/PlugIns/imageformats/ && ls *.dylib`; do
-	patchFile PlugIns/imageformats/$i QtCore 4
-	patchFile PlugIns/imageformats/$i QtGui 4
-	patchFile PlugIns/imageformats/$i QtSvg 4
+	patchFileFW PlugIns/imageformats/$i QtCore 4
+	patchFileFW PlugIns/imageformats/$i QtGui 4
+	patchFileFW PlugIns/imageformats/$i QtSvg 4
+	echo -n "."
 done
 
-echo "done!"
+echo " done!"
 
 cd $APPNAME
 
