@@ -42,6 +42,7 @@ public:
 	// ISipManager
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
+	virtual ISipCall *newCall(const Jid &AStreamJid, const QString &APhoneNumber);
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
@@ -94,6 +95,7 @@ protected slots:
 	void onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
 protected slots:
 	void onStartVideoCall();
+	void onStartPhoneCall();
 	void onShowAddContactDialog();
 	void onCallMenuAboutToShow();
 	void onCallMenuAboutToHide();
@@ -106,6 +108,7 @@ private:
 	IMetaContacts *FMetaContacts;
 	IXmppStreams *FXmppStreams;
 	IRosterChanger *FRosterChanger;
+	IGateways *FGateways;
 private:
 	int FSHISipQuery;
 private:

@@ -6,9 +6,11 @@
 #include <definitions/menuicons.h>
 #include <definitions/soundfiles.h>
 #include <definitions/stylesheets.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/imagemanager.h>
+#include "pjsipdefines.h"
 
 CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
@@ -54,7 +56,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 		onMetaAvatarChanged(FMetaId);
 		connect(FMetaRoster->instance(),SIGNAL(metaAvatarChanged(const QString &)),SLOT(onMetaAvatarChanged(const QString &)));
 	}
-	else if (FAvatars)
+	else if (FAvatars && FAvatars->hasAvatar(FAvatars->avatarHash(contactJid())))
 	{
 		FAvatars->insertAutoAvatar(ui.lblAvatar,contactJid(),QSize(38,38));
 	}
@@ -65,11 +67,20 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	}
 
 	if (!FMetaId.isEmpty())
+	{
 		ui.lblName->setText(FMetaContacts->metaContactName(FMetaRoster->metaContact(FMetaId)));
+	}
 	else if (FGateways)
-		ui.lblName->setText(FGateways->legacyIdFromUserJid(streamJid(),contactJid()));
+	{
+		if (contactJid().domain() == SIP_DOMAIN)
+			ui.lblName->setText(FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),contactJid().node()));
+		else
+			ui.lblName->setText(FGateways->legacyIdFromUserJid(streamJid(),contactJid()));
+	}
 	else
+	{
 		ui.lblName->setText(contactJid().bare());
+	}
 
 	if (FSipCall->role() == ISipCall::CR_INITIATOR)
 		setWindowTitle(tr("Call to %1").arg(ui.lblName->text()));
@@ -167,7 +178,7 @@ void CallControlWidget::updateDevicesStateAndProperties()
 	foreach(ISipDevice::Type deviceType, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE<<ISipDevice::DT_REMOTE_MICROPHONE) {
 		onCallDeviceStateChanged(deviceType,FSipCall->deviceState(deviceType)); }
 	
-	ui.vlcRemoteMicrophome->setVolume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat());
+	ui.vlcRemoteMicrophome->setVolume(1.0/*FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat()*/);
 	ui.vlcRemoteMicrophome->setMaximumValume(4.0/*FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat()*/);
 }
 

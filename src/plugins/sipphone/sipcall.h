@@ -12,11 +12,12 @@ class SipCall :
 		public IStanzaHandler,
 		public IStanzaRequestOwner
 {
-	Q_OBJECT
-	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
+	Q_OBJECT;
+	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner);
 public:
-	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
-	SipCall(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, const Jid &AStreamJid, const QString &APhoneNumber, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
 	virtual ~SipCall();
 	virtual QObject *instance();
 	// ISipCall

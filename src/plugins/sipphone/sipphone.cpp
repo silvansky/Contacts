@@ -405,7 +405,7 @@ void SipPhone::onAboutToShowContactMenu()
 					contactAction->setData(ADR_CONTACT_JID,pitem.itemJid.full());
 					contactAction->setData(ADR_METAID_WINDOW,metaId);
 					connect(contactAction, SIGNAL(triggered(bool)), SLOT(onStartCallToContact()));
-					contactsMenu->addAction(contactAction, AG_SPCM_SIPPHONE_CALL_LIST);
+					contactsMenu->addAction(contactAction, AG_SPCM_SIPPHONE_VIDEO_LIST);
 				}
 			}
 		}
@@ -415,7 +415,7 @@ void SipPhone::onAboutToShowContactMenu()
 		addContactAction->setData(ADR_STREAM_JID, mroster->streamJid().full());
 		addContactAction->setData(ADR_METAID_WINDOW, metaId);
 		connect(addContactAction, SIGNAL(triggered(bool)), SLOT(onShowAddContactDialog()));
-		contactsMenu->addAction(addContactAction, AG_SPCM_SIPPHONE_CALL_LIST + 1);
+		contactsMenu->addAction(addContactAction, AG_SPCM_SIPPHONE_VIDEO_LIST + 1);
 	}
 }
 

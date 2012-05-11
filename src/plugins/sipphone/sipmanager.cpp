@@ -10,6 +10,7 @@
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/sipcallhandlerorders.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <utils/log.h>
 #include <utils/errorhandler.h>
 #include <utils/widgetmanager.h>
@@ -34,8 +35,9 @@
 #endif
 
 #define ADR_STREAM_JID           Action::DR_StreamJid
-#define ADR_DESTINATIONS         Action::DR_Parametr1
-#define ADR_WINDOW_METAID        Action::DR_Parametr2
+#define ADR_WINDOW_METAID        Action::DR_Parametr1
+#define ADR_DESTINATIONS         Action::DR_Parametr2
+#define ADR_PHONE_NUMBER         Action::DR_Parametr3
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
@@ -72,6 +74,7 @@ SipManager::SipManager() :
 	FPluginManager = NULL;
 	FStanzaProcessor = NULL;
 	FRosterChanger = NULL;
+	FGateways = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -122,6 +125,10 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
@@ -188,6 +195,13 @@ bool SipManager::startPlugin()
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
 {
 	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
+}
+
+ISipCall *SipManager::newCall(const Jid &AStreamJid, const QString &APhoneNumber)
+{
+	SipCall *call = new SipCall(this, AStreamJid, APhoneNumber, QUuid::createUuid().toString());
+	emit sipCallCreated(call);
+	return call;
 }
 
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations)
@@ -826,7 +840,25 @@ void SipManager::onStartVideoCall()
 		ISipCall *call = newCall(streamJid,destinations);
 		if (call)
 		{
-			// Just for test, later CallControlWidget will be replaced with VideoCallWindow and will be created in it
+			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
+			window->sipCall()->startCall();
+			WidgetManager::showActivateRaiseWindow(window->window());
+			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+		}
+	}
+}
+
+void SipManager::onStartPhoneCall()
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		Jid streamJid = action->data(ADR_STREAM_JID).toString();
+		QString number = action->data(ADR_PHONE_NUMBER).toString();
+
+		ISipCall *call = newCall(streamJid,number);
+		if (call)
+		{
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
 			window->sipCall()->startCall();
 			WidgetManager::showActivateRaiseWindow(window->window());
@@ -874,6 +906,7 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
+		QStringList phoneNumbers;
 		QStringList destinations;
 		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
 		foreach(Jid itemJid, contact.items)
@@ -883,6 +916,15 @@ void SipManager::onCallMenuAboutToShow()
 				if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
 					destinations.append(pitem.itemJid.full());
 			}
+
+			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
+			if (descriptor.gateId == GSID_SMS)
+			{
+				QString number = itemJid.node();
+				if (FGateways)
+					number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
+				phoneNumbers.append(number);
+			}
 		}
 		if (!destinations.isEmpty())
 		{
@@ -891,7 +933,17 @@ void SipManager::onCallMenuAboutToShow()
 			videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
 			videoCallAction->setData(ADR_DESTINATIONS,destinations);
 			connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
-			menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_CALL_LIST);
+			menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
+		}
+
+		foreach(QString number, phoneNumbers)
+		{
+			Action *phoneCallAction = new Action(menu);
+			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
+			phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+			phoneCallAction->setData(ADR_PHONE_NUMBER,number);
+			connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
+			menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
 		}
 
 		if (FRosterChanger)

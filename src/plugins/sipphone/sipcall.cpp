@@ -21,6 +21,17 @@
 
 QList<SipCall *> SipCall::FCallInstances;
 
+
+SipCall::SipCall(ISipManager *ASipManager, const Jid &AStreamJid, const QString &APhoneNumber, const QString &ASessionId)
+{
+	init(ASipManager, NULL, AStreamJid, ASessionId);
+	FContactJid = Jid(APhoneNumber,"vsip.rambler.ru",QString::null);
+
+	FRole = CR_INITIATOR;
+
+	LogDetail(QString("[SipCall] Call created as INITIATOR FOR PHONE CALL, sid='%1'").arg(sessionId()));
+}
+
 SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
 {
 	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
@@ -82,29 +93,40 @@ void SipCall::startCall()
 {
 	if ((role() == CR_INITIATOR) && (state() == CS_NONE))
 	{
-		foreach(Jid destination, FDestinations)
+		if (!FDestinations.isEmpty())
 		{
-			Stanza request("iq");
-			request.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
-			QDomElement queryElem = request.addElement("query", NS_RAMBLER_PHONE);
-			queryElem.setAttribute("type", "request");
-			queryElem.setAttribute("sid", sessionId());
-			queryElem.setAttribute("client", "deskapp");
-			if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this, streamJid(), request, CALL_REQUEST_TIMEOUT))
+			foreach(Jid destination, FDestinations)
 			{
-				LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(), request.id(), sessionId()));
-				FCallRequests.insert(request.id(), destination);
+				Stanza request("iq");
+				request.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
+				QDomElement queryElem = request.addElement("query", NS_RAMBLER_PHONE);
+				queryElem.setAttribute("type", "request");
+				queryElem.setAttribute("sid", sessionId());
+				queryElem.setAttribute("client", "deskapp");
+				if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this, streamJid(), request, CALL_REQUEST_TIMEOUT))
+				{
+					LogDetail(QString("[SipCall] Call request sent to '%1', id='%2', sid='%3'").arg(destination.full(), request.id(), sessionId()));
+					FCallRequests.insert(request.id(), destination);
+				}
+				else
+				{
+					LogError(QString("[SipCall] Failed to send call request to '%1', sid='%2'").arg(destination.full(), sessionId()));
+				}
 			}
-			else
-			{
-				LogError(QString("[SipCall] Failed to send call request to '%1', sid='%2'").arg(destination.full(), sessionId()));
-			}
-		}
 
-		if (!FCallRequests.isEmpty())
-			setCallState(CS_CALLING);
+			if (!FCallRequests.isEmpty())
+				setCallState(CS_CALLING);
+			else
+				setCallError(EC_NOTAVAIL, tr("The destinations is not available"));
+		}
+		else if (FContactJid.isValid())
+		{
+			setCallState(CS_CONNECTING);
+		}
 		else
-			setCallError(EC_NOTAVAIL, tr("The destinations is not available"));
+		{
+			setCallError(EC_NOTAVAIL, tr("Invalid call destination"));
+		}
 	}
 	else if ((role() == CR_RESPONDER) && (state() == CS_NONE))
 	{
@@ -990,23 +1012,26 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 
 	if (role() == CR_INITIATOR)
 	{
-		if (FStanzaProcessor)
+		if (ARegistered)
 		{
-			if (ARegistered)
+			if (FStanzaProcessor && FAcceptStanza.isValid())
 			{
 				notifyActiveDestinations("accepted");
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
 				FStanzaProcessor->sendStanzaOut(streamJid(), result);
-				sipCallTo(FContactJid);
 			}
-			else
+			sipCallTo(FContactJid);
+		}
+		else
+		{
+			if (FStanzaProcessor && FAcceptStanza.isValid())
 			{
 				notifyActiveDestinations("caller_error");
 				ErrorHandler err(ErrorHandler::RECIPIENT_UNAVAILABLE);
 				Stanza error = FStanzaProcessor->makeReplyError(FAcceptStanza,err);
 				FStanzaProcessor->sendStanzaOut(streamJid(), error);
-				setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 			}
+			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 		}
 		FActiveDestinations.clear();
 	}
@@ -1059,63 +1084,51 @@ void SipCall::notifyActiveDestinations(const QString &AType)
 
 void SipCall::sipCallTo(const Jid &AContactJid)
 {
-	// TODO: implementation
-	// step 1: check registration at SIP server
-	// step 2: ask SIP server to connect
-	// step 3:
+	pj_status_t status;
+	char uriTmp[512];
 
-	if (FSipManager && FSipManager->isRegisteredAtServer(streamJid()))
+	pj_ansi_sprintf(uriTmp, "sip:%s", AContactJid.prepared().eBare().toAscii().constData());
+	pj_str_t uri = pj_str((char*)uriTmp);
+
+	if (FCallId == -1)
 	{
-		pj_status_t status;
-		char uriTmp[512];
+		pjsua_call_setting call_setting;
+		pjsua_call_setting_default(&call_setting);
 
-		pj_ansi_sprintf(uriTmp, "sip:%s", AContactJid.prepared().eBare().toAscii().constData());
-		pj_str_t uri = pj_str((char*)uriTmp);
-
-		if (FCallId == -1)
+		if (FDestinations.isEmpty())
 		{
-			pjsua_call_setting call_setting;
-			pjsua_call_setting_default(&call_setting);
-
-			if (AContactJid.domain() == PHONE_TRANSPORT_DOMAIN)
-			{
-				call_setting.vid_cnt = 0;
-			}
-			else
-			{
-#if defined(HAS_VIDEO_SUPPORT)
-				call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
-#else
-				call_setting.vid_cnt = 0;
-#endif
-				call_setting.aud_cnt = 1;
-			}
-
-			pjsua_call_id id = -1;
-			status = pjsua_call_make_call(FAccountId, &uri, &call_setting, NULL, NULL, &id);
-			if (status == PJ_SUCCESS)
-			{
-				FCallId = id;
-				initDevices();
-				LogDetail(QString("[SipCall::sipCallTo]: SIP call to '%1'").arg(uriTmp));
-			}
-			else
-			{
-				if (status == PJMEDIA_EAUD_NODEFDEV)
-					LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
-				else
-					LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
-				setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
-			}
+			call_setting.vid_cnt = 0;
 		}
 		else
 		{
-			LogError(QString("[SipCall::sipCallTo]: Call is already active with stream jid %1 and contact %2").arg(streamJid().full(), contactJid().full()));
+#if defined(HAS_VIDEO_SUPPORT)
+			call_setting.vid_cnt = HAS_VIDEO_SUPPORT;
+#else
+			call_setting.vid_cnt = 0;
+#endif
+			call_setting.aud_cnt = 1;
+		}
+
+		pjsua_call_id id = -1;
+		status = pjsua_call_make_call(FAccountId, &uri, &call_setting, NULL, NULL, &id);
+		if (status == PJ_SUCCESS)
+		{
+			FCallId = id;
+			initDevices();
+			LogDetail(QString("[SipCall::sipCallTo]: SIP call to '%1'").arg(uriTmp));
+		}
+		else
+		{
+			if (status == PJMEDIA_EAUD_NODEFDEV)
+				LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
+			else
+				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
+			setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
 		}
 	}
 	else
 	{
-		LogError(QString("[SipCall::sipCallTo]: Stream jid %1 isn\'t registered at server!").arg(streamJid().full()));
+		LogError(QString("[SipCall::sipCallTo]: Call is already active with stream jid %1 and contact %2").arg(streamJid().full(), contactJid().full()));
 	}
 }
 
