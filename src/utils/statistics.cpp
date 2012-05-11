@@ -138,7 +138,7 @@ void Statistics::release()
 
 void Statistics::addCounter(const QString &url, CounterContentType type, int interval)
 {
-	Counter *c = new Counter(url, (type == Image), interval);
+	Counter *c = new Counter(url, (type == Image), interval, true);
 	counters << c;
 }
 
