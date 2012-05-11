@@ -1,5 +1,16 @@
 #include "pluginmanager.h"
 
+#include <utils/log.h>
+#include <utils/options.h>
+#include <utils/statistics.h>
+#include <utils/networking.h>
+#include <definitions/fonts.h>
+#include <definitions/resources.h>
+#include <interfaces/imainwindow.h>
+#include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
+#include <interfaces/isystemintegration.h>
+
 #include <QTimer>
 #include <QStack>
 #include <QProcess>
@@ -8,16 +19,10 @@
 #include <QMessageBox>
 #include <QLibraryInfo>
 #include <QFontDatabase>
-#include <definitions/fonts.h>
-#include <definitions/resources.h>
-#include <interfaces/imainwindow.h>
-#include <interfaces/isystemintegration.h>
-#include <utils/log.h>
-#include <utils/networking.h>
-#include <utils/custominputdialog.h>
-#include <utils/customborderstorage.h>
-#include <utils/statistics.h>
-#include <utils/options.h>
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
@@ -38,6 +43,7 @@
 
 #define DIR_LOGS                    "logs"
 #define DIR_COOKIES                 "cookies"
+#define FILE_RAMBLER_USAGE          "ramusage.cnt"
 #if defined(Q_WS_WIN)
 #  define ENV_APP_DATA              "APPDATA"
 #  define DIR_APP_DATA              CLIENT_NAME
@@ -57,6 +63,8 @@
 #else
 #  define LIB_PREFIX_SIZE           3
 #endif
+
+#define COUNTER_LOADED_OPTION       "statistics/ramblerusageloaded"
 
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
@@ -338,7 +346,27 @@ void PluginManager::loadSettings()
 	}
 
 	// TNS Counter
-	Statistics::instance()->addCounter("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/", Statistics::Image, -1);
+	Statistics::instance()->addCounter("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/", Statistics::Image, -1); // only once
+	// Rambler Counter
+	if (!Options::globalValue(COUNTER_LOADED_OPTION, false).toBool())
+	{
+		QFile counterFile(qApp->applicationDirPath() + "/"FILE_RAMBLER_USAGE);
+		if (counterFile.exists() && counterFile.open(QFile::ReadOnly))
+		{
+			QString id = QString::fromUtf8(counterFile.readAll());
+			if (id.isEmpty())
+				id = "self";
+#ifdef DEBUG_ENABLED
+			qDebug() << QString("Loaded rambler usage counter from %1, id is %2").arg(counterFile.fileName(), id);
+#endif
+			Statistics::instance()->addCounter(QString("http://www.rambler.ru/r/p?event=usage&rpid=%1&appid=contact").arg(id), Statistics::Image, 24 * 60 * 60 * 1000); // once in 24 hours
+			Options::setGlobalValue(COUNTER_LOADED_OPTION, true);
+			if (!counterFile.remove())
+			{
+				LogError(QString("[PluginManager::loadSettings]: Failed to remove file %1!").arg(counterFile.fileName()));
+			}
+		}
+	}
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
