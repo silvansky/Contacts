@@ -16,8 +16,10 @@ MAKE_CLEAN_FLAGS="-s clean"
 
 APPNAME=Contacts.app
 APP_FRAMEWORKS_PATH=$APPNAME/Contents/Frameworks
+APP_PLUGINS_PATH=$APPNAME/Contents/PlugIns
 
 SYS_TRANSLATIONS_DIR=`$PATH_TO_QMAKE -query QT_INSTALL_TRANSLATIONS`
+SYS_PLUGINS_DIR=`$PATH_TO_QMAKE -query QT_INSTALL_PLUGINS`
 SYSTEM_FRAMEWORKS_PATH=/Library/Frameworks
 
 if [ -f Makefile ]
@@ -73,6 +75,7 @@ copyframework QtCore
 copyframework QtGui
 copyframework QtNetwork
 copyframework QtMultimedia
+copyframework QtSvg
 copyframework QtXml
 copyframework QtXmlPatterns
 copyframework QtWebKit
@@ -80,6 +83,25 @@ copyframework QtDBus
 copyframework phonon
 copyframework Growl
 copyframework Sparkle
+
+echo " done!"
+
+# copy Qt imageformats plugins
+
+function copyImageFormatPlugin {
+	echo -n "."
+	CODEC=$1
+	PLUGIN="${SYS_PLUGINS_DIR}/imageformats/libq${CODEC}.dylib"
+	cp ${PLUGIN} $APP_PLUGINS_PATH/imageformats/
+}
+
+echo -n "*** Copying imageformats plugins to bundle..."
+
+mkdir $APP_PLUGINS_PATH/imageformats
+
+for codec in "jpeg" "ico" "tga" "tiff" "mng" "svg" "gif"; do
+	copyImageFormatPlugin $codec
+done
 
 echo " done!"
 
@@ -95,7 +117,7 @@ function patchFile {
 	install_name_tool -change $FW.framework/Versions/$VER/$FW @executable_path/../Frameworks/$FW.framework/Versions/$VER/$FW $APPNAME/Contents/$file
 }
 
-echo -n "*** Patching frameworks and libraries... "
+echo -n "*** Patching frameworks, libraries and plugins... "
 
 # Contacts deps - core, network, gui, multimedia, xml, xmlpatterns, webkit, phonon, growl, sparkle
 
@@ -138,6 +160,11 @@ patchFile Frameworks/QtNetwork.framework/Versions/Current/QtNetwork QtCore 4
 patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtCore 4
 patchFile Frameworks/QtMultimedia.framework/Versions/Current/QtMultimedia QtGui 4
 
+# svg deps - core, gui
+
+patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtCore 4
+patchFile Frameworks/QtSvg.framework/Versions/Current/QtSvg QtGui 4
+
 # xml deps - core
 
 patchFile Frameworks/QtXml.framework/Versions/Current/QtXml QtCore 4
@@ -164,18 +191,23 @@ patchFile Frameworks/QtWebKit.framework/Versions/Current/QtWebKit QtNetwork 4
 
 # plugins deps - core, gui, xml, xmlpatterns, network, webkit, phonon, growl, sparkle
 
-for i in $(ls $APPNAME/Contents/PlugIns/); do
+for i in `cd $APPNAME/Contents/PlugIns/ && ls *.dylib`; do
+	patchFile PlugIns/$i QtCore 4
+	patchFile PlugIns/$i QtGui 4
+	patchFile PlugIns/$i QtNetwork 4
+	patchFile PlugIns/$i QtWebKit 4
+	patchFile PlugIns/$i QtXml 4
+	patchFile PlugIns/$i QtXmlPatterns 4
+	patchFile PlugIns/$i QtDBus 4
+	patchFile PlugIns/$i phonon 4
+	patchFile PlugIns/$i Growl A
+	patchFile PlugIns/$i Sparkle A
+done
 
-	patchFile Plugins/$i QtCore 4
-	patchFile Plugins/$i QtGui 4
-	patchFile Plugins/$i QtNetwork 4
-	patchFile Plugins/$i QtWebKit 4
-	patchFile Plugins/$i QtXml 4
-	patchFile Plugins/$i QtXmlPatterns 4
-	patchFile Plugins/$i phonon 4
-	patchFile Plugins/$i Growl A
-	patchFile Plugins/$i Sparkle A
-
+for i in `cd $APPNAME/Contents/PlugIns/imageformats/ && ls *.dylib`; do
+	patchFile PlugIns/imageformats/$i QtCore 4
+	patchFile PlugIns/imageformats/$i QtGui 4
+	patchFile PlugIns/imageformats/$i QtSvg 4
 done
 
 echo "done!"
