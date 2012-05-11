@@ -17,8 +17,6 @@
 #include <interfaces/irosterchanger.h>
 #include <interfaces/imessagestyles.h>
 
-class TestCallWidget;
-
 class SipManager :
 		public QObject,
 		public IPlugin,
@@ -84,16 +82,6 @@ protected:
 	void destroySipStack();
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 protected slots:
-	void onXmppStreamOpened(IXmppStream * stream);
-	void onXmppStreamAboutToClose(IXmppStream * stream);
-	void onXmppStreamClosed(IXmppStream * stream);
-protected slots:
-	// for ISipCallHandler
-	void onCallStateChanged(int AState);
-	void onCallActiveDeviceChanged(int ADeviceType);
-	void onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState);
-	void onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant & AValue);
-protected slots:
 	void onStartVideoCall();
 	void onStartPhoneCall();
 	void onShowAddContactDialog();
@@ -115,11 +103,7 @@ private:
 	bool FSipStackCreated;
 	QMap<Jid, int> FAccounts;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
-	QMap<Jid, TestCallWidget*> testCallWidgets;
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;
-private:
-	// for ISipCallHandler
-	QList<ISipCall *> handledCalls;
 private:
 	static SipManager * inst;
 };

@@ -31,7 +31,6 @@ HEADERS = 	avcontrol.h\
 		pjsipdefines.h \
 		pjsipdefines.h \
 		pjsipcallbacks.h \
-		testcallwidget.h \
 		callcontrolwidget.h \
 		videocallwindow.h \
 		videolayout.h \
@@ -56,7 +55,6 @@ SOURCES = 	avcontrol.cpp\
 		sipcall.cpp \
 		frameconverter.cpp \
 		pjsipcallbacks.cpp \
-		testcallwidget.cpp \
 		callcontrolwidget.cpp \
 		videocallwindow.cpp \
 		videolayout.cpp \

@@ -21,7 +21,6 @@
 #include "pjsipdefines.h"
 #include "pjsipcallbacks.h"
 
-#include "testcallwidget.h"
 #include "videocallwindow.h"
 
 #if defined(Q_WS_WIN)
@@ -145,15 +144,9 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	if (plugin)
 	{
 		FXmppStreams = qobject_cast<IXmppStreams*>(plugin->instance());
-		if (FXmppStreams)
-		{
-			connect(FXmppStreams->instance(), SIGNAL(opened(IXmppStream *)), SLOT(onXmppStreamOpened(IXmppStream *)));
-			connect(FXmppStreams->instance(), SIGNAL(aboutToClose(IXmppStream *)), SLOT(onXmppStreamAboutToClose(IXmppStream *)));
-			connect(FXmppStreams->instance(), SIGNAL(closed(IXmppStream *)), SLOT(onXmppStreamClosed(IXmppStream *)));
-		}
 	}
 
-	return FStanzaProcessor!=NULL;
+	return FStanzaProcessor;
 }
 
 bool SipManager::initObjects()
@@ -734,97 +727,6 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	}
 	
 	return handled;
-}
-
-void SipManager::onXmppStreamOpened(IXmppStream *stream)
-{
-	TestCallWidget * w = new TestCallWidget(this, stream->streamJid());
-	testCallWidgets.insert(stream->streamJid(), w);
-	w->show();
-}
-
-void SipManager::onXmppStreamAboutToClose(IXmppStream *stream)
-{
-	TestCallWidget * w = testCallWidgets.value(stream->streamJid(), NULL);
-	if (w)
-	{
-		w->hide();
-		testCallWidgets.remove(stream->streamJid());
-		w->deleteLater();
-	}
-}
-
-void SipManager::onXmppStreamClosed(IXmppStream *stream)
-{
-	Q_UNUSED(stream)
-}
-
-void SipManager::onCallStateChanged(int AState)
-{
-#ifdef DEBUG_ENABLED
-	qDebug() << "Call state changed to " << AState;
-#endif
-	ISipCall * call = (ISipCall *)sender();
-	switch (AState)
-	{
-	case ISipCall::CS_FINISHED:
-		handledCalls.removeAll(call);
-		break;
-	case ISipCall::CS_TALKING:
-		break;
-	case ISipCall::CS_ERROR:
-	{
-		TestCallWidget * w = testCallWidgets.values().at(0);
-		w->setStatusText(call->errorString());
-#ifdef DEBUG_ENABLED
-		qDebug() << "Call error:" + call->errorString();
-#endif
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-void SipManager::onCallActiveDeviceChanged(int ADeviceType)
-{
-	Q_UNUSED(ADeviceType)
-}
-
-void SipManager::onCallDeviceStateChanged(ISipDevice::Type AType, ISipDevice::State AState)
-{
-	Q_UNUSED(AState)
-	// TODO: show "no camera" in case of DS_UNAVAIL/DS_DISABLED state
-	if (AType == ISipDevice::DT_LOCAL_CAMERA)
-	{
-
-	}
-	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
-	{
-
-	}
-}
-
-void SipManager::onCallDevicePropertyChanged(ISipDevice::Type AType, int AProperty, const QVariant &AValue)
-{
-	if (AType == ISipDevice::DT_LOCAL_CAMERA)
-	{
-		if (AProperty == ISipDevice::LCP_CURRENTFRAME)
-		{
-			// TODO: set preview image to test widget
-			TestCallWidget * w = testCallWidgets.values().at(0);
-			w->setPreview(AValue.value<QPixmap>());
-		}
-	}
-	else if (AType == ISipDevice::DT_REMOTE_CAMERA)
-	{
-		if (AProperty == ISipDevice::RCP_CURRENTFRAME)
-		{
-			// TODO: set remote image to test widget
-			TestCallWidget * w = testCallWidgets.values().at(0);
-			w->setRemoteImage(AValue.value<QPixmap>());
-		}
-	}
 }
 
 void SipManager::onStartVideoCall()
