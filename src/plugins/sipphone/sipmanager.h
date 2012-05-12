@@ -72,6 +72,7 @@ public:
 public:
 	// SipManager internals
 	static SipManager *callbackInstance();
+	static QString resolveErrorCode(int code);
 public:
 	// pjsip callbacks
 	void onRegState(int acc_id);

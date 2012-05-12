@@ -9,6 +9,7 @@
 
 #include "pjsipdefines.h"
 #include "frameconverter.h"
+#include "sipmanager.h"
 
 #include <definitions/namespaces.h>
 #include <utils/log.h>
@@ -191,7 +192,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 			if (status == PJ_SUCCESS)
 				setCallState(CS_FINISHED);
 			else
-				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(SipManager::resolveErrorCode(status)));
 			break;
 		}
 	default:
@@ -255,7 +256,7 @@ bool SipCall::sendDTMFSignal(QChar ASignal)
 	status = pjsua_call_dial_dtmf(FCallId, &digits);
 	if(status != PJ_SUCCESS)
 	{
-		LogError(QString("[SipCall::sendDTMFSignal]: Failed to send DTMF \'%1\', pjsua_call_dial_dtmf() returned status %2 ").arg(ASignal).arg(status));
+		LogError(QString("[SipCall::sendDTMFSignal]: Failed to send DTMF \'%1\', pjsua_call_dial_dtmf() returned status (%2) %3").arg(ASignal).arg(status).arg(SipManager::resolveErrorCode(status)));
 	}
 	return true;
 }
@@ -357,7 +358,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					}
 					else
 					{
-						LogError(QString("[SipCall::setDeviceState]: Local camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+						LogError(QString("[SipCall::setDeviceState]: Local camera state changing failed with status (%1) %2! State was %3.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)).arg(AState));
 					}
 				}
 				else
@@ -385,7 +386,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					}
 					else
 					{
-						LogError(QString("[SipCall::setDeviceState]: Local Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+						LogError(QString("[SipCall::setDeviceState]: Local Microphone state changing failed with status (%1) %2! State was %3.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)).arg(AState));
 					}
 				}
 				else
@@ -411,7 +412,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					}
 					else
 					{
-						LogError(QString("[SipCall::setDeviceState]: Remote camera state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+						LogError(QString("[SipCall::setDeviceState]: Remote camera state changing failed with status (%1) %2! State was %3.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)).arg(AState));
 					}
 				}
 				else
@@ -439,7 +440,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					}
 					else
 					{
-						LogError(QString("[SipCall::setDeviceState]: Remote Microphone state changing failed with status %1! State was %2.").arg(pjstatus).arg(AState));
+						LogError(QString("[SipCall::setDeviceState]: Remote Microphone state changing failed with status (%1) %2! State was %3.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)).arg(AState));
 					}
 				}
 				else
@@ -524,7 +525,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 						pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newVolume);
 						if (!(propertyChanged = (pjstatus == PJ_SUCCESS)))
 						{
-							LogError(QString("[SipCall::setDeviceProperty]: Error setting local mic volume! pjsua_conf_adjust_tx_level() returned %1.").arg(pjstatus));
+							LogError(QString("[SipCall::setDeviceProperty]: Error setting local mic volume! pjsua_conf_adjust_tx_level() returned (%1) %2.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
 						}
 					}
 					else
@@ -575,7 +576,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 						pj_status_t pjstatus = pjsua_conf_adjust_rx_level(ci.conf_slot, newVolume);
 						if (!(propertyChanged = (pjstatus == PJ_SUCCESS)))
 						{
-							LogError(QString("[SipCall::setDeviceProperty]: Error setting remote mic volume! pjsua_conf_adjust_tx_level() returned %1.").arg(pjstatus));
+							LogError(QString("[SipCall::setDeviceProperty]: Error setting remote mic volume! pjsua_conf_adjust_tx_level() returned (%1) %2.").arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
 						}
 					}
 					else
@@ -1119,7 +1120,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			if (status == PJMEDIA_EAUD_NODEFDEV)
 				LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
 			else
-				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status %1, uri is \'%2\'").arg(status).arg(uriTmp));
+				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status (%1) %2, uri is \'%3\'").arg(status).arg(SipManager::resolveErrorCode(status)).arg(uriTmp));
 			setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
 		}
 	}

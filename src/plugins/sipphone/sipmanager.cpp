@@ -277,12 +277,12 @@ bool SipManager::registerAtServer(const Jid &AStreamJid)
 						}
 						else
 						{
-							LogError(QString("[SipManager]: Failed to start registration pjsua_acc_set_registration returned %1.").arg(status));
+							LogError(QString("[SipManager]: Failed to start registration pjsua_acc_set_registration returned (%1) %2.").arg(status).arg(resolveErrorCode(status)));
 						}
 					}
 					else
 					{
-						LogError(QString("[SipManager]: Failed to register pjsip module! pjsip_endpt_register_module() returned %1.").arg(status));
+						LogError(QString("[SipManager]: Failed to register pjsip module! pjsip_endpt_register_module() returned (%1) %2.").arg(status).arg(resolveErrorCode(status)));
 					}
 				} // pjsua_get_pjsip_endpt
 				else
@@ -292,12 +292,12 @@ bool SipManager::registerAtServer(const Jid &AStreamJid)
 			} // pjsua_start
 			else
 			{
-				LogError(QString("[SipManager]: pjsua_start() failed with status %1!").arg(status));
+				LogError(QString("[SipManager]: pjsua_start() failed with status (%1) %2.").arg(status).arg(resolveErrorCode(status)));
 			}
 		} // pjsua_acc_add
 		else
 		{
-			LogError(QString("[SipManager]: pjsua_acc_add() failed with status %1!").arg(status));
+			LogError(QString("[SipManager]: pjsua_acc_add() failed with status (%1) %2.").arg(status).arg(resolveErrorCode(status)));
 		}
 	}
 	return false;
@@ -318,7 +318,7 @@ bool SipManager::unregisterAtServer(const Jid &AStreamJid)
 		}
 		else
 		{
-			LogError(QString("[SipManager]: Failed to unregister account '%1' on SIP server, pjsua_acc_set_registration() returned %2").arg(AStreamJid.bare()).arg(status));
+			LogError(QString("[SipManager]: Failed to unregister account '%1' on SIP server, pjsua_acc_set_registration() returned (%2) %3").arg(AStreamJid.bare()).arg(status).arg(resolveErrorCode(status)));
 		}
 	}
 	return false;
@@ -359,12 +359,12 @@ QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType, bool ARefresh
 			pj_status_t status = pjmedia_aud_dev_refresh();
 			if (status != PJ_SUCCESS)
 			{
-				LogError(QString("[SipManager::availDevices]: Failed to refresh audio devices! pjmedia_aud_dev_refresh() returned %1").arg(status));
+				LogError(QString("[SipManager::availDevices]: Failed to refresh audio devices! pjmedia_aud_dev_refresh() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
 			}
 			status = pjmedia_vid_dev_refresh();
 			if (status != PJ_SUCCESS)
 			{
-				LogError(QString("[SipManager::availDevices]: Failed to refresh video devices! pjmedia_vid_dev_refresh() returned %1").arg(status));
+				LogError(QString("[SipManager::availDevices]: Failed to refresh video devices! pjmedia_vid_dev_refresh() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
 			}
 		}
 
@@ -400,7 +400,7 @@ QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType, bool ARefresh
 				}
 				else
 				{
-					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_aud_dev_get_info() returned %2").arg(i).arg(pjstatus));
+					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_aud_dev_get_info() returned (%2) %3").arg(i).arg(pjstatus).arg(resolveErrorCode(pjstatus)));
 				}
 			}
 		}
@@ -452,7 +452,7 @@ QList<ISipDevice> SipManager::availDevices(ISipDevice::Type AType, bool ARefresh
 				}
 				else
 				{
-					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_vid_dev_get_info() returned %2").arg(i).arg(pjstatus));
+					LogError(QString("[SipManager::availDevices]: Failed to get device info for device %1! pjmedia_vid_dev_get_info() returned (%2) %3").arg(i).arg(pjstatus).arg(resolveErrorCode(pjstatus)));
 				}
 			}
 		}
@@ -561,6 +561,13 @@ SipManager *SipManager::callbackInstance()
 	return inst;
 }
 
+QString SipManager::resolveErrorCode(int code)
+{
+	char errmsg[PJ_ERR_MSG_SIZE];
+	pj_strerror(code, errmsg, sizeof(errmsg));
+	return QString(errmsg);
+}
+
 void SipManager::onRegState(int acc_id)
 {
 	// TODO: check implementation
@@ -592,7 +599,7 @@ void SipManager::onRegState(int acc_id)
 void SipManager::onRegState2(int acc_id, void *info)
 {
 	// TODO: check this MAGIC implementation
-	LogDetail(QString("[SipManager]: Registration status %1, account: %2").arg(((pjsua_reg_info*)info)->cbparam->status).arg(acc_id));
+	LogDetail(QString("[SipManager]: Registration status (%1) %2, account: %3").arg(((pjsua_reg_info*)info)->cbparam->status).arg(resolveErrorCode(((pjsua_reg_info*)info)->cbparam->status)).arg(acc_id));
 	int i;
 	i = ((pjsua_reg_info*)info)->cbparam->code;
 	i++;
@@ -623,7 +630,7 @@ void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
 		LogError(QString("[SipManager] Unexpected incoming SIP call to='%1' from='%2'").arg(receiverId,callerId));
 		pj_status_t status = pjsua_call_hangup(call_id, PJSIP_SC_DECLINE, NULL, NULL);
 		if (status != PJ_SUCCESS)
-			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned %1").arg(status));
+			LogError(QString("[SipManager::onIncomingCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
 	}
 }
 
@@ -676,23 +683,23 @@ bool SipManager::createSipStack()
 					} // pjsua_transport_get_info
 					else
 					{
-						LogError(QString("[SipManager]: pjsua_transport_get_info() failed with status %1!").arg(status));
+						LogError(QString("[SipManager]: pjsua_transport_get_info() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
 					}
 				} // pjsua_transport_create
 				else
 				{
-					LogError(QString("[SipManager]: pjsua_transport_create() failed with status %1!").arg(status));
+					LogError(QString("[SipManager]: pjsua_transport_create() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
 				}
 			} // pjsua_init
 			else
 			{
-				LogError(QString("[SipManager]: pjsua_init() failed with status %1!").arg(status));
+				LogError(QString("[SipManager]: pjsua_init() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
 			}
 			pjsua_destroy();
 		}
 		else
 		{
-			LogError(QString("[SipManager]: Failed to create pjsua! pjsua_crete() returned %1").arg(status));
+			LogError(QString("[SipManager]: Failed to create pjsua! pjsua_crete() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
 		}
 	}
 	return false;
