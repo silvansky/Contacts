@@ -1,61 +1,28 @@
-FORMS = 	sipphonewidget.ui\
-		rcallcontrol.ui\
-		fullscreencontrols.ui\
-		avcontrol.ui\
-		fullscreenform.ui \
-		sipcallnotifyer.ui\
-		contactselector.ui \
-		callcontrolwidget.ui \
-		videocallwindow.ui
+FORMS = \
+		videocallwindow.ui \
+		callcontrolwidget.ui
 
-HEADERS = 	avcontrol.h\ 
-		complexvideowidget.h\
+HEADERS = \ 
 		config.h\
-		CrossDefine.h\
-		fullscreencontrols.h\
-		fullscreenform.h\
-		qimagelabel.h\
-		rcallcontrol.h\
-		rvolumecontrol.h\
-		sipphone.h\
-		sipphonewidget.h\
-		IVolume.h\
-		VolumeOutMaster.h \
-		sipcallnotifyer.h\
-		contactselector.h\
-		rsipphone.h \
 		sipmanager.h \
 		sipcall.h \
 		frameconverter.h \
 		pjsipdefines.h \
 		pjsipdefines.h \
 		pjsipcallbacks.h \
-		callcontrolwidget.h \
 		videocallwindow.h \
 		videolayout.h \
 		videoframe.h \
-		volumecontrol.h
+		volumecontrol.h \
+		callcontrolwidget.h
 
-SOURCES = 	avcontrol.cpp\ 
-		complexvideowidget.cpp\
-		CrossDefine.cpp\
-		fullscreencontrols.cpp\
-		fullscreenform.cpp\
-		qimagelabel.cpp\
-		rcallcontrol.cpp\
-		rvolumecontrol.cpp\
-		sipphone.cpp\
-		sipphonewidget.cpp\
-		VolumeOutMaster.cpp \
-		sipcallnotifyer.cpp\
-		contactselector.cpp\
-		rsipphone.cpp \
+SOURCES = \ 
 		sipmanager.cpp \
 		sipcall.cpp \
 		frameconverter.cpp \
 		pjsipcallbacks.cpp \
-		callcontrolwidget.cpp \
 		videocallwindow.cpp \
 		videolayout.cpp \
 		videoframe.cpp \
-		volumecontrol.cpp
+		volumecontrol.cpp \
+		callcontrolwidget.cpp
