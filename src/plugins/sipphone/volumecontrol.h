@@ -17,6 +17,8 @@ public:
 signals:
 	void volumeChanged(qreal AVolume);
 	void maximumVolumeChanged(qreal AVolume);
+public:
+	void setEnabled(bool AEnabled);
 protected:
 	void updatePixmap();
 	bool isMutedVolume(qreal AVolume) const;

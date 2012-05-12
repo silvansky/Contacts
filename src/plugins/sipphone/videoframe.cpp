@@ -261,7 +261,6 @@ void VideoFrame::mouseDoubleClickEvent(QMouseEvent *AEvent)
 
 void VideoFrame::paintEvent(QPaintEvent *AEvent)
 {
-	Q_UNUSED(AEvent);
 	QPainter p(this);
 	p.fillRect(rect(),Qt::black);
 	

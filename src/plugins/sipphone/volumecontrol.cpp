@@ -62,6 +62,12 @@ void VolumeControl::setMaximumValume(qreal AVolume)
 	}
 }
 
+void VolumeControl::setEnabled(bool AEnabled)
+{
+	QFrame::setEnabled(AEnabled);
+	updatePixmap();
+}
+
 bool VolumeControl::isMutedVolume(qreal AVolume) const
 {
 	return AVolume*100/FMaximumVolume<1.0;
