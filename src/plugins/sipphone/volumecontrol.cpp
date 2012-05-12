@@ -15,6 +15,9 @@ VolumeControl::VolumeControl(QWidget *AParent) : QFrame(AParent)
 	FSavedVolume = 1.0;
 	FMaximumVolume = 4.0;
 
+	FMoved = false;
+	FPressedPos = QPoint();
+
 	setProperty("ignoreFilter", true);
 	setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 	FSizeHint = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_VOLUMECONTROL_VOLUME,4).size() + QSize(7,7);
@@ -118,9 +121,7 @@ void VolumeControl::wheelEvent(QWheelEvent *AEvent)
 void VolumeControl::mousePressEvent(QMouseEvent *AEvent)
 {
 	if(AEvent->button() == Qt::LeftButton)
-	{
 		FPressedPos = AEvent->pos();
-	}
 }
 
 void VolumeControl::mouseMoveEvent(QMouseEvent *AEvent)
@@ -135,7 +136,6 @@ void VolumeControl::mouseMoveEvent(QMouseEvent *AEvent)
 
 void VolumeControl::mouseReleaseEvent(QMouseEvent *AEvent)
 {
-	Q_UNUSED(AEvent);
 	if (!FPressedPos.isNull() && !FMoved)
 	{
 		if (positionToVolume(FPressedPos)<0.001 && positionToVolume(AEvent->pos())<0.001)
@@ -155,6 +155,7 @@ void VolumeControl::mouseReleaseEvent(QMouseEvent *AEvent)
 			setVolume(positionToVolume(AEvent->pos()));
 		}
 	}
-	FMoved =false;
+
+	FMoved = false;
 	FPressedPos = QPoint();
 }
