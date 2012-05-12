@@ -7,7 +7,11 @@ PROJECT_NAME="virtus.pro"
 }
 
 TMP_DIR="./tmp"
-OSX_VER=`sw_vers -productVersion`
+if [[ `sw_vers -productVersion | cut -d '.' -f 2` == 6 ]]; then
+	OSX_VER="SL"
+else
+	OSX_VER="Lion"
+fi
 VOL_NAME="Рамблер.Контакты"
 BG_IMG_NAME="contacts_bg.png"
 APP_BUNDLE_NAME="Contacts.app"
