@@ -1,7 +1,5 @@
 #include "videolayout.h"
 
-#include <QtDebug>
-
 #include <QStyle>
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
@@ -213,9 +211,12 @@ QRect VideoLayout::adjustLocalVideoSize(const QRect &AGeometry) const
 			QSize videoSize = FLocalVideo->sizeHint();
 			int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
 			int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
-			if (newGeometry.width() > newWidth)
+			newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
+			newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
+
+			if (newGeometry.width()-newWidth > 1)
 				newGeometry.setWidth(newWidth);
-			else if (newGeometry.height() > newHeight)
+			else if (newGeometry.height()-newHeight > 1)
 				newGeometry.setHeight(newHeight);
 		}
 	}
@@ -289,7 +290,6 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 		else if (ACorner==Qt::TopRightCorner || ACorner==Qt::BottomRightCorner)
 			newGeometry.setRight(newGeometry.right()-(newGeometry.width()-FLocalVideo->maximumVideoSize().width()));
 	}
-
 	if (newGeometry.height() < FLocalVideo->minimumVideoSize().height())
 	{
 		if (ACorner==Qt::TopLeftCorner || ACorner==Qt::TopRightCorner)
@@ -310,14 +310,17 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 		QSize videoSize = FLocalVideo->sizeHint();
 		int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
 		int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
-		if (newGeometry.width() > newWidth)
+		newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
+		newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
+
+		if (newGeometry.width()-newWidth > 1)
 		{
 			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::BottomLeftCorner)
 				newGeometry.setLeft(newGeometry.left()+(newGeometry.width()-newWidth));
 			else if (ACorner==Qt::TopRightCorner || ACorner==Qt::BottomRightCorner)
-				newGeometry.setRight(newGeometry.right()-(newGeometry.left()+newGeometry.width()-newWidth));
+				newGeometry.setRight(newGeometry.right()-(newGeometry.width()-newWidth));
 		}
-		else if (newGeometry.height() > newHeight)
+		else if (newGeometry.height()-newHeight > 1)
 		{
 			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::TopRightCorner)
 				newGeometry.setTop(newGeometry.top()+(newGeometry.height()-newHeight));
