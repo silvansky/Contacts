@@ -94,6 +94,7 @@ copyFramework QtXmlPatterns
 copyFramework QtWebKit
 copyFramework QtDBus
 copyFramework phonon
+copyFramework QtOpenGL
 copyFramework Growl
 copyFramework Sparkle
 
@@ -122,6 +123,24 @@ mkdir $APP_PLUGINS_PATH/imageformats
 for codec in "jpeg" "ico" "tga" "tiff" "mng" "svg" "gif"; do
 	copyImageFormatPlugin $codec
 done
+
+echo " done!"
+
+# copy phonon backend
+
+function copyPhononBackend {
+	echo -n "."
+	BACKEND=$1
+	FILE="${SYS_PLUGINS_DIR}/phonon_backend/lib${BACKEND}.dylib"
+	cp ${FILE} $APP_PLUGINS_PATH/phonon_backend/
+	echo -n ".."
+}
+
+echo -n "*** Copying phonon backend to bundle..."
+
+mkdir $APP_PLUGINS_PATH/phonon_backend
+
+copyPhononBackend phonon_qt7
 
 echo " done!"
 
@@ -179,6 +198,11 @@ patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtGui 4
 patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtXml 4
 patchFileFW Frameworks/phonon.framework/Versions/Current/phonon QtDBus 4
 echo -n "."
+
+# opengl deps - core, gui
+
+patchFileFW Frameworks/QtOpenGL.framework/Versions/Current/QtOpenGL QtCore 4
+patchFileFW Frameworks/QtOpenGL.framework/Versions/Current/QtOpenGL QtGui 4
 
 # gui deps - core
 
@@ -248,10 +272,24 @@ for i in `cd $APPNAME/Contents/PlugIns/ && ls *.dylib`; do
 	echo -n "."
 done
 
+# image formats deps - core, gui, svg
+
 for i in `cd $APPNAME/Contents/PlugIns/imageformats/ && ls *.dylib`; do
 	patchFileFW PlugIns/imageformats/$i QtCore 4
 	patchFileFW PlugIns/imageformats/$i QtGui 4
 	patchFileFW PlugIns/imageformats/$i QtSvg 4
+	echo -n "."
+done
+
+# phonon backend deps - core, gui, phonon, dbus, xml, opengl
+
+for i in `cd $APPNAME/Contents/PlugIns/phonon_backend/ && ls *.dylib`; do
+	patchFileFW PlugIns/phonon_backend/$i QtCore 4
+	patchFileFW PlugIns/phonon_backend/$i QtGui 4
+	patchFileFW PlugIns/phonon_backend/$i phonon 4
+	patchFileFW PlugIns/phonon_backend/$i QtDBus 4
+	patchFileFW PlugIns/phonon_backend/$i QtXml 4
+	patchFileFW PlugIns/phonon_backend/$i QtOpenGL 4
 	echo -n "."
 done
 

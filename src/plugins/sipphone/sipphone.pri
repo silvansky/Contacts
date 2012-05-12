@@ -5,7 +5,6 @@ FORMS = 	sipphonewidget.ui\
 		fullscreenform.ui \
 		sipcallnotifyer.ui\
 		contactselector.ui \
-		testcallwidget.ui \
 		callcontrolwidget.ui \
 		videocallwindow.ui
 
