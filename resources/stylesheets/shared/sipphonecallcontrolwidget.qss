@@ -32,6 +32,7 @@ QToolButton:enabled:pressed
 {
 	border-image: url(%IMAGES_PATH%/buttonborderclick.png);
 }
+*/
 
 QPushButton#pbtAccept
 {
@@ -62,4 +63,3 @@ QPushButton#pbtReject:pressed
 {
 	border-image: url(%IMAGES_PATH%/sipcallnbtncancelclick.png);
 }
-*/

@@ -1,8 +1,6 @@
 #ifndef DEF_ROSTERNOTIFYORDERS_H
 #define DEF_ROSTERNOTIFYORDERS_H
 
-#define RNO_SIPPHONE_CALL                         200
-#define RNO_SIPPHONE_MISSED_CALL                  250
 #define RNO_RAMBLER_MAIL_NOTIFY                   300
 #define RNO_CHATHANDLER_MESSAGE                   300
 #define RNO_RCHANGER_SUBSCRIPTION                 500

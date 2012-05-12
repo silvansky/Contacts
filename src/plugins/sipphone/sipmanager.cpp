@@ -877,7 +877,7 @@ void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 	{
 		QLabel *separator = new QLabel;
 		separator->setFixedWidth(12);
-		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_SEPARATOR)));
+		separator->setPixmap(QPixmap::fromImage(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_CALL_SEPARATOR)));
 		AWindow->toolBarChanger()->insertWidget(separator, TBG_MCMTW_P2P_CALL);
 
 		Menu *callMenu = new Menu(AWindow->toolBarChanger()->toolBar());

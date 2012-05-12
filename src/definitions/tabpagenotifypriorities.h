@@ -4,7 +4,5 @@
 #define TPNP_CHATSTATE_TYPING     200
 #define TPNP_SUBSCRIPTION         400
 #define TPNP_NEW_MESSAGE          600
-#define TPNP_SIP_MISSED_CALL      700
-#define TPNP_SIP_CALL             900
 
 #endif // DEF_TABPAGENOTIFYPRIORITIES_H
