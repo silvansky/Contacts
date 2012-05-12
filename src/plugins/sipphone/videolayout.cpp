@@ -55,10 +55,6 @@ void VideoLayout::setGeometry(const QRect &ARect)
 	QRect oldRect = geometry();
 	QLayout::setGeometry(ARect);
 
-	QSize remoteSize = FRemoteVideo->sizeHint();
-	remoteSize.scale(ARect.size(),Qt::KeepAspectRatio);
-	FRemoteVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,remoteVideoAlignment(),remoteSize,ARect));
-
 	if (!FLocalVideo->isCollapsed())
 	{
 		QRect localRect = adjustLocalVideoSize(FLocalVideo->geometry());
@@ -72,6 +68,11 @@ void VideoLayout::setGeometry(const QRect &ARect)
 		QRect availRect = ARect.adjusted(FLocalMargin,FLocalMargin,-FLocalMargin,-FLocalMargin);
 		FLocalVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignRight|Qt::AlignBottom,FLocalVideo->sizeHint(),availRect));
 	}
+
+	QSize remoteSize = FRemoteVideo->sizeHint();
+	remoteSize.scale(ARect.size(),Qt::KeepAspectRatio);
+	QRect remoteRect = QStyle::alignedRect(Qt::LeftToRight,remoteVideoAlignment(),remoteSize,ARect);
+	FRemoteVideo->setGeometry(adjustRemoteVideoPosition(remoteRect));
 }
 
 int VideoLayout::locaVideoMargin() const
@@ -169,6 +170,30 @@ Qt::Alignment VideoLayout::geometryAlignment(const QRect &AGeometry) const
 			align |= Qt::AlignBottom;
 	}
 	return align;
+}
+
+QRect VideoLayout::adjustRemoteVideoPosition(const QRect &AGeometry) const
+{
+	QRect newGeometry = AGeometry;
+	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isCollapsed() && FLocalVideo->alignment()!=0 && !AGeometry.intersects(FLocalVideo->geometry()))
+	{
+		QRect availRect = geometry();
+		newGeometry = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,newGeometry.size(),geometry());
+		QRect intersectRect = newGeometry.intersect(FLocalVideo->geometry());
+		if (intersectRect.width()>0 || intersectRect.height()>0)
+		{
+			Qt::Alignment localAlign = FLocalVideo->alignment();
+			if (localAlign & Qt::AlignTop)
+				newGeometry.moveTop(newGeometry.top()+qMin(intersectRect.height(),availRect.bottom()-newGeometry.bottom()));
+			else if (localAlign & Qt::AlignBottom)
+				newGeometry.moveBottom(newGeometry.bottom()-qMin(intersectRect.height(),newGeometry.top()-availRect.top()));
+			if (localAlign & Qt::AlignLeft)
+				newGeometry.moveLeft(newGeometry.left()+qMin(intersectRect.width(),availRect.right()-newGeometry.right()));
+			else if (localAlign & Qt::AlignRight)
+				newGeometry.moveRight(newGeometry.right()-qMin(intersectRect.width(),newGeometry.left()-availRect.left()));
+		}
+	}
+	return newGeometry;
 }
 
 QRect VideoLayout::adjustLocalVideoSize(const QRect &AGeometry) const

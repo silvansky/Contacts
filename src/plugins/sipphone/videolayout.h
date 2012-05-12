@@ -31,6 +31,7 @@ protected:
 	void saveLocalVideoGeometryScale();
 	Qt::Alignment remoteVideoAlignment() const;
 	Qt::Alignment geometryAlignment(const QRect &AGeometry) const;
+	QRect adjustRemoteVideoPosition(const QRect &AGeometry) const;
 	QRect adjustLocalVideoSize(const QRect &AGeometry) const;
 	QRect adjustLocalVideoPosition(const QRect &AGeometry) const;
 	QRect correctLocalVideoPosition(const QRect &AGeometry) const;
