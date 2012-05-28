@@ -205,6 +205,9 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
 #endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
+
+		widgets.insertMulti(OWO_COMMON_LOCALE, optionsHeaderWidget(QString::null, tr("Interface language"), AParent));
+		widgets.insertMulti(OWO_COMMON_LOCALE_SELECT, new LocaleOptionsWidget(AParent));
 	}
 	return widgets;
 }

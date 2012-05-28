@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>LocaleOptionsWidget</name>
+    <message>
+        <source>System language</source>
+        <translation>Системный язык</translation>
+    </message>
+    <message>
+        <source>*Language settings will be applied on next application launch</source>
+        <translation>*Настройки языка интерфейса будут применены при следующем запуске приложения</translation>
+    </message>
+</context>
+<context>
     <name>LoginDialog</name>
     <message>
         <source>Caps Lock is ON</source>
@@ -236,6 +247,10 @@ which is linked to Rambler</source>
     <message>
         <source>Enable windows customization (restart required)</source>
         <translation>Включить стилизацию окон (требуется перезапуск)</translation>
+    </message>
+    <message>
+        <source>Interface language</source>
+        <translation>Язык интерфейса</translation>
     </message>
 </context>
 </TS>

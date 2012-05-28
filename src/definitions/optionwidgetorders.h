@@ -41,6 +41,8 @@
 #define OWO_COMMON_SINC                           800
 #define OWO_COMMON_SINC_HISTORY                   830
 #define OWO_COMMON_SINC_OPTIONS                   860
+#define OWO_COMMON_LOCALE                         900
+#define OWO_COMMON_LOCALE_SELECT                  910
 
 //Node = OPN_CONNECTION
 #define OWO_CONNECTION                            200

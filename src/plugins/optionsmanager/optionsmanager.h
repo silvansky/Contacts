@@ -30,6 +30,7 @@
 #include "optionswidget.h"
 #include "optionsheader.h"
 #include "optionsdialog.h"
+#include "localeoptionswidget.h"
 
 class OptionsManager :
 	public QObject,
