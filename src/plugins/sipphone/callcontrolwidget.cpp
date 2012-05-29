@@ -21,6 +21,8 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	FGateways = NULL;
 	FMetaContacts = NULL;
 
+	FIsFullScreen = false;
+
 	FCallTimer.setInterval(1000);
 	FCallTimer.setSingleShot(false);
 	connect(&FCallTimer,SIGNAL(timeout()),SLOT(onCallTimerTimeout()));
@@ -113,6 +115,26 @@ ISipCall *CallControlWidget::sipCall() const
 	return FSipCall;
 }
 
+bool CallControlWidget::isFullScreenMode() const
+{
+	return FIsFullScreen;
+}
+
+void CallControlWidget::setFullScreenMode(bool AEnabled)
+{
+	if (FIsFullScreen != AEnabled)
+	{
+		FIsFullScreen = AEnabled;
+		if (AEnabled)
+		{
+			ui.lblName->setVisible(true);
+			ui.lblAvatar->setVisible(true);
+		}
+		ui.frmBackground->setProperty("fullscreen",AEnabled);
+		StyleStorage::updateStyle(this);
+	}
+}
+
 void CallControlWidget::playSound(const QString &ASoundKey, int ALoops)
 {
 	QString soundFile = FileStorage::staticStorage(RSR_STORAGE_SOUNDS)->fileFullName(ASoundKey);
@@ -186,15 +208,18 @@ void CallControlWidget::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
 
-	int freeWidth = ui.hspSpacer->geometry().width();
-	if (freeWidth<5 && ui.lblAvatar->isVisible())
-		ui.lblAvatar->setVisible(false);
-	else if (freeWidth<5 && ui.lblName->isVisible() && !ui.lblAvatar->isVisible())
-		ui.lblName->setVisible(false);
-	else if (freeWidth>ui.lblName->minimumSizeHint().width()-ui.lblNotice->width()+10 && !ui.lblName->isVisible())
-		ui.lblName->setVisible(true);
-	else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible() && ui.lblName->isVisible())
-		ui.lblAvatar->setVisible(true);
+	if (!FIsFullScreen)
+	{
+		int freeWidth = ui.hspSpacer->geometry().width();
+		if (freeWidth<5 && ui.lblAvatar->isVisible())
+			ui.lblAvatar->setVisible(false);
+		else if (freeWidth<5 && ui.lblName->isVisible() && !ui.lblAvatar->isVisible())
+			ui.lblName->setVisible(false);
+		else if (freeWidth>ui.lblName->minimumSizeHint().width()-ui.lblNotice->width()+10 && !ui.lblName->isVisible())
+			ui.lblName->setVisible(true);
+		else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible() && ui.lblName->isVisible())
+			ui.lblAvatar->setVisible(true);
+	}
 }
 
 void CallControlWidget::onCallStateChanged(int AState)

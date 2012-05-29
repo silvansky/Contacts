@@ -3,6 +3,11 @@ QWidget
 	background-color: transparent;
 }
 
+QFrame#frmBackground[fullscreen="true"]
+{
+	background-color: rgba(22, 22, 22, 240);
+}
+
 QLabel#lblNotice
 {
 	font-size: 16px; 

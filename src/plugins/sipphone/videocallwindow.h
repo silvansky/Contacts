@@ -1,6 +1,7 @@
 #ifndef VIDEOCALLWINDOW_H
 #define VIDEOCALLWINDOW_H
 
+#include <QTimer>
 #include <QWidget>
 #include <interfaces/isipphone.h>
 #include <interfaces/ipluginmanager.h>
@@ -25,16 +26,21 @@ protected:
 	void restoreGeometryWithAnimation();
 protected:
 	void resizeEvent(QResizeEvent *AEvent);
+	void mouseMoveEvent(QMouseEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
 	void onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
 protected slots:
 	void onSilentButtonClicked();
+	void onFullScreenModeChangeRequested();
+	void onHideControlsTimerTimeout();
 private:
 	Ui::VideoCallWindowClass ui;
 private:
 	bool FVideoVisible;
+	QTimer FHideControllsTimer;
+	QToolButton *FFullScreen;
 	VideoFrame *FLocalCamera;
 	VideoFrame *FRemoteCamera;
 	VideoLayout *FVideoLayout;

@@ -26,6 +26,8 @@ public:
 	Jid streamJid() const;
 	Jid contactJid() const;
 	ISipCall *sipCall() const;
+	bool isFullScreenMode() const;
+	void setFullScreenMode(bool AEnabled);
 	void playSound(const QString &ASoundKey, int ALoops = 0);
 signals:
 	void silentButtonClicked();
@@ -56,6 +58,7 @@ private:
 	IMetaRoster *FMetaRoster;
 	IMetaContacts *FMetaContacts;
 private:
+	bool FIsFullScreen;
 	QString FMetaId;
 	QTimer FCallTimer;
 	ISipCall *FSipCall;

@@ -1,6 +1,6 @@
 #include "videocallwindow.h"
 
-#include <QTimer>
+#include <QMouseEvent>
 #include <QPropertyAnimation>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
@@ -12,6 +12,7 @@
 #include <utils/customborderstorage.h>
 
 #define CLOSE_WINDOW_TIMEOUT    2000
+#define HIDE_CONTROLLS_TIMEOT   3000
 
 VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
@@ -23,7 +24,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	{
 		border->setMovable(true);
 		border->setResizable(true);
-		border->setStaysOnTop(true);
+		//border->setStaysOnTop(true);
 		border->setCloseButtonVisible(false);
 		border->setMinimizeButtonVisible(false);
 		border->setMaximizeButtonVisible(false);
@@ -40,6 +41,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 
 	FRemoteCamera = new VideoFrame(ui.wdtVideo);
 	FRemoteCamera->setObjectName("vlbRemoteCamera");
+	connect(FRemoteCamera,SIGNAL(doubleClicked()),SLOT(onFullScreenModeChangeRequested()));
 
 	FLocalCamera = new VideoFrame(ui.wdtVideo);
 	FLocalCamera->setMoveEnabled(true);
@@ -47,15 +49,24 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FLocalCamera->setFrameShape(QLabel::Box);
 	FLocalCamera->setObjectName("vlbLocalCamera");
 	
-	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,ui.wdtVideo);
-	ui.wdtVideo->setLayout(FVideoLayout);
-	ui.wdtVideo->setVisible(false);
-
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
 	ui.wdtControls->setLayout(new QHBoxLayout);
 	ui.wdtControls->layout()->setMargin(0);
 	ui.wdtControls->layout()->addWidget(FCtrlWidget);
 	connect(FCtrlWidget,SIGNAL(silentButtonClicked()),SLOT(onSilentButtonClicked()));
+
+	FFullScreen = new QToolButton(ui.wdtVideo);
+	FFullScreen->setObjectName("tlbFullScreen");
+	FFullScreen->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_FULLSCREEN));
+	connect(FFullScreen,SIGNAL(clicked()),SLOT(onFullScreenModeChangeRequested()));
+
+	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,FFullScreen,ui.wdtVideo);
+	ui.wdtVideo->setLayout(FVideoLayout);
+	ui.wdtVideo->setVisible(false);
+
+	FHideControllsTimer.setSingleShot(true);
+	FHideControllsTimer.setInterval(HIDE_CONTROLLS_TIMEOT);
+	connect(&FHideControllsTimer,SIGNAL(timeout()),SLOT(onHideControlsTimerTimeout()));
 
 	connect(sipCall()->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
 	connect(sipCall()->instance(),SIGNAL(deviceStateChanged(int, int)),SLOT(onCallDeviceStateChanged(int, int)));
@@ -66,7 +77,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 
 VideoCallWindow::~VideoCallWindow()
 {
-	if (FVideoVisible)
+	if (!FCtrlWidget->isFullScreenMode() && FVideoVisible)
 		Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry");
 }
 
@@ -95,7 +106,7 @@ void VideoCallWindow::closeWindowWithAnimation()
 	animation->setStartValue(1.0);
 	animation->setEndValue(0.0);
 	connect(animation,SIGNAL(finished()),window(),SLOT(close()));
-	animation->start();		
+	animation->start();
 }
 
 void VideoCallWindow::restoreGeometryWithAnimation()
@@ -125,6 +136,21 @@ void VideoCallWindow::restoreGeometryWithAnimation()
 void VideoCallWindow::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
+}
+
+void VideoCallWindow::mouseMoveEvent(QMouseEvent *AEvent)
+{
+	if (FCtrlWidget->isFullScreenMode())
+	{
+		if (FCtrlWidget->geometry().contains(AEvent->pos()))
+			FHideControllsTimer.stop();
+		else
+			FHideControllsTimer.start();
+
+		FCtrlWidget->setVisible(true);
+		qApp->restoreOverrideCursor();
+	}
+	QWidget::mouseMoveEvent(AEvent);
 }
 
 void VideoCallWindow::onCallStateChanged(int AState)
@@ -176,4 +202,48 @@ void VideoCallWindow::onSilentButtonClicked()
 		CustomBorderStorage::widgetBorder(window())->minimizeWidget();
 	else
 		window()->showMinimized();
+}
+
+void VideoCallWindow::onFullScreenModeChangeRequested()
+{
+	if (!FCtrlWidget->isFullScreenMode() && !FRemoteCamera->isEmpty())
+	{
+		ui.wdtControls->layout()->removeWidget(FCtrlWidget);
+
+		FCtrlWidget->setFullScreenMode(true);
+		FCtrlWidget->setParent(ui.wdtVideo);
+		FVideoLayout->setControllsWidget(FCtrlWidget);
+		FCtrlWidget->setVisible(true);
+
+		if (CustomBorderStorage::isBordered(window()))
+			CustomBorderStorage::widgetBorder(window())->showFullScreen();
+		else
+			window()->showFullScreen();
+
+		FHideControllsTimer.start();
+	}
+	else if (FCtrlWidget->isFullScreenMode())
+	{
+		FVideoLayout->setControllsWidget(NULL);
+
+		qApp->restoreOverrideCursor();
+		FCtrlWidget->setFullScreenMode(false);
+		FCtrlWidget->setParent(ui.wdtControls);
+		ui.wdtControls->layout()->addWidget(FCtrlWidget);
+		FCtrlWidget->setVisible(true);
+
+		if (CustomBorderStorage::isBordered(window()))
+			CustomBorderStorage::widgetBorder(window())->showFullScreen();
+		else
+			window()->showNormal();
+	}
+}
+
+void VideoCallWindow::onHideControlsTimerTimeout()
+{
+	if (FCtrlWidget->isFullScreenMode())
+	{
+		FCtrlWidget->setVisible(false);
+		qApp->setOverrideCursor(Qt::BlankCursor);
+	}
 }

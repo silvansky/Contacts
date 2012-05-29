@@ -4,12 +4,13 @@
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
 
-VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AParent) : QLayout(AParent)
+VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AButtons, QWidget *AParent) : QLayout(AParent)
 {
 	FLocalMargin = 4;
 	FLocalStickDelta = 9;
 
 	FControlls = NULL;
+	FButtons = AButtons;
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
 
@@ -52,7 +53,6 @@ QSize VideoLayout::sizeHint() const
 
 void VideoLayout::setGeometry(const QRect &ARect)
 {
-	QRect oldRect = geometry();
 	QLayout::setGeometry(ARect);
 
 	if (!FLocalVideo->isCollapsed())
@@ -73,6 +73,22 @@ void VideoLayout::setGeometry(const QRect &ARect)
 	remoteSize.scale(ARect.size(),Qt::KeepAspectRatio);
 	QRect remoteRect = QStyle::alignedRect(Qt::LeftToRight,remoteVideoAlignment(),remoteSize,ARect);
 	FRemoteVideo->setGeometry(adjustRemoteVideoPosition(remoteRect));
+
+	if (FButtons && FButtons->isVisible())
+	{
+		QSize buttonsSize = FButtons->sizeHint();
+		QRect availRect = ARect.adjusted(5,5,-25,-5);
+		QRect buttonsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,buttonsSize,availRect);
+		FButtons->setGeometry(buttonsRect);
+	}
+
+	if (FControlls && FControlls->isVisible())
+	{
+		QSize controllsSize = FControlls->sizeHint();
+		QRect availRect = ARect.adjusted(5,5,-5,-20);
+		QRect controllsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignBottom|Qt::AlignHCenter,controllsSize,availRect);
+		FControlls->setGeometry(controllsRect);
+	}
 }
 
 int VideoLayout::locaVideoMargin() const
@@ -84,6 +100,12 @@ void VideoLayout::setLocalVideoMargin(int AMargin)
 {
 	if (0<=AMargin && AMargin<=FLocalStickDelta)
 		FLocalMargin = AMargin;
+}
+
+void VideoLayout::setControllsWidget(QWidget *AControlls)
+{
+	FControlls = AControlls;
+	update();
 }
 
 void VideoLayout::saveLocalVideoGeometry()

@@ -12,3 +12,11 @@ VideoFrame
 {
 	color: white;
 }
+
+QToolButton#tlbFullScreen
+{
+	border: none;
+	padding: 0px;
+	border-image: none;
+	background-color: transparent;
+}
