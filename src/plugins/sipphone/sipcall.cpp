@@ -355,6 +355,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
+						localCameraState = AState;
 					}
 					else
 					{
@@ -383,6 +384,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
+						localMicrophoneState = AState;
 					}
 					else
 					{
@@ -409,6 +411,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
+						remoteCameraState = AState;
 					}
 					else
 					{
@@ -437,6 +440,7 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
+						remoteMicrophoneState = AState;
 					}
 					else
 					{
