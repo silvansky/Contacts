@@ -6,11 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
-    <height>204</height>
+    <width>389</width>
+    <height>237</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -18,17 +18,29 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="wdtVideo" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QWidget" name="wdtBackground" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QWidget" name="wdtVideo" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="wdtControls" native="true"/>
+      </item>
+     </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="wdtControls" native="true"/>
    </item>
   </layout>
  </widget>

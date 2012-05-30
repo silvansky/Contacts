@@ -51,6 +51,11 @@ QSize VideoLayout::sizeHint() const
 	return FRemoteVideo->sizeHint();
 }
 
+QSize VideoLayout::minimumSize() const
+{
+	return FRemoteVideo->minimumVideoSize();
+}
+
 void VideoLayout::setGeometry(const QRect &ARect)
 {
 	QLayout::setGeometry(ARect);

@@ -692,7 +692,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			{
 				setCallState(CS_FINISHED); // Accepted by another resource
 			}
-			else if (type == "cancel")
+			else if (type == "cancel" || type == "timeout_error")
 			{
 				setCallError(EC_REJECTED,tr("Remote user rejected the call"));
 			}
@@ -1141,7 +1141,7 @@ void SipCall::onRingTimerTimeout()
 				notifyActiveDestinations("timeout_error");
 			setCallError(EC_NOANSWER,tr("Remote user is not answering"));
 		}
-		else if (role() == CR_INITIATOR)
+		else if (role() == CR_RESPONDER)
 		{
 			if (FStanzaProcessor && !isDirectCall())
 			{
@@ -1152,7 +1152,7 @@ void SipCall::onRingTimerTimeout()
 				queryElem.setAttribute("sid",sessionId());
 				FStanzaProcessor->sendStanzaOut(streamJid(),timeout);
 			}
-			setCallError(EC_NOANSWER,tr("Call was not accepted too long"));
+			setCallError(EC_NOANSWER,tr("Call is not accepted"));
 		}
 	}
 }

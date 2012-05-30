@@ -25,6 +25,10 @@ protected:
 	void closeWindowWithAnimation();
 	void restoreGeometryWithAnimation();
 protected:
+	bool canShowVideo() const;
+	void setVideoVisible(bool AVisible, bool ACorrectSize = false);
+protected:
+	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
 	void mouseMoveEvent(QMouseEvent *AEvent);
 protected slots:
@@ -35,10 +39,13 @@ protected slots:
 	void onSilentButtonClicked();
 	void onFullScreenModeChangeRequested();
 	void onHideControlsTimerTimeout();
+	void onGeometryAnimationFinished();
 private:
 	Ui::VideoCallWindowClass ui;
 private:
 	bool FVideoVisible;
+	int FBlockVideoChange;
+	bool FAnimatingGeometry;
 	QTimer FHideControllsTimer;
 	QToolButton *FFullScreen;
 	VideoFrame *FLocalCamera;
