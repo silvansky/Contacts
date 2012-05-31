@@ -190,8 +190,9 @@ void VideoCallWindow::setVideoVisible(bool AVisible, bool ACorrectSize)
 				cursorPos.ry() -= !AVisible ? hDelta : -hDelta;
 				newGeometry.setBottom(newGeometry.bottom() - (!AVisible ? hDelta : -hDelta));
 			}
+			FVideoLayout->setVideoVisible(AVisible);
 			QCursor::setPos(cursorPos);
-			setWindowGeometryWithAnimation(newGeometry,100);
+			//setWindowGeometryWithAnimation(newGeometry,100);
 		}
 		else
 		{

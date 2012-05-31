@@ -112,7 +112,10 @@ void VideoLayout::setVideoVisible(bool AVisible)
 		FVideoVisible = AVisible;
 		FRemoteVideo->setVisible(AVisible);
 		FLocalVideo->setVisible(AVisible);
-		FButtons->setVisible(AVisible);
+		if (FButtons)
+			FButtons->setVisible(AVisible);
+		if (FControlls)
+			FControlls->setVisible(AVisible);
 		update();
 	}
 }
