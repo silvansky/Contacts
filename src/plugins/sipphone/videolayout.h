@@ -23,8 +23,12 @@ public:
 	QSize minimumSize() const;
 	void setGeometry(const QRect &ARect);
 	// VideoLayout
+	bool isVideoVisible() const;
+	void setVideoVisible(bool AVisible);
 	int locaVideoMargin() const;
 	void setLocalVideoMargin(int AMargin);
+	int buttonsPadding() const;
+	void setButtonsPadding(int APadding);
 	void setControllsWidget(QWidget *AControlls);
 public slots:
 	void saveLocalVideoGeometry();
@@ -43,9 +47,11 @@ protected slots:
 	void onLocalVideoMove(const QPoint &APos);
 	void onLocalVideoResize(Qt::Corner ACorner, const QPoint &APos);
 private:
-	QRectF FLocalScale;
+	bool FVideoVisible;
+	int FButtonsPadding;
 	int FLocalMargin;
 	int FLocalStickDelta;
+	QRectF FLocalScale;
 	QWidget *FButtons;
 	QWidget *FControlls;
 	VideoFrame *FLocalVideo;

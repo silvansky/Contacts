@@ -133,13 +133,20 @@
              </widget>
             </item>
             <item>
-             <widget class="VolumeControl" name="vlcRemoteMicrophome" native="true"/>
+             <widget class="VolumeControl" name="vlcRemoteMicrophome" native="true">
+              <property name="toolTip">
+               <string>Volume control</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="pbtAccept">
+           <property name="toolTip">
+            <string>Accept call</string>
+           </property>
            <property name="text">
             <string notr="true">Accept</string>
            </property>
@@ -147,6 +154,9 @@
          </item>
          <item>
           <widget class="QPushButton" name="pbtReject">
+           <property name="toolTip">
+            <string>Reject call</string>
+           </property>
            <property name="text">
             <string notr="true">Reject</string>
            </property>
@@ -167,6 +177,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="tlbReject">
+           <property name="toolTip">
+            <string>Reject call</string>
+           </property>
            <property name="text">
             <string notr="true">R</string>
            </property>
@@ -180,6 +193,9 @@
          </item>
          <item>
           <widget class="QToolButton" name="tlbSilent">
+           <property name="toolTip">
+            <string>Mute and hide</string>
+           </property>
            <property name="text">
             <string notr="true">S</string>
            </property>

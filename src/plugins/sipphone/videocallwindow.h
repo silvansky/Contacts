@@ -23,10 +23,13 @@ public:
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void closeWindowWithAnimation();
-	void restoreGeometryWithAnimation();
+	void restoreWindowGeometryWithAnimation();
+	void setRecursiveMouseTracking(QWidget *AWidget);
+	void setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration);
 protected:
 	bool canShowVideo() const;
 	void setVideoVisible(bool AVisible, bool ACorrectSize = false);
+	void setControllsVisible(bool AVisible);
 protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
@@ -43,7 +46,9 @@ protected slots:
 private:
 	Ui::VideoCallWindowClass ui;
 private:
+	bool FIsFirstShow;
 	bool FVideoVisible;
+	bool FControllsVisible;
 	int FBlockVideoChange;
 	bool FAnimatingGeometry;
 	QTimer FHideControllsTimer;

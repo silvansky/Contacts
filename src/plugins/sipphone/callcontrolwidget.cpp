@@ -97,7 +97,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 
 CallControlWidget::~CallControlWidget()
 {
-	FSipCall->instance()->deleteLater();
+
 }
 
 Jid CallControlWidget::streamJid() const
@@ -307,11 +307,13 @@ void CallControlWidget::onCallDeviceStateChanged(int AType, int AState)
 	case ISipDevice::DT_LOCAL_CAMERA:
 		ui.tlbLocalCamera->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalCamera->setChecked(AState==ISipDevice::DS_ENABLED);
+		ui.tlbLocalCamera->setToolTip(AState==ISipDevice::DS_ENABLED ? tr("Disable the camera") : tr("Enable the camera"));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalCamera,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_CAMERA_ENABLED : MNI_SIPPHONE_CAMERA_DISABLED);
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
 		ui.tlbLocalMicrophone->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalMicrophone->setChecked(AState==ISipDevice::DS_ENABLED);
+		ui.tlbLocalMicrophone->setToolTip(AState==ISipDevice::DS_ENABLED ? tr("Disable the microphone") : tr("Enable the microphone"));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalMicrophone,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_MICROPHONE_ENABLED : MNI_SIPPHONE_MICROPHONE_DISABLED);
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
