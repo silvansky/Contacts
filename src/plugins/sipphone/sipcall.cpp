@@ -348,10 +348,17 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 			{
 				if (FCallId != -1)
 				{
-					pjsua_call_setting call_setting;
-					pjsua_call_setting_default(&call_setting);
-					call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
-					pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
+					pj_status_t pjstatus;
+
+					if(AState == ISipDevice::DS_ENABLED)
+						pjstatus = pjsua_call_set_vid_strm(FCallId, PJSUA_CALL_VID_STRM_START_TRANSMIT, NULL);
+					else
+						pjstatus = pjsua_call_set_vid_strm(FCallId, PJSUA_CALL_VID_STRM_STOP_TRANSMIT, NULL);
+
+//					pjsua_call_setting call_setting;
+//					pjsua_call_setting_default(&call_setting);
+//					call_setting.vid_cnt = (AState == ISipDevice::DS_ENABLED) ? 1 : 0;
+//					pj_status_t pjstatus = pjsua_call_reinvite2(FCallId, &call_setting, NULL);
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
