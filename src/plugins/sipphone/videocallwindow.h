@@ -13,10 +13,10 @@
 class VideoCallWindow : 
 	public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent = NULL);
-	~VideoCallWindow();
+	virtual ~VideoCallWindow();
 	ISipCall *sipCall() const;
 public:
 	QSize sizeHint() const;

@@ -150,7 +150,7 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 	// dock click handler
 	Class cls = [[[NSApplication sharedApplication] delegate] class];
 	if (!class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
-		LogError("MacIntegrationPrivate::MacIntegrationPrivate() : class_addMethod failed!");
+		LogError("[MacIntegrationPrivate::MacIntegrationPrivate]: class_addMethod failed!");
 
 	// growl agent
 	growlAgent = [[GrowlAgent alloc] init];

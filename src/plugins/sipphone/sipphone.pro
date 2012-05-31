@@ -93,9 +93,9 @@ macx: {
 	# resample
 	LIBS += -lresample-$${LIB_SUFIX}
 	# iLBC
-	LIBS += -lilbc
+	#LIBS += -lilbc
 	# GSM
-	LIBS += -lgsm
+	#LIBS += -lgsm
 	# bz2
 	LIBS += -lbz2
 	# x264

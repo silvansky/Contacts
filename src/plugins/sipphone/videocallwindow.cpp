@@ -11,6 +11,10 @@
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
+
 #define CLOSE_WINDOW_TIMEOUT    2000
 #define HIDE_CONTROLLS_TIMEOT   3000
 
@@ -33,8 +37,14 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	else
 	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
+#ifndef Q_WS_MAC
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-		//setWindowFlags(((windowFlags() | Qt::WindowStaysOnTopHint) & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::CustomizeWindowHint);
+#endif
+		//setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
+#ifdef Q_WS_MAC
+		setWindowFullScreenEnabled(this, true);
+		setWindowGrowButtonEnabled(this, false);
+#endif
 	}
 
 	FIsFirstShow = true;
@@ -52,7 +62,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FLocalCamera = new VideoFrame(ui.wdtVideo);
 	FLocalCamera->setMoveEnabled(true);
 	FLocalCamera->setResizeEnabled(true);
-	FLocalCamera->setFrameShape(QLabel::Box);
+	//FLocalCamera->setFrameShape(QLabel::Box);
 	FLocalCamera->setObjectName("vlbLocalCamera");
 	
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
@@ -61,11 +71,15 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	ui.wdtControls->layout()->addWidget(FCtrlWidget);
 	connect(FCtrlWidget,SIGNAL(silentButtonClicked()),SLOT(onSilentButtonClicked()));
 
+#ifdef Q_WS_MAC
+	FFullScreen = NULL;
+#else
 	FFullScreen = new QToolButton(ui.wdtVideo);
 	FFullScreen->setObjectName("tlbFullScreen");
 	FFullScreen->setToolTip(tr("Change full screen mode on/off"));
 	FFullScreen->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_FULLSCREEN));
 	connect(FFullScreen,SIGNAL(clicked()),SLOT(onFullScreenModeChangeRequested()));
+#endif
 
 	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,FFullScreen,ui.wdtVideo);
 	ui.wdtVideo->setLayout(FVideoLayout);
@@ -86,6 +100,9 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 
 VideoCallWindow::~VideoCallWindow()
 {
+#ifdef Q_WS_MAC
+	setWindowFullScreen(this, false);
+#endif
 	setControllsVisible(true);
 
 	sipCall()->rejectCall();
@@ -344,6 +361,9 @@ void VideoCallWindow::onSilentButtonClicked()
 
 void VideoCallWindow::onFullScreenModeChangeRequested()
 {
+#ifdef Q_WS_MAC
+	setWindowFullScreen(this, !isWindowFullScreen(this));
+#else
 	if (!FCtrlWidget->isFullScreenMode() && !FRemoteCamera->isEmpty())
 	{
 		ui.wdtControls->layout()->removeWidget(FCtrlWidget);
@@ -375,6 +395,7 @@ void VideoCallWindow::onFullScreenModeChangeRequested()
 		else
 			window()->showNormal();
 	}
+#endif
 }
 
 void VideoCallWindow::onHideControlsTimerTimeout()

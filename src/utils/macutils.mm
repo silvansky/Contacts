@@ -2,8 +2,11 @@
 #import <CoreFoundation/CFString.h>
 
 #define COCOA_CLASSES_DEFINED
+
 #import "macutils.h"
 #include <QDebug>
+
+#define MW_OLD_WINDOW_FLAGS "macwidgets_windowFlagsBeforeFullscreen"
 
 //static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
@@ -85,6 +88,81 @@ void hideWindow(void */* (NSWindow*) */ window)
 {
 	NSWindow *nsWindow = (NSWindow*)window;
 	[nsWindow orderOut:nil];
+}
+
+void setWindowFullScreenEnabled(QWidget *window, bool enabled)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	if (enabled)
+		[wnd setCollectionBehavior: [wnd collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+	else if (isWindowFullScreenEnabled(window))
+		[wnd setCollectionBehavior: [wnd collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+}
+
+bool isWindowFullScreenEnabled(QWidget *window)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	return [wnd collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary;
+}
+
+void setWindowFullScreen(QWidget *window, bool enabled)
+{
+	if (isWindowFullScreenEnabled(window))
+	{
+		bool isFullScreen = isWindowFullScreen(window);
+		if ((enabled && !isFullScreen) || (!enabled && isFullScreen))
+		{
+			if (enabled)
+			{
+				// saving old window flags, if window was ontop and removing ontop flag
+				Qt::WindowFlags flags = window->windowFlags();
+				if (flags & Qt::WindowStaysOnTopHint)
+				{
+					window->setProperty(MW_OLD_WINDOW_FLAGS, (int)flags);
+					window->setWindowFlags(flags ^ Qt::WindowStaysOnTopHint);
+					window->show();
+					setWindowFullScreenEnabled(window, true);
+				}
+				else
+					window->setProperty(MW_OLD_WINDOW_FLAGS, 0);
+			}
+
+			NSWindow *wnd = nsWindowFromWidget(window->window());
+			[wnd toggleFullScreen:nil];
+
+			if (!enabled)
+			{
+				// if old flags present, setting them again
+				Qt::WindowFlags flags = (Qt::WindowFlags)window->property(MW_OLD_WINDOW_FLAGS).toInt();
+				if (flags)
+				{
+					window->setWindowFlags(flags);
+					window->show();
+					setWindowFullScreenEnabled(window, true);
+				}
+			}
+		}
+	}
+}
+
+bool isWindowFullScreen(QWidget *window)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	return [wnd styleMask] & NSFullScreenWindowMask;
+}
+
+void setAppFullScreenEnabled(bool enabled)
+{
+	NSApplication *app = [NSApplication sharedApplication];
+	if (enabled)
+		[app setPresentationOptions: [app presentationOptions] | NSApplicationPresentationFullScreen];
+	else if (isAppFullScreenEnabled())
+		[app setPresentationOptions: [app presentationOptions] ^ NSApplicationPresentationFullScreen];
+}
+
+bool isAppFullScreenEnabled()
+{
+	return [[NSApplication sharedApplication] presentationOptions] & NSApplicationPresentationFullScreen;
 }
 
 QString convertFromMacCyrillic(const char *str)

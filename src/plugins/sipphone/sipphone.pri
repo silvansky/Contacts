@@ -3,7 +3,6 @@ FORMS = \
 		callcontrolwidget.ui
 
 HEADERS = \ 
-		config.h\
 		sipmanager.h \
 		sipcall.h \
 		frameconverter.h \

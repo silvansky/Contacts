@@ -19,6 +19,10 @@
 # include <thirdparty/holdemutils/RHoldemModule.h>
 #endif
 
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
+
 void generateSegfaultReport(int ASigNum)
 {
 	static bool fault = false;
@@ -80,12 +84,14 @@ int main(int argc, char *argv[])
 	app.setApplicationName(CLIENT_NAME);
 	app.setApplicationVersion(CLIENT_VERSION);
 
-#ifndef DEBUG_ENABLED
+#if !defined(Q_WS_MAC)
+# ifndef DEBUG_ENABLED
 	if (app.isRunning())
 	{
 		app.sendMessage("show");
 		return 0;
 	}
+# endif
 #endif
 
 	app.setQuitOnLastWindowClosed(false);
@@ -107,6 +113,7 @@ int main(int argc, char *argv[])
 
 #ifdef Q_WS_MAC
 	app.addLibraryPath(app.applicationDirPath() + "/../PlugIns");
+	setAppFullScreenEnabled(true);
 #endif
 
 	// plugin manager

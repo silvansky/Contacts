@@ -551,6 +551,13 @@ void MacIntegrationPlugin::initMenus()
 	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
 	_windowMenu->addAction(closeAction);
 
+	toggleFullScreenAction = new Action;
+	toggleFullScreenAction->setText(tr("Toggle Full Screen"));
+	toggleFullScreenAction->setEnabled(false);
+	toggleFullScreenAction->setShortcut(QKeySequence("Ctrl+Return"));
+	connect(toggleFullScreenAction, SIGNAL(triggered()), SLOT(onToggleFullScreenAction()));
+	_windowMenu->addAction(toggleFullScreenAction);
+
 	prevTabAction = new Action;
 	prevTabAction->setText(tr("Select Previous Tab"));
 	prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
@@ -579,6 +586,7 @@ void MacIntegrationPlugin::initMenus()
 	chatsAction->setEnabled(false);
 	chatsAction->setVisible(false);
 	_windowMenu->addAction(chatsAction, 650);
+
 
 	// Help
 	_helpMenu = new Menu;
@@ -843,6 +851,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		findAction->setEnabled(mw);
 		minimizeAction->setEnabled(true);
 		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
+		toggleFullScreenAction->setEnabled(isWindowFullScreenEnabled(qApp->activeWindow()));
 	}
 	else
 	{
@@ -1181,6 +1190,15 @@ void MacIntegrationPlugin::onCloseAction()
 		}
 		else if (activeWindow)
 			activeWindow->close();
+	}
+}
+
+void MacIntegrationPlugin::onToggleFullScreenAction()
+{
+	QWidget * activeWindow = QApplication::activeWindow();
+	if (activeWindow && isWindowFullScreenEnabled(activeWindow))
+	{
+		setWindowFullScreen(activeWindow, !isWindowFullScreen(activeWindow));
 	}
 }
 

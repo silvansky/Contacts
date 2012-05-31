@@ -262,7 +262,7 @@ void VideoFrame::mouseDoubleClickEvent(QMouseEvent *AEvent)
 void VideoFrame::paintEvent(QPaintEvent *AEvent)
 {
 	QPainter p(this);
-	p.fillRect(rect(),Qt::black);
+	p.fillRect(rect(), Qt::black);
 	
 	if (FCollapsed)
 	{
@@ -299,7 +299,6 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 			}
 		}
 	}
-
 	QFrame::paintEvent(AEvent);
 }
 
