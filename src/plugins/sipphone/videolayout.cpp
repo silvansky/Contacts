@@ -53,15 +53,10 @@ QSize VideoLayout::sizeHint() const
 	return FVideoVisible ? FRemoteVideo->sizeHint() : QSize(0,0);
 }
 
-QSize VideoLayout::minimumSize() const
-{
-	return FVideoVisible ? FRemoteVideo->minimumVideoSize() : QSize(0,0);
-}
-
 void VideoLayout::setGeometry(const QRect &ARect)
 {
 	QLayout::setGeometry(ARect);
-	if (FVideoVisible && ARect.height()>=minimumSize().height())
+	if (FVideoVisible)
 	{
 		if (!FLocalVideo->isCollapsed())
 		{

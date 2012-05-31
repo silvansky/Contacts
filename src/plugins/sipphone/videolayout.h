@@ -20,7 +20,6 @@ public:
 	QLayoutItem *takeAt(int AIndex);
 	// QLayoutItem
 	QSize sizeHint() const;
-	QSize minimumSize() const;
 	void setGeometry(const QRect &ARect);
 	// VideoLayout
 	bool isVideoVisible() const;

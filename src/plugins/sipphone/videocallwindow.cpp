@@ -84,6 +84,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,FFullScreen,ui.wdtVideo);
 	ui.wdtVideo->setLayout(FVideoLayout);
 	ui.wdtVideo->setMouseTracking(true);
+	ui.wdtVideo->setVisible(false);
 
 	FHideControllsTimer.setSingleShot(true);
 	FHideControllsTimer.setInterval(HIDE_CONTROLLS_TIMEOT);
@@ -153,6 +154,7 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation()
 
 		FAnimatingGeometry = true;
 		setVideoVisible(true);
+		ui.wdtVideo->setVisible(true);
 		setWindowGeometryWithAnimation(newGeometry,200);
 	}
 }
@@ -167,8 +169,6 @@ void VideoCallWindow::setRecursiveMouseTracking(QWidget *AWidget)
 
 void VideoCallWindow::setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration)
 {
-	//qDebug() << "resize from" << window()->geometry() << "to" << AGeometry;
-
 	FAnimatingGeometry = true;
 	FVideoLayout->setVideoVisible(false);
 
@@ -187,12 +187,12 @@ bool VideoCallWindow::canShowVideo() const
 	return sipCall()->state()==ISipCall::CS_TALKING && sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA)!=ISipDevice::DS_UNAVAIL;
 }
 
-void VideoCallWindow::setVideoVisible(bool AVisible, bool ACorrectSize)
+void VideoCallWindow::setVideoVisible(bool AVisible, bool AResizing)
 {
 	if (FVideoVisible != AVisible)
 	{
 		FVideoVisible = AVisible;
-		if (ACorrectSize)
+		if (AResizing)
 		{
 			QRect newGeometry = window()->geometry();
 			int hDelta = !AVisible ? ui.wdtVideo->height() : FRemoteCamera->minimumVideoSize().height()+5;
@@ -209,8 +209,8 @@ void VideoCallWindow::setVideoVisible(bool AVisible, bool ACorrectSize)
 			}
 
 			FAnimatingGeometry = true;
-			QCursor::setPos(cursorPos);
 			FVideoLayout->setVideoVisible(false);
+			QCursor::setPos(cursorPos);
 			QTimer::singleShot(50,this,SLOT(onGeometryAnimationFinished()));
 		}
 		else
@@ -253,15 +253,11 @@ void VideoCallWindow::showEvent(QShowEvent *AEvent)
 void VideoCallWindow::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
-
-	//if (FAnimatingGeometry)
-	//	qDebug() << "resizeEvent" << window()->geometry();
-
 	if (!FAnimatingGeometry && FBlockVideoChange==0)
 	{
 		if (ui.wdtControls->height()>0 && (ui.wdtVideo->height()>0 || !FVideoVisible))
 		{
-			if (FVideoVisible && ui.wdtVideo->height()<FVideoLayout->minimumSize().height()+2)
+			if (FVideoVisible && ui.wdtVideo->height()<FRemoteCamera->minimumVideoSize().height()+2)
 			{
 				FBlockVideoChange++;
 				setVideoVisible(false,true);
@@ -405,7 +401,6 @@ void VideoCallWindow::onHideControlsTimerTimeout()
 
 void VideoCallWindow::onGeometryAnimationFinished()
 {
-	//qDebug() << "resize finished" << window()->geometry();
 	FAnimatingGeometry = false;
 	FVideoLayout->setVideoVisible(FVideoVisible);
 }

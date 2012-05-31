@@ -28,7 +28,7 @@ protected:
 	void setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration);
 protected:
 	bool canShowVideo() const;
-	void setVideoVisible(bool AVisible, bool ACorrectSize = false);
+	void setVideoVisible(bool AVisible, bool AResizing = false);
 	void setControllsVisible(bool AVisible);
 protected:
 	void showEvent(QShowEvent *AEvent);
