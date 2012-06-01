@@ -11,17 +11,17 @@
 
 //static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
-WindowRef windowRefFromWidget(QWidget *w)
+WindowRef windowRefFromWidget(const QWidget *w)
 {
 	return (WindowRef)[nsWindowFromWidget(w) windowRef];
 }
 
-NSWindow * nsWindowFromWidget(QWidget *w)
+NSWindow * nsWindowFromWidget(const QWidget *w)
 {
 	return [nsViewFromWidget(w) window];
 }
 
-NSView * nsViewFromWidget(QWidget *w)
+NSView * nsViewFromWidget(const QWidget *w)
 {
 	return (NSView *)w->winId();
 }
@@ -71,7 +71,7 @@ void setWindowShadowEnabled(QWidget *window, bool enabled)
 	[[nsViewFromWidget(window) window] setHasShadow: (enabled ? YES : NO)];
 }
 
-bool isWindowGrowButtonEnabled(QWidget *window)
+bool isWindowGrowButtonEnabled(const QWidget *window)
 {
     if (window)
         return [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] isEnabled] == YES;
@@ -101,7 +101,7 @@ void setWindowFullScreenEnabled(QWidget *window, bool enabled)
 		[wnd setCollectionBehavior: b ^ NSWindowCollectionBehaviorFullScreenPrimary];
 }
 
-bool isWindowFullScreenEnabled(QWidget *window)
+bool isWindowFullScreenEnabled(const QWidget *window)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary;
@@ -133,7 +133,7 @@ void setWindowFullScreen(QWidget *window, bool enabled)
 	}
 }
 
-bool isWindowFullScreen(QWidget *window)
+bool isWindowFullScreen(const QWidget *window)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd styleMask] & NSFullScreenWindowMask;
@@ -145,7 +145,7 @@ void setWindowOntop(QWidget *window, bool enabled)
 	[wnd setLevel:(enabled ? NSModalPanelWindowLevel : NSNormalWindowLevel)];
 }
 
-bool isWindowOntop(QWidget *window)
+bool isWindowOntop(const QWidget *window)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd level] == NSModalPanelWindowLevel;

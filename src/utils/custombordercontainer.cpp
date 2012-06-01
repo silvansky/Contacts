@@ -805,16 +805,24 @@ void CustomBorderContainer::setCloseOnDeactivate(bool enabled)
 
 bool CustomBorderContainer::staysOnTop() const
 {
+#ifndef Q_WS_MAC
 	return windowFlags() & Qt::WindowStaysOnTopHint;
+#else
+	return isWindowOntop(this);
+#endif
 }
 
 void CustomBorderContainer::setStaysOnTop(bool on)
 {
+#ifndef Q_WS_MAC
 	if (on && !staysOnTop())
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	else
 		if (staysOnTop())
 			setWindowFlags(windowFlags() ^ Qt::WindowStaysOnTopHint);
+#else
+	setWindowOntop(this, on);
+#endif
 }
 
 bool CustomBorderContainer::dockingEnabled() const

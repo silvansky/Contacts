@@ -12,9 +12,9 @@ class NSString;
 #endif
 
 // Qt <-> Cocoa
-WindowRef windowRefFromWidget(QWidget *w);
-NSWindow * nsWindowFromWidget(QWidget *w);
-NSView * nsViewFromWidget(QWidget *w);
+WindowRef windowRefFromWidget(const QWidget *w);
+NSWindow * nsWindowFromWidget(const QWidget *w);
+NSView * nsViewFromWidget(const QWidget *w);
 NSImage * nsImageFromQImage(const QImage &image);
 QImage qImageFromNSImage(NSImage *image);
 NSString * nsStringFromQString(const QString &s);
@@ -22,15 +22,15 @@ QString qStringFromNSString(NSString *s);
 
 // window management
 void setWindowShadowEnabled(QWidget *window, bool enabled);
-bool isWindowGrowButtonEnabled(QWidget *window);
+bool isWindowGrowButtonEnabled(const QWidget *window);
 void setWindowGrowButtonEnabled(QWidget *window, bool enabled);
 void hideWindow(void */* (NSWindow*) */ window);
 void setWindowFullScreenEnabled(QWidget *window, bool enabled);
-bool isWindowFullScreenEnabled(QWidget *window);
+bool isWindowFullScreenEnabled(const QWidget *window);
 void setWindowFullScreen(QWidget *window, bool enabled);
-bool isWindowFullScreen(QWidget *window);
+bool isWindowFullScreen(const QWidget *window);
 void setWindowOntop(QWidget *window, bool enabled);
-bool isWindowOntop(QWidget *window);
+bool isWindowOntop(const QWidget *window);
 
 // app management
 void setAppFullScreenEnabled(bool enabled);
