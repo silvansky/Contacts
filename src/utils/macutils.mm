@@ -1,13 +1,12 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreFoundation/CFString.h>
 
-#define COCOA_CLASSES_DEFINED
-
+// note that you should #import <Cocoa/Cocoa.h> BEFORE macutils.h to work with Cocoa correctly
 #import "macutils.h"
-#include <QDebug>
+
 #include "log.h"
 
-#define MW_OLD_WINDOW_FLAGS "macwidgets_windowFlagsBeforeFullscreen"
+#include <QDebug>
 
 //static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 

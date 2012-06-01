@@ -1,15 +1,15 @@
-#ifndef MACWIDGETS_H
-#define MACWIDGETS_H
+#ifndef MACUTILS_H
+#define MACUTILS_H
 
-#include <Carbon/Carbon.h>
-#include <QWidget>
-
-#ifndef COCOA_CLASSES_DEFINED
+#ifndef __COREFOUNDATION__
 class NSView;
 class NSWindow;
 class NSImage;
 class NSString;
 #endif
+
+#include <Carbon/Carbon.h>
+#include <QWidget>
 
 // Qt <-> Cocoa
 WindowRef windowRefFromWidget(const QWidget *w);
@@ -39,4 +39,4 @@ bool isAppFullScreenEnabled();
 // string management
 QString convertFromMacCyrillic(const char *str);
 
-#endif // MACWIDGETS_H
+#endif // MACUTILS_H
