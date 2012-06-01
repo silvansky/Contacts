@@ -30,6 +30,7 @@ protected:
 	bool canShowVideo() const;
 	void setVideoVisible(bool AVisible, bool AResizing = false);
 	void setControllsVisible(bool AVisible);
+	void setControlsMode(bool fullscreen);
 protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
@@ -43,6 +44,11 @@ protected slots:
 	void onFullScreenModeChangeRequested();
 	void onHideControlsTimerTimeout();
 	void onGeometryAnimationFinished();
+#ifdef Q_WS_MAC
+protected slots:
+	void onWindowFullScreenModeWillChange(QWidget *window, bool fullScreen);
+	void onWindowFullScreenModeChanged(QWidget *window, bool fullScreen);
+#endif
 private:
 	Ui::VideoCallWindowClass ui;
 private:

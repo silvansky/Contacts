@@ -794,7 +794,7 @@ void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
 	}
 }
 
-void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
+void MacIntegrationPlugin::onFocusChanged(QWidget *old, QWidget *now)
 {
 	Q_UNUSED(old)
 	if (lastFocusedWidget)
@@ -849,8 +849,8 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		prevTabAction->setEnabled(tw);
 		IMainWindow * mw = findMainWindow(qApp->activeWindow());
 		findAction->setEnabled(mw);
-		minimizeAction->setEnabled(true);
-		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
+		minimizeAction->setEnabled(!isWindowFullScreen(qApp->activeWindow()));
+		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()) && !isWindowFullScreen(qApp->activeWindow()));
 		toggleFullScreenAction->setEnabled(isWindowFullScreenEnabled(qApp->activeWindow()));
 	}
 	else

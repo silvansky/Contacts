@@ -8,8 +8,27 @@ class NSImage;
 class NSString;
 #endif
 
+#include "utilsexport.h"
+
 #include <Carbon/Carbon.h>
 #include <QWidget>
+
+class MacUtils : public QObject
+{
+	Q_OBJECT
+protected:
+	MacUtils();
+	virtual ~MacUtils();
+public:
+	class MacUtilsPrivate;
+	friend MacUtilsPrivate * gp();
+	static MacUtils * instance();
+signals:
+	void windowFullScreenModeWillChange(QWidget *window, bool fullScreen);
+	void windowFullScreenModeChanged(QWidget *window, bool fullScreen);
+private:
+	MacUtilsPrivate *p;
+};
 
 // Qt <-> Cocoa
 WindowRef windowRefFromWidget(const QWidget *w);

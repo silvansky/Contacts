@@ -41,6 +41,8 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 #else
 		setWindowOntop(this, true);
+		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeChanged(QWidget*,bool)), SLOT(onWindowFullScreenModeChanged(QWidget*,bool)));
+		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeWillChange(QWidget*,bool)), SLOT(onWindowFullScreenModeWillChange(QWidget*,bool)));
 #endif
 		//setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #ifdef Q_WS_MAC
@@ -248,6 +250,29 @@ void VideoCallWindow::setControllsVisible(bool AVisible)
 	}
 }
 
+void VideoCallWindow::setControlsMode(bool fullscreen)
+{
+	if (fullscreen)
+	{
+		ui.wdtControls->layout()->removeWidget(FCtrlWidget);
+
+		FCtrlWidget->setFullScreenMode(true);
+		FCtrlWidget->setParent(ui.wdtVideo);
+		FVideoLayout->setControllsWidget(FCtrlWidget);
+		FCtrlWidget->setVisible(true);
+	}
+	else
+	{
+		FVideoLayout->setControllsWidget(NULL);
+
+		setControllsVisible(true);
+		FCtrlWidget->setFullScreenMode(false);
+		FCtrlWidget->setParent(ui.wdtControls);
+		ui.wdtControls->layout()->addWidget(FCtrlWidget);
+		FCtrlWidget->setVisible(true);
+	}
+}
+
 void VideoCallWindow::showEvent(QShowEvent *AEvent)
 {
 	if (FIsFirstShow)
@@ -363,18 +388,20 @@ void VideoCallWindow::onSilentButtonClicked()
 
 void VideoCallWindow::onFullScreenModeChangeRequested()
 {
+	bool isFullScreenForNow = FCtrlWidget->isFullScreenMode();
+	setControlsMode(!isFullScreenForNow);
 #ifdef Q_WS_MAC
 	setWindowFullScreen(this, !isWindowFullScreen(this));
 	FCtrlWidget->setFullScreenMode(isWindowFullScreen(this));
 #else
-	if (!FCtrlWidget->isFullScreenMode() && !FRemoteCamera->isEmpty())
+	if (!isFullScreenForNow && !FRemoteCamera->isEmpty())
 	{
-		ui.wdtControls->layout()->removeWidget(FCtrlWidget);
+//		ui.wdtControls->layout()->removeWidget(FCtrlWidget);
 
-		FCtrlWidget->setFullScreenMode(true);
-		FCtrlWidget->setParent(ui.wdtVideo);
-		FVideoLayout->setControllsWidget(FCtrlWidget);
-		FCtrlWidget->setVisible(true);
+//		FCtrlWidget->setFullScreenMode(true);
+//		FCtrlWidget->setParent(ui.wdtVideo);
+//		FVideoLayout->setControllsWidget(FCtrlWidget);
+//		FCtrlWidget->setVisible(true);
 
 		if (CustomBorderStorage::isBordered(window()))
 			CustomBorderStorage::widgetBorder(window())->showFullScreen();
@@ -383,15 +410,15 @@ void VideoCallWindow::onFullScreenModeChangeRequested()
 
 		FHideControllsTimer.start();
 	}
-	else if (FCtrlWidget->isFullScreenMode())
+	else if (isFullScreenForNow)
 	{
-		FVideoLayout->setControllsWidget(NULL);
+//		FVideoLayout->setControllsWidget(NULL);
 
-		setControllsVisible(true);
-		FCtrlWidget->setFullScreenMode(false);
-		FCtrlWidget->setParent(ui.wdtControls);
-		ui.wdtControls->layout()->addWidget(FCtrlWidget);
-		FCtrlWidget->setVisible(true);
+//		setControllsVisible(true);
+//		FCtrlWidget->setFullScreenMode(false);
+//		FCtrlWidget->setParent(ui.wdtControls);
+//		ui.wdtControls->layout()->addWidget(FCtrlWidget);
+//		FCtrlWidget->setVisible(true);
 
 		if (CustomBorderStorage::isBordered(window()))
 			CustomBorderStorage::widgetBorder(window())->showFullScreen();
@@ -410,4 +437,18 @@ void VideoCallWindow::onGeometryAnimationFinished()
 {
 	FAnimatingGeometry = false;
 	FVideoLayout->setVideoVisible(FVideoVisible);
+}
+
+void VideoCallWindow::onWindowFullScreenModeWillChange(QWidget *window, bool fullScreen)
+{
+	if (window == this->window())
+	{
+		setControlsMode(fullScreen);
+	}
+}
+
+void VideoCallWindow::onWindowFullScreenModeChanged(QWidget *window, bool fullScreen)
+{
+	Q_UNUSED(window)
+	Q_UNUSED(fullScreen)
 }

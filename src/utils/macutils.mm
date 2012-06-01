@@ -1,14 +1,152 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreFoundation/CFString.h>
+#import <objc/runtime.h>
 
 // note that you should #import <Cocoa/Cocoa.h> BEFORE macutils.h to work with Cocoa correctly
 #import "macutils.h"
+#import "macutils_p.h"
 
 #include "log.h"
 
 #include <QDebug>
 
-//static NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+// class MacUtils::MacUtilsPrivate
+QMap<QWidget *, NSWindow *> MacUtils::MacUtilsPrivate::fullScreenWidgets;
+
+MacUtils::MacUtilsPrivate::MacUtilsPrivate(MacUtils *parent)
+{
+	connect(this, SIGNAL(windowFullScreenModeChanged(QWidget*,bool)), parent, SIGNAL(windowFullScreenModeChanged(QWidget*,bool)));
+	connect(this, SIGNAL(windowFullScreenModeWillChange(QWidget*,bool)), parent, SIGNAL(windowFullScreenModeWillChange(QWidget*,bool)));
+}
+
+void MacUtils::MacUtilsPrivate::emitWindowFullScreenModeWillChange(QWidget *window, bool fullScreen)
+{
+	//qDebug() << QString("Emitting windowFullScreenModeWillChange signal with %1").arg(window->windowTitle());
+	emit windowFullScreenModeWillChange(window, fullScreen);
+}
+
+void MacUtils::MacUtilsPrivate::emitWindowFullScreenModeChanged(QWidget *window, bool fullScreen)
+{
+	//qDebug() << QString("Emitting windowFullScreenModeChanged signal with %1").arg(window->windowTitle());
+	emit windowFullScreenModeChanged(window, fullScreen);
+}
+
+// class MacUtils
+MacUtils::MacUtils()
+{
+	p = new MacUtilsPrivate(this);
+}
+
+MacUtils::~MacUtils()
+{
+	delete p;
+}
+
+MacUtils *MacUtils::instance()
+{
+	static MacUtils *inst = NULL;
+	if (!inst)
+		inst = new MacUtils;
+	return inst;
+}
+
+// private functions
+
+MacUtils::MacUtilsPrivate * gp()
+{
+	return MacUtils::instance()->p;
+}
+
+// NSWindowDelegate's added functions implementation
+void windowWillEnterFullScreen(id self, SEL _cmd, id notification)
+{
+	Q_UNUSED(self)
+	Q_UNUSED(_cmd)
+	NSNotification *n = (NSNotification *)notification;
+	if (n)
+	{
+		NSWindow *window = [n object];
+		QWidget *w = MacUtils::MacUtilsPrivate::fullScreenWidgets.key(window, NULL);
+		if (w)
+			gp()->emitWindowFullScreenModeWillChange(w, true);
+	}
+}
+
+void windowDidEnterFullScreen(id self, SEL _cmd, id notification)
+{
+	Q_UNUSED(self)
+	Q_UNUSED(_cmd)
+	NSNotification *n = (NSNotification *)notification;
+	if (n)
+	{
+		NSWindow *window = [n object];
+		QWidget *w = MacUtils::MacUtilsPrivate::fullScreenWidgets.key(window, NULL);
+		if (w)
+			gp()->emitWindowFullScreenModeChanged(w, true);
+	}
+}
+
+void windowWillExitFullScreen(id self, SEL _cmd, id notification)
+{
+	Q_UNUSED(self)
+	Q_UNUSED(_cmd)
+	NSNotification *n = (NSNotification *)notification;
+	if (n)
+	{
+		NSWindow *window = [n object];
+		QWidget *w = MacUtils::MacUtilsPrivate::fullScreenWidgets.key(window, NULL);
+		if (w)
+			gp()->emitWindowFullScreenModeWillChange(w, false);
+	}
+}
+
+void windowDidExitFullScreen(id self, SEL _cmd, id notification)
+{
+	Q_UNUSED(self)
+	Q_UNUSED(_cmd)
+	Q_UNUSED(notification)
+	NSNotification *n = (NSNotification *)notification;
+	if (n)
+	{
+		NSWindow *window = [n object];
+		QWidget *w = MacUtils::MacUtilsPrivate::fullScreenWidgets.key(window, NULL);
+		if (w)
+			gp()->emitWindowFullScreenModeChanged(w, false);
+	}
+}
+
+// adding methods above to QCocoaWindowDelegate, which is singletone (! that's really important !)
+void initWindowDelegate(NSWindow *wnd)
+{
+	LogDetail("[initWindowDelegate]: Initializing NSWindowDelegate: adding -window*FullScreen: methods...");
+	id delegate = [wnd delegate];
+	Class delegateClass = [delegate class];
+	if (!class_respondsToSelector(delegateClass, @selector(windowWillEnterFullScreen:)))
+	{
+		if (!class_addMethod(delegateClass, @selector(windowWillEnterFullScreen:), (IMP) windowWillEnterFullScreen, "v@:@"))
+			LogError("class_addMethod failed for -windowWillEnterFullScreen:!");
+	}
+	if (!class_respondsToSelector(delegateClass, @selector(windowDidEnterFullScreen:)))
+	{
+		if (!class_addMethod(delegateClass, @selector(windowDidEnterFullScreen:), (IMP) windowDidEnterFullScreen, "v@:@"))
+			LogError("class_addMethod failed for -windowDidEnterFullScreen:!");
+	}
+	if (!class_respondsToSelector(delegateClass, @selector(windowWillExitFullScreen:)))
+	{
+		if (!class_addMethod(delegateClass, @selector(windowWillExitFullScreen:), (IMP) windowWillExitFullScreen, "v@:@"))
+			LogError("class_addMethod failed for -windowWillExitFullScreen:!");
+	}
+	if (!class_respondsToSelector(delegateClass, @selector(windowDidExitFullScreen:)))
+	{
+		if (!class_addMethod(delegateClass, @selector(windowDidExitFullScreen:), (IMP) windowDidExitFullScreen, "v@:@"))
+			LogError("class_addMethod failed for -windowDidExitFullScreen:!");
+	}
+	// resetting delegate to get our methods work
+	[wnd setDelegate:nil];
+	[wnd setDelegate:delegate];
+}
+
+// public functions
 
 WindowRef windowRefFromWidget(const QWidget *w)
 {
@@ -93,11 +231,18 @@ void hideWindow(void */* (NSWindow*) */ window)
 void setWindowFullScreenEnabled(QWidget *window, bool enabled)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
+	initWindowDelegate(wnd);
 	NSWindowCollectionBehavior b = [wnd collectionBehavior];
 	if (enabled)
+	{
+		MacUtils::MacUtilsPrivate::fullScreenWidgets.insert(window->window(), wnd);
 		[wnd setCollectionBehavior: b | NSWindowCollectionBehaviorFullScreenPrimary];
+	}
 	else if (isWindowFullScreenEnabled(window))
+	{
+		MacUtils::MacUtilsPrivate::fullScreenWidgets.remove(window->window());
 		[wnd setCollectionBehavior: b ^ NSWindowCollectionBehaviorFullScreenPrimary];
+	}
 }
 
 bool isWindowFullScreenEnabled(const QWidget *window)
