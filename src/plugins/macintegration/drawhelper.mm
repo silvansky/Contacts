@@ -135,6 +135,11 @@ static NSColor * gTitleColor = nil;
 	else
 		titleLeft = titleRect.origin.x + dx;
 
+	if ([[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary)
+	{
+		dx += 22;
+	}
+
 	NSRect textRect = NSMakeRect(titleLeft, titleRect.origin.y + dy, titleRect.size.width - dx, 0.0 /*titleRect.size.height - dy*/);
 	return textRect;
 }
