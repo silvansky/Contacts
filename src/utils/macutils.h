@@ -29,6 +29,8 @@ void setWindowFullScreenEnabled(QWidget *window, bool enabled);
 bool isWindowFullScreenEnabled(QWidget *window);
 void setWindowFullScreen(QWidget *window, bool enabled);
 bool isWindowFullScreen(QWidget *window);
+void setWindowOntop(QWidget *window, bool enabled);
+bool isWindowOntop(QWidget *window);
 
 // app management
 void setAppFullScreenEnabled(bool enabled);

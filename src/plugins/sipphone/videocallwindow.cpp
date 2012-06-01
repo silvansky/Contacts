@@ -39,6 +39,8 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		setAttribute(Qt::WA_DeleteOnClose,true);
 #ifndef Q_WS_MAC
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+#else
+		setWindowOntop(this, true);
 #endif
 		//setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #ifdef Q_WS_MAC
@@ -359,6 +361,7 @@ void VideoCallWindow::onFullScreenModeChangeRequested()
 {
 #ifdef Q_WS_MAC
 	setWindowFullScreen(this, !isWindowFullScreen(this));
+	FCtrlWidget->setFullScreenMode(isWindowFullScreen(this));
 #else
 	if (!FCtrlWidget->isFullScreenMode() && !FRemoteCamera->isEmpty())
 	{

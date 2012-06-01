@@ -325,9 +325,12 @@ void MainWindowPlugin::onOptionsClosed()
 
 void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 {
-	QWidget *widget = mainWindowTopWidget();
 	if (ANode.path() == OPV_MAINWINDOW_STAYONTOP)
 	{
+#ifdef Q_WS_MAC
+		setWindowOntop(FMainWindow, ANode.value().toBool());
+#else
+		QWidget *widget = mainWindowTopWidget();
 		bool show = widget->isVisible();
 		if (ANode.value().toBool())
 			widget->setWindowFlags(widget->windowFlags() | Qt::WindowStaysOnTopHint);
@@ -335,6 +338,7 @@ void MainWindowPlugin::onOptionsChanged(const OptionsNode &ANode)
 			widget->setWindowFlags(widget->windowFlags() & ~Qt::WindowStaysOnTopHint);
 		if (show)
 			showMainWindow();
+#endif
 	}
 	else if (ANode.path() == OPV_MAINWINDOW_MINIMIZETOTRAY_W7)
 	{

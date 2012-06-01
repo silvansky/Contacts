@@ -5,6 +5,7 @@
 
 #import "macutils.h"
 #include <QDebug>
+#include "log.h"
 
 #define MW_OLD_WINDOW_FLAGS "macwidgets_windowFlagsBeforeFullscreen"
 
@@ -93,10 +94,11 @@ void hideWindow(void */* (NSWindow*) */ window)
 void setWindowFullScreenEnabled(QWidget *window, bool enabled)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
+	NSWindowCollectionBehavior b = [wnd collectionBehavior];
 	if (enabled)
-		[wnd setCollectionBehavior: [wnd collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+		[wnd setCollectionBehavior: b | NSWindowCollectionBehaviorFullScreenPrimary];
 	else if (isWindowFullScreenEnabled(window))
-		[wnd setCollectionBehavior: [wnd collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+		[wnd setCollectionBehavior: b ^ NSWindowCollectionBehaviorFullScreenPrimary];
 }
 
 bool isWindowFullScreenEnabled(QWidget *window)
@@ -114,33 +116,19 @@ void setWindowFullScreen(QWidget *window, bool enabled)
 		{
 			if (enabled)
 			{
-				// saving old window flags, if window was ontop and removing ontop flag
+				// removing Qt's ontop flag
 				Qt::WindowFlags flags = window->windowFlags();
 				if (flags & Qt::WindowStaysOnTopHint)
 				{
-					window->setProperty(MW_OLD_WINDOW_FLAGS, (int)flags);
+					LogWarning(QString("[setWindowFullScreen]: Widget %1 has Qt ontop flag! It will be removed and window will be redisplayed.").arg(window->windowTitle()));
 					window->setWindowFlags(flags ^ Qt::WindowStaysOnTopHint);
 					window->show();
 					setWindowFullScreenEnabled(window, true);
 				}
-				else
-					window->setProperty(MW_OLD_WINDOW_FLAGS, 0);
 			}
 
 			NSWindow *wnd = nsWindowFromWidget(window->window());
 			[wnd toggleFullScreen:nil];
-
-			if (!enabled)
-			{
-				// if old flags present, setting them again
-				Qt::WindowFlags flags = (Qt::WindowFlags)window->property(MW_OLD_WINDOW_FLAGS).toInt();
-				if (flags)
-				{
-					window->setWindowFlags(flags);
-					window->show();
-					setWindowFullScreenEnabled(window, true);
-				}
-			}
 		}
 	}
 }
@@ -149,6 +137,18 @@ bool isWindowFullScreen(QWidget *window)
 {
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd styleMask] & NSFullScreenWindowMask;
+}
+
+void setWindowOntop(QWidget *window, bool enabled)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	[wnd setLevel:(enabled ? NSModalPanelWindowLevel : NSNormalWindowLevel)];
+}
+
+bool isWindowOntop(QWidget *window)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	return [wnd level] == NSModalPanelWindowLevel;
 }
 
 void setAppFullScreenEnabled(bool enabled)
