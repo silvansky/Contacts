@@ -9,9 +9,11 @@
 #include <definitions/namespaces.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
+#include <definitions/rosternotifyorders.h>
 #include <definitions/sipcallhandlerorders.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <utils/log.h>
+#include <utils/iconstorage.h>
 #include <utils/errorhandler.h>
 #include <utils/widgetmanager.h>
 #include <utils/custombordercontainer.h>
@@ -74,6 +76,11 @@ SipManager::SipManager() :
 	FStanzaProcessor = NULL;
 	FRosterChanger = NULL;
 	FGateways = NULL;
+	FRostersModel = NULL;
+	FRostersViewPlugin = NULL;
+	FMessageStyles = NULL;
+	FMessageWidgets = NULL;
+	FMessageProcessor = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -142,9 +149,27 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 
 	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
-	{
 		FXmppStreams = qobject_cast<IXmppStreams*>(plugin->instance());
-	}
+
+	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
+	if (plugin)
+		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
+	if (plugin)
+		FRostersViewPlugin = qobject_cast<IRostersViewPlugin *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
+	if (plugin)
+		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageWidgets").value(0,NULL);
+	if (plugin)
+		FMessageWidgets = qobject_cast<IMessageWidgets *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
+	if (plugin)
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
 	return FStanzaProcessor;
 }
@@ -499,10 +524,19 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 {
 	if (AOrder == SCHO_SIPMANAGER_VIDEOCALLS)
 	{
-		VideoCallWindow *window = new VideoCallWindow(FPluginManager,ACall);
-		WidgetManager::showActivateRaiseWindow(window->window());
-		WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
-		ACall->startCall();
+		registerCallNotify(ACall);
+		if (SipCall::findCalls().count()==1)
+		{
+			VideoCallWindow *window = new VideoCallWindow(FPluginManager,ACall);
+			WidgetManager::showActivateRaiseWindow(window->window());
+			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+			ACall->startCall();
+		}
+		else
+		{
+			ACall->rejectCall(ISipCall::RC_BUSY);
+			ACall->instance()->deleteLater();
+		}
 		return true;
 	}
 	return false;
@@ -529,13 +563,6 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 			{
 				LogError(QString("[SipManager]: Duplicated sessionID in incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
 				ErrorHandler err(ErrorHandler::CONFLICT);
-				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
-				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
-			}
-			else if (!findCalls(Jid::null,AStanza.from()).isEmpty())
-			{
-				LogError(QString("[SipManager]: Duplicated incoming call request from %1 to %2, sid='%3'").arg(AStanza.from(), AStreamJid.full(), sessionId));
-				ErrorHandler err(ErrorHandler::FORBIDDEN);
 				Stanza error = FStanzaProcessor->makeReplyError(AStanza,err);
 				FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 			}
@@ -719,7 +746,6 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 {
 	LogDetail(QString("[SipManager]: Processing incoming call from %1 to %2, sid='%3'").arg(AContactJid.full(), AStreamJid.full(), ASessionId));
 
-	// TODO: check availability of answering the call (busy) <- handler should do this
 	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContactJid,ASessionId);
 	emit sipCallCreated(call);
 
@@ -736,6 +762,163 @@ bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJi
 	return handled;
 }
 
+void SipManager::registerCallNotify(ISipCall *ACall)
+{
+	CallNotifyParams &params = FCallNotifyParams[ACall];
+	params.rosterNotifyId = -1;
+
+	connect(ACall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
+	connect(ACall->instance(),SIGNAL(callDestroyed()),SLOT(onCallDestroyed()));
+}
+
+void SipManager::showNotifyInRoster(ISipCall *ACall, const QString &AIconId, const QString &AFooter)
+{
+	if (FRostersViewPlugin && FRostersModel)
+	{
+		CallNotifyParams &params = FCallNotifyParams[ACall];
+		FRostersViewPlugin->rostersView()->removeNotify(params.rosterNotifyId);
+		params.rosterNotifyId = -1;
+
+		if (!AFooter.isEmpty())
+		{
+			IRostersNotify notify;
+			notify.order = RNO_SIPCALL_CALLSTATE;
+			notify.flags = IRostersNotify::AllwaysVisible;
+			notify.icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(AIconId);
+			notify.footer = AFooter;
+
+			QList<IRosterIndex *> indexes = FRostersModel->getContactIndexList(ACall->streamJid(),ACall->contactJid(),false);
+			if (!indexes.isEmpty() && !AFooter.isEmpty())
+				params.rosterNotifyId = FRostersViewPlugin->rostersView()->insertNotify(notify,indexes);
+		}
+	}
+}
+
+void SipManager::showNotifyInChatWindow(ISipCall *ACall,const QString &AIconId, const QString &ANotify, bool AOpen)
+{
+	if (FMessageProcessor && FMessageWidgets)
+	{
+		CallNotifyParams &params = FCallNotifyParams[ACall];
+		if (FMessageProcessor->createMessageWindow(ACall->streamJid(),ACall->contactJid(),Message::Chat,AOpen ? IMessageHandler::SM_SHOW : IMessageHandler::SM_ASSIGN))
+		{
+			IChatWindow *window = FMessageWidgets->findChatWindow(ACall->streamJid(),ACall->contactJid());
+			if (window)
+			{
+				if (!params.contentId.isNull())
+				{
+					IMessageContentOptions options;
+					options.action = IMessageContentOptions::Remove;
+					options.contentId = params.contentId;
+					window->viewWidget()->changeContentHtml(QString::null,options);
+				}
+
+				IMessageContentOptions options;
+				options.kind = IMessageContentOptions::Status;
+				options.type |= IMessageContentOptions::Notification;
+				options.direction = IMessageContentOptions::DirectionIn;
+				options.time = QDateTime::currentDateTime();
+				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
+
+				QUrl iconFile = QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(AIconId));
+				QString html = QString("<img src='%1'/> <b>%2</b>").arg(iconFile.toString()).arg(Qt::escape(ANotify));
+
+				params.contentId = window->viewWidget()->changeContentHtml(html,options);
+			}
+		}
+	}
+}
+
+void SipManager::onCallStateChanged(int AState)
+{
+	ISipCall *call = qobject_cast<ISipCall *>(sender());
+	if (call && !call->isDirectCall())
+	{
+		// Notify in roster
+		if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
+		{
+			if (call->role() == ISipCall::CR_INITIATOR)
+				showNotifyInRoster(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to..."));
+			else if (call->role() == ISipCall::CR_RESPONDER)
+				showNotifyInRoster(call,MNI_SIPPHONE_CALL_IN,tr("Calling you..."));
+		}
+		else if (AState == ISipCall::CS_TALKING)
+		{
+			showNotifyInRoster(call,call->role()==ISipCall::CR_INITIATOR ? MNI_SIPPHONE_CALL_OUT : MNI_SIPPHONE_CALL_IN,tr("Call in progress..."));
+		}
+		else
+		{
+			showNotifyInRoster(call,QString::null,QString::null);
+		}
+
+		// Notify in chat window
+		QString userNick = FMessageStyles!=NULL ? FMessageStyles->contactName(call->streamJid(),call->contactJid()) : call->contactJid().bare();
+		if (call->role() == ISipCall::CR_INITIATOR)
+		{
+			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to %1.").arg(userNick));
+			}
+			else if (AState == ISipCall::CS_TALKING)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1.").arg(userNick));
+			}
+			else if (AState == ISipCall::CS_FINISHED)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+			}
+			else if (AState == ISipCall::CS_ERROR)
+			{
+				switch (call->errorCode())
+				{
+				case ISipCall::EC_BUSY:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 is now talking. Call later.").arg(userNick));
+					break;
+				case ISipCall::EC_NOANSWER:
+				case ISipCall::EC_REJECTED:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call").arg(userNick));
+					break;
+				default:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+				}
+			}
+		}
+		else if (call->role() == ISipCall::CR_RESPONDER)
+		{
+			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("%1 calling you.").arg(userNick));
+			}
+			else if (AState == ISipCall::CS_TALKING)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1.").arg(userNick));
+			}
+			else if (AState == ISipCall::CS_FINISHED)
+			{
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+			}
+			else if (AState == ISipCall::CS_ERROR)
+			{
+				switch (call->errorCode())
+				{
+				default:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+				}
+			}
+		}
+	}
+}
+
+void SipManager::onCallDestroyed()
+{
+	ISipCall *call = qobject_cast<ISipCall *>(sender());
+	if (call)
+	{
+		CallNotifyParams params = FCallNotifyParams.take(call);
+		if (FRostersViewPlugin)
+			FRostersViewPlugin->rostersView()->removeNotify(params.rosterNotifyId);
+	}
+}
+
 void SipManager::onStartVideoCall()
 {
 	Action *action = qobject_cast<Action *>(sender());
@@ -749,6 +932,7 @@ void SipManager::onStartVideoCall()
 		ISipCall *call = newCall(streamJid,destinations);
 		if (call)
 		{
+			registerCallNotify(call);
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
 			window->sipCall()->startCall();
 			WidgetManager::showActivateRaiseWindow(window->window());
@@ -768,6 +952,7 @@ void SipManager::onStartPhoneCall()
 		ISipCall *call = newCall(streamJid,number);
 		if (call)
 		{
+			registerCallNotify(call);
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
 			window->sipCall()->startCall();
 			WidgetManager::showActivateRaiseWindow(window->window());
@@ -815,44 +1000,47 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
-		QStringList phoneNumbers;
-		QStringList destinations;
-		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
-		foreach(Jid itemJid, contact.items)
+		if (SipCall::findCalls().isEmpty())
 		{
-			foreach(IPresenceItem pitem, window->metaRoster()->itemPresences(itemJid)) 
+			QStringList phoneNumbers;
+			QStringList destinations;
+			IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
+			foreach(Jid itemJid, contact.items)
 			{
-				if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
-					destinations.append(pitem.itemJid.full());
+				foreach(IPresenceItem pitem, window->metaRoster()->itemPresences(itemJid)) 
+				{
+					if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
+						destinations.append(pitem.itemJid.full());
+				}
+
+				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
+				if (descriptor.gateId == GSID_SMS)
+				{
+					QString number = itemJid.node();
+					if (FGateways)
+						number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
+					phoneNumbers.append(number);
+				}
+			}
+			if (!destinations.isEmpty())
+			{
+				Action *videoCallAction = new Action(menu);
+				videoCallAction->setText(FMetaContacts->metaContactName(contact));
+				videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+				videoCallAction->setData(ADR_DESTINATIONS,destinations);
+				connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+				menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
 			}
 
-			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-			if (descriptor.gateId == GSID_SMS)
+			foreach(QString number, phoneNumbers)
 			{
-				QString number = itemJid.node();
-				if (FGateways)
-					number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
-				phoneNumbers.append(number);
+				Action *phoneCallAction = new Action(menu);
+				phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
+				phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+				phoneCallAction->setData(ADR_PHONE_NUMBER,number);
+				connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
+				menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
 			}
-		}
-		if (!destinations.isEmpty())
-		{
-			Action *videoCallAction = new Action(menu);
-			videoCallAction->setText(FMetaContacts->metaContactName(contact));
-			videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-			videoCallAction->setData(ADR_DESTINATIONS,destinations);
-			connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
-			menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
-		}
-
-		foreach(QString number, phoneNumbers)
-		{
-			Action *phoneCallAction = new Action(menu);
-			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
-			phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-			phoneCallAction->setData(ADR_PHONE_NUMBER,number);
-			connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
-			menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
 		}
 
 		if (FRosterChanger)

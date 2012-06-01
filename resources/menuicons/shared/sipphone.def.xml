@@ -10,6 +10,18 @@
     <object mime="image/png">sipphonecallseparator.png</object>
   </icon>
   <icon>
+    <key>sipCallIn</key>
+    <object mime="image/png">sipphonecallin.png</object>
+  </icon>
+  <icon>
+    <key>sipCallOut</key>
+    <object mime="image/png">sipphonecallout.png</object>
+  </icon>
+  <icon>
+    <key>sipCallMissed</key>
+    <object mime="image/png">sipphonecallmissed.png</object>
+  </icon>
+  <icon>
     <key>sipCallReject</key>
     <object mime="image/png">sipphonecallreject.png</object>
   </icon>

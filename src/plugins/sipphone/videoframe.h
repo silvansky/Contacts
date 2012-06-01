@@ -3,6 +3,7 @@
 
 #include <QLabel>
 #include <QMovie>
+#include <QDateTime>
 
 class VideoFrame : 
 	public QFrame
@@ -27,6 +28,7 @@ public:
 	const QPixmap *pixmap() const;
 	void setPixmap(const QPixmap &APixmap);
 signals:
+	void singleClicked();
 	void doubleClicked();
 	void moveTo(const QPoint &APos);
 	void resizeTo(Qt::Corner ACorner, const QPoint &APos);
@@ -42,13 +44,17 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent *AEvent);
 	void paintEvent(QPaintEvent *AEvent);
 protected slots:
+	void onEmitSingleClicked();
 	void onWaitMovieFrameChanged(int AFrameNumber);
 private:
+	bool FMoved;
+	bool FClicked;
 	bool FCollapsed;
 	bool FMoveEnabled;
 	bool FResizeEnabled;
 	int FCursorCorner;
 	QPoint FPressedPos;
+	QPoint FGlobalPressed;
 	QSize FMinimumSize;
 	QSize FMaximumSize;
 	QMovie *FWaitMovie;
@@ -56,6 +62,7 @@ private:
 	QPixmap FResizeIcon;
 	QPixmap FCollapsedIcon;
 	Qt::Alignment FAlignment;
+	QDateTime FDoubleClickTime;
 };
 
 #endif // VIDEOLABEL_H

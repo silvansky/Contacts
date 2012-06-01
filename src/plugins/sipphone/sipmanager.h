@@ -16,6 +16,15 @@
 #include <interfaces/imetacontacts.h>
 #include <interfaces/irosterchanger.h>
 #include <interfaces/imessagestyles.h>
+#include <interfaces/irostersview.h>
+#include <interfaces/irostersmodel.h>
+#include <interfaces/imessageprocessor.h>
+
+struct CallNotifyParams
+{
+	int rosterNotifyId;
+	QUuid contentId;
+};
 
 class SipManager :
 		public QObject,
@@ -82,6 +91,12 @@ protected:
 	bool createSipStack();
 	void destroySipStack();
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
+	void registerCallNotify(ISipCall *ACall);
+	void showNotifyInRoster(ISipCall *ACall,const QString &AIconId, const QString &AFooter);
+	void showNotifyInChatWindow(ISipCall *ACall, const QString &AIconId, const QString &ANotify, bool AOpen = false);
+protected slots:
+	void onCallStateChanged(int AState);
+	void onCallDestroyed();
 protected slots:
 	void onStartVideoCall();
 	void onStartPhoneCall();
@@ -98,6 +113,11 @@ private:
 	IXmppStreams *FXmppStreams;
 	IRosterChanger *FRosterChanger;
 	IGateways *FGateways;
+	IRostersModel *FRostersModel;
+	IRostersViewPlugin *FRostersViewPlugin;
+	IMessageStyles *FMessageStyles;
+	IMessageWidgets *FMessageWidgets;
+	IMessageProcessor *FMessageProcessor;
 private:
 	int FSHISipQuery;
 private:
@@ -105,8 +125,9 @@ private:
 	QMap<Jid, int> FAccounts;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;
+	QMap<ISipCall *, CallNotifyParams> FCallNotifyParams;
 private:
-	static SipManager * inst;
+	static SipManager *inst;
 };
 
 #endif // SIPMANAGER_H

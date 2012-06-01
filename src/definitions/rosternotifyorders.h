@@ -7,5 +7,6 @@
 #define RNO_MUC_INVITE                            600
 #define RNO_CHATSTATES_TYPING                     900
 #define RNO_PRESENCE_CONTACT_STATE                1000
+#define RNO_SIPCALL_CALLSTATE                     5000
 
 #endif // DEF_ROSTERNOTIFYORDERS_H

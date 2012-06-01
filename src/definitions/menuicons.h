@@ -162,6 +162,9 @@
 #define MNI_SCHANGER_CONNECTION_RESTORE          "schangerConnectionRestore"
 
 //SipPhone
+#define MNI_SIPPHONE_CALL_IN                     "sipCallIn"
+#define MNI_SIPPHONE_CALL_OUT                    "sipCallOut"
+#define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"
 #define MNI_SIPPHONE_CALL_BUTTON                 "sipCallButton"
 #define MNI_SIPPHONE_CALL_SEPARATOR              "sipCallSeparator"
 #define MNI_SIPPHONE_CALL_REJECT                 "sipCallReject"

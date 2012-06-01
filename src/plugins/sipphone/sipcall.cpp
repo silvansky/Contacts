@@ -187,7 +187,6 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	case CS_CONNECTING:
 	case CS_TALKING:
 		{
-			// TODO: check implementation
 			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 			if (status == PJ_SUCCESS)
 				setCallState(CS_FINISHED);

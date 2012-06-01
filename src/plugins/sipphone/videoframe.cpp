@@ -4,6 +4,7 @@
 #include <QPainter>
 #include <QVariant>
 #include <QMouseEvent>
+#include <QApplication>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
@@ -24,6 +25,8 @@ VideoFrame::VideoFrame(QWidget *AParent) : QFrame(AParent)
 {
 	setMouseTracking(true);
 
+	FMoved = false;
+	FClicked = false;
 	FCursorCorner = -1;
 	FCollapsed = false;
 	FMoveEnabled = false;
@@ -31,6 +34,7 @@ VideoFrame::VideoFrame(QWidget *AParent) : QFrame(AParent)
 	FMinimumSize = QSize(50,50);
 	FMaximumSize = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
 	FAlignment = Qt::AlignRight|Qt::AlignBottom;
+	FDoubleClickTime = QDateTime::currentDateTime();
 
 	QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_VIDEO_RESIZE);
 	FResizeIcon = icon.pixmap(icon.availableSizes().value(0));
@@ -79,7 +83,8 @@ void VideoFrame::setMoveEnabled(bool AEnabled)
 	if (FMoveEnabled != AEnabled)
 	{
 		FMoveEnabled = AEnabled;
-		setProperty("ignoreFilter", AEnabled);
+		setProperty("ignoreFilter", FMoveEnabled||FResizeEnabled);
+		update();
 	}
 }
 
@@ -93,6 +98,7 @@ void VideoFrame::setResizeEnabled(bool AEnabled)
 	if (FResizeEnabled != AEnabled)
 	{
 		FResizeEnabled = AEnabled;
+		setProperty("ignoreFilter", FMoveEnabled||FResizeEnabled);
 		update();
 	}
 }
@@ -192,7 +198,7 @@ void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 {
 	static const QSize cornerSize = QSize(10,10);
 
-	if (FPressedPos.isNull())
+	if (FPressedPos.isNull() || FCollapsed)
 	{
 		FCursorCorner = -1;
 		for (int i=0; FCursorCorner<0 && i<4; i++)
@@ -206,13 +212,18 @@ void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 		else if (FMoveEnabled)
 			setCursor(Qt::OpenHandCursor);
 	}
-	else if (FCursorCorner >= 0)
+	else if (FResizeEnabled && FCursorCorner>=0)
 	{
+		FMoved = true;
 		emit resizeTo((Qt::Corner)FCursorCorner,mapToParent(AEvent->pos()));
 	}
-	else
+	else if (FMoveEnabled && FMoved)
 	{
 		emit moveTo(mapToParent(AEvent->pos())-FPressedPos);
+	}
+	else if ((FGlobalPressed-AEvent->globalPos()).manhattanLength()>=qApp->startDragDistance())
+	{
+		FMoved = true;
 	}
 
 	QFrame::mouseMoveEvent(AEvent);
@@ -220,18 +231,27 @@ void VideoFrame::mouseMoveEvent(QMouseEvent *AEvent)
 
 void VideoFrame::mousePressEvent(QMouseEvent *AEvent)
 {
-	if (FCollapsed)
-	{
-		QFrame::mousePressEvent(AEvent);
-	}
-	else if (FResizeEnabled && FCursorCorner>=0)
+	if (AEvent->button() == Qt::LeftButton)
 	{
 		FPressedPos = AEvent->pos();
-	}
-	else if (FMoveEnabled)
-	{
-		FPressedPos = mapToParent(AEvent->pos()) - geometry().topLeft();
-		setCursor(Qt::ClosedHandCursor);
+		FGlobalPressed = AEvent->globalPos();
+		if (!FCollapsed)
+		{
+			if (FMoveEnabled && FCursorCorner<0)
+			{
+				FPressedPos = mapToParent(AEvent->pos()) - geometry().topLeft();
+				setCursor(Qt::ClosedHandCursor);
+			}
+			else if (!FResizeEnabled || FCursorCorner<0)
+			{
+				QFrame::mousePressEvent(AEvent);
+			}
+		}
+		else
+		{
+			QFrame::mousePressEvent(AEvent);
+		}
+		FClicked = FDoubleClickTime.msecsTo(QDateTime::currentDateTime())>qApp->doubleClickInterval();
 	}
 	else
 	{
@@ -241,22 +261,24 @@ void VideoFrame::mousePressEvent(QMouseEvent *AEvent)
 
 void VideoFrame::mouseReleaseEvent(QMouseEvent *AEvent)
 {
-	if (!FPressedPos.isNull())
+	if (!FPressedPos.isNull() && AEvent->button()==Qt::LeftButton)
 	{
-		if (FMoveEnabled && FCursorCorner<0)
+		if (!FCollapsed && FMoveEnabled && FCursorCorner<0)
 			setCursor(Qt::OpenHandCursor);
+		if (FClicked && !FMoved)
+			QTimer::singleShot(qApp->doubleClickInterval(),this,SLOT(onEmitSingleClicked()));
+		FMoved = false;
 		FPressedPos = QPoint();
 	}
-	else
-	{
-		QFrame::mousePressEvent(AEvent);
-	}
+	QFrame::mouseReleaseEvent(AEvent);
 }
 
 void VideoFrame::mouseDoubleClickEvent(QMouseEvent *AEvent)
 {
+	Q_UNUSED(AEvent);
 	emit doubleClicked();
-	QFrame::mouseDoubleClickEvent(AEvent);
+	FClicked = false;
+	FDoubleClickTime = QDateTime::currentDateTime();
 }
 
 void VideoFrame::paintEvent(QPaintEvent *AEvent)
@@ -306,4 +328,10 @@ void VideoFrame::onWaitMovieFrameChanged(int AFrameNumber)
 {
 	Q_UNUSED(AFrameNumber);
 	update();
+}
+
+void VideoFrame::onEmitSingleClicked()
+{
+	if (FClicked)
+		emit singleClicked();
 }

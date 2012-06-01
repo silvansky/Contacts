@@ -21,7 +21,6 @@ public:
 public:
 	QSize sizeHint() const;
 protected:
-	void initialize(IPluginManager *APluginManager);
 	void closeWindowWithAnimation();
 	void restoreWindowGeometryWithAnimation();
 	void setRecursiveMouseTracking(QWidget *AWidget);
@@ -35,6 +34,7 @@ protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
 	void mouseMoveEvent(QMouseEvent *AEvent);
+	void mouseDoubleClickEvent(QMouseEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);

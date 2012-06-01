@@ -16,6 +16,7 @@ VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWid
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
 
+	connect(FLocalVideo,SIGNAL(singleClicked()),SLOT(onLocalVideoSingleClicked()));
 	connect(FLocalVideo,SIGNAL(doubleClicked()),SLOT(onLocalVideoDoubleClicked()));
 	connect(FLocalVideo,SIGNAL(moveTo(const QPoint &)),SLOT(onLocalVideoMove(const QPoint &)));
 	connect(FLocalVideo,SIGNAL(resizeTo(Qt::Corner, const QPoint &)),SLOT(onLocalVideoResize(Qt::Corner, const QPoint &)));
@@ -50,21 +51,23 @@ QLayoutItem *VideoLayout::takeAt(int AIndex)
 
 QSize VideoLayout::sizeHint() const
 {
-	return FVideoVisible ? FRemoteVideo->sizeHint() : QSize(0,0);
+	return FRemoteVideo->sizeHint();
 }
 
 void VideoLayout::setGeometry(const QRect &ARect)
 {
 	QLayout::setGeometry(ARect);
-	if (FVideoVisible)
+	if (FVideoVisible && ARect.height()>=FRemoteVideo->minimumVideoSize().height())
 	{
+		bool isSizeValid = ARect.height()>=FRemoteVideo->minimumVideoSize().height() && ARect.width()>=FRemoteVideo->minimumVideoSize().width();
 		if (!FLocalVideo->isCollapsed())
 		{
 			QRect localRect = adjustLocalVideoSize(FLocalVideo->geometry());
 			localRect =	adjustLocalVideoPosition(localRect);
 			FLocalVideo->setGeometry(localRect);
 			FLocalVideo->setMaximumVideoSize(ARect.size()/2);
-			FLocalVideo->setAlignment(geometryAlignment(localRect));
+			if (isSizeValid)
+				FLocalVideo->setAlignment(geometryAlignment(localRect));
 		}
 		else
 		{
@@ -412,6 +415,15 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 	}
 
 	return newGeometry;
+}
+
+void VideoLayout::onLocalVideoSingleClicked()
+{
+	if (FLocalVideo->isCollapsed())
+	{
+		restoreLocalVideoGeometry();
+		FLocalVideo->setCollapsed(false);
+	}
 }
 
 void VideoLayout::onLocalVideoDoubleClicked()
