@@ -44,7 +44,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 #endif
 		//setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #ifdef Q_WS_MAC
-		setWindowFullScreenEnabled(this, true);
+		//setWindowFullScreenEnabled(this, true);
 		setWindowGrowButtonEnabled(this, false);
 #endif
 	}
@@ -222,6 +222,10 @@ void VideoCallWindow::setVideoVisible(bool AVisible, bool AResizing)
 
 		ui.wdtBackground->setProperty("videovisible",AVisible);
 		StyleStorage::updateStyle(this);
+#ifdef Q_WS_MAC
+		setWindowFullScreenEnabled(this, AVisible);
+		setWindowGrowButtonEnabled(this, AVisible);
+#endif
 	}
 }
 
