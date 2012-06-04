@@ -24,6 +24,8 @@ struct CallNotifyParams
 {
 	int rosterNotifyId;
 	QUuid contentId;
+	IViewWidget *view;
+	QDateTime contentTime;
 };
 
 class SipManager :
@@ -105,6 +107,7 @@ protected slots:
 	void onCallMenuAboutToHide();
 	void onMetaTabWindowCreated(IMetaTabWindow *AWindow);
 	void onMetaTabWindowDestroyed(IMetaTabWindow *AWindow);
+	void onViewWidgetContentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;

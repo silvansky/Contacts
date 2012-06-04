@@ -98,7 +98,7 @@ QList<Jid> SipCall::callDestinations() const
 
 void SipCall::startCall()
 {
-	if ((role() == CR_INITIATOR) && (state() == CS_NONE))
+	if ((role() == CR_INITIATOR) && (state() == CS_INIT))
 	{
 		if (isDirectCall())
 		{
@@ -131,14 +131,15 @@ void SipCall::startCall()
 			if (!FCallRequests.isEmpty())
 				setCallState(CS_CALLING);
 			else
-				setCallError(EC_NOTAVAIL, tr("The destinations is not available"));
+				setCallError(EC_NOTAVAIL);
 		}
 		else
 		{
-			setCallError(EC_NOTAVAIL, tr("Invalid call destination"));
+			LogError(QString("[SipCall] Call destination is not specified, sid=%1").arg(sessionId()));
+			setCallError(EC_NOTAVAIL);
 		}
 	}
-	else if ((role() == CR_RESPONDER) && (state() == CS_NONE))
+	else if ((role() == CR_RESPONDER) && (state() == CS_INIT))
 	{
 		setCallState(CS_CALLING);
 	}
@@ -161,6 +162,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	{
 	case CS_CALLING:
 		{
+			FRejectCode = ACode;
 			if (role() == CR_INITIATOR)
 			{
 				notifyActiveDestinations("cancel");
@@ -187,11 +189,11 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 	case CS_CONNECTING:
 	case CS_TALKING:
 		{
+			FRejectCode = ACode;
 			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
-			if (status == PJ_SUCCESS)
-				setCallState(CS_FINISHED);
-			else
+			if (status != PJ_SUCCESS)
 				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(SipManager::resolveErrorCode(status)));
+			setCallState(CS_FINISHED);
 			break;
 		}
 	default:
@@ -216,17 +218,34 @@ ISipCall::ErrorCode SipCall::errorCode() const
 
 QString SipCall::errorString() const
 {
-	return FErrorString;
+	switch (errorCode())
+	{
+	case EC_EMPTY:
+		return QString::null;
+	case EC_BUSY:
+		return tr("Remote user is now talking");
+	case EC_NOTAVAIL:
+		return tr("Remote user could not accept call");
+	case EC_NOANSWER:
+		return tr("Remote user did not accept the call");
+	case EC_REJECTED:
+		return tr("Remote user rejected the call");
+	case EC_CONNECTIONERR:
+		return tr("Connection error");
+	default:
+		return tr("Undefined error");
+	}
+}
+
+ISipCall::RejectionCode SipCall::rejectCode() const
+{
+	return FRejectCode;
 }
 
 quint32 SipCall::callTime() const
 {
-	if (FCallId != -1)
-	{
-		pjsua_call_info ci;
-		pjsua_call_get_info(FCallId, &ci);
-		return ci.connect_duration.sec * 1000 + ci.connect_duration.msec;
-	}
+	if (!FStartCallTime.isNull())
+		return FStartCallTime.msecsTo(FStopCallTime.isNull() ? QDateTime::currentDateTime() : FStopCallTime);
 	return 0;
 }
 
@@ -626,9 +645,9 @@ void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			}
 			else
 			{
-				LogDetail(QString("[SipCall] Call request rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
+				LogError(QString("[SipCall] Call request rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
 				if (FCallRequests.isEmpty())
-					setCallError(EC_NOTAVAIL,tr("Call is not supported by destination"));
+					setCallError(EC_NOTAVAIL);
 			}
 		}
 		else if (role() == CR_RESPONDER)
@@ -639,8 +658,8 @@ void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			}
 			else
 			{
-				LogDetail(QString("[SipCall] Call accept rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
-				setCallError(EC_CONNECTIONERR,tr("Remote user failed to register on SIP server"));
+				LogError(QString("[SipCall] Call accept rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
+				setCallError(EC_CONNECTIONERR);
 			}
 		}
 	}
@@ -668,7 +687,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			{
 				FContactJid = AStanza.from();
 				notifyActiveDestinations("denied");
-				setCallError(EC_REJECTED,tr("Remote user rejected the call"));
+				setCallError(EC_REJECTED);
 			}
 			else if (type == "busy")
 			{
@@ -676,7 +695,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 				if (FActiveDestinations.isEmpty())
 				{
 					FContactJid = AStanza.from();
-					setCallError(EC_BUSY,tr("Remote user is busy"));
+					setCallError(EC_BUSY);
 				}
 			}
 			else if (type == "timeout_error")
@@ -685,14 +704,14 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 				if (FActiveDestinations.isEmpty())
 				{
 					FContactJid = AStanza.from();
-					setCallError(EC_NOANSWER,tr("Remote user is not answering"));
+					setCallError(EC_NOANSWER);
 				}
 			}
 			else if (type == "callee_error")
 			{
 				FContactJid = AStanza.from();
 				notifyActiveDestinations("callee_error");
-				setCallError(EC_CONNECTIONERR,tr("Remote user failed to register on SIP server"));
+				setCallError(EC_CONNECTIONERR);
 			}
 		}
 		else if (role()==CR_RESPONDER && contactJid()==AStanza.from())
@@ -704,19 +723,20 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			}
 			else if (type == "cancel" || type == "timeout_error")
 			{
-				setCallError(EC_REJECTED,tr("Remote user rejected the call"));
+				setCallError(EC_REJECTED);
 			}
 			else if (type == "denied")
 			{
+				FRejectCode = RC_BYUSER;
 				setCallState(CS_FINISHED); // Rejected by another resource
 			}
 			else if (type == "caller_error")
 			{
-				setCallError(EC_CONNECTIONERR,tr("Remote user failed to register on SIP server"));
+				setCallError(EC_CONNECTIONERR);
 			}
 			else if (type == "callee_error")
 			{
-				setCallError(EC_CONNECTIONERR,tr("Another resource failed to register on SIP server"));
+				setCallError(EC_CONNECTIONERR);
 			}
 		}
 
@@ -752,33 +772,6 @@ bool SipCall::acceptIncomingCall(int ACallId)
 		}
 	}
 	return false;
-}
-
-SipCall *SipCall::findCallById(int ACallId)
-{
-	foreach(SipCall *call, FCallInstances)
-		if (call->callId() == ACallId)
-			return call;
-	return NULL;
-}
-
-QList<ISipCall*> SipCall::findCalls( const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
-{
-	QList<ISipCall*> found;
-	foreach (ISipCall *call, FCallInstances)
-	{
-		if (AStreamJid.isEmpty() || (call->streamJid() && AStreamJid))
-		{
-			if (AContactJid.isEmpty() || (call->contactJid() && AContactJid))
-			{
-				if (ASessionId.isEmpty() || call->sessionId()==ASessionId)
-				{
-					found << call;
-				}
-			}
-		}
-	}
-	return found;
 }
 
 void SipCall::onCallState(int call_id, void *e)
@@ -890,6 +883,33 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 	return 0;
 }
 
+SipCall *SipCall::findCallById(int ACallId)
+{
+	foreach(SipCall *call, FCallInstances)
+		if (call->callId() == ACallId)
+			return call;
+	return NULL;
+}
+
+QList<ISipCall*> SipCall::findCalls( const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
+{
+	QList<ISipCall*> found;
+	foreach (ISipCall *call, FCallInstances)
+	{
+		if (AStreamJid.isEmpty() || (call->streamJid() && AStreamJid))
+		{
+			if (AContactJid.isEmpty() || (call->contactJid() && AContactJid))
+			{
+				if (ASessionId.isEmpty() || call->sessionId()==ASessionId)
+				{
+					found << call;
+				}
+			}
+		}
+	}
+	return found;
+}
+
 void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
 {
 	FSipManager = AManager;
@@ -900,8 +920,9 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, co
 	FCallId = -1;
 	FAccountId = -1;
 	FSHICallAccept = -1;
-	FState = CS_NONE;
-	FErrorCode = EC_NONE;
+	FState = CS_INIT;
+	FErrorCode = EC_EMPTY;
+	FRejectCode = RC_EMPTY;
 
 	localCameraState = localMicrophoneState = remoteCameraState = remoteMicrophoneState = ISipDevice::DS_UNAVAIL;
 
@@ -999,17 +1020,28 @@ void SipCall::setCallState(CallState AState)
 				continueAfterRegistration(true);
 			}
 		}
+		else if (AState == CS_TALKING)
+		{
+			FStartCallTime = QDateTime::currentDateTime();
+		}
+		else if (AState == CS_FINISHED)
+		{
+			FStopCallTime = QDateTime::currentDateTime();
+		}
+		else if (AState == CS_ERROR)
+		{
+			FStopCallTime = QDateTime::currentDateTime();
+		}
 		emit stateChanged(FState);
 	}
 }
 
-void SipCall::setCallError(ErrorCode ACode, const QString &AMessage)
+void SipCall::setCallError(ErrorCode ACode)
 {
-	if (FErrorCode == EC_NONE)
+	if (FErrorCode == EC_EMPTY)
 	{
-		LogDetail(QString("[SipCall] Call error changed to '%1' with message='%2', sid='%3'").arg(ACode).arg(AMessage).arg(sessionId()));
+		LogDetail(QString("[SipCall] Call error changed to '%1', sid='%2'").arg(ACode).arg(sessionId()));
 		FErrorCode = ACode;
-		FErrorString = AMessage;
 		setCallState(CS_ERROR);
 	}
 }
@@ -1039,7 +1071,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				Stanza error = FStanzaProcessor->makeReplyError(FAcceptStanza,err);
 				FStanzaProcessor->sendStanzaOut(streamJid(), error);
 			}
-			setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
+			setCallError(EC_CONNECTIONERR);
 		}
 		FActiveDestinations.clear();
 	}
@@ -1058,7 +1090,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
 					FCallRequests.insert(accept.id(), contactJid());
 				else
-					setCallError(EC_CONNECTIONERR, tr("Failed to accept call"));
+					setCallError(EC_CONNECTIONERR);
 			}
 			else
 			{
@@ -1067,8 +1099,8 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				QDomElement queryElem = error.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "callee_error");
 				queryElem.setAttribute("sid", sessionId());
-				setCallError(EC_CONNECTIONERR,tr("Failed to register on SIP server"));
 				FStanzaProcessor->sendStanzaOut(streamJid(),error);
+				setCallError(EC_CONNECTIONERR);
 			}
 		}
 	}
@@ -1131,7 +1163,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 				LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
 			else
 				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status (%1) %2, uri is \'%3\'").arg(status).arg(SipManager::resolveErrorCode(status)).arg(uriTmp));
-			setCallError(ISipCall::EC_CONNECTIONERR, QString("SIP call to %1 failed").arg(AContactJid.full()));
+			setCallError(EC_CONNECTIONERR);
 		}
 	}
 	else
@@ -1147,9 +1179,8 @@ void SipCall::onRingTimerTimeout()
 		LogDetail(QString("[SipCall] Ring timer timed out, sid='%1'").arg(sessionId()));
 		if (role() == CR_INITIATOR)
 		{
-			if (!isDirectCall())
-				notifyActiveDestinations("timeout_error");
-			setCallError(EC_NOANSWER,tr("Remote user is not answering"));
+			if (isDirectCall())
+				setCallError(EC_NOANSWER);
 		}
 		else if (role() == CR_RESPONDER)
 		{
@@ -1162,7 +1193,7 @@ void SipCall::onRingTimerTimeout()
 				queryElem.setAttribute("sid",sessionId());
 				FStanzaProcessor->sendStanzaOut(streamJid(),timeout);
 			}
-			setCallError(EC_NOANSWER,tr("Call is not accepted"));
+			setCallError(EC_NOANSWER);
 		}
 	}
 }

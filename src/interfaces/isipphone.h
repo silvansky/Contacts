@@ -5,64 +5,7 @@
 #include <QDateTime>
 #include <utils/jid.h>
 
-#define SIPPHONE_UUID   "{28686B71-6E29-4065-8D2E-6116F2491394}"
 #define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
-
-struct ISipStream 
-{
-	enum Kind {
-		SK_INITIATOR,
-		SK_RESPONDER
-	};
-	enum State {
-		SS_OPEN,
-		SS_OPENED,
-		SS_CLOSE,
-		SS_CLOSED
-	};
-	enum ErrorFlag
-	{
-		EF_NO_ERROR = 0,
-		EF_REGFAIL,
-		EF_DEVERR
-	};
-	ISipStream()
-	{
-		kind = SK_INITIATOR;
-		state = SS_CLOSED;
-		errFlag = EF_NO_ERROR;
-		timeout = false;
-	}
-	int kind;
-	int state;
-	int errFlag;
-	QString failReason;
-	QString sid;
-	Jid streamJid;
-	Jid contactJid;
-	bool timeout;
-	QUuid contentId;
-	QDateTime startTime;
-};
-
-class ISipPhone
-{
-public:
-	virtual QObject *instance() =0;
-	virtual bool isSupported(const Jid &AStreamJid, const Jid &AContactJid) const =0;
-	virtual QList<QString> streams() const =0;
-	virtual ISipStream streamById(const QString &AStreamId) const =0;
-	virtual QString findStream(const Jid &AStreamJid, const Jid &AContactJid) const =0;
-	virtual QString openStream(const Jid &AStreamJid, const Jid &AContactJid) =0;
-	virtual bool acceptStream(const QString &AStreamId) =0;
-	virtual void closeStream(const QString &AStreamId) =0;
-protected:
-	virtual void streamCreated(const QString &AStreamId) =0;
-	virtual void streamStateChanged(const QString &AStreamId, int AState) =0;
-	virtual void streamRemoved(const QString &AStreamId) =0;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////
 
 struct ISipDevice
 {
@@ -126,9 +69,15 @@ struct ISipDevice
 class ISipCall
 {
 public:
+	enum CallerRole
+	{
+		CR_INITIATOR,
+		CR_RESPONDER
+	};
+
 	enum CallState
 	{
-		CS_NONE,
+		CS_INIT,
 		CS_CALLING,
 		CS_CONNECTING,
 		CS_TALKING,
@@ -136,27 +85,22 @@ public:
 		CS_ERROR
 	};
 
+	enum RejectionCode
+	{
+		RC_EMPTY,
+		RC_BUSY,
+		RC_BYUSER,
+		RC_NOHANDLER
+	};
+
 	enum ErrorCode
 	{
-		EC_NONE,
+		EC_EMPTY,
 		EC_BUSY,
 		EC_NOTAVAIL,
 		EC_NOANSWER,
 		EC_REJECTED,
 		EC_CONNECTIONERR
-	};
-
-	enum CallerRole
-	{
-		CR_INITIATOR,
-		CR_RESPONDER
-	};
-
-	enum RejectionCode
-	{
-		RC_BYUSER,
-		RC_BUSY,
-		RC_NOHANDLER
 	};
 
 	virtual QObject *instance() = 0;
@@ -172,7 +116,8 @@ public:
 	virtual CallState state() const = 0;
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
-	virtual quint32 callTime() const = 0; // in milliseconds
+	virtual RejectionCode rejectCode() const =0;
+	virtual quint32 callTime() const = 0;
 	virtual QString callTimeString() const = 0;
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
 	// devices
@@ -231,6 +176,5 @@ protected:
 Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")
 Q_DECLARE_INTERFACE(ISipCallHandler,"Virtus.Plugin.ISipCallHandler/1.0")
 Q_DECLARE_INTERFACE(ISipManager,"Virtus.Plugin.ISipManager/1.0")
-Q_DECLARE_INTERFACE(ISipPhone,"Virtus.Plugin.ISipPhone/1.0")
 
 #endif //ISIPPHONE_H

@@ -226,7 +226,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 {
 	switch (AState)
 	{
-	case ISipCall::CS_NONE:
+	case ISipCall::CS_INIT:
 		ui.pbtAccept->setVisible(false);
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(false);

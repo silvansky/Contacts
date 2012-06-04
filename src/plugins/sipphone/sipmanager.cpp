@@ -799,7 +799,7 @@ void SipManager::showNotifyInChatWindow(ISipCall *ACall,const QString &AIconId, 
 	if (FMessageProcessor && FMessageWidgets)
 	{
 		CallNotifyParams &params = FCallNotifyParams[ACall];
-		if (FMessageProcessor->createMessageWindow(ACall->streamJid(),ACall->contactJid(),Message::Chat,AOpen ? IMessageHandler::SM_SHOW : IMessageHandler::SM_ASSIGN))
+		if (FMessageProcessor->createMessageWindow(ACall->streamJid(),ACall->contactJid(),Message::Chat,AOpen ? IMessageHandler::SM_MINIMIZED : IMessageHandler::SM_ASSIGN))
 		{
 			IChatWindow *window = FMessageWidgets->findChatWindow(ACall->streamJid(),ACall->contactJid());
 			if (window)
@@ -823,6 +823,11 @@ void SipManager::showNotifyInChatWindow(ISipCall *ACall,const QString &AIconId, 
 				QString html = QString("<img src='%1'/> <b>%2</b>").arg(iconFile.toString()).arg(Qt::escape(ANotify));
 
 				params.contentId = window->viewWidget()->changeContentHtml(html,options);
+				params.view = window->viewWidget();
+				params.contentTime = options.time;
+
+				connect(window->viewWidget()->instance(),SIGNAL(contentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),
+					SLOT(onViewWidgetContentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),Qt::UniqueConnection);
 			}
 		}
 	}
@@ -864,7 +869,10 @@ void SipManager::onCallStateChanged(int AState)
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+				if (call->callTime() > 0)
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+				else
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 canceled.").arg(userNick));
 			}
 			else if (AState == ISipCall::CS_ERROR)
 			{
@@ -875,7 +883,7 @@ void SipManager::onCallStateChanged(int AState)
 					break;
 				case ISipCall::EC_NOANSWER:
 				case ISipCall::EC_REJECTED:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call.").arg(userNick));
 					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
@@ -894,12 +902,21 @@ void SipManager::onCallStateChanged(int AState)
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+				if (call->callTime() > 0)
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+				else if (call->rejectCode() == ISipCall::RC_EMPTY)
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 accepted.").arg(userNick));
+				else
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 canceled.").arg(userNick));
 			}
 			else if (AState == ISipCall::CS_ERROR)
 			{
 				switch (call->errorCode())
 				{
+				case ISipCall::EC_NOANSWER:
+				case ISipCall::EC_REJECTED:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Missed call from %1.").arg(userNick),true);
+					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
 				}
@@ -1090,6 +1107,24 @@ void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 void SipManager::onMetaTabWindowDestroyed(IMetaTabWindow *AWindow)
 {
 	FCallMenus.remove(AWindow);
+}
+
+void SipManager::onViewWidgetContentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions)
+{
+	Q_UNUSED(AContentId);
+	Q_UNUSED(AMessage);
+	if (AOptions.action==IMessageContentOptions::InsertAfter && AOptions.contentId.isNull())
+	{
+		IViewWidget *widget = qobject_cast<IViewWidget *>(sender());
+		for (QMap<ISipCall *, CallNotifyParams>::iterator it = FCallNotifyParams.begin(); it!=FCallNotifyParams.end(); it++)
+		{
+			if (it->view==widget && it->contentTime<=AOptions.time)
+			{
+				it->contentId = QUuid();
+				break;
+			}
+		}
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_sipmanager, SipManager)

@@ -33,6 +33,7 @@ public:
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
+	virtual RejectionCode rejectCode() const;
 	virtual quint32 callTime() const; // in milliseconds
 	virtual QString callTimeString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
@@ -61,20 +62,20 @@ public:
 	int accountId() const;
 	bool acceptIncomingCall(int ACallId);
 public:
-	static SipCall *findCallById(int ACallId);
-	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
-public:
 	// pjsip callbacks
 	void onCallState(int call_id, /*pjsip_event **/ void *e);
 	void onCallMediaState(int call_id);
 	void onCallTsxState(int call_id, /*pjsip_transaction **/void *tsx, /*pjsip_event **/ void *e);
 	int onMyPutFrameCallback(/*pjmedia_frame **/void *frame, int w, int h, int stride);
 	int onMyPreviewFrameCallback(/*pjmedia_frame **/void *frame, const char* colormodelName, int w, int h, int stride);
+public:
+	static SipCall *findCallById(int ACallId);
+	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
 	void initDevices();
 	void setCallState(CallState AState);
-	void setCallError(ErrorCode ACode, const QString &AMessage);
+	void setCallError(ErrorCode ACode);
 	void continueAfterRegistration(bool ARegistered);
 	void notifyActiveDestinations(const QString &AType);
 	void sipCallTo(const Jid &AContactJid);
@@ -116,9 +117,11 @@ private:
 	CallerRole FRole;
 	CallState FState;
 	ErrorCode FErrorCode;
+	RejectionCode FRejectCode;
 	QString FErrorString;
 	QList<Jid> FDestinations;
 	QDateTime FStartCallTime;
+	QDateTime FStopCallTime;
 private:
 	int FSHICallAccept;
 	QTimer FRingTimer;
