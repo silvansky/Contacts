@@ -1035,7 +1035,7 @@ void SipManager::onCallStateChanged(int AState)
 				case ISipCall::EC_NOANSWER:
 				case ISipCall::EC_REJECTED:
 					showMissedCallNotify(call);
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Missed call."),true);
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_MISSED,tr("Missed call."),true);
 					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
