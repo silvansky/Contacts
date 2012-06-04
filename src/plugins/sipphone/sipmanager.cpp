@@ -6,9 +6,14 @@
 
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/soundfiles.h>
 #include <definitions/namespaces.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
+#include <definitions/notificationtypes.h>
+#include <definitions/notificationdataroles.h>
+#include <definitions/tabpagenotifypriorities.h>
+#include <definitions/optionwidgetorders.h>
 #include <definitions/rosternotifyorders.h>
 #include <definitions/sipcallhandlerorders.h>
 #include <definitions/gateserviceidentifiers.h>
@@ -81,6 +86,7 @@ SipManager::SipManager() :
 	FMessageStyles = NULL;
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
+	FNotifications = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -149,7 +155,13 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 
 	plugin = APluginManager->pluginInterface("IXmppStreams").value(0,NULL);
 	if (plugin)
+	{
 		FXmppStreams = qobject_cast<IXmppStreams*>(plugin->instance());
+		if (FXmppStreams)
+		{
+			connect(FXmppStreams->instance(),SIGNAL(removed(IXmppStream *)),SLOT(onXmppStreamRemoved(IXmppStream *)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
@@ -170,6 +182,17 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0,NULL);
 	if (plugin)
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("INotifications").value(0,NULL);
+	if (plugin)
+	{
+		FNotifications = qobject_cast<INotifications *>(plugin->instance());
+		if (FNotifications)
+		{
+			connect(FNotifications->instance(),SIGNAL(notificationActivated(int)),SLOT(onNotificationActivated(int)));
+			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)),SLOT(onNotificationRemoved(int)));
+		}
+	}
 
 	return FStanzaProcessor;
 }
@@ -194,6 +217,14 @@ bool SipManager::initObjects()
 		shandle.conditions.append(SHC_SIP_QUERY);
 		FSHISipQuery = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
+	if (FNotifications)
+	{
+		INotificationType notifyType;
+		notifyType.order = OWO_NOTIFICATIONS_SIPPHONE_MISSEDCALL;
+		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge|INotification::AutoActivate;
+		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
+		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,notifyType);
+	}
 
 	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS, this);
 
@@ -217,16 +248,26 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const QString &APhoneNumber)
 {
-	SipCall *call = new SipCall(this, AStreamJid, APhoneNumber, QUuid::createUuid().toString());
-	emit sipCallCreated(call);
-	return call;
+	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	if (xmppStream)
+	{
+		SipCall *call = new SipCall(this, xmppStream, APhoneNumber, QUuid::createUuid().toString());
+		emit sipCallCreated(call);
+		return call;
+	}
+	return NULL;
 }
 
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations)
 {
-	SipCall *call = new SipCall(this, FStanzaProcessor, AStreamJid, ADestinations, QUuid::createUuid().toString());
-	emit sipCallCreated(call);
-	return call;
+	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	if (xmppStream)
+	{
+		SipCall *call = new SipCall(this, FStanzaProcessor, xmppStream, ADestinations, QUuid::createUuid().toString());
+		emit sipCallCreated(call);
+		return call;
+	}
+	return NULL;
 }
 
 QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId) const
@@ -744,19 +785,23 @@ void SipManager::destroySipStack()
 
 bool SipManager::handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
 {
+	bool handled = false;
 	LogDetail(QString("[SipManager]: Processing incoming call from %1 to %2, sid='%3'").arg(AContactJid.full(), AStreamJid.full(), ASessionId));
 
-	SipCall *call = new SipCall(this,FStanzaProcessor,AStreamJid,AContactJid,ASessionId);
-	emit sipCallCreated(call);
-
-	bool handled = false;
-	for (QMap<int,ISipCallHandler *>::const_iterator it=FCallHandlers.constBegin(); !handled && it!=FCallHandlers.constEnd(); it++)
-		handled = it.value()->handleSipCall(it.key(),call);
-
-	if (!handled)
+	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	if (xmppStream)
 	{
-		call->rejectCall(ISipCall::RC_NOHANDLER);
-		call->deleteLater();
+		SipCall *call = new SipCall(this,FStanzaProcessor,xmppStream,AContactJid,ASessionId);
+		emit sipCallCreated(call);
+
+		for (QMap<int,ISipCallHandler *>::const_iterator it=FCallHandlers.constBegin(); !handled && it!=FCallHandlers.constEnd(); it++)
+			handled = it.value()->handleSipCall(it.key(),call);
+
+		if (!handled)
+		{
+			call->rejectCall(ISipCall::RC_NOHANDLER);
+			call->deleteLater();
+		}
 	}
 	
 	return handled;
@@ -769,6 +814,60 @@ void SipManager::registerCallNotify(ISipCall *ACall)
 
 	connect(ACall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
 	connect(ACall->instance(),SIGNAL(callDestroyed()),SLOT(onCallDestroyed()));
+}
+
+void SipManager::showMissedCallNotify(ISipCall *ACall)
+{
+	if (FNotifications && FMessageProcessor && FMessageWidgets)
+	{
+		if (FMessageProcessor->createMessageWindow(ACall->streamJid(),ACall->contactJid(),Message::Chat,IMessageHandler::SM_ASSIGN))
+		{
+			IChatWindow *window = FMessageWidgets->findChatWindow(ACall->streamJid(),ACall->contactJid());
+			if (window)
+			{
+				INotification notify;
+				notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_SIPPHONE_MISSEDCALL);
+				if (notify.kinds > 0)
+				{
+					int missedCount = 1;
+					QList<int> oldNotifies = findRelatedNotifies(ACall->streamJid(),ACall->contactJid());
+					foreach(int oldNotifyId, oldNotifies)
+					{
+						INotification oldNotify = FNotifications->notificationById(oldNotifyId);
+						missedCount += oldNotify.data.value(NDR_TABPAGE_NOTIFYCOUNT).toInt();
+						FNotifications->removeNotification(oldNotifyId);
+					}
+
+					QString name = FNotifications->contactName(ACall->streamJid(),ACall->contactJid());
+					QString missedcalls = tr("%n missed call(s)","",missedCount);
+
+					notify.typeId = NNT_CHAT_MESSAGE;
+					notify.data.insert(NDR_STREAM_JID,ACall->streamJid().full());
+					notify.data.insert(NDR_CONTACT_JID,ACall->contactJid().full());
+					notify.data.insert(NDR_ICON_KEY,MNI_SIPPHONE_CALL_MISSED);
+					notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
+					notify.data.insert(NDR_ROSTER_ORDER,RNO_SIPCALL_MISSEDCALL);
+					notify.data.insert(NDR_ROSTER_FLAGS,IRostersNotify::AllwaysVisible|IRostersNotify::ExpandParents);
+					notify.data.insert(NDR_ROSTER_HOOK_CLICK,true);
+					notify.data.insert(NDR_ROSTER_CREATE_INDEX,false);
+					notify.data.insert(NDR_ROSTER_FOOTER,missedcalls);
+					notify.data.insert(NDR_ROSTER_BACKGROUND,QBrush(Qt::yellow));
+					notify.data.insert(NDR_TRAY_TOOLTIP,QString("%1 - %2").arg(name.split(" ").value(0)).arg(missedcalls));
+					notify.data.insert(NDR_ALERT_WIDGET,(qint64)window->instance());
+					notify.data.insert(NDR_SHOWMINIMIZED_WIDGET,(qint64)window->instance());
+					notify.data.insert(NDR_TABPAGE_WIDGET,(qint64)window->instance());
+					notify.data.insert(NDR_TABPAGE_PRIORITY,TPNP_MISSEDCALL);
+					notify.data.insert(NDR_TABPAGE_ICONBLINK,false);
+					notify.data.insert(NDR_TABPAGE_TOOLTIP,missedcalls);
+					notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,missedCount);
+					notify.data.insert(NDR_SOUND_FILE,SDF_SIPPHONE_CALL_MISSED);
+
+					FMissedCallNotifies.insert(FNotifications->appendNotification(notify),window);
+					connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onChatWindowActivated()),Qt::UniqueConnection);
+				}
+			}
+		}
+	}
 }
 
 void SipManager::showNotifyInRoster(ISipCall *ACall, const QString &AIconId, const QString &AFooter)
@@ -831,6 +930,26 @@ void SipManager::showNotifyInChatWindow(ISipCall *ACall,const QString &AIconId, 
 			}
 		}
 	}
+}
+
+QList<int> SipManager::findRelatedNotifies(const Jid &AStreamJid, const Jid &AContactJid) const
+{
+	QList<int> notifies;
+	IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(AStreamJid) : NULL;
+	QString metaId = mroster!=NULL ? mroster->itemMetaContact(AContactJid) : QString::null;
+	for (QMap<int, IChatWindow *>::const_iterator it=FMissedCallNotifies.constBegin(); it!=FMissedCallNotifies.constEnd(); it++)
+	{
+		if (mroster && !metaId.isEmpty())
+		{
+			if (mroster->streamJid()==(*it)->streamJid() && mroster->itemMetaContact((*it)->contactJid())==metaId)
+				notifies.append(it.key());
+		}
+		else if (AContactJid == (*it)->contactJid())
+		{
+			notifies.append(it.key());
+		}
+	}
+	return notifies;
 }
 
 void SipManager::onCallStateChanged(int AState)
@@ -915,7 +1034,8 @@ void SipManager::onCallStateChanged(int AState)
 				{
 				case ISipCall::EC_NOANSWER:
 				case ISipCall::EC_REJECTED:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Missed call from %1.").arg(userNick),true);
+					showMissedCallNotify(call);
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Missed call."),true);
 					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
@@ -969,7 +1089,6 @@ void SipManager::onStartPhoneCall()
 		ISipCall *call = newCall(streamJid,number);
 		if (call)
 		{
-			registerCallNotify(call);
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
 			window->sipCall()->startCall();
 			WidgetManager::showActivateRaiseWindow(window->window());
@@ -1081,6 +1200,34 @@ void SipManager::onCallMenuAboutToHide()
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 0);
 		menu->clear();
 	}
+}
+
+void SipManager::onChatWindowActivated()
+{
+	if (FNotifications)
+		FNotifications->removeNotification(FMissedCallNotifies.key(qobject_cast<IChatWindow *>(sender())));
+}
+
+void SipManager::onNotificationActivated(int ANotifyId)
+{
+	if (FMissedCallNotifies.contains(ANotifyId))
+	{
+		IChatWindow *window = FMissedCallNotifies.value(ANotifyId);
+		if (window)
+			window->showTabPage();
+		FNotifications->removeNotification(ANotifyId);
+	}
+}
+
+void SipManager::onNotificationRemoved(int ANotifyId)
+{
+	FMissedCallNotifies.remove(ANotifyId);
+}
+
+void SipManager::onXmppStreamRemoved(IXmppStream *AXmppStream)
+{
+	foreach(ISipCall *call, SipCall::findCalls(AXmppStream->streamJid()))
+		call->rejectCall(ISipCall::RC_BYUSER);
 }
 
 void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)

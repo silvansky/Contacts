@@ -4,6 +4,7 @@
 #include <QMap>
 #include <QTimer>
 #include <interfaces/isipphone.h>
+#include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
 
 class SipCall :
@@ -15,9 +16,9 @@ class SipCall :
 	Q_OBJECT
 	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
 public:
-	SipCall(ISipManager *ASipManager, const Jid &AStreamJid, const QString &APhoneNumber, const QString &ASessionId);
-	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
-	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const Jid &AContactJid, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QList<Jid> &ADestinations, const QString &ASessionId);
 	virtual ~SipCall();
 	virtual QObject *instance();
 	// ISipCall
@@ -72,7 +73,7 @@ public:
 	static SipCall *findCallById(int ACallId);
 	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
 protected:
-	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId);
+	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId);
 	void initDevices();
 	void setCallState(CallState AState);
 	void setCallError(ErrorCode ACode);
@@ -85,6 +86,7 @@ protected slots:
 	void onUnRegisteredAtServer(const QString &AAccount);
 	void onRegistraitionAtServerFailed(const QString &AAccount);
 private:
+	IXmppStream *FXmppStream;
 	ISipManager *FSipManager;
 	IStanzaProcessor *FStanzaProcessor;
 private:
@@ -111,7 +113,6 @@ private:
 	int FAccountId;
 private:
 	bool FDirectCall;
-	Jid FStreamJid;
 	Jid FContactJid;
 	QString FSessionId;
 	CallerRole FRole;

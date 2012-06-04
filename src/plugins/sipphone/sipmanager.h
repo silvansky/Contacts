@@ -19,6 +19,7 @@
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/imessageprocessor.h>
+#include <interfaces/inotifications.h>
 
 struct CallNotifyParams
 {
@@ -94,8 +95,10 @@ protected:
 	void destroySipStack();
 	bool handleIncomingCall(const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId);
 	void registerCallNotify(ISipCall *ACall);
+	void showMissedCallNotify(ISipCall *ACall);
 	void showNotifyInRoster(ISipCall *ACall,const QString &AIconId, const QString &AFooter);
 	void showNotifyInChatWindow(ISipCall *ACall, const QString &AIconId, const QString &ANotify, bool AOpen = false);
+	QList<int> findRelatedNotifies(const Jid &AStreamJid, const Jid &AContactJid) const;
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDestroyed();
@@ -105,6 +108,10 @@ protected slots:
 	void onShowAddContactDialog();
 	void onCallMenuAboutToShow();
 	void onCallMenuAboutToHide();
+	void onChatWindowActivated();
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
+	void onXmppStreamRemoved(IXmppStream *AXmppStream);
 	void onMetaTabWindowCreated(IMetaTabWindow *AWindow);
 	void onMetaTabWindowDestroyed(IMetaTabWindow *AWindow);
 	void onViewWidgetContentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions);
@@ -121,6 +128,7 @@ private:
 	IMessageStyles *FMessageStyles;
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
+	INotifications *FNotifications;
 private:
 	int FSHISipQuery;
 private:
@@ -129,6 +137,7 @@ private:
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;
 	QMap<ISipCall *, CallNotifyParams> FCallNotifyParams;
+	QMap<int, IChatWindow *> FMissedCallNotifies;
 private:
 	static SipManager *inst;
 };

@@ -20,4 +20,8 @@
     <key>sipphoneCallRinging</key>
     <object mime='sound/wav'>sipphonecallring.wav</object>
   </file>
+  <file>
+    <key>sipphoneCallMissed</key>
+    <object mime='sound/wav'>sipphonecallmissed.wav</object>
+  </file>
 </sounddef>

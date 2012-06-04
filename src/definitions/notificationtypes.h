@@ -17,6 +17,7 @@
 #define NNT_MUC_MESSAGE_GROUPCHAT    "MucMessageGroupchat"
 #define NNT_MUC_MESSAGE_PRIVATE      "MucMessagePrivate"
 #define NNT_MUC_MESSAGE_MENTION      "MucMessageMention"
+#define NNT_SIPPHONE_MISSEDCALL      "SipMissedCall"
 
 
 #endif // DEF_NOTIFICATORS_H

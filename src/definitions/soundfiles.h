@@ -38,6 +38,7 @@
 #define SDF_SIPPHONE_CALL_WAIT                            "sipphoneCallWait"
 #define SDF_SIPPHONE_CALL_BUSY                            "sipphoneCallBusy"
 #define SDF_SIPPHONE_CALL_RINGING                         "sipphoneCallRinging"
+#define SDF_SIPPHONE_CALL_MISSED                          "sipphoneCallMissed"
 
 //StatusChanger
 #define SDF_SCHANGER_CONNECTION_ERROR                     "schangerConnectionError"

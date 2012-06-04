@@ -3,6 +3,7 @@
 
 #define RNO_RAMBLER_MAIL_NOTIFY                   300
 #define RNO_CHATHANDLER_MESSAGE                   300
+#define RNO_SIPCALL_MISSEDCALL                    400
 #define RNO_RCHANGER_SUBSCRIPTION                 500
 #define RNO_MUC_INVITE                            600
 #define RNO_CHATSTATES_TYPING                     900

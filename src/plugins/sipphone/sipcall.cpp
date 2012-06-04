@@ -23,33 +23,33 @@
 QList<SipCall *> SipCall::FCallInstances;
 
 
-SipCall::SipCall(ISipManager *ASipManager, const Jid &AStreamJid, const QString &APhoneNumber, const QString &ASessionId)
+SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId)
 {
 	FDirectCall = true;
 	FRole = CR_INITIATOR;
 	FContactJid = Jid(APhoneNumber,"vsip.rambler.ru",QString::null);
-	init(ASipManager, NULL, AStreamJid, ASessionId);
+	init(ASipManager, NULL, AXmppStream, ASessionId);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR FOR DIRECT CALL, sid='%1'").arg(sessionId()));
 }
 
-SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const Jid &AContactJid, const QString &ASessionId)
+SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const Jid &AContactJid, const QString &ASessionId)
 {
 	FDirectCall = false;
 	FContactJid = AContactJid;
-	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
+	init(ASipManager, AStanzaProcessor, AXmppStream, ASessionId);
 	
 	FRole = CR_RESPONDER;
 
 	LogDetail(QString("[SipCall] Call created as RESPONDER, sid='%1'").arg(sessionId()));
 }
 
-SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QList<Jid> &ADestinations, const QString &ASessionId)
+SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QList<Jid> &ADestinations, const QString &ASessionId)
 {
 	FDirectCall = false;
 	FRole = CR_INITIATOR;
 	FDestinations = ADestinations;
-	init(ASipManager, AStanzaProcessor, AStreamJid, ASessionId);
+	init(ASipManager, AStanzaProcessor, AXmppStream, ASessionId);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR, sid='%1'").arg(sessionId()));
 }
@@ -78,7 +78,7 @@ bool SipCall::isDirectCall() const
 
 Jid SipCall::streamJid() const
 {
-	return FStreamJid;
+	return FXmppStream->streamJid();
 }
 
 Jid SipCall::contactJid() const
@@ -910,13 +910,13 @@ QList<ISipCall*> SipCall::findCalls( const Jid &AStreamJid, const Jid &AContactJ
 	return found;
 }
 
-void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, const Jid &AStreamJid, const QString &ASessionId)
+void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId)
 {
 	FSipManager = AManager;
+	FXmppStream = AXmppStream;
 	FStanzaProcessor = AStanzaProcessor;
 
 	FSessionId = ASessionId;
-	FStreamJid = AStreamJid;
 	FCallId = -1;
 	FAccountId = -1;
 	FSHICallAccept = -1;
@@ -1010,9 +1010,9 @@ void SipCall::setCallState(CallState AState)
 			if (isDirectCall())
 				FRingTimer.start(RING_TIMEOUT);
 
-			if (!FSipManager->isRegisteredAtServer(FStreamJid))
+			if (!FSipManager->isRegisteredAtServer(streamJid()))
 			{
-				if (!FSipManager->registerAtServer(FStreamJid))
+				if (!FSipManager->registerAtServer(streamJid()))
 					continueAfterRegistration(false);
 			}
 			else
