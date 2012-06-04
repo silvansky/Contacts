@@ -400,12 +400,15 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 			{
 				if (FCallId != -1)
 				{
-					float newLocalMicVolume = 0.0f;
-					if (AState != ISipDevice::DS_DISABLED)
-						newLocalMicVolume = deviceProperty(AType, ISipDevice::LMP_VOLUME).toFloat();
-					pjsua_call_info ci;
-					pjsua_call_get_info(FCallId, &ci);
-					pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
+//					float newLocalMicVolume = 0.0f;
+//					if (AState != ISipDevice::DS_DISABLED)
+//						newLocalMicVolume = deviceProperty(AType, ISipDevice::LMP_VOLUME).toFloat();
+//					pjsua_call_info ci;
+//					pjsua_call_get_info(FCallId, &ci);
+//					pj_status_t pjstatus = pjsua_conf_adjust_tx_level(ci.conf_slot, newLocalMicVolume);
+
+					pj_status_t pjstatus = pjsua_aud_stream_pause_state(FCallId, PJMEDIA_DIR_CAPTURE, (AState == ISipDevice::DS_ENABLED) ? false : true);
+
 					if ((status = (pjstatus == PJ_SUCCESS)))
 					{
 						stateChanged = true;
