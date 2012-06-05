@@ -569,6 +569,7 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 		if (SipCall::findCalls().count()==1)
 		{
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,ACall);
+			connect(window,SIGNAL(chatWindowRequested()),SLOT(onVideoCallChatWindowRequested()));
 			WidgetManager::showActivateRaiseWindow(window->window());
 			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
 			ACall->startCall();
@@ -1071,9 +1072,10 @@ void SipManager::onStartVideoCall()
 		{
 			registerCallNotify(call);
 			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
-			window->sipCall()->startCall();
+			connect(window,SIGNAL(chatWindowRequested()),SLOT(onVideoCallChatWindowRequested()));
 			WidgetManager::showActivateRaiseWindow(window->window());
 			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+			window->sipCall()->startCall();
 		}
 	}
 }
@@ -1206,6 +1208,16 @@ void SipManager::onChatWindowActivated()
 {
 	if (FNotifications)
 		FNotifications->removeNotification(FMissedCallNotifies.key(qobject_cast<IChatWindow *>(sender())));
+}
+
+void SipManager::onVideoCallChatWindowRequested()
+{
+	if (FMessageProcessor)
+	{
+		VideoCallWindow *window = qobject_cast<VideoCallWindow *>(sender());
+		if (window)
+			FMessageProcessor->createMessageWindow(window->sipCall()->streamJid(),window->sipCall()->contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+	}
 }
 
 void SipManager::onNotificationActivated(int ANotifyId)

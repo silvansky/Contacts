@@ -20,6 +20,8 @@ public:
 	ISipCall *sipCall() const;
 public:
 	QSize sizeHint() const;
+signals:
+	void chatWindowRequested();
 protected:
 	void closeWindowWithAnimation();
 	void restoreWindowGeometryWithAnimation();
@@ -34,7 +36,6 @@ protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
 	void mouseMoveEvent(QMouseEvent *AEvent);
-	void mouseDoubleClickEvent(QMouseEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);

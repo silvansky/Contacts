@@ -1,7 +1,9 @@
 #include "callcontrolwidget.h"
 
 #include <QFile>
+#include <QMouseEvent>
 #include <QResizeEvent>
+#include <QApplication>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/soundfiles.h>
@@ -15,7 +17,16 @@
 CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+	setMouseTracking(true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_CALLCONTROLWIDGET);
+
+	setProperty("ignoreFilter",true);
+	ui.lblName->setProperty("ignoreFilter",true);
+	ui.lblNotice->setProperty("ignoreFilter",true);
+	ui.lblAvatar->setProperty("ignoreFilter",true);
+	ui.wdtControlls->setProperty("ignoreFilter",true);
+	ui.frmBackground->setProperty("ignoreFilter",true);
+	ui.wdtDeviceControls->setProperty("ignoreFilter",true);
 
 	FAvatars = NULL;
 	FGateways = NULL;
@@ -220,6 +231,24 @@ void CallControlWidget::resizeEvent(QResizeEvent *AEvent)
 		else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible() && ui.lblName->isVisible())
 			ui.lblAvatar->setVisible(true);
 	}
+}
+
+void CallControlWidget::mousePressEvent(QMouseEvent *AEvent)
+{
+	if (AEvent->button() == Qt::LeftButton)
+		FGlobalPressed = AEvent->globalPos();
+	QWidget::mousePressEvent(AEvent);
+}
+
+void CallControlWidget::mouseReleaseEvent(QMouseEvent *AEvent)
+{
+	if (!FGlobalPressed.isNull())
+	{
+		if ((FGlobalPressed-AEvent->globalPos()).manhattanLength()<qApp->startDragDistance())
+			emit chatWindowRequested();
+		FGlobalPressed = QPoint();
+	}
+	QWidget::mouseReleaseEvent(AEvent);
 }
 
 void CallControlWidget::onCallStateChanged(int AState)

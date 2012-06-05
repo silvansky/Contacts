@@ -41,12 +41,9 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #else
 		setWindowOntop(this, true);
+		setWindowGrowButtonEnabled(this, false);
 		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeChanged(QWidget*,bool)), SLOT(onWindowFullScreenModeChanged(QWidget*,bool)));
 		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeWillChange(QWidget*,bool)), SLOT(onWindowFullScreenModeWillChange(QWidget*,bool)));
-#endif
-#ifdef Q_WS_MAC
-		//setWindowFullScreenEnabled(this, true);
-		setWindowGrowButtonEnabled(this, false);
 #endif
 	}
 
@@ -72,6 +69,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	ui.wdtControls->layout()->setMargin(0);
 	ui.wdtControls->layout()->addWidget(FCtrlWidget);
 	connect(FCtrlWidget,SIGNAL(silentButtonClicked()),SLOT(onSilentButtonClicked()));
+	connect(FCtrlWidget,SIGNAL(chatWindowRequested()),SIGNAL(chatWindowRequested()));
 
 #ifdef Q_WS_MAC
 	FFullScreen = NULL;
@@ -311,11 +309,6 @@ void VideoCallWindow::mouseMoveEvent(QMouseEvent *AEvent)
 		setControllsVisible(true);
 	}
 	QWidget::mouseMoveEvent(AEvent);
-}
-
-void VideoCallWindow::mouseDoubleClickEvent(QMouseEvent *AEvent)
-{
-	QWidget::mouseDoubleClickEvent(AEvent);
 }
 
 void VideoCallWindow::onCallStateChanged(int AState)

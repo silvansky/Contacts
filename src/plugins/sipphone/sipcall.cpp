@@ -649,7 +649,7 @@ void SipCall::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 			else
 			{
 				LogError(QString("[SipCall] Call request rejected by '%1', sid='%2").arg(destination.full(),sessionId()));
-				if (FCallRequests.isEmpty())
+				if (FCallRequests.isEmpty() && FActiveDestinations.isEmpty())
 					setCallError(EC_NOTAVAIL);
 			}
 		}

@@ -30,12 +30,15 @@ public:
 	void setFullScreenMode(bool AEnabled);
 	void playSound(const QString &ASoundKey, int ALoops = 0);
 signals:
+	void chatWindowRequested();
 	void silentButtonClicked();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateDevicesStateAndProperties();
 protected:
 	void resizeEvent(QResizeEvent *AEvent);
+	void mousePressEvent(QMouseEvent *AEvent);
+	void mouseReleaseEvent(QMouseEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
@@ -62,6 +65,7 @@ private:
 	QString FMetaId;
 	QTimer FCallTimer;
 	ISipCall *FSipCall;
+	QPoint FGlobalPressed;
 private:
 #ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;

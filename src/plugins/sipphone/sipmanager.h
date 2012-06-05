@@ -109,6 +109,7 @@ protected slots:
 	void onCallMenuAboutToShow();
 	void onCallMenuAboutToHide();
 	void onChatWindowActivated();
+	void onVideoCallChatWindowRequested();
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
