@@ -7,6 +7,8 @@
 
 #define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
 
+#define SIPPHONE_DEFAULT_DEVICE_INDEX  -1
+
 struct ISipDevice
 {
 	enum Type
@@ -57,13 +59,23 @@ struct ISipDevice
 	ISipDevice()
 	{
 		type = DT_UNDEFINED;
-		id = -1;
+		index = SIPPHONE_DEFAULT_DEVICE_INDEX;
 		name = QString::null;
 	}
 
 	Type type;
-	int id;
+	int index;
 	QString name;
+
+	bool isNull() const {
+		return type==DT_UNDEFINED;
+	}
+	bool operator==(const ISipDevice &AOther) const {
+		return AOther.type==type && AOther.name==name;
+	}
+	bool operator!=(const ISipDevice &AOther) const {
+		return !operator==(AOther);
+	}
 };
 
 class ISipCall
@@ -122,7 +134,7 @@ public:
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
 	// devices
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const = 0;
-	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId) = 0;
+	virtual bool setActiveDevice(ISipDevice::Type AType, const ISipDevice &ADevice) = 0;
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const = 0;
 	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
@@ -156,9 +168,13 @@ public:
 	virtual bool registerAtServer(const Jid &AStreamJid) = 0;
 	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
 	// devices
+	virtual bool updateAvailDevices() =0;
+	virtual bool isDevicePresent(ISipDevice::Type AType) const =0;
+	virtual ISipDevice activeDevice(ISipDevice::Type AType) const =0;
+	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
+	virtual ISipDevice findDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
+	virtual ISipDevice findDevice(ISipDevice::Type AType, const QString &AName) const =0;
 	virtual void showSystemSoundPreferences() const = 0;
-	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType, bool ARefresh = false) const = 0;
-	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;

@@ -61,9 +61,13 @@ public:
 	virtual bool registerAtServer(const Jid &AStreamJid);
 	virtual bool unregisterAtServer(const Jid &AStreamJid);
 	// devices
+	virtual bool updateAvailDevices();
+	virtual bool isDevicePresent(ISipDevice::Type AType) const;
+	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
+	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;
+	virtual ISipDevice findDevice(ISipDevice::Type AType, int ADeviceId) const;
+	virtual ISipDevice findDevice(ISipDevice::Type AType, const QString &AName) const;
 	virtual void showSystemSoundPreferences() const;
-	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType, bool ARefresh = false) const;
-	virtual ISipDevice getDevice(ISipDevice::Type AType, int ADeviceId) const;
 	// handlers
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
@@ -135,6 +139,7 @@ private:
 private:
 	bool FSipStackCreated;
 	QMap<Jid, int> FAccounts;
+	QMultiMap<int, ISipDevice> FAvailDevices;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;
 	QMap<ISipCall *, CallNotifyParams> FCallNotifyParams;

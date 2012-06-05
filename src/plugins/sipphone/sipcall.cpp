@@ -285,17 +285,21 @@ ISipDevice SipCall::activeDevice(ISipDevice::Type AType) const
 	return FDevices.value(AType);
 }
 
-bool SipCall::setActiveDevice(ISipDevice::Type AType, int ADeviceId)
+bool SipCall::setActiveDevice(ISipDevice::Type AType, const ISipDevice &ADevice)
 {
-	ISipDevice newDevice = FSipManager->getDevice(AType,ADeviceId);
-	if (newDevice.id!=-1 && AType!=ISipDevice::DT_UNDEFINED)
+	if (ADevice.type == AType)
 	{
-		if (activeDevice(AType).id != newDevice.id)
+		if (activeDevice(AType) != ADevice)
 		{
-			FDevices.insert(AType,newDevice);
+			LogDetail(QString("[SipCall::setActiveDevice] Active device(type=%1) changed to '%2', index=%3").arg(AType).arg(ADevice.name).arg(ADevice.index));
+			FDevices.insert(AType,ADevice);
 			emit activeDeviceChanged(AType);
 		}
 		return true;
+	}
+	else
+	{
+		LogError(QString("[SipCall::setActiveDevice] Failed to set active device: invalid device type=%1").arg(ADevice.type));
 	}
 	return false;
 }
@@ -346,12 +350,13 @@ bool SipCall::setDeviceState(ISipDevice::Type AType, ISipDevice::State AState)
 		}
 		if (pjstatus == PJ_SUCCESS)
 		{
+			LogDetail(QString("[SipCall::setDeviceState] Device(type=%1) state changed to %2").arg(AType).arg(AState));
 			changeDeviceState(AType,AState);
 			return true;
 		}
 		else
 		{
-			LogError(QString("[SipCall::setDeviceState]: Failed to change device(%1) state to %2, pjstatus=%3, pjerror='%4'").arg(AType).arg(AState).arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
+			LogError(QString("[SipCall::setDeviceState]: Failed to change device(type=%1) state to %2, pjstatus=%3, pjerror='%4'").arg(AType).arg(AState).arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
 			return false;
 		}
 	}
@@ -405,7 +410,7 @@ bool SipCall::setDeviceProperty(ISipDevice::Type AType, int AProperty, const QVa
 						if (pjstatus == PJ_SUCCESS)
 							changed = true;
 						else
-							LogError(QString("[SipCall::setDeviceProperty]: Failed to change device(%1) property(%2) to %3, pjstatus=%4, pjerror='%5'").arg(AType).arg(AProperty).arg(AValue.toFloat()).arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
+							LogError(QString("[SipCall::setDeviceProperty]: Failed to change device(type=%1) property=%2 to value=%3, pjstatus=%4, pjerror='%5'").arg(AType).arg(AProperty).arg(AValue.toFloat()).arg(pjstatus).arg(SipManager::resolveErrorCode(pjstatus)));
 					}
 				}
 				break;
@@ -746,50 +751,51 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 
 void SipCall::initDevices()
 {
-	QList<ISipDevice> localCameras = FSipManager->availDevices(ISipDevice::DT_LOCAL_CAMERA);
-	if (!localCameras.isEmpty())
+	FSipManager->updateAvailDevices();
+
+	if (FSipManager->isDevicePresent(ISipDevice::DT_LOCAL_CAMERA))
 	{
-		setActiveDevice(ISipDevice::DT_LOCAL_CAMERA,localCameras.first().id);
-		changeDeviceState(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::DS_ENABLED);
+		if (setActiveDevice(ISipDevice::DT_LOCAL_CAMERA,FSipManager->activeDevice(ISipDevice::DT_LOCAL_CAMERA)))
+			changeDeviceState(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::DS_ENABLED);
 	}
 	else
 	{
 		LogError("[SipCall::initDevices]: No local camera found!");
 	}
 
-	QList<ISipDevice> remoteCameras = FSipManager->availDevices(ISipDevice::DT_REMOTE_CAMERA);
-	if (!remoteCameras.isEmpty())
+	if (FSipManager->isDevicePresent(ISipDevice::DT_REMOTE_CAMERA))
 	{
-		setActiveDevice(ISipDevice::DT_REMOTE_CAMERA,remoteCameras.first().id);
-		changeDeviceState(ISipDevice::DT_REMOTE_CAMERA,ISipDevice::DS_ENABLED);
+		if (setActiveDevice(ISipDevice::DT_REMOTE_CAMERA,FSipManager->activeDevice(ISipDevice::DT_REMOTE_CAMERA)))
+			changeDeviceState(ISipDevice::DT_REMOTE_CAMERA,ISipDevice::DS_ENABLED);
 	}
 	else
 	{
 		LogError("[SipCall::initDevices]: No remote camera found!");
 	}
 
-	QList<ISipDevice> localMicrophones = FSipManager->availDevices(ISipDevice::DT_LOCAL_MICROPHONE);
-	if (!localMicrophones.isEmpty())
-	{
-		setActiveDevice(ISipDevice::DT_LOCAL_MICROPHONE,localMicrophones.first().id);
-		changeDeviceState(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::DS_ENABLED);
 
-		changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_MAX_VOLUME,MAX_VOLUME);
-		changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_VOLUME,DEF_VOLUME);
+	if (FSipManager->isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE))
+	{
+		if (setActiveDevice(ISipDevice::DT_LOCAL_MICROPHONE,FSipManager->activeDevice(ISipDevice::DT_LOCAL_MICROPHONE)))
+		{
+			changeDeviceState(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::DS_ENABLED);
+			changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_MAX_VOLUME,MAX_VOLUME);
+			changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_VOLUME,DEF_VOLUME);
+		}
 	}
 	else
 	{
 		LogError("[SipCall::initDevices]: No local microphone found!");
 	}
 
-	QList<ISipDevice> remoteMicrophones = FSipManager->availDevices(ISipDevice::DT_REMOTE_MICROPHONE);
-	if (!remoteMicrophones.isEmpty())
+	if (FSipManager->isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE))
 	{
-		setActiveDevice(ISipDevice::DT_REMOTE_MICROPHONE,remoteMicrophones.first().id);
-		changeDeviceState(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::DS_ENABLED);
-		
-		changeDeviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME,MAX_VOLUME);
-		changeDeviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME,DEF_VOLUME);
+		if (setActiveDevice(ISipDevice::DT_REMOTE_MICROPHONE,FSipManager->activeDevice(ISipDevice::DT_REMOTE_MICROPHONE)))
+		{
+			changeDeviceState(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::DS_ENABLED);
+			changeDeviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME,MAX_VOLUME);
+			changeDeviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME,DEF_VOLUME);
+		}
 	}
 	else
 	{

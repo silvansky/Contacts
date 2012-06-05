@@ -40,7 +40,7 @@ public:
 	virtual bool sendDTMFSignal(QChar ASignal);
 	// devices
 	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
-	virtual bool setActiveDevice(ISipDevice::Type AType, int ADeviceId);
+	virtual bool setActiveDevice(ISipDevice::Type AType, const ISipDevice &ADevice);
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const;
 	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState);
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const;

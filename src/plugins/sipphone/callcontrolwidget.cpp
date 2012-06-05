@@ -379,14 +379,14 @@ void CallControlWidget::onSilentButtonClicked()
 
 void CallControlWidget::onLocalCameraStateButtonClicked(bool AChecked)
 {
-	FSipCall->setDeviceState(ISipDevice::DT_LOCAL_CAMERA, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalCamera,AChecked ? MNI_SIPPHONE_CAMERA_ENABLED : MNI_SIPPHONE_CAMERA_DISABLED);
+	if (!FSipCall->setDeviceState(ISipDevice::DT_LOCAL_CAMERA, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED))
+		ui.tlbLocalCamera->setChecked(!AChecked);
 }
 
 void CallControlWidget::onLocalMicrophoneStateButtonClicked(bool AChecked)
 {
-	FSipCall->setDeviceState(ISipDevice::DT_LOCAL_MICROPHONE, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalMicrophone,AChecked ? MNI_SIPPHONE_MICROPHONE_ENABLED : MNI_SIPPHONE_MICROPHONE_DISABLED);
+	if (!FSipCall->setDeviceState(ISipDevice::DT_LOCAL_MICROPHONE, AChecked ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED))
+		ui.tlbLocalMicrophone->setChecked(!AChecked);
 }
 
 void CallControlWidget::onRemoteMicrophoneVolumeChanged(qreal AVolume)
