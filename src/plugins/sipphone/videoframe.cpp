@@ -35,12 +35,16 @@ VideoFrame::VideoFrame(QWidget *AParent) : QFrame(AParent)
 	FMaximumSize = QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX);
 	FAlignment = Qt::AlignRight|Qt::AlignBottom;
 	FDoubleClickTime = QDateTime::currentDateTime();
+	FDeviceState = ISipDevice::DS_UNAVAIL;
 
 	QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_VIDEO_RESIZE);
 	FResizeIcon = icon.pixmap(icon.availableSizes().value(0));
 
 	icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_VIDEO_COLLAPSED);
 	FCollapsedIcon = icon.pixmap(icon.availableSizes().value(0));
+
+	icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CAMERA_DISABLED);
+	FCameraDisabledIcon = icon.pixmap(icon.availableSizes().value(0));
 
 	FWaitMovie = new QMovie(this);
 	FWaitMovie->setFileName(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_SIPPHONE_VIDEO_WAIT));
@@ -166,6 +170,20 @@ void VideoFrame::setPixmap(const QPixmap &APixmap)
 	}
 }
 
+int VideoFrame::videoDeviceState() const
+{
+	return FDeviceState;
+}
+
+void VideoFrame::setVideoDeviceState(int AState)
+{
+	if (FDeviceState != AState)
+	{
+		FDeviceState = AState;
+		update();
+	}
+}
+
 QSize VideoFrame::sizeHint() const
 {
 	if (FCollapsed)
@@ -283,13 +301,33 @@ void VideoFrame::mouseDoubleClickEvent(QMouseEvent *AEvent)
 
 void VideoFrame::paintEvent(QPaintEvent *AEvent)
 {
+	QFrame::paintEvent(AEvent);
+
 	QPainter p(this);
+	if (frameShape() != QFrame::NoFrame)
+		p.setClipRect(rect().adjusted(lineWidth(),lineWidth(),-lineWidth(),-lineWidth()),Qt::IntersectClip);
 	p.fillRect(rect(), Qt::black);
 	
 	if (FCollapsed)
 	{
 		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,sizeHint(),rect());
 		p.drawPixmap(iconRect, FCollapsedIcon);
+	}
+	else if (FDeviceState != ISipDevice::DS_ENABLED)
+	{
+		QString text = FDeviceState==ISipDevice::DS_DISABLED ? tr("Camera disabled") : tr("Camera unavailable");
+
+		QSize textSize = fontMetrics().size(Qt::AlignHCenter|Qt::AlignTop|Qt::TextSingleLine,text);
+		QSize iconSize = FCameraDisabledIcon.size();
+
+		QSize iconTextSize(qMax(textSize.width(),iconSize.width()),iconSize.height()+textSize.height()+5);
+		QRect iconTextRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,iconTextSize,rect());
+
+		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignTop,iconSize,iconTextRect);
+		QRect textRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignBottom,textSize,iconTextRect);
+		
+		p.drawPixmap(iconRect, FCameraDisabledIcon);
+		p.drawText(textRect,Qt::AlignCenter,text);
 	}
 	else if (!isEmpty())
 	{
@@ -321,7 +359,6 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 			}
 		}
 	}
-	QFrame::paintEvent(AEvent);
 }
 
 void VideoFrame::onWaitMovieFrameChanged(int AFrameNumber)

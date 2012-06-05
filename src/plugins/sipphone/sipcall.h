@@ -75,6 +75,8 @@ public:
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId);
 	void initDevices();
+	void changeDeviceState(int AType, int AState);
+	void changeDeviceProperty(int AType, int AProperty, const QVariant &AValue);
 	void setCallState(CallState AState);
 	void setCallError(ErrorCode ACode);
 	void continueAfterRegistration(bool ARegistered);
@@ -89,24 +91,6 @@ private:
 	IXmppStream *FXmppStream;
 	ISipManager *FSipManager;
 	IStanzaProcessor *FStanzaProcessor;
-private:
-	// i/o devices
-	// local camera
-	ISipDevice localCamera;
-	ISipDevice::State localCameraState;
-	QMap<int, QVariant> localCameraProperties;
-	// local microphone
-	ISipDevice localMicrophone;
-	ISipDevice::State localMicrophoneState;
-	QMap<int, QVariant> localMicrophoneProperties;
-	// remote camera
-	ISipDevice remoteCamera;
-	ISipDevice::State remoteCameraState;
-	QMap<int, QVariant> remoteCameraProperties;
-	// remote microphone
-	ISipDevice remoteMicrophone;
-	ISipDevice::State remoteMicrophoneState;
-	QMap<int, QVariant> remoteMicrophoneProperties;
 private:
 	// pjsip
 	int FCallId;
@@ -129,6 +113,11 @@ private:
 	Stanza FAcceptStanza;
 	QList<Jid> FActiveDestinations;
 	QMap<QString,Jid> FCallRequests;
+private:
+	// i/o devices
+	QMap<int, ISipDevice> FDevices;
+	QMap<int, ISipDevice::State> FDeviceStates;
+	QMap<int, QMap<int, QVariant> > FDeviceProperties;
 private:
 	static QList<SipCall *> FCallInstances;
 };

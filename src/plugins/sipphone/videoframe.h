@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QMovie>
 #include <QDateTime>
+#include <interfaces/isipphone.h>
 
 class VideoFrame : 
 	public QFrame
@@ -27,6 +28,8 @@ public:
 	void setMaximumVideoSize(const QSize &ASize);
 	const QPixmap *pixmap() const;
 	void setPixmap(const QPixmap &APixmap);
+	int videoDeviceState() const;
+	void setVideoDeviceState(int AState);
 signals:
 	void singleClicked();
 	void doubleClicked();
@@ -52,6 +55,7 @@ private:
 	bool FCollapsed;
 	bool FMoveEnabled;
 	bool FResizeEnabled;
+	int FDeviceState;
 	int FCursorCorner;
 	QPoint FPressedPos;
 	QPoint FGlobalPressed;
@@ -61,6 +65,7 @@ private:
 	QPixmap FVideoFrame;
 	QPixmap FResizeIcon;
 	QPixmap FCollapsedIcon;
+	QPixmap FCameraDisabledIcon;
 	Qt::Alignment FAlignment;
 	QDateTime FDoubleClickTime;
 };

@@ -211,8 +211,8 @@ void CallControlWidget::updateDevicesStateAndProperties()
 	foreach(ISipDevice::Type deviceType, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE<<ISipDevice::DT_REMOTE_MICROPHONE) {
 		onCallDeviceStateChanged(deviceType,FSipCall->deviceState(deviceType)); }
 	
-	ui.vlcRemoteMicrophome->setVolume(1.0/*FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat()*/);
-	ui.vlcRemoteMicrophome->setMaximumValume(4.0/*FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat()*/);
+	ui.vlcRemoteMicrophome->setVolume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat());
+	ui.vlcRemoteMicrophome->setMaximumValume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat());
 }
 
 void CallControlWidget::resizeEvent(QResizeEvent *AEvent)

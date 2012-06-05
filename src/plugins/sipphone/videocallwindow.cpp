@@ -61,7 +61,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FLocalCamera = new VideoFrame(ui.wdtVideo);
 	FLocalCamera->setMoveEnabled(true);
 	FLocalCamera->setResizeEnabled(true);
-	//FLocalCamera->setFrameShape(QLabel::Box);
+	FLocalCamera->setFrameShape(QLabel::Box);
 	FLocalCamera->setObjectName("vlbLocalCamera");
 	
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
@@ -345,13 +345,13 @@ void VideoCallWindow::onCallStateChanged(int AState)
 
 void VideoCallWindow::onCallDeviceStateChanged(int AType, int AState)
 {
-	if (AType==ISipDevice::DT_REMOTE_CAMERA && AState!=ISipDevice::DS_ENABLED)
+	if (AType==ISipDevice::DT_REMOTE_CAMERA)
 	{
-		FRemoteCamera->setPixmap(QPixmap());
+		FRemoteCamera->setVideoDeviceState(AState);
 	}
-	else if (AType==ISipDevice::DT_LOCAL_CAMERA && AState!=ISipDevice::DS_ENABLED)
+	else if (AType==ISipDevice::DT_LOCAL_CAMERA)
 	{
-		FLocalCamera->setPixmap(QPixmap());
+		FLocalCamera->setVideoDeviceState(AState);
 	}
 }
 
@@ -379,29 +379,32 @@ void VideoCallWindow::onSilentButtonClicked()
 
 void VideoCallWindow::onFullScreenModeChangeRequested()
 {
-	bool isFullScreenForNow = FCtrlWidget->isFullScreenMode();
-	setControlsMode(!isFullScreenForNow);
+	bool fullScreen = !FCtrlWidget->isFullScreenMode() && !FRemoteCamera->isEmpty();
+	if (fullScreen != FCtrlWidget->isFullScreenMode())
+	{
+		setControlsMode(fullScreen);
 #ifdef Q_WS_MAC
-	setWindowFullScreen(this, !isWindowFullScreen(this));
-	FCtrlWidget->setFullScreenMode(isWindowFullScreen(this));
+		setWindowFullScreen(this, fullScreen);
+		FCtrlWidget->setFullScreenMode(fullScreen);
 #else
-	if (!isFullScreenForNow && !FRemoteCamera->isEmpty())
-	{
-		if (CustomBorderStorage::isBordered(window()))
-			CustomBorderStorage::widgetBorder(window())->showFullScreen();
-		else
-			window()->showFullScreen();
+		if (fullScreen)
+		{
+			if (CustomBorderStorage::isBordered(window()))
+				CustomBorderStorage::widgetBorder(window())->showFullScreen();
+			else
+				window()->showFullScreen();
 
-		FHideControllsTimer.start();
-	}
-	else if (isFullScreenForNow)
-	{
-		if (CustomBorderStorage::isBordered(window()))
-			CustomBorderStorage::widgetBorder(window())->showFullScreen();
+			FHideControllsTimer.start();
+		}
 		else
-			window()->showNormal();
-	}
+		{
+			if (CustomBorderStorage::isBordered(window()))
+				CustomBorderStorage::widgetBorder(window())->showFullScreen();
+			else
+				window()->showNormal();
+		}
 #endif
+	}
 }
 
 void VideoCallWindow::onHideControlsTimerTimeout()
