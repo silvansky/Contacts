@@ -23,8 +23,8 @@ public:
 signals:
 	void chatWindowRequested();
 protected:
-	void closeWindowWithAnimation();
 	void restoreWindowGeometryWithAnimation();
+	void closeWindowWithAnimation(int ATimeout = 0);
 	void setRecursiveMouseTracking(QWidget *AWidget);
 	void setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration);
 protected:

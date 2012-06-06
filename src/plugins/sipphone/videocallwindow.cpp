@@ -121,23 +121,6 @@ QSize VideoCallWindow::sizeHint() const
 	return QWidget::sizeHint().expandedTo(minHint);
 }
 
-void VideoCallWindow::closeWindowWithAnimation()
-{
-	if (FVideoVisible && !FCtrlWidget->isFullScreenMode())
-	{
-		FVideoLayout->saveLocalVideoGeometry();
-		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
-		Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry",ns);
-	}
-
-	QPropertyAnimation *animation = new QPropertyAnimation(window(),"windowOpacity");
-	animation->setDuration(500);
-	animation->setStartValue(1.0);
-	animation->setEndValue(0.0);
-	connect(animation,SIGNAL(finished()),window(),SLOT(close()));
-	animation->start();
-}
-
 void VideoCallWindow::restoreWindowGeometryWithAnimation()
 {
 	if (canShowVideo())
@@ -152,6 +135,23 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation()
 		ui.wdtVideo->setVisible(true);
 		setWindowGeometryWithAnimation(newGeometry,200);
 	}
+}
+
+void VideoCallWindow::closeWindowWithAnimation(int ATimeout)
+{
+	if (FVideoVisible && !FCtrlWidget->isFullScreenMode())
+	{
+		FVideoLayout->saveLocalVideoGeometry();
+		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+		Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry",ns);
+	}
+
+	QPropertyAnimation *animation = new QPropertyAnimation(window(),"windowOpacity");
+	animation->setDuration(500);
+	animation->setStartValue(1.0);
+	animation->setEndValue(0.0);
+	connect(animation,SIGNAL(finished()),window(),SLOT(close()));
+	QTimer::singleShot(ATimeout,animation,SLOT(start()));
 }
 
 void VideoCallWindow::setRecursiveMouseTracking(QWidget *AWidget)
@@ -319,8 +319,10 @@ void VideoCallWindow::onCallStateChanged(int AState)
 		restoreWindowGeometryWithAnimation();
 		break;
 	case ISipCall::CS_FINISHED:
-	case ISipCall::CS_ERROR:
 		closeWindowWithAnimation();
+		break;
+	case ISipCall::CS_ERROR:
+		closeWindowWithAnimation(5000);
 		break;
 	default:
 		break;

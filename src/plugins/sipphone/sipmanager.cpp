@@ -1005,11 +1005,22 @@ void SipManager::onCallStateChanged(int AState)
 			else if (AState == ISipCall::CS_FINISHED)
 			{
 				if (call->callTime() > 0)
+				{
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+				}
 				else if (call->rejectCode() == ISipCall::RC_EMPTY)
+				{
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 accepted.").arg(userNick));
+				}
+				else if (call->rejectCode() == ISipCall::RC_BUSY)
+				{
+					showMissedCallNotify(call);
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_MISSED,tr("Missed call."),true);
+				}
 				else
+				{
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 canceled.").arg(userNick));
+				}
 			}
 			else if (AState == ISipCall::CS_ERROR)
 			{
