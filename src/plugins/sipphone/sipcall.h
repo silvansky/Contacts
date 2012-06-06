@@ -84,6 +84,7 @@ protected:
 	void sipCallTo(const Jid &AContactJid);
 protected slots: 
 	void onRingTimerTimeout();
+	void onDelayedRejection();
 	void onRegisteredAtServer(const QString &AAccount);
 	void onUnRegisteredAtServer(const QString &AAccount);
 	void onRegistraitionAtServerFailed(const QString &AAccount);

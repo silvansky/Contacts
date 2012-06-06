@@ -161,6 +161,12 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 {
 	switch (state())
 	{
+	case CS_INIT:
+		{
+			FRejectCode = ACode;
+			QTimer::singleShot(0,this,SLOT(onDelayedRejection()));
+			break;
+		}
 	case CS_CALLING:
 		{
 			FRejectCode = ACode;
@@ -1027,6 +1033,12 @@ void SipCall::onRingTimerTimeout()
 			setCallError(EC_NOANSWER);
 		}
 	}
+}
+
+void SipCall::onDelayedRejection()
+{
+	setCallState(CS_CALLING);
+	rejectCall(FRejectCode);
 }
 
 void SipCall::onRegisteredAtServer(const QString &AAccount)
