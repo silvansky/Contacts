@@ -465,6 +465,7 @@ bool SipManager::updateAvailDevices()
 				}
 			}
 		}
+		emit availDevicesChanged();
 		return true;
 	}
 	return false;
@@ -728,6 +729,7 @@ bool SipManager::createSipStack()
 					{
 						FSipStackCreated = true;
 						LogDetail(QString("[SipManager] PJSIP stack created"));
+						updateAvailDevices();
 						return true;
 					} // pjsua_transport_get_info
 					else

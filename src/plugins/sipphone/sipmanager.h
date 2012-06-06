@@ -72,7 +72,7 @@ public:
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler * AHandler);
 signals:
-	void availDevicesChanged(int AType);
+	void availDevicesChanged();
 	void sipCallCreated(ISipCall *ACall);
 	void sipCallDestroyed(ISipCall *ACall);
 	void registeredAtServer(const QString &AAccount);

@@ -179,7 +179,7 @@ public:
 	virtual void insertSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
 	virtual void removeSipCallHandler(int AOrder, ISipCallHandler *AHandler) = 0;
 protected:
-	virtual void availDevicesChanged(int AType) = 0;
+	virtual void availDevicesChanged() = 0;
 	virtual void sipCallCreated(ISipCall *ACall) = 0;
 	virtual void sipCallDestroyed(ISipCall *ACall) = 0;
 	virtual void registeredAtServer(const QString &AAccount) = 0;

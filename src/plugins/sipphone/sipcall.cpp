@@ -61,8 +61,8 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
-//	if (findCalls(FStreamJid).isEmpty())
-//		FSipManager->unregisterAtServer(FStreamJid);
+	//if (findCalls(streamJid()).isEmpty())
+	//	FSipManager->unregisterAtServer(streamJid());
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
@@ -597,17 +597,20 @@ bool SipCall::acceptIncomingCall(int ACallId)
 
 void SipCall::onCallState(int call_id, void *e)
 {
-	Q_UNUSED(e)
-	pjsua_call_info ci;
-	pjsua_call_get_info(call_id, &ci);
+	Q_UNUSED(e);
+	if (FCallId == call_id)
+	{
+		pjsua_call_info ci;
+		pjsua_call_get_info(call_id, &ci);
 
-	if(ci.state == PJSIP_INV_STATE_CONFIRMED)
-	{
-		setCallState(CS_TALKING);
-	}
-	else if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
-	{
-		setCallState(CS_FINISHED);
+		if(ci.state == PJSIP_INV_STATE_CONFIRMED)
+		{
+			setCallState(CS_TALKING);
+		}
+		else if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
+		{
+			setCallState(CS_FINISHED);
+		}
 	}
 }
 
@@ -751,8 +754,6 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 
 void SipCall::initDevices()
 {
-	FSipManager->updateAvailDevices();
-
 	if (FSipManager->isDevicePresent(ISipDevice::DT_LOCAL_CAMERA))
 	{
 		if (setActiveDevice(ISipDevice::DT_LOCAL_CAMERA,FSipManager->activeDevice(ISipDevice::DT_LOCAL_CAMERA)))
