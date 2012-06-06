@@ -5,6 +5,7 @@ QWidget
 
 QFrame#frmBackground[fullscreen="true"]
 {
+	border-radius: 8px;
 	background-color: rgba(22, 22, 22, 240);
 }
 
