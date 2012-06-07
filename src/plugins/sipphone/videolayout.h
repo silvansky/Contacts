@@ -4,7 +4,16 @@
 #include <QRectF>
 #include <QLayout>
 #include <QWidget>
+#include <QPropertyAnimation>
 #include "videoframe.h"
+
+class SimpleAnimation : 
+	public QVariantAnimation
+{
+	Q_OBJECT;
+protected:
+	virtual void updateCurrentValue(const QVariant &AValue) { Q_UNUSED(AValue); };
+};
 
 class VideoLayout : 
 	public QLayout
@@ -22,13 +31,13 @@ public:
 	QSize sizeHint() const;
 	void setGeometry(const QRect &ARect);
 	// VideoLayout
-	bool isVideoVisible() const;
-	void setVideoVisible(bool AVisible);
 	int locaVideoMargin() const;
 	void setLocalVideoMargin(int AMargin);
-	int buttonsPadding() const;
-	void setButtonsPadding(int APadding);
-	void setControllsWidget(QWidget *AControlls);
+	bool isVideoVisible() const;
+	void setVideoVisible(bool AVisible);
+	void setControlsWidget(QWidget *AControls);
+	bool isControlsVisible() const;
+	void setControlsVisible(bool AVisible);
 public slots:
 	void saveLocalVideoGeometry();
 	void restoreLocalVideoGeometry();
@@ -46,16 +55,19 @@ protected slots:
 	void onLocalVideoDoubleClicked();
 	void onLocalVideoMove(const QPoint &APos);
 	void onLocalVideoResize(Qt::Corner ACorner, const QPoint &APos);
+	void onControlsVisibilityPercentChanged(const QVariant &AValue);
 private:
+	bool FCtrlVisible;
 	bool FVideoVisible;
-	int FButtonsPadding;
 	int FLocalMargin;
 	int FLocalStickDelta;
+	int FCtrlVisiblePerc;
 	QRectF FLocalScale;
 	QWidget *FButtons;
-	QWidget *FControlls;
+	QWidget *FControls;
 	VideoFrame *FLocalVideo;
 	VideoFrame *FRemoteVideo;
+	SimpleAnimation FCtrlAnimation;
 };
 
 #endif // VIDEOLAYOUT_H

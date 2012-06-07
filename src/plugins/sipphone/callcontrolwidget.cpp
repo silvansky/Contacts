@@ -32,7 +32,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	FGateways = NULL;
 	FMetaContacts = NULL;
 
-	FIsFullScreen = false;
+	FMinimumWidth = false;
 
 	FCallTimer.setInterval(1000);
 	FCallTimer.setSingleShot(false);
@@ -128,21 +128,27 @@ ISipCall *CallControlWidget::sipCall() const
 
 bool CallControlWidget::isFullScreenMode() const
 {
-	return FIsFullScreen;
+	return ui.frmBackground->property("fullscreen").toBool();
 }
 
 void CallControlWidget::setFullScreenMode(bool AEnabled)
 {
-	if (FIsFullScreen != AEnabled)
+	ui.frmBackground->setProperty("fullscreen",AEnabled);
+	StyleStorage::updateStyle(this);
+}
+
+bool CallControlWidget::isMinimumWidthMode() const
+{
+	return FMinimumWidth;
+}
+
+void CallControlWidget::setMinimumWidthMode( bool AEnabled )
+{
+	if (FMinimumWidth != AEnabled)
 	{
-		FIsFullScreen = AEnabled;
-		if (AEnabled)
-		{
-			ui.lblName->setVisible(true);
+		FMinimumWidth = AEnabled;
+		if (!AEnabled)
 			ui.lblAvatar->setVisible(true);
-		}
-		ui.frmBackground->setProperty("fullscreen",AEnabled);
-		StyleStorage::updateStyle(this);
 	}
 }
 
@@ -185,6 +191,13 @@ void CallControlWidget::playSound(const QString &ASoundKey, int ALoops)
 #endif
 }
 
+QSize CallControlWidget::sizeHint() const
+{
+	QSize hint = QWidget::sizeHint();
+	hint.rwidth() += 100;
+	return hint;
+}
+
 void CallControlWidget::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IAvatars").value(0);
@@ -219,16 +232,12 @@ void CallControlWidget::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
 
-	if (!FIsFullScreen)
+	if (FMinimumWidth)
 	{
-		int freeWidth = ui.hspSpacer->geometry().width();
+		int freeWidth = ui.lblNotice->width() - ui.lblNotice->minimumSizeHint().width();
 		if (freeWidth<5 && ui.lblAvatar->isVisible())
 			ui.lblAvatar->setVisible(false);
-		else if (freeWidth<5 && ui.lblName->isVisible() && !ui.lblAvatar->isVisible())
-			ui.lblName->setVisible(false);
-		else if (freeWidth>ui.lblName->minimumSizeHint().width()-ui.lblNotice->width()+10 && !ui.lblName->isVisible())
-			ui.lblName->setVisible(true);
-		else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible() && ui.lblName->isVisible())
+		else if (freeWidth>ui.lblAvatar->minimumSizeHint().width()+10 && !ui.lblAvatar->isVisible())
 			ui.lblAvatar->setVisible(true);
 	}
 }

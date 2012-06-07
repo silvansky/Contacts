@@ -6,12 +6,12 @@
 
 VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AButtons, QWidget *AParent) : QLayout(AParent)
 {
-	FButtonsPadding = 5;
 	FLocalMargin = 4;
 	FLocalStickDelta = 9;
 	FVideoVisible = true;
+	FCtrlVisible = true;
 
-	FControlls = NULL;
+	FControls = NULL;
 	FButtons = AButtons;
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
@@ -20,6 +20,8 @@ VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWid
 	connect(FLocalVideo,SIGNAL(doubleClicked()),SLOT(onLocalVideoDoubleClicked()));
 	connect(FLocalVideo,SIGNAL(moveTo(const QPoint &)),SLOT(onLocalVideoMove(const QPoint &)));
 	connect(FLocalVideo,SIGNAL(resizeTo(Qt::Corner, const QPoint &)),SLOT(onLocalVideoResize(Qt::Corner, const QPoint &)));
+
+	connect(&FCtrlAnimation,SIGNAL(valueChanged(const QVariant &)),SLOT(onControlsVisibilityPercentChanged(const QVariant &)));
 }
 
 VideoLayout::~VideoLayout()
@@ -83,19 +85,31 @@ void VideoLayout::setGeometry(const QRect &ARect)
 		if (FButtons && FButtons->isVisible())
 		{
 			QSize buttonsSize = FButtons->sizeHint();
-			QRect availRect = ARect.adjusted(5,5,-FButtonsPadding,-5);
+			QRect availRect = ARect.adjusted(5,5,-5,-5);
 			QRect buttonsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignTop|Qt::AlignRight,buttonsSize,availRect);
 			FButtons->setGeometry(buttonsRect);
 		}
 
-		if (FControlls && FControlls->isVisible())
+		if (FControls && FControls->isVisible())
 		{
-			QSize controllsSize = FControlls->sizeHint();
+			QSize controlsSize = FControls->sizeHint();
 			QRect availRect = ARect.adjusted(5,5,-5,-20);
-			QRect controllsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignBottom|Qt::AlignHCenter,controllsSize,availRect);
-			FControlls->setGeometry(controllsRect);
+			QRect controlsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignBottom|Qt::AlignHCenter,controlsSize,availRect);
+			controlsRect.moveTop((controlsRect.top()-ARect.bottom())*FCtrlVisiblePerc/100 + ARect.bottom());
+			FControls->setGeometry(controlsRect);
 		}
 	}
+}
+
+int VideoLayout::locaVideoMargin() const
+{
+	return FLocalMargin;
+}
+
+void VideoLayout::setLocalVideoMargin(int AMargin)
+{
+	if (0<=AMargin && AMargin<=FLocalStickDelta)
+		FLocalMargin = AMargin;
 }
 
 bool VideoLayout::isVideoVisible() const
@@ -112,38 +126,35 @@ void VideoLayout::setVideoVisible(bool AVisible)
 		FLocalVideo->setVisible(AVisible);
 		if (FButtons)
 			FButtons->setVisible(AVisible);
-		if (FControlls)
-			FControlls->setVisible(AVisible);
+		if (FControls)
+			FControls->setVisible(AVisible);
 		update();
 	}
 }
 
-int VideoLayout::locaVideoMargin() const
+void VideoLayout::setControlsWidget(QWidget *AControls)
 {
-	return FLocalMargin;
-}
-
-void VideoLayout::setLocalVideoMargin(int AMargin)
-{
-	if (0<=AMargin && AMargin<=FLocalStickDelta)
-		FLocalMargin = AMargin;
-}
-
-int VideoLayout::buttonsPadding() const
-{
-	return FButtonsPadding;
-}
-
-void VideoLayout::setButtonsPadding(int APadding)
-{
-	FButtonsPadding = APadding;
+	FControls = AControls;
+	FCtrlVisiblePerc = FCtrlVisible ? 100 : 0;
 	update();
 }
 
-void VideoLayout::setControllsWidget(QWidget *AControlls)
+bool VideoLayout::isControlsVisible() const
 {
-	FControlls = AControlls;
-	update();
+	return FCtrlVisible;
+}
+
+void VideoLayout::setControlsVisible(bool AVisible)
+{
+	if (FCtrlVisible != AVisible)
+	{
+		FCtrlVisible = AVisible;
+		FCtrlAnimation.stop();
+		FCtrlAnimation.setStartValue(FCtrlVisiblePerc);
+		FCtrlAnimation.setEndValue(AVisible ? 100 : 0);
+		FCtrlAnimation.setDuration(200*qAbs((FCtrlAnimation.startValue().toInt()-FCtrlAnimation.endValue().toInt()))/100);
+		FCtrlAnimation.start();
+	}
 }
 
 void VideoLayout::saveLocalVideoGeometry()
@@ -473,4 +484,10 @@ void VideoLayout::onLocalVideoResize(Qt::Corner ACorner, const QPoint &APos)
 		saveLocalVideoGeometryScale();
 		update();
 	}
+}
+
+void VideoLayout::onControlsVisibilityPercentChanged(const QVariant &AValue)
+{
+	FCtrlVisiblePerc = AValue.toInt();
+	update();
 }

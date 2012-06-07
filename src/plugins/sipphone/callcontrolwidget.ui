@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
-    <height>58</height>
+    <width>455</width>
+    <height>56</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -16,12 +16,6 @@
    </property>
    <item>
     <widget class="QFrame" name="frmBackground">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
        <number>3</number>
@@ -51,10 +45,16 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
-         <number>3</number>
+         <number>0</number>
         </property>
         <item>
          <widget class="QLabel" name="lblNotice">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string notr="true">Notice</string>
           </property>
@@ -62,25 +62,18 @@
         </item>
         <item>
          <widget class="QLabel" name="lblName">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string notr="true">Name</string>
           </property>
          </widget>
         </item>
        </layout>
-      </item>
-      <item>
-       <spacer name="hspSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>5</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QWidget" name="wdtControlls" native="true">

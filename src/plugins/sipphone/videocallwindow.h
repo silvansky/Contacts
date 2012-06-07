@@ -29,9 +29,10 @@ protected:
 	void setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration);
 protected:
 	bool canShowVideo() const;
+	void toggleFullScreen(bool AFullScreen);
 	void setVideoVisible(bool AVisible, bool AResizing = false);
-	void setControllsVisible(bool AVisible);
-	void setControlsMode(bool fullscreen);
+	void setControlsVisible(bool AVisible);
+	void setControlsFullScreenMode(bool AEnabled);
 protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
@@ -42,7 +43,8 @@ protected slots:
 	void onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
 protected slots:
 	void onSilentButtonClicked();
-	void onFullScreenModeChangeRequested();
+	void onMinimizeButtonClicked();
+	void onFullScreenButtonClicked();
 	void onHideControlsTimerTimeout();
 	void onGeometryAnimationFinished();
 #ifdef Q_WS_MAC
@@ -55,11 +57,12 @@ private:
 private:
 	bool FIsFirstShow;
 	bool FVideoVisible;
-	bool FControllsVisible;
 	int FBlockVideoChange;
 	bool FAnimatingGeometry;
+	QRect FNormalGeometry;
 	QTimer FHideControllsTimer;
-	QToolButton *FFullScreen;
+	QToolButton *FFSButton;
+	QToolButton *FMinButton;
 	VideoFrame *FLocalCamera;
 	VideoFrame *FRemoteCamera;
 	VideoLayout *FVideoLayout;

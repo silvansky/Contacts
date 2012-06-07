@@ -30,6 +30,10 @@
     <object mime="image/png">sipphonecallsilent.png</object>
   </icon>
   <icon>
+    <key>sipCallMinimize</key>
+    <object mime="image/png">sipphonecallminimize.png</object>
+  </icon>
+  <icon>
     <key>sipCallFullScreen</key>
     <object mime="image/png">sipphonecallfullscreen.png</object>
   </icon>

@@ -169,6 +169,7 @@
 #define MNI_SIPPHONE_CALL_SEPARATOR              "sipCallSeparator"
 #define MNI_SIPPHONE_CALL_REJECT                 "sipCallReject"
 #define MNI_SIPPHONE_CALL_SILENT                 "sipCallSilent"
+#define MNI_SIPPHONE_CALL_MINIMIZE               "sipCallMinimize"
 #define MNI_SIPPHONE_CALL_FULLSCREEN             "sipCallFullScreen"
 #define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
 #define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"

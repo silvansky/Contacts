@@ -23,7 +23,7 @@ VideoFrame
 	color: white;
 }
 
-QToolButton#tlbFullScreen
+QToolButton#tlbFullScreen, QToolButton#tlbMinimize
 {
 	border: none;
 	padding: 0px;

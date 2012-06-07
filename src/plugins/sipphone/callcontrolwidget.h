@@ -28,10 +28,14 @@ public:
 	ISipCall *sipCall() const;
 	bool isFullScreenMode() const;
 	void setFullScreenMode(bool AEnabled);
+	bool isMinimumWidthMode() const;
+	void setMinimumWidthMode(bool AEnabled);
 	void playSound(const QString &ASoundKey, int ALoops = 0);
 signals:
 	void chatWindowRequested();
 	void silentButtonClicked();
+public:
+	QSize sizeHint() const;
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateDevicesStateAndProperties();
@@ -61,7 +65,7 @@ private:
 	IMetaRoster *FMetaRoster;
 	IMetaContacts *FMetaContacts;
 private:
-	bool FIsFullScreen;
+	bool FMinimumWidth;
 	QString FMetaId;
 	QTimer FCallTimer;
 	ISipCall *FSipCall;
