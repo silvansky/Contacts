@@ -31,6 +31,7 @@ struct ISipDevice
 		LCP_AVAIL_RESOLUTIONS,    /* QList<QSize>, readonly */	/* unused */
 		LCP_RESOLUTION,           /* QSize */  /* unused */
 		LCP_BRIGHTNESS,           /* float */  /* unused */
+		LCP_AUTO_START,           /* bool */
 		LCP_USER                  /* for user defined properties, add new before this */
 	};
 
@@ -131,8 +132,6 @@ public:
 	virtual QString callTimeString() const = 0;
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
 	// devices
-	virtual ISipDevice activeDevice(ISipDevice::Type AType) const = 0;
-	virtual bool setActiveDevice(ISipDevice::Type AType, const ISipDevice &ADevice) = 0;
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const = 0;
 	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState) = 0;
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const = 0;
@@ -141,7 +140,6 @@ protected:
 	virtual void callDestroyed() =0;
 	virtual void stateChanged(int AState) = 0;
 	virtual void DTMFSignalReceived(QChar ASignal) = 0;
-	virtual void activeDeviceChanged(int AType) = 0;
 	virtual void deviceStateChanged(int AType, int AState) = 0;
 	virtual void devicePropertyChanged(int AType, int AProperty, const QVariant &AValue) = 0;
 };
@@ -167,7 +165,7 @@ public:
 	// devices
 	virtual bool updateAvailDevices() =0;
 	virtual bool isDevicePresent(ISipDevice::Type AType) const =0;
-	virtual ISipDevice activeDevice(ISipDevice::Type AType) const =0;
+	virtual ISipDevice preferedDevice(ISipDevice::Type AType) const =0;
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const = 0;
 	virtual ISipDevice findDevice(ISipDevice::Type AType, int ADeviceId) const = 0;
 	virtual ISipDevice findDevice(ISipDevice::Type AType, const QString &AName) const =0;

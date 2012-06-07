@@ -44,7 +44,7 @@
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
 #define ADR_PHONE_NUMBER         Action::DR_Parametr3
-#define ADR_WITH_VIDEO           Action::DR_Parametr4
+#define ADR_AUTO_START_VIDEO     Action::DR_Parametr4
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
@@ -248,7 +248,7 @@ bool SipManager::startPlugin()
 
 bool SipManager::isCallsAvailable() const
 {
-	return FSipStackCreated;
+	return FSipStackCreated && isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE) && isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE);
 }
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -326,7 +326,7 @@ bool SipManager::setSipAccountRegistration(const Jid &AStreamJid, bool ARegister
 			acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
 			acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
 			acc_cfg.vid_in_auto_show = PJ_TRUE;
-			acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+			acc_cfg.vid_out_auto_transmit = PJ_FALSE;
 			acc_cfg.register_on_acc_add = PJ_FALSE;
 
 			pjsua_acc_id acc_id = -1;
@@ -428,7 +428,7 @@ bool SipManager::updateAvailDevices()
 #else
 				QString name = QString::fromLocal8Bit(vid_dev_info[i].name);
 #endif
-				if (vid_dev_info[i].dir==PJMEDIA_DIR_CAPTURE || vid_dev_info[i].dir == PJMEDIA_DIR_ENCODING_DECODING)
+				if (vid_dev_info[i].dir & PJMEDIA_DIR_ENCODING)
 				{
 					ISipDevice device;
 					device.index = i;
@@ -437,7 +437,7 @@ bool SipManager::updateAvailDevices()
 					FAvailDevices.insertMulti(ISipDevice::DT_LOCAL_CAMERA,device);
 					LogDetail(QString("[SipManager::availDevices]: Found INPUT video device with index %1 and name '%2'. Driver is %3").arg(i).arg(name).arg(vid_dev_info[i].driver));
 				}
-				if (vid_dev_info[i].dir==PJMEDIA_DIR_PLAYBACK || vid_dev_info[i].dir == PJMEDIA_DIR_ENCODING_DECODING)
+				if (vid_dev_info[i].dir & PJMEDIA_DIR_DECODING)
 				{
 					ISipDevice device;
 					device.index = i;
@@ -475,14 +475,20 @@ bool SipManager::isDevicePresent(ISipDevice::Type AType) const
 	return FAvailDevices.contains(AType);
 }
 
-ISipDevice SipManager::activeDevice(ISipDevice::Type AType) const
+ISipDevice SipManager::preferedDevice(ISipDevice::Type AType) const
 {
 	QString name; // TODO: Get name for type from options
-	ISipDevice device = findDevice(AType,name);
+	ISipDevice device = availDevices(AType).value(0); //findDevice(AType,name);
+	
 	if (device.isNull() && isDevicePresent(AType))
 	{
 		device.type = AType;
-		device.index = -1;
+		if (AType == ISipDevice::DT_LOCAL_CAMERA)
+			device.index = DEFAULT_CAP_DEV;
+		else if (AType == ISipDevice::DT_REMOTE_CAMERA)
+			device.index = DEFAULT_REND_DEV;
+		else
+			device.index = -1;
 		device.name = tr("Default");
 	}
 	return device;
@@ -667,7 +673,6 @@ bool SipManager::createSipStack()
 {
 	if (!FSipStackCreated)
 	{
-		// TODO: check implementation
 		pj_status_t status;
 		status = pjsua_create();
 		if (status == PJ_SUCCESS)
@@ -732,7 +737,7 @@ bool SipManager::createSipStack()
 						} // pjsua_transport_create
 						else
 						{
-							LogError(QString("[SipManager]: Failed to create pjsip transport, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
+							LogError(QString("[SipManager]: Failed to create pjsip UDP transport, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
 						}
 					} // pjsip_endpt_register_module
 					else
@@ -742,18 +747,18 @@ bool SipManager::createSipStack()
 				} // pjsua_get_pjsip_endpt
 				else
 				{
-					LogError(QString("[SipManager]: Failed to get SIP endpoint instance of pjsua, status=%2, error=%3").arg(status).arg(resolveErrorCode(status)));
+					LogError(QString("[SipManager]: Failed to get pjsip instance endpoint, status=%2, error=%3").arg(status).arg(resolveErrorCode(status)));
 				}
 			} // pjsua_init
 			else
 			{
-				LogError(QString("[SipManager]: Failed to init pjsip stack, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
+				LogError(QString("[SipManager]: Failed to init pjsip instance, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
 			}
 			pjsua_destroy();
 		}
 		else
 		{
-			LogError(QString("[SipManager]: Failed to create pjsua! pjsua_crete() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
+			LogError(QString("[SipManager]: Failed to create pjsip instance, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
 		}
 	}
 	return FSipStackCreated;
@@ -1071,6 +1076,7 @@ void SipManager::onStartVideoCall()
 			connect(window,SIGNAL(chatWindowRequested()),SLOT(onVideoCallChatWindowRequested()));
 			WidgetManager::showActivateRaiseWindow(window->window());
 			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+			window->sipCall()->setDeviceProperty(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::LCP_AUTO_START,action->data(ADR_AUTO_START_VIDEO).toBool());
 			window->sipCall()->startCall();
 		}
 	}
@@ -1134,7 +1140,7 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
-		if (SipCall::findCalls().isEmpty())
+		if (isCallsAvailable() && SipCall::findCalls().isEmpty())
 		{
 			QStringList phoneNumbers;
 			QStringList destinations;
@@ -1158,21 +1164,21 @@ void SipManager::onCallMenuAboutToShow()
 			}
 			if (!destinations.isEmpty())
 			{
-				Action *videoCallAction = new Action(menu);
-				videoCallAction->setText(tr("Video call"));
-				videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-				videoCallAction->setData(ADR_DESTINATIONS,destinations);
-				videoCallAction->setData(ADR_WITH_VIDEO,true);
-				connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
-				menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
-
 				Action *audioCallAction = new Action(menu);
-				audioCallAction->setText(tr("Audio call"));
+				audioCallAction->setText(tr("Call"));
 				audioCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
 				audioCallAction->setData(ADR_DESTINATIONS,destinations);
-				audioCallAction->setData(ADR_WITH_VIDEO,false);
+				audioCallAction->setData(ADR_AUTO_START_VIDEO,false);
 				connect(audioCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
 				menu->addAction(audioCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
+
+				Action *videoCallAction = new Action(menu);
+				videoCallAction->setText(tr("Call with video"));
+				videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+				videoCallAction->setData(ADR_DESTINATIONS,destinations);
+				videoCallAction->setData(ADR_AUTO_START_VIDEO,true);
+				connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+				menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
 			}
 
 			foreach(QString number, phoneNumbers)
@@ -1250,7 +1256,7 @@ void SipManager::onXmppStreamRemoved(IXmppStream *AXmppStream)
 
 void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 {
-	if(isCallsAvailable() && AWindow->isContactPage())
+	if(AWindow->isContactPage())
 	{
 		QLabel *separator = new QLabel;
 		separator->setFixedWidth(12);

@@ -39,8 +39,6 @@ public:
 	virtual QString callTimeString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
 	// devices
-	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
-	virtual bool setActiveDevice(ISipDevice::Type AType, const ISipDevice &ADevice);
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const;
 	virtual bool setDeviceState(ISipDevice::Type AType, ISipDevice::State AState);
 	virtual QVariant deviceProperty(ISipDevice::Type AType, int AProperty) const;
@@ -49,7 +47,6 @@ signals:
 	void callDestroyed();
 	void stateChanged(int AState);
 	void DTMFSignalReceived(QChar ASignal);
-	void activeDeviceChanged(int AType);
 	void deviceStateChanged(int AType, int AState);
 	void devicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
 public:
@@ -60,7 +57,6 @@ public:
 public:
 	// SipCall internal
 	int callId() const;
-	int accountId() const;
 	bool acceptIncomingCall(int ACallId);
 public:
 	// pjsip callbacks
@@ -74,7 +70,7 @@ public:
 	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId);
-	void initDevices();
+	void updateDeviceStates();
 	void changeDeviceState(int AType, int AState);
 	void changeDeviceProperty(int AType, int AProperty, const QVariant &AValue);
 	void setCallState(CallState AState);
@@ -114,7 +110,6 @@ private:
 	QMap<QString,Jid> FCallRequests;
 private:
 	// i/o devices
-	QMap<int, ISipDevice> FDevices;
 	QMap<int, ISipDevice::State> FDeviceStates;
 	QMap<int, QMap<int, QVariant> > FDeviceProperties;
 private:

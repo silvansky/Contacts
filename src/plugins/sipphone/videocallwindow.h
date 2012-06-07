@@ -13,7 +13,7 @@
 class VideoCallWindow : 
 	public QWidget
 {
-	Q_OBJECT
+	Q_OBJECT;
 public:
 	VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent = NULL);
 	virtual ~VideoCallWindow();
@@ -23,6 +23,7 @@ public:
 signals:
 	void chatWindowRequested();
 protected:
+	void showVideoWidget();
 	void restoreWindowGeometryWithAnimation();
 	void closeWindowWithAnimation(int ATimeout = 0);
 	void setRecursiveMouseTracking(QWidget *AWidget);
@@ -55,6 +56,7 @@ protected slots:
 private:
 	Ui::VideoCallWindowClass ui;
 private:
+	bool FVideoShown;
 	bool FIsFirstShow;
 	bool FVideoVisible;
 	int FBlockVideoChange;

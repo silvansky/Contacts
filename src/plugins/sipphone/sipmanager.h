@@ -62,7 +62,7 @@ public:
 	// devices
 	virtual bool updateAvailDevices();
 	virtual bool isDevicePresent(ISipDevice::Type AType) const;
-	virtual ISipDevice activeDevice(ISipDevice::Type AType) const;
+	virtual ISipDevice preferedDevice(ISipDevice::Type AType) const;
 	virtual QList<ISipDevice> availDevices(ISipDevice::Type AType) const;
 	virtual ISipDevice findDevice(ISipDevice::Type AType, int ADeviceId) const;
 	virtual ISipDevice findDevice(ISipDevice::Type AType, const QString &AName) const;

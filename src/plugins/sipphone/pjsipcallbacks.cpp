@@ -54,13 +54,6 @@ void on_reg_state(pjsua_acc_id acc_id)
 	SipManager::callbackInstance()->onSipRegistrationState(acc_id);
 }
 
-void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
-{
-	Q_UNUSED(acc_id);
-	Q_UNUSED(info);
-	//SipManager::callbackInstance()->onRegState2(acc_id, info);
-}
-
 void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
 {
 	SipManager::callbackInstance()->onIncomingCall(acc_id, call_id, rdata);
@@ -128,21 +121,20 @@ pj_bool_t default_mod_on_rx_request(pjsip_rx_data *rdata)
 	return PJ_FALSE;
 }
 
-void PJCallbacks::registerModuleCallbacks(pjsip_module & module)
-{
-	LogDetail(QString("[PJCallbacks::registerModuleCallbacks]: Registering pjsip module %1 callbacks...").arg(module.name.ptr));
-	module.on_rx_request = &default_mod_on_rx_request;
-}
-
 void PJCallbacks::registerCallbacks(pjsua_callback & cb)
 {
 	LogDetail(QString("[PJCallbacks::registerCallbacks]: Registering pjsip callbacks..."));
 	cb.on_reg_state = &on_reg_state;
-	cb.on_reg_state2 = &on_reg_state2;
 	cb.on_call_state = &on_call_state;
 	cb.on_incoming_call = &on_incoming_call;
 	cb.on_call_media_state = &on_call_media_state;
 	cb.on_call_tsx_state = &on_call_tsx_state;
+}
+
+void PJCallbacks::registerModuleCallbacks(pjsip_module & module)
+{
+	LogDetail(QString("[PJCallbacks::registerModuleCallbacks]: Registering pjsip module %1 callbacks...").arg(module.name.ptr));
+	module.on_rx_request = &default_mod_on_rx_request;
 }
 
 void PJCallbacks::registerFrameCallbacks(pjmedia_vid_dev_myframe & myframe)
