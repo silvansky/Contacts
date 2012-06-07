@@ -51,12 +51,14 @@ pj_status_t my_preview_frame_callback(int call_id, pjmedia_frame *frame, const c
 // callbacks for SipManager
 void on_reg_state(pjsua_acc_id acc_id)
 {
-	SipManager::callbackInstance()->onRegState(acc_id);
+	SipManager::callbackInstance()->onSipRegistrationState(acc_id);
 }
 
 void on_reg_state2(pjsua_acc_id acc_id, pjsua_reg_info *info)
 {
-	SipManager::callbackInstance()->onRegState2(acc_id, info);
+	Q_UNUSED(acc_id);
+	Q_UNUSED(info);
+	//SipManager::callbackInstance()->onRegState2(acc_id, info);
 }
 
 void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)

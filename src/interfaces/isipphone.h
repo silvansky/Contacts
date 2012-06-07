@@ -7,8 +7,6 @@
 
 #define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
 
-#define SIPPHONE_DEFAULT_DEVICE_INDEX  -1
-
 struct ISipDevice
 {
 	enum Type
@@ -59,7 +57,7 @@ struct ISipDevice
 	ISipDevice()
 	{
 		type = DT_UNDEFINED;
-		index = SIPPHONE_DEFAULT_DEVICE_INDEX;
+		index = -1;
 		name = QString::null;
 	}
 
@@ -158,15 +156,14 @@ class ISipManager
 {
 public:
 	virtual QObject *instance() = 0;
+	virtual bool isCallsAvailable() const =0;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations) = 0;
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration
-	virtual int registeredAccountId(const Jid &AStreamJid) const = 0;
-	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const = 0;
-	virtual bool registerAtServer(const Jid &AStreamJid) = 0;
-	virtual bool unregisterAtServer(const Jid &AStreamJid) = 0;
+	virtual int sipAccountId(const Jid &AStreamJid) const =0;
+	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered) =0;
 	// devices
 	virtual bool updateAvailDevices() =0;
 	virtual bool isDevicePresent(ISipDevice::Type AType) const =0;
@@ -182,9 +179,7 @@ protected:
 	virtual void availDevicesChanged() = 0;
 	virtual void sipCallCreated(ISipCall *ACall) = 0;
 	virtual void sipCallDestroyed(ISipCall *ACall) = 0;
-	virtual void registeredAtServer(const QString &AAccount) = 0;
-	virtual void unregisteredAtServer(const QString &AAccount) = 0;
-	virtual void registrationAtServerFailed(const QString &AAccount) = 0;
+	virtual void sipAccountRegistrationChanged(int AAccountId, bool ARegistered) =0;
 	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler *AHandler) = 0;
 	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler *AHandler) = 0;
 };

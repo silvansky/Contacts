@@ -85,9 +85,7 @@ protected:
 protected slots: 
 	void onRingTimerTimeout();
 	void onDelayedRejection();
-	void onRegisteredAtServer(const QString &AAccount);
-	void onUnRegisteredAtServer(const QString &AAccount);
-	void onRegistraitionAtServerFailed(const QString &AAccount);
+	void onSipAccountRegistrationChanged(int AAccountId, bool ARegistered);
 private:
 	IXmppStream *FXmppStream;
 	ISipManager *FSipManager;

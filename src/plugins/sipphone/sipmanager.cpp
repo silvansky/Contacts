@@ -44,23 +44,24 @@
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
 #define ADR_PHONE_NUMBER         Action::DR_Parametr3
+#define ADR_WITH_VIDEO           Action::DR_Parametr4
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
 {
-	NULL, NULL,				/* prev, next.		*/
-	{ (char*)"mod-default-handler", 19 },	/* Name.		*/
-	-1,					/* Id			*/
-	PJSIP_MOD_PRIORITY_APPLICATION,		/* Priority	        */
-	NULL,					/* load()		*/
-	NULL,					/* start()		*/
-	NULL,					/* stop()		*/
-	NULL,					/* unload()		*/
-	NULL,					/* on_rx_request()	*/
-	NULL,					/* on_rx_response()	*/
-	NULL,					/* on_tx_request.	*/
-	NULL,					/* on_tx_response()	*/
-	NULL,					/* on_tsx_state()	*/
+	NULL, NULL,                               /* prev, next.		*/
+	{ (char*)"mod-default-handler", 19 },	    /* Name.		*/
+	-1,                                       /* Id			*/
+	PJSIP_MOD_PRIORITY_APPLICATION,           /* Priority	        */
+	NULL,                                     /* load()		*/
+	NULL,                                     /* start()		*/
+	NULL,                                     /* stop()		*/
+	NULL,                                     /* unload()		*/
+	NULL,                                     /* on_rx_request()	*/
+	NULL,                                     /* on_rx_response()	*/
+	NULL,                                     /* on_tx_request.	*/
+	NULL,                                     /* on_tx_response()	*/
+	NULL,                                     /* on_tsx_state()	*/
 };
 
 /**************
@@ -91,10 +92,6 @@ SipManager::SipManager() :
 	inst = this;
 	FSHISipQuery = -1;
 	FSipStackCreated = false;
-
-#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
-	PJCallbacks::registerFrameCallbacks(myframe);
-#endif
 }
 
 SipManager::~SipManager()
@@ -208,6 +205,7 @@ bool SipManager::initObjects()
 		sipPhone.description = tr("SIP voice and video calls");
 		FDiscovery->insertDiscoFeature(sipPhone);
 	}
+
 	if (FStanzaProcessor)
 	{
 		IStanzaHandle shandle;
@@ -217,6 +215,7 @@ bool SipManager::initObjects()
 		shandle.conditions.append(SHC_SIP_QUERY);
 		FSHISipQuery = FStanzaProcessor->insertStanzaHandle(shandle);
 	}
+
 	if (FNotifications)
 	{
 		INotificationType notifyType;
@@ -238,7 +237,18 @@ bool SipManager::initSettings()
 
 bool SipManager::startPlugin()
 {
+	if (createSipStack())
+	{
+#if defined(HAS_VIDEO_SUPPORT) && (HAS_VIDEO_SUPPORT != 0)
+		PJCallbacks::registerFrameCallbacks(myframe);
+#endif
+	}
 	return true;
+}
+
+bool SipManager::isCallsAvailable() const
+{
+	return FSipStackCreated;
 }
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -275,119 +285,92 @@ QList<ISipCall*> SipManager::findCalls(const Jid &AStreamJid, const Jid &AContac
 	return SipCall::findCalls(AStreamJid, AContactJid, ASessionId);
 }
 
-int SipManager::registeredAccountId(const Jid &AStreamJid) const
+int SipManager::sipAccountId(const Jid &AStreamJid) const
 {
-	return FAccounts.value(AStreamJid.bare(), -1);
+	return FSipAccounts.value(AStreamJid.bare(), -1);
 }
 
-bool SipManager::isRegisteredAtServer(const Jid &AStreamJid) const
+bool SipManager::setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered)
 {
-	return FAccounts.value(AStreamJid.bare(), -1) != -1;
-}
-
-bool SipManager::registerAtServer(const Jid &AStreamJid)
-{
-	IXmppStream *stream = FXmppStreams ? FXmppStreams->xmppStream(AStreamJid) : NULL;
-	if (stream && !isRegisteredAtServer(AStreamJid) && createSipStack())
+	if (FSipAccounts.contains(AStreamJid.bare()) != ARegistered)
 	{
-		// Create account
-		pjsua_acc_config acc_cfg;
-		pjsua_acc_config_default(&acc_cfg);
-
-		char idtmp[1024];
-		QString idString = stream->streamJid().pBare();
-		pj_ansi_snprintf(idtmp, sizeof(idtmp), "sip:%s", idString.toAscii().constData());
-
-		acc_cfg.id = pj_str((char*)idtmp);
-
-		char reg_uritmp[1024];
-		pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", stream->streamJid().pDomain().toAscii().constData());
-		acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
-
-		acc_cfg.cred_count = 1;
-		acc_cfg.cred_info[0].realm = pj_str((char*)"*");
-		acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
-
-		char usernametmp[512];
-		pj_ansi_snprintf(usernametmp, sizeof(usernametmp), "%s", idString.toAscii().constData());
-		acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
-
-		char passwordtmp[512];
-		pj_ansi_strncpy(passwordtmp, stream->password().toAscii().constData(), sizeof(passwordtmp));
-		acc_cfg.cred_info[0].data = pj_str((char*)passwordtmp);
-
-		acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
-		acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
-		acc_cfg.vid_in_auto_show = PJ_TRUE;
-		acc_cfg.vid_out_auto_transmit = PJ_TRUE;
-		acc_cfg.register_on_acc_add = PJ_FALSE;
-
-		pjsua_acc_id acc;
-		pj_status_t status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc);
-		if (status == PJ_SUCCESS)
+		IXmppStream *stream = FXmppStreams ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+		if (ARegistered && stream!=NULL && isCallsAvailable())
 		{
-			status = pjsua_start();
+			// Create account
+			pjsua_acc_config acc_cfg;
+			pjsua_acc_config_default(&acc_cfg);
+
+			char idtmp[1024];
+			QString idString = stream->streamJid().pBare();
+			pj_ansi_snprintf(idtmp, sizeof(idtmp), "sip:%s", idString.toAscii().constData());
+
+			acc_cfg.id = pj_str((char*)idtmp);
+
+			char reg_uritmp[1024];
+			pj_ansi_snprintf(reg_uritmp, sizeof(reg_uritmp), "sip:%s", stream->streamJid().pDomain().toAscii().constData());
+			acc_cfg.reg_uri = pj_str((char*)reg_uritmp);
+
+			acc_cfg.cred_count = 1;
+			acc_cfg.cred_info[0].realm = pj_str((char*)"*");
+			acc_cfg.cred_info[0].scheme = pj_str((char*)"digest");
+
+			char usernametmp[512];
+			pj_ansi_snprintf(usernametmp, sizeof(usernametmp), "%s", idString.toAscii().constData());
+			acc_cfg.cred_info[0].username = pj_str((char*)usernametmp);
+
+			char passwordtmp[512];
+			pj_ansi_strncpy(passwordtmp, stream->password().toAscii().constData(), sizeof(passwordtmp));
+			acc_cfg.cred_info[0].data = pj_str((char*)passwordtmp);
+
+			acc_cfg.vid_cap_dev = DEFAULT_CAP_DEV;
+			acc_cfg.vid_rend_dev = DEFAULT_REND_DEV;
+			acc_cfg.vid_in_auto_show = PJ_TRUE;
+			acc_cfg.vid_out_auto_transmit = PJ_TRUE;
+			acc_cfg.register_on_acc_add = PJ_FALSE;
+
+			pjsua_acc_id acc_id = -1;
+			pj_status_t status = pjsua_acc_add(&acc_cfg, PJ_TRUE, &acc_id);
 			if (status == PJ_SUCCESS)
 			{
-				if (pjsua_get_pjsip_endpt())
+				status = pjsua_acc_set_registration(acc_id, PJ_TRUE);
+				if (status == PJ_SUCCESS)
 				{
-					PJCallbacks::registerModuleCallbacks(mod_default_handler);
-					status = pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
-					if (status == PJ_SUCCESS)
-					{
-						status = pjsua_acc_set_registration(acc, true);
-						if (status == PJ_SUCCESS)
-						{
-							LogDetail("[SipManager]: Starting registration on SIP server");
-							return true;
-						}
-						else
-						{
-							LogError(QString("[SipManager]: Failed to start registration pjsua_acc_set_registration returned (%1) %2.").arg(status).arg(resolveErrorCode(status)));
-						}
-					}
-					else
-					{
-						LogError(QString("[SipManager]: Failed to register pjsip module! pjsip_endpt_register_module() returned (%1) %2.").arg(status).arg(resolveErrorCode(status)));
-					}
-				} // pjsua_get_pjsip_endpt
+					FSipAccounts.insert(AStreamJid.bare(),acc_id);
+					LogDetail(QString("[SipManager]: SIP account '%1' added and registration started, id=%2").arg(AStreamJid.bare()).arg(acc_id));
+					return true;
+				} // pjsua_acc_set_registration
 				else
 				{
-					LogError("[SipManager]: pjsua_get_pjsip_endpt() invalid!");
+					LogError(QString("[SipManager]: Failed to start registration of SIP account '%1', status=%2, error=%3").arg(AStreamJid.bare()).arg(status).arg(resolveErrorCode(status)));
 				}
-			} // pjsua_start
+			} // pjsua_acc_add
 			else
 			{
-				LogError(QString("[SipManager]: pjsua_start() failed with status (%1) %2.").arg(status).arg(resolveErrorCode(status)));
+				LogError(QString("[SipManager]: Failed to add SIP account '%1', status=%2, error=%3").arg(AStreamJid.bare()).arg(status).arg(resolveErrorCode(status)));
 			}
-		} // pjsua_acc_add
-		else
-		{
-			LogError(QString("[SipManager]: pjsua_acc_add() failed with status (%1) %2.").arg(status).arg(resolveErrorCode(status)));
+			if (acc_id != -1)
+			{
+				pjsua_acc_del(acc_id);
+			}
 		}
+		else if (!ARegistered)
+		{
+			pjsua_acc_id acc_id = sipAccountId(AStreamJid);
+			pj_status_t status = pjsua_acc_set_registration(acc_id,PJ_FALSE);
+			if (status == PJ_SUCCESS)
+			{
+				LogDetail(QString("[SipManager]: Unregistration of SIP account '%1' started").arg(AStreamJid.bare()));
+				return true;
+			}
+			else
+			{
+				LogError(QString("[SipManager]: Failed to start unregistration of SIP account '%1', status=%2, error=%3").arg(AStreamJid.bare()).arg(status).arg(resolveErrorCode(status)));
+			}
+		}
+		return false;
 	}
-	return false;
-}
-
-bool SipManager::unregisterAtServer(const Jid &AStreamJid)
-{
-	// TODO: check implementation
-	int acc = FAccounts.value(AStreamJid.bare(), -1);
-	if (acc != -1)
-	{
-		pj_status_t status = pjsua_acc_set_registration(acc, false);
-		if (status == PJ_SUCCESS)
-		{
-			FAccounts.remove(AStreamJid.bare());
-			emit unregisteredAtServer(AStreamJid.bare());
-			return true;
-		}
-		else
-		{
-			LogError(QString("[SipManager]: Failed to unregister account '%1' on SIP server, pjsua_acc_set_registration() returned (%2) %3").arg(AStreamJid.bare()).arg(status).arg(resolveErrorCode(status)));
-		}
-	}
-	return false;
+	return true;
 }
 
 bool SipManager::updateAvailDevices()
@@ -499,7 +482,7 @@ ISipDevice SipManager::activeDevice(ISipDevice::Type AType) const
 	if (device.isNull() && isDevicePresent(AType))
 	{
 		device.type = AType;
-		device.index = SIPPHONE_DEFAULT_DEVICE_INDEX;
+		device.index = -1;
 		device.name = tr("Default");
 	}
 	return device;
@@ -618,41 +601,37 @@ QString SipManager::resolveErrorCode(int code)
 	return QString(errmsg);
 }
 
-void SipManager::onRegState(int acc_id)
+void SipManager::onSipRegistrationState(int AAccountId)
 {
 	// TODO: check implementation
-	if (acc_id == -1)
+	if (FSipAccounts.values().contains(AAccountId))
 	{
-		LogDetail("[SipManager::onRegState]: Invalid account Id!");
-		return;
-	}
+		Jid accJid = FSipAccounts.key(AAccountId);
 
-	pjsua_acc_info info;
-	pjsua_acc_get_info(acc_id, &info);
+		pjsua_acc_info info;
+		pjsua_acc_get_info(AAccountId, &info);
 
-	QString account = QString("%1").arg(info.acc_uri.ptr);
-	account.remove(0, 4); // remove "sip:"
-	if (info.status == PJSIP_SC_OK)
-	{
-		LogDetail(QString("[SipManager]: Successfully registered on SIP server account \'%1\', online: %2, has registration: %3").arg(account).arg(info.online_status).arg(info.has_registration));
-		FAccounts.insert(account, acc_id);
-		//availDevices(ISipDevice::DT_LOCAL_MICROPHONE);
-		emit registeredAtServer(account);
-	}
-	else
-	{
-		LogError(QString("[SipManager]: Failed to register on SIP server account '%1'").arg(account));
-		emit registrationAtServerFailed(account);
-	}
-}
+		bool registered = info.expires>0;
+		if (info.status == PJSIP_SC_OK)
+			LogDetail(QString("[SipManager]: SIP account '%1' registration changed, registered=%2").arg(accJid.bare()).arg(registered));
+		else
+			LogError(QString("[SipManager]: Failed to change SIP account '%1' registration, registered=%2").arg(accJid.bare()).arg(registered));
+		emit sipAccountRegistrationChanged(AAccountId,registered);
 
-void SipManager::onRegState2(int acc_id, void *info)
-{
-	// TODO: check this MAGIC implementation
-	LogDetail(QString("[SipManager]: Registration status (%1) %2, account: %3").arg(((pjsua_reg_info*)info)->cbparam->status).arg(resolveErrorCode(((pjsua_reg_info*)info)->cbparam->status)).arg(acc_id));
-	int i;
-	i = ((pjsua_reg_info*)info)->cbparam->code;
-	i++;
+		if (!registered)
+		{
+			pj_status_t status = pjsua_acc_del(AAccountId);
+			if (status == PJ_SUCCESS)
+			{
+				LogDetail(QString("[SipManager]: SIP account '%1' removed").arg(accJid.bare()));
+				FSipAccounts.remove(accJid);
+			}
+			else
+			{
+				LogError(QString("[SipManager]: Failed to remove SIP account '%1'").arg(accJid.bare()));
+			}
+		}
+	}
 }
 
 void SipManager::onIncomingCall(int acc_id, int call_id, void *rdata)
@@ -715,36 +694,60 @@ bool SipManager::createSipStack()
 			status = pjsua_init(&ua_cfg, &log_cfg, &med_cfg);
 			if (status == PJ_SUCCESS)
 			{
-				pjsua_transport_config udp_cfg;
-				pjsua_transport_id udp_id;
-				pjsua_transport_config_default(&udp_cfg);
-				udp_cfg.port = SIP_PORT;
-
-				status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
-				if (status == PJ_SUCCESS)
+				if (pjsua_get_pjsip_endpt())
 				{
-					pjsua_transport_info udp_info;
-					status = pjsua_transport_get_info(udp_id, &udp_info);
+					PJCallbacks::registerModuleCallbacks(mod_default_handler);
+					status = pjsip_endpt_register_module(pjsua_get_pjsip_endpt(), &mod_default_handler);
 					if (status == PJ_SUCCESS)
 					{
-						FSipStackCreated = true;
-						LogDetail(QString("[SipManager] PJSIP stack created"));
-						updateAvailDevices();
-						return true;
-					} // pjsua_transport_get_info
+						pjsua_transport_config udp_cfg;
+						pjsua_transport_id udp_id;
+						pjsua_transport_config_default(&udp_cfg);
+						udp_cfg.port = SIP_PORT;
+
+						status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udp_cfg, &udp_id);
+						if (status == PJ_SUCCESS)
+						{
+							pjsua_transport_info udp_info;
+							status = pjsua_transport_get_info(udp_id, &udp_info);
+							if (status == PJ_SUCCESS)
+							{
+								status = pjsua_start();
+								if (status == PJ_SUCCESS)
+								{
+									FSipStackCreated = true;
+									LogDetail(QString("[SipManager] PJSIP stack created successfully"));
+									updateAvailDevices();
+									return true;
+								} // pjsua_start
+								else
+								{
+									LogError(QString("[SipManager]: Failed to start pjsip instance, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
+								}
+							} // pjsua_transport_get_info
+							else
+							{
+								LogError(QString("[SipManager]: Failed to get pjsip transport info, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
+							}
+						} // pjsua_transport_create
+						else
+						{
+							LogError(QString("[SipManager]: Failed to create pjsip transport, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
+						}
+					} // pjsip_endpt_register_module
 					else
 					{
-						LogError(QString("[SipManager]: pjsua_transport_get_info() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
+						LogError(QString("[SipManager]: Failed to register pjsip module, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
 					}
-				} // pjsua_transport_create
+				} // pjsua_get_pjsip_endpt
 				else
 				{
-					LogError(QString("[SipManager]: pjsua_transport_create() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
+					LogError(QString("[SipManager]: Failed to get SIP endpoint instance of pjsua, status=%2, error=%3").arg(status).arg(resolveErrorCode(status)));
 				}
 			} // pjsua_init
 			else
 			{
-				LogError(QString("[SipManager]: pjsua_init() failed with status (%1) %2!").arg(status).arg(resolveErrorCode(status)));
+				LogError(QString("[SipManager]: Failed to init pjsip stack, status=%1, error=%2").arg(status).arg(resolveErrorCode(status)));
 			}
 			pjsua_destroy();
 		}
@@ -753,7 +756,7 @@ bool SipManager::createSipStack()
 			LogError(QString("[SipManager]: Failed to create pjsua! pjsua_crete() returned (%1) %2").arg(status).arg(resolveErrorCode(status)));
 		}
 	}
-	return false;
+	return FSipStackCreated;
 }
 
 void SipManager::destroySipStack()
@@ -1156,11 +1159,20 @@ void SipManager::onCallMenuAboutToShow()
 			if (!destinations.isEmpty())
 			{
 				Action *videoCallAction = new Action(menu);
-				videoCallAction->setText(FMetaContacts->metaContactName(contact));
+				videoCallAction->setText(tr("Video call"));
 				videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
 				videoCallAction->setData(ADR_DESTINATIONS,destinations);
+				videoCallAction->setData(ADR_WITH_VIDEO,true);
 				connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
 				menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
+
+				Action *audioCallAction = new Action(menu);
+				audioCallAction->setText(tr("Audio call"));
+				audioCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+				audioCallAction->setData(ADR_DESTINATIONS,destinations);
+				audioCallAction->setData(ADR_WITH_VIDEO,false);
+				connect(audioCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+				menu->addAction(audioCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
 			}
 
 			foreach(QString number, phoneNumbers)
@@ -1233,11 +1245,12 @@ void SipManager::onXmppStreamRemoved(IXmppStream *AXmppStream)
 {
 	foreach(ISipCall *call, SipCall::findCalls(AXmppStream->streamJid()))
 		call->rejectCall(ISipCall::RC_BYUSER);
+	setSipAccountRegistration(AXmppStream->streamJid().bare(),false);
 }
 
 void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 {
-	if(AWindow->isContactPage())
+	if(isCallsAvailable() && AWindow->isContactPage())
 	{
 		QLabel *separator = new QLabel;
 		separator->setFixedWidth(12);

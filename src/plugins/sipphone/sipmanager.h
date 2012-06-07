@@ -50,16 +50,15 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin();
 	// ISipManager
+	virtual bool isCallsAvailable() const;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QString &APhoneNumber);
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
-	virtual int registeredAccountId(const Jid &AStreamJid) const;
-	virtual bool isRegisteredAtServer(const Jid &AStreamJid) const;
-	virtual bool registerAtServer(const Jid &AStreamJid);
-	virtual bool unregisterAtServer(const Jid &AStreamJid);
+	virtual int sipAccountId(const Jid &AStreamJid) const;
+	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered);
 	// devices
 	virtual bool updateAvailDevices();
 	virtual bool isDevicePresent(ISipDevice::Type AType) const;
@@ -75,9 +74,7 @@ signals:
 	void availDevicesChanged();
 	void sipCallCreated(ISipCall *ACall);
 	void sipCallDestroyed(ISipCall *ACall);
-	void registeredAtServer(const QString &AAccount);
-	void unregisteredAtServer(const QString &AAccount);
-	void registrationAtServerFailed(const QString &AAccount);
+	void sipAccountRegistrationChanged(int AAccountId, bool ARegistered);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
 public:
@@ -91,8 +88,7 @@ public:
 	static QString resolveErrorCode(int code);
 public:
 	// pjsip callbacks
-	void onRegState(int acc_id);
-	void onRegState2(int acc_id, void * /* pjsua_reg_info * */info);
+	void onSipRegistrationState(int AAccountId);
 	void onIncomingCall(int acc_id, int call_id, void * /* pjsip_rx_data * */rdata);
 protected:
 	bool createSipStack();
@@ -138,7 +134,7 @@ private:
 	int FSHISipQuery;
 private:
 	bool FSipStackCreated;
-	QMap<Jid, int> FAccounts;
+	QMap<Jid, int> FSipAccounts;
 	QMultiMap<int, ISipDevice> FAvailDevices;
 	QMap<IMetaTabWindow *, Menu *> FCallMenus;
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;

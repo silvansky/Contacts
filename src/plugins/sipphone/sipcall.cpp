@@ -61,8 +61,8 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
-	//if (findCalls(streamJid()).isEmpty())
-	//	FSipManager->unregisterAtServer(streamJid());
+	if (findCalls(streamJid()).isEmpty())
+		FSipManager->setSipAccountRegistration(streamJid(),false);
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
@@ -751,9 +751,7 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 	FRingTimer.setSingleShot(true);
 	connect(&FRingTimer, SIGNAL(timeout()), SLOT(onRingTimerTimeout()));
 
-	connect(FSipManager->instance(), SIGNAL(registeredAtServer(const QString &)), SLOT(onRegisteredAtServer(const QString &)));
-	connect(FSipManager->instance(), SIGNAL(unregisteredAtServer(const QString &)), SLOT(onUnRegisteredAtServer(const QString &)));
-	connect(FSipManager->instance(), SIGNAL(registrationAtServerFailed(const QString &)), SLOT(onRegistraitionAtServerFailed(const QString &)));
+	connect(FSipManager->instance(), SIGNAL(sipAccountRegistrationChanged(int,bool)), SLOT(onSipAccountRegistrationChanged(int, bool)));
 
 	FCallInstances.append(this);
 }
@@ -847,10 +845,13 @@ void SipCall::setCallState(CallState AState)
 			if (isDirectCall())
 				FRingTimer.start(RING_TIMEOUT);
 
-			if (!FSipManager->isRegisteredAtServer(streamJid()))
+			FAccountId = FSipManager->sipAccountId(streamJid());
+			if (FAccountId == -1)
 			{
-				if (!FSipManager->registerAtServer(streamJid()))
+				if (!FSipManager->setSipAccountRegistration(streamJid(),true))
 					continueAfterRegistration(false);
+				else
+					FAccountId = FSipManager->sipAccountId(streamJid());
 			}
 			else
 			{
@@ -885,7 +886,7 @@ void SipCall::setCallError(ErrorCode ACode)
 
 void SipCall::continueAfterRegistration(bool ARegistered)
 {
-	FAccountId = FSipManager->registeredAccountId(streamJid());
+	FAccountId = FSipManager->sipAccountId(streamJid());
 
 	if (role() == CR_INITIATOR)
 	{
@@ -999,7 +1000,7 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 			if (status == PJMEDIA_EAUD_NODEFDEV)
 				LogError(QString("[SipCall::sipCallTo]: Default device not found!"));
 			else
-				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status (%1) %2, uri is \'%3\'").arg(status).arg(SipManager::resolveErrorCode(status)).arg(uriTmp));
+				LogError(QString("[SipCall::sipCallTo]: pjsua_call_make_call() returned status (%1) %2, uri is '%3'").arg(status).arg(SipManager::resolveErrorCode(status)).arg(uriTmp));
 			setCallError(EC_CONNECTIONERR);
 		}
 	}
@@ -1041,26 +1042,11 @@ void SipCall::onDelayedRejection()
 	rejectCall(FRejectCode);
 }
 
-void SipCall::onRegisteredAtServer(const QString &AAccount)
+void SipCall::onSipAccountRegistrationChanged(int AAccountId, bool ARegistered)
 {
-	if (AAccount == streamJid().pBare())
+	if (FAccountId == AAccountId)
 	{
 		if (state() == CS_CONNECTING)
-			continueAfterRegistration(true);
-	}
-}
-
-void SipCall::onUnRegisteredAtServer(const QString &AAccount)
-{
-	Q_UNUSED(AAccount)
-	// TODO: implementation
-}
-
-void SipCall::onRegistraitionAtServerFailed(const QString &AAccount)
-{
-	if (AAccount == streamJid().pBare())
-	{
-		if (state() == CS_CONNECTING)
-			continueAfterRegistration(false);
+			continueAfterRegistration(ARegistered);
 	}
 }
