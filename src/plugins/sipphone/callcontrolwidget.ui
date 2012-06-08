@@ -64,7 +64,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lblName">
+         <widget class="CustomLabel" name="lblName">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -221,6 +221,11 @@
    <extends>QWidget</extends>
    <header>volumecontrol.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -656,7 +656,7 @@ int SipCall::onMyPutFrameCallback(void *frame, int w, int h, int stride)
 		QImage remoteImage = QImage((uchar*)dst, w, h, QImage::Format_RGB888).copy();
 		delete [] dst;
 
-		changeDeviceProperty(ISipDevice::DT_REMOTE_CAMERA,ISipDevice::RCP_CURRENTFRAME,remoteImage);
+		emit startUpdateDeviceProperty(ISipDevice::DT_REMOTE_CAMERA,ISipDevice::RCP_CURRENTFRAME,remoteImage);
 	}
 	return 0;
 }
@@ -688,7 +688,7 @@ int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, i
 		}
 		delete[] dst;
 
-		changeDeviceProperty(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME,previewImage);
+		emit startUpdateDeviceProperty(ISipDevice::DT_LOCAL_CAMERA, ISipDevice::LCP_CURRENTFRAME,previewImage);
 	}
 	return 0;
 }
@@ -748,6 +748,7 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 
 	connect(this,SIGNAL(startUpdateDeviceStates()),SLOT(updateDeviceStates()),Qt::QueuedConnection);
 	connect(this,SIGNAL(startUpdateCallState(int)),SLOT(updateCallState(int)),Qt::QueuedConnection);
+	connect(this,SIGNAL(startUpdateDeviceProperty(int,int,const QVariant &)),SLOT(updateDeviceProperty(int,int,const QVariant &)),Qt::QueuedConnection);
 
 	FCallInstances.append(this);
 }
@@ -1038,6 +1039,11 @@ void SipCall::updateDeviceStates()
 void SipCall::updateCallState(int AState)
 {
 	setCallState((CallState)AState);
+}
+
+void SipCall::updateDeviceProperty(int AType, int AProperty, const QVariant &AVaule)
+{
+	changeDeviceProperty(AType,AProperty,AVaule);
 }
 
 void SipCall::onRingTimerTimeout()

@@ -71,6 +71,7 @@ public:
 signals:
 	void startUpdateDeviceStates();
 	void startUpdateCallState(int AState);
+	void startUpdateDeviceProperty(int AType, int AProperty, const QVariant &AVaule);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId);
 	void sendLocalDeviceStates() const;
@@ -84,6 +85,7 @@ protected:
 protected slots:
 	void updateDeviceStates();
 	void updateCallState(int AState);
+	void updateDeviceProperty(int AType, int AProperty, const QVariant &AVaule);
 protected slots: 
 	void onRingTimerTimeout();
 	void onDelayedRejection();

@@ -2,13 +2,13 @@
 <window-border-style>
  <left-border>
    <width>28</width>
-   <resize-width>5</resize-width>
+   <resize-width>0</resize-width>
    <resize-margin>28</resize-margin>
    <image src="customborder/leftShadow" />
  </left-border>
  <top-border>
    <width>28</width>
-   <resize-width>5</resize-width>
+   <resize-width>0</resize-width>
    <resize-margin>28</resize-margin>
    <image src="customborder/topShadow" />
  </top-border>
@@ -29,9 +29,9 @@
    <height>59</height>
    <radius>4</radius>
    <resize-left>28</resize-left>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-top>28</resize-top>
-   <resize-height>10</resize-height>
+   <resize-height>0</resize-height>
    <image src="customborder/topLeftShadow" />
    <mask src="customborder/topLeftMask" />
  </top-left-corner>
@@ -40,9 +40,9 @@
    <height>61</height>
    <radius>4</radius>
    <resize-right>28</resize-right>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-top>28</resize-top>
-   <resize-height>10</resize-height>
+   <resize-height>0</resize-height>
    <image src="customborder/topRightShadow" />
    <mask src="customborder/topRightMask" />
  </top-right-corner>
@@ -51,9 +51,9 @@
    <height>49</height>
    <radius>4</radius>
    <resize-left>28</resize-left>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-bottom>28</resize-bottom>
-   <resize-height>10</resize-height>
+   <resize-height>0</resize-height>
    <image src="customborder/bottomLeftShadow" />
    <mask src="customborder/bottomLeftMask" />
  </bottom-left-corner>

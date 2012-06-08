@@ -98,6 +98,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	{
 		ui.lblName->setText(contactJid().bare());
 	}
+	ui.lblName->setElideMode(Qt::ElideRight);
 
 	if (FSipCall->role() == ISipCall::CR_INITIATOR)
 		setWindowTitle(tr("Call to %1").arg(ui.lblName->text()));
