@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
-    <height>62</height>
+    <width>472</width>
+    <height>56</height>
    </rect>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -137,6 +137,19 @@
             </item>
            </layout>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QPushButton" name="pbtAccept">

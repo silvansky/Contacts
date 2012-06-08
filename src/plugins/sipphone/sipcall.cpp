@@ -61,8 +61,10 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
+#if !defined(Q_WS_MAC)
 	if (findCalls(streamJid()).isEmpty())
 		FSipManager->setSipAccountRegistration(streamJid(),false);
+#endif
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
