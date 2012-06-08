@@ -20,6 +20,7 @@
 #define MAX_VOLUME              4.0f
 
 #define SHC_CALL_ACCEPT         "/iq[@type='set']/query[@sid='%1'][@xmlns='" NS_RAMBLER_PHONE "']"
+#define SHC_DEVICE_STATES       "/message/x[@sid='%1'][@xmlns='" NS_RAMBLER_PHONE_DEVICESTATES "']"
 
 QList<SipCall *> SipCall::FCallInstances;
 
@@ -545,6 +546,33 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
+	else if (AHandleId==FSHIDeviceStates && state()==CS_TALKING)
+	{
+		AAccept = true;
+		LogDetail(QString("[SipCall] Device states update received from='%2', sid='%3'").arg(AStanza.from(),sessionId()));
+
+		QDomElement deviceElem = AStanza.firstElement("x",NS_RAMBLER_PHONE_DEVICESTATES).firstChildElement();
+		while (!deviceElem.isNull())
+		{
+			ISipDevice::Type type = ISipDevice::DT_UNDEFINED;
+			if (deviceElem.tagName() == "camera")
+				type = ISipDevice::DT_REMOTE_CAMERA;
+			else if (deviceElem.tagName() == "microphone")
+				type = ISipDevice::DT_REMOTE_MICROPHONE;
+
+			if (type != ISipDevice::DT_UNDEFINED)
+			{
+				QString text = deviceElem.text();
+				if (text == "enabled")
+					changeDeviceState(type,ISipDevice::DS_ENABLED);
+				else if (text == "disabled")
+					changeDeviceState(type,ISipDevice::DS_DISABLED);
+				else if (text == "unavail")
+					changeDeviceState(type,ISipDevice::DS_UNAVAIL);
+			}
+			deviceElem = deviceElem.nextSiblingElement();
+		}
+	}
 	return false;
 }
 
@@ -701,6 +729,7 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 	FCallId = -1;
 	FAccountId = -1;
 	FSHICallAccept = -1;
+	FSHIDeviceStates = -1;
 	FState = CS_INIT;
 	FErrorCode = EC_EMPTY;
 	FRejectCode = RC_EMPTY;
@@ -746,17 +775,43 @@ void SipCall::updateDeviceStates()
 			}
 
 			static const QList<ISipDevice::Type> deviceTypes = QList<ISipDevice::Type>()
+				//<<ISipDevice::DT_REMOTE_CAMERA
+				//<<ISipDevice::DT_REMOTE_MICROPHONE
 				<<ISipDevice::DT_LOCAL_CAMERA
-				<<ISipDevice::DT_REMOTE_CAMERA
-				<<ISipDevice::DT_LOCAL_MICROPHONE
-				<<ISipDevice::DT_REMOTE_MICROPHONE;
+				<<ISipDevice::DT_LOCAL_MICROPHONE;
 
+			Stanza update("message");
+			update.setTo(contactJid().eFull());
+			QDomElement xElem = update.addElement("x",NS_RAMBLER_PHONE_DEVICESTATES);
+			xElem.setAttribute("sid",sessionId());
+
+			bool hasUpdates = false;
 			foreach(ISipDevice::Type type, deviceTypes)
 			{
 				ISipDevice::State newState= newStates.value(type,ISipDevice::DS_UNAVAIL);
 				if (deviceState(type) != newState)
+				{
+					hasUpdates = true;
+					QDomElement deviceElem;
+					if (type == ISipDevice::DT_LOCAL_CAMERA)
+						deviceElem = xElem.appendChild(update.createElement("camera")).toElement();
+					else if (type == ISipDevice::DT_LOCAL_MICROPHONE)
+						deviceElem = xElem.appendChild(update.createElement("microphone")).toElement();
+					if (!deviceElem.isNull())
+					{
+						if (newState == ISipDevice::DS_ENABLED)
+							deviceElem.appendChild(update.createTextNode("enabled"));
+						else if (newState == ISipDevice::DS_DISABLED)
+							deviceElem.appendChild(update.createTextNode("disabled"));
+						else if (newState == ISipDevice::DS_UNAVAIL)
+							deviceElem.appendChild(update.createTextNode("unavail"));
+					}
 					changeDeviceState(type,newState);
+				}
 			}
+
+			if (FStanzaProcessor && hasUpdates)
+				FStanzaProcessor->sendStanzaOut(streamJid(),update);
 		}
 	}
 }
@@ -791,6 +846,10 @@ void SipCall::setCallState(CallState AState)
 				handle.direction = IStanzaHandle::DirectionIn;
 				handle.conditions.append(QString(SHC_CALL_ACCEPT).arg(sessionId()));
 				FSHICallAccept = FStanzaProcessor->insertStanzaHandle(handle);
+
+				handle.conditions.clear();
+				handle.conditions.append(QString(SHC_DEVICE_STATES).arg(sessionId()));
+				FSHIDeviceStates = FStanzaProcessor->insertStanzaHandle(handle);
 			}
 			FRingTimer.start(RING_TIMEOUT);
 		}
