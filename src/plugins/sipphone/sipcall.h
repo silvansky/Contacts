@@ -68,9 +68,12 @@ public:
 public:
 	static SipCall *findCallById(int ACallId);
 	static QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null);
+signals:
+	void startUpdateDeviceStates();
+	void startUpdateCallState(int AState);
 protected:
 	void init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QString &ASessionId);
-	void updateDeviceStates();
+	void sendLocalDeviceStates() const;
 	void changeDeviceState(int AType, int AState);
 	void changeDeviceProperty(int AType, int AProperty, const QVariant &AValue);
 	void setCallState(CallState AState);
@@ -78,6 +81,9 @@ protected:
 	void continueAfterRegistration(bool ARegistered);
 	void notifyActiveDestinations(const QString &AType);
 	void sipCallTo(const Jid &AContactJid);
+protected slots:
+	void updateDeviceStates();
+	void updateCallState(int AState);
 protected slots: 
 	void onRingTimerTimeout();
 	void onDelayedRejection();

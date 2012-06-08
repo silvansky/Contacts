@@ -546,7 +546,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
-	else if (AHandleId==FSHIDeviceStates && state()==CS_TALKING)
+	else if (AHandleId==FSHIDeviceStates && (state()==CS_CONNECTING || state()==CS_TALKING))
 	{
 		AAccept = true;
 		LogDetail(QString("[SipCall] Device states update received from='%2', sid='%3'").arg(AStanza.from(),sessionId()));
@@ -563,11 +563,11 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 			if (type != ISipDevice::DT_UNDEFINED)
 			{
 				QString text = deviceElem.text();
-				if (text == "enabled")
+				if (text=="enabled" && deviceState(type)!=ISipDevice::DS_ENABLED)
 					changeDeviceState(type,ISipDevice::DS_ENABLED);
-				else if (text == "disabled")
+				else if (text=="disabled" && deviceState(type)!=ISipDevice::DS_DISABLED)
 					changeDeviceState(type,ISipDevice::DS_DISABLED);
-				else if (text == "unavail")
+				else if (text=="unavail" && deviceState(type)!=ISipDevice::DS_UNAVAIL)
 					changeDeviceState(type,ISipDevice::DS_UNAVAIL);
 			}
 			deviceElem = deviceElem.nextSiblingElement();
@@ -598,6 +598,7 @@ bool SipCall::acceptIncomingCall(int ACallId)
 void SipCall::onCallState(int call_id, void *e)
 {
 	Q_UNUSED(e);
+	// NOTE: This function calls from not main gui thread
 	if (FCallId == call_id)
 	{
 		pjsua_call_info ci;
@@ -605,17 +606,18 @@ void SipCall::onCallState(int call_id, void *e)
 
 		if(ci.state == PJSIP_INV_STATE_CONFIRMED)
 		{
-			setCallState(CS_TALKING);
+			emit startUpdateCallState(CS_TALKING);
 		}
 		else if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
 		{
-			setCallState(CS_FINISHED);
+			emit startUpdateCallState(CS_FINISHED);
 		}
 	}
 }
 
 void SipCall::onCallMediaState(int call_id)
 {
+	// NOTE: This function calls from not main gui thread
 	if (FCallId == call_id)
 	{
 		pjsua_call_info ci;
@@ -630,8 +632,7 @@ void SipCall::onCallMediaState(int call_id)
 				break;
 			}
 		}
-
-		updateDeviceStates();
+		emit startUpdateDeviceStates();
 	}
 }
 
@@ -745,74 +746,41 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 
 	connect(FSipManager->instance(), SIGNAL(sipAccountRegistrationChanged(int,bool)), SLOT(onSipAccountRegistrationChanged(int, bool)));
 
+	connect(this,SIGNAL(startUpdateDeviceStates()),SLOT(updateDeviceStates()),Qt::QueuedConnection);
+	connect(this,SIGNAL(startUpdateCallState(int)),SLOT(updateCallState(int)),Qt::QueuedConnection);
+
 	FCallInstances.append(this);
 }
 
-void SipCall::updateDeviceStates()
+void SipCall::sendLocalDeviceStates() const
 {
-	if (FCallId != -1)
+	if (FStanzaProcessor && !isDirectCall())
 	{
-		pjsua_call_info ci;
-		if ( pjsua_call_get_info(FCallId, &ci) == PJ_SUCCESS)
+		Stanza update("message");
+		update.setTo(contactJid().eFull());
+		QDomElement xElem = update.addElement("x",NS_RAMBLER_PHONE_DEVICESTATES);
+		xElem.setAttribute("sid",sessionId());
+		
+		foreach(ISipDevice::Type type, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE)
 		{
-			QMap<int, ISipDevice::State> newStates;
-			for (unsigned media_index=0; media_index<ci.media_cnt; ++media_index)
+			QDomElement deviceElem;
+			if (type == ISipDevice::DT_LOCAL_CAMERA)
+				deviceElem = xElem.appendChild(update.createElement("camera")).toElement();
+			else if (type == ISipDevice::DT_LOCAL_MICROPHONE)
+				deviceElem = xElem.appendChild(update.createElement("microphone")).toElement();
+			if (!deviceElem.isNull())
 			{
-				if (ci.media[media_index].type == PJMEDIA_TYPE_AUDIO)
-				{
-					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
-						newStates.insert(ISipDevice::DT_LOCAL_MICROPHONE,!pjsua_aud_stream_pause_state(FCallId,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
-						newStates.insert(ISipDevice::DT_REMOTE_MICROPHONE,!pjsua_aud_stream_pause_state(FCallId,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-				}
-				else if (ci.media[media_index].type == PJMEDIA_TYPE_VIDEO)
-				{
-					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
-						newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
-						newStates.insert(ISipDevice::DT_REMOTE_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
-				}
+				ISipDevice::State state = deviceState(type);
+				if (state == ISipDevice::DS_ENABLED)
+					deviceElem.appendChild(update.createTextNode("enabled"));
+				else if (state == ISipDevice::DS_DISABLED)
+					deviceElem.appendChild(update.createTextNode("disabled"));
+				else if (state == ISipDevice::DS_UNAVAIL)
+					deviceElem.appendChild(update.createTextNode("unavail"));
 			}
-
-			static const QList<ISipDevice::Type> deviceTypes = QList<ISipDevice::Type>()
-				//<<ISipDevice::DT_REMOTE_CAMERA
-				//<<ISipDevice::DT_REMOTE_MICROPHONE
-				<<ISipDevice::DT_LOCAL_CAMERA
-				<<ISipDevice::DT_LOCAL_MICROPHONE;
-
-			Stanza update("message");
-			update.setTo(contactJid().eFull());
-			QDomElement xElem = update.addElement("x",NS_RAMBLER_PHONE_DEVICESTATES);
-			xElem.setAttribute("sid",sessionId());
-
-			bool hasUpdates = false;
-			foreach(ISipDevice::Type type, deviceTypes)
-			{
-				ISipDevice::State newState= newStates.value(type,ISipDevice::DS_UNAVAIL);
-				if (deviceState(type) != newState)
-				{
-					hasUpdates = true;
-					QDomElement deviceElem;
-					if (type == ISipDevice::DT_LOCAL_CAMERA)
-						deviceElem = xElem.appendChild(update.createElement("camera")).toElement();
-					else if (type == ISipDevice::DT_LOCAL_MICROPHONE)
-						deviceElem = xElem.appendChild(update.createElement("microphone")).toElement();
-					if (!deviceElem.isNull())
-					{
-						if (newState == ISipDevice::DS_ENABLED)
-							deviceElem.appendChild(update.createTextNode("enabled"));
-						else if (newState == ISipDevice::DS_DISABLED)
-							deviceElem.appendChild(update.createTextNode("disabled"));
-						else if (newState == ISipDevice::DS_UNAVAIL)
-							deviceElem.appendChild(update.createTextNode("unavail"));
-					}
-					changeDeviceState(type,newState);
-				}
-			}
-
-			if (FStanzaProcessor && hasUpdates)
-				FStanzaProcessor->sendStanzaOut(streamJid(),update);
 		}
+
+		FStanzaProcessor->sendStanzaOut(streamJid(),update);
 	}
 }
 
@@ -1019,6 +987,54 @@ void SipCall::sipCallTo(const Jid &AContactJid)
 	{
 		LogError(QString("[SipCall]: Failed to start SIP call to '%1': Call already started").arg(uriTmp));
 	}
+}
+
+void SipCall::updateDeviceStates()
+{
+	if (FCallId != -1)
+	{
+		pjsua_call_info ci;
+		if (pjsua_call_get_info(FCallId, &ci) == PJ_SUCCESS)
+		{
+			QMap<int, ISipDevice::State> newStates;
+			for (unsigned media_index=0; media_index<ci.media_cnt; ++media_index)
+			{
+				if (ci.media[media_index].type == PJMEDIA_TYPE_AUDIO)
+				{
+					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
+						newStates.insert(ISipDevice::DT_LOCAL_MICROPHONE,!pjsua_aud_stream_pause_state(FCallId,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
+						newStates.insert(ISipDevice::DT_REMOTE_MICROPHONE,!pjsua_aud_stream_pause_state(FCallId,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+				}
+				else if (ci.media[media_index].type == PJMEDIA_TYPE_VIDEO)
+				{
+					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
+						newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
+						newStates.insert(ISipDevice::DT_REMOTE_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+				}
+			}
+
+			bool hasUpdates = false;
+			foreach(ISipDevice::Type type, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE)
+			{
+				ISipDevice::State newState = newStates.value(type,ISipDevice::DS_UNAVAIL);
+				if (deviceState(type) != newState)
+				{
+					hasUpdates = true;
+					changeDeviceState(type,newState);
+				}
+			}
+
+			if (hasUpdates)
+				sendLocalDeviceStates();
+		}
+	}
+}
+
+void SipCall::updateCallState(int AState)
+{
+	setCallState((CallState)AState);
 }
 
 void SipCall::onRingTimerTimeout()
