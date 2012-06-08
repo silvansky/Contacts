@@ -294,7 +294,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbReject->setVisible(true);
 		ui.tlbSilent->setVisible(false);
 		ui.wdtDeviceControls->setVisible(true);
-		ui.lblNotice->setText(tr("Talking"));
+		ui.lblNotice->setText(tr("Connected"));
 		updateDevicesStateAndProperties();
 		break;
 	case ISipCall::CS_FINISHED:
@@ -303,7 +303,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbReject->setVisible(false);
 		ui.tlbSilent->setVisible(false);
 		ui.wdtDeviceControls->setVisible(false);
-		ui.lblNotice->setText(tr("Finished"));
+		ui.lblNotice->setText(tr("Call finished"));
 		break;
 	case ISipCall::CS_ERROR:
 		ui.pbtAccept->setVisible(false);
@@ -345,13 +345,23 @@ void CallControlWidget::onCallDeviceStateChanged(int AType, int AState)
 	case ISipDevice::DT_LOCAL_CAMERA:
 		ui.tlbLocalCamera->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalCamera->setChecked(AState==ISipDevice::DS_ENABLED);
-		ui.tlbLocalCamera->setToolTip(AState==ISipDevice::DS_ENABLED ? tr("Disable the camera") : tr("Enable the camera"));
+		if (AState == ISipDevice::DS_ENABLED)
+			ui.tlbLocalCamera->setToolTip(tr("Disable the camera"));
+		else if (AState == ISipDevice::DS_DISABLED)
+			ui.tlbLocalCamera->setToolTip(tr("Enable the camera"));
+		else
+			ui.tlbLocalCamera->setToolTip(tr("Camera is not available"));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalCamera,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_CAMERA_ENABLED : MNI_SIPPHONE_CAMERA_DISABLED);
 		break;
 	case ISipDevice::DT_LOCAL_MICROPHONE:
 		ui.tlbLocalMicrophone->setEnabled(AState!=ISipDevice::DS_UNAVAIL);
 		ui.tlbLocalMicrophone->setChecked(AState==ISipDevice::DS_ENABLED);
-		ui.tlbLocalMicrophone->setToolTip(AState==ISipDevice::DS_ENABLED ? tr("Disable the microphone") : tr("Enable the microphone"));
+		if (AState == ISipDevice::DS_ENABLED)
+			ui.tlbLocalMicrophone->setToolTip(tr("Disable the microphone"));
+		else if (AState == ISipDevice::DS_DISABLED)
+			ui.tlbLocalMicrophone->setToolTip(tr("Enable the microphone"));
+		else
+			ui.tlbLocalMicrophone->setToolTip(tr("Microphone is not available"));
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbLocalMicrophone,AState==ISipDevice::DS_ENABLED ? MNI_SIPPHONE_MICROPHONE_ENABLED : MNI_SIPPHONE_MICROPHONE_DISABLED);
 		break;
 	case ISipDevice::DT_REMOTE_MICROPHONE:
