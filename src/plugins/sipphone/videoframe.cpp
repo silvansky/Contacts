@@ -8,6 +8,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
+#include <utils/custombordercontainer.h>
 
 static const struct { 
 	Qt::Corner corner;
@@ -87,7 +88,7 @@ void VideoFrame::setMoveEnabled(bool AEnabled)
 	if (FMoveEnabled != AEnabled)
 	{
 		FMoveEnabled = AEnabled;
-		setProperty("ignoreFilter", FMoveEnabled||FResizeEnabled);
+		setProperty(CBC_IGNORE_FILTER, FMoveEnabled||FResizeEnabled);
 		update();
 	}
 }
@@ -102,7 +103,7 @@ void VideoFrame::setResizeEnabled(bool AEnabled)
 	if (FResizeEnabled != AEnabled)
 	{
 		FResizeEnabled = AEnabled;
-		setProperty("ignoreFilter", FMoveEnabled||FResizeEnabled);
+		setProperty(CBC_IGNORE_FILTER, FMoveEnabled||FResizeEnabled);
 		update();
 	}
 }

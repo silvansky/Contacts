@@ -8,6 +8,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <utils/iconstorage.h>
+#include <utils/custombordercontainer.h>
 
 VolumeControl::VolumeControl(QWidget *AParent) : QFrame(AParent)
 {
@@ -18,7 +19,7 @@ VolumeControl::VolumeControl(QWidget *AParent) : QFrame(AParent)
 	FMoved = false;
 	FPressedPos = QPoint();
 
-	setProperty("ignoreFilter", true);
+	setProperty(CBC_IGNORE_FILTER, true);
 	setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 	FSizeHint = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_SIPPHONE_VOLUMECONTROL_VOLUME,4).size() + QSize(7,7);
 

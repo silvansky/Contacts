@@ -20,6 +20,7 @@
 AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+	ui.lblVersion->setProperty(CBC_IGNORE_FILTER, true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUTBOX);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
@@ -50,7 +51,7 @@ AboutBox::AboutBox(IPluginManager *APluginManager, QWidget *AParent) : QDialog(A
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblName, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
 	ui.lblVersion->setText(styleBegin + tr("Version: %1.%2 %3").arg(APluginManager->version()).arg(APluginManager->revision()).arg(CLIENT_VERSION_SUFIX).trimmed() + styleEnd);
-	ui.lblVersion->setProperty("ignoreFilter", true);
+	ui.lblVersion->setProperty(CBC_IGNORE_FILTER, true);
 	ui.lblHomePage->setText(styleBegin + tr("Site: %1").arg("<a href='http://contacts.rambler.ru'>contacts.rambler.ru</a>") + "</font>");
 	ui.lblCopyright->setText(styleBegin + tr("© 2011, \"Rambler Internet Holding LLC\".<br>%1").arg(QString("<a href='http://help.rambler.ru/legal/?s=44761'>%1</a>").arg(tr("Terms of Use"))) + styleEnd);
 	ui.lblFontInfo->setText(styleBegin + tr("The program uses the Segoe UI font on the license granted Monotype Imaging Inc. %1").arg("<a href=\'http://www.fonts.com\'>www.fonts.com</a>") + styleEnd);

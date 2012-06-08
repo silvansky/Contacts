@@ -810,7 +810,7 @@ IMetaTabWindow *MetaContacts::getMetaTabWindow(const Jid &AStreamJid, const QStr
 				MetaContextMenu *menu = new MetaContextMenu(FRostersViewPlugin->rostersView()->rostersModel(), this, window);
 
 				QLabel *avatarLabel = new QLabel;
-				avatarLabel->setProperty("ignoreFilter", true);
+				avatarLabel->setProperty(CBC_IGNORE_FILTER, true);
 				avatarLabel->setObjectName("contactMenu");
 				avatarLabel->setMouseTracking(true);
 				avatarLabel->setContextMenuPolicy(Qt::DefaultContextMenu);

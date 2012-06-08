@@ -56,8 +56,8 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 
 	ui.lblMood->setMultilineElideEnabled(true);
 
-	ui.lblAvatar->setProperty("ignoreFilter", true);
-	ui.lblMood->setProperty("ignoreFilter", true);
+	ui.lblAvatar->setProperty(CBC_IGNORE_FILTER, true);
+	ui.lblMood->setProperty(CBC_IGNORE_FILTER, true);
 
 	ui.tlbStatus->installEventFilter(this);
 	ui.lblAvatar->installEventFilter(this);

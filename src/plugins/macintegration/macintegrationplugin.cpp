@@ -511,6 +511,13 @@ void MacIntegrationPlugin::initMenus()
 	connect(stayOnTopAction, SIGNAL(triggered(bool)), SLOT(onStayOnTopAction(bool)));
 	_viewMenu->addAction(stayOnTopAction, 800);
 
+	toggleFullScreenAction = new Action;
+	toggleFullScreenAction->setText(tr("Toggle Full Screen"));
+	toggleFullScreenAction->setEnabled(false);
+	toggleFullScreenAction->setShortcut(QKeySequence("Ctrl+Meta+F"));
+	connect(toggleFullScreenAction, SIGNAL(triggered()), SLOT(onToggleFullScreenAction()));
+	_viewMenu->addAction(toggleFullScreenAction, 850);
+
 	// Status
 	_statusMenu = new Menu;
 	_statusMenu->setTitle(tr("Status"));
@@ -551,13 +558,6 @@ void MacIntegrationPlugin::initMenus()
 	connect(closeAction, SIGNAL(triggered()), SLOT(onCloseAction()));
 	_windowMenu->addAction(closeAction);
 
-	toggleFullScreenAction = new Action;
-	toggleFullScreenAction->setText(tr("Toggle Full Screen"));
-	toggleFullScreenAction->setEnabled(false);
-	toggleFullScreenAction->setShortcut(QKeySequence("Ctrl+Return"));
-	connect(toggleFullScreenAction, SIGNAL(triggered()), SLOT(onToggleFullScreenAction()));
-	_windowMenu->addAction(toggleFullScreenAction);
-
 	prevTabAction = new Action;
 	prevTabAction->setText(tr("Select Previous Tab"));
 	prevTabAction->setShortcut(QKeySequence("Meta+Shift+Tab"));
@@ -586,7 +586,6 @@ void MacIntegrationPlugin::initMenus()
 	chatsAction->setEnabled(false);
 	chatsAction->setVisible(false);
 	_windowMenu->addAction(chatsAction, 650);
-
 
 	// Help
 	_helpMenu = new Menu;
@@ -862,6 +861,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget *old, QWidget *now)
 		prevTabAction->setEnabled(false);
 		minimizeAction->setEnabled(false);
 		zoomAction->setEnabled(false);
+		toggleFullScreenAction->setEnabled(false);
 	}
 }
 
@@ -1129,9 +1129,18 @@ void MacIntegrationPlugin::onStayOnTopAction(bool on)
 	Options::node(OPV_MAINWINDOW_STAYONTOP).setValue(on);
 }
 
+void MacIntegrationPlugin::onToggleFullScreenAction()
+{
+	QWidget *activeWindow = QApplication::activeWindow();
+	if (activeWindow && isWindowFullScreenEnabled(activeWindow))
+	{
+		setWindowFullScreen(activeWindow, !isWindowFullScreen(activeWindow));
+	}
+}
+
 void MacIntegrationPlugin::onStatusAction()
 {
-	Action * a = qobject_cast<Action*>(sender());
+	Action *a = qobject_cast<Action *>(sender());
 	if (a && statusChanger && accountManager)
 	{
 		a->setChecked(false);
@@ -1190,15 +1199,6 @@ void MacIntegrationPlugin::onCloseAction()
 		}
 		else if (activeWindow)
 			activeWindow->close();
-	}
-}
-
-void MacIntegrationPlugin::onToggleFullScreenAction()
-{
-	QWidget * activeWindow = QApplication::activeWindow();
-	if (activeWindow && isWindowFullScreenEnabled(activeWindow))
-	{
-		setWindowFullScreen(activeWindow, !isWindowFullScreen(activeWindow));
 	}
 }
 

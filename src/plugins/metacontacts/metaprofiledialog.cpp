@@ -179,9 +179,10 @@ void MetaProfileDialog::updateStatusText()
 	else
 		status = FMetaRoster->metaPresenceItem(FMetaId).status;
 
-	QString text = status.left(MAX_STATUS_TEXT_SIZE);
-	text += text.size() < status.size() ? "..." : "";
-	ui.lblStatusText->setText(text);
+	//QString text = status.left(MAX_STATUS_TEXT_SIZE);
+	//text += text.size() < status.size() ? "..." : "";
+	//ui.lblStatusText->setText(text);
+	ui.lblStatusText->setText(status);
 }
 
 void MetaProfileDialog::updateLeftLabelsSizes()

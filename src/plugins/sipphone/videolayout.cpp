@@ -4,6 +4,10 @@
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AButtons, QWidget *AParent) : QLayout(AParent)
 {
 	FLocalMargin = 4;
@@ -92,10 +96,13 @@ void VideoLayout::setGeometry(const QRect &ARect)
 
 		if (FControls && FControls->isVisible())
 		{
+#ifdef DEBUG_ENABLED
+			qDebug() << "Animating FControls: FCtrlVisiblePerc = " << FCtrlVisiblePerc;
+#endif
 			QSize controlsSize = FControls->sizeHint();
 			QRect availRect = ARect.adjusted(5,5,-5,-20);
 			QRect controlsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignBottom|Qt::AlignHCenter,controlsSize,availRect);
-			controlsRect.moveTop((controlsRect.top()-ARect.bottom())*FCtrlVisiblePerc/100 + ARect.bottom());
+			controlsRect.moveTop((controlsRect.top()-ARect.bottom())*(int)FCtrlVisiblePerc/100 + ARect.bottom() + 1);
 			FControls->setGeometry(controlsRect);
 		}
 	}
@@ -135,7 +142,7 @@ void VideoLayout::setVideoVisible(bool AVisible)
 void VideoLayout::setControlsWidget(QWidget *AControls)
 {
 	FControls = AControls;
-	FCtrlVisiblePerc = FCtrlVisible ? 100 : 0;
+	FCtrlVisiblePerc = FCtrlVisible ? 100.0 : 0.0;
 	update();
 }
 
@@ -150,9 +157,10 @@ void VideoLayout::setControlsVisible(bool AVisible)
 	{
 		FCtrlVisible = AVisible;
 		FCtrlAnimation.stop();
+		FCtrlAnimation.setEasingCurve(AVisible ? QEasingCurve::OutBack : QEasingCurve::InBack);
 		FCtrlAnimation.setStartValue(FCtrlVisiblePerc);
-		FCtrlAnimation.setEndValue(AVisible ? 100 : 0);
-		FCtrlAnimation.setDuration(200*qAbs((FCtrlAnimation.startValue().toInt()-FCtrlAnimation.endValue().toInt()))/100);
+		FCtrlAnimation.setEndValue(AVisible ? 100.0 : 0.0);
+		FCtrlAnimation.setDuration(300 * qAbs((FCtrlAnimation.startValue().toInt() - FCtrlAnimation.endValue().toInt())) / 100);
 		FCtrlAnimation.start();
 	}
 }
@@ -488,6 +496,6 @@ void VideoLayout::onLocalVideoResize(Qt::Corner ACorner, const QPoint &APos)
 
 void VideoLayout::onControlsVisibilityPercentChanged(const QVariant &AValue)
 {
-	FCtrlVisiblePerc = AValue.toInt();
+	FCtrlVisiblePerc = AValue.toDouble();
 	update();
 }

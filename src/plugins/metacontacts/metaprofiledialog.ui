@@ -103,6 +103,12 @@
         </item>
         <item row="1" column="0">
          <widget class="CustomLabel" name="lblName">
+          <property name="cursor">
+           <cursorShape>IBeamCursor</cursorShape>
+          </property>
+          <property name="autoFillBackground">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string notr="true">lblName</string>
           </property>
@@ -119,11 +125,14 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="cursor">
+           <cursorShape>IBeamCursor</cursorShape>
+          </property>
           <property name="text">
            <string notr="true">lblStatusText</string>
           </property>
-          <property name="textFormat">
-           <enum>Qt::PlainText</enum>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
           <property name="textInteractionFlags">
            <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>

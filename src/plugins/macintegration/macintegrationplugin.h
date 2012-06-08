@@ -112,6 +112,7 @@ private slots:
 	void onSortByNameAction(bool on);
 	void onShowOfflineAction(bool on);
 	void onStayOnTopAction(bool on);
+	void onToggleFullScreenAction();
 	// status menu
 	void onStatusAction();
 	void onManageAccountsAction();
@@ -120,7 +121,6 @@ private slots:
 	void onMinimizeAction();
 	void onZoomAction();
 	void onCloseAction();
-	void onToggleFullScreenAction();
 	void onNextTabAction();
 	void onPrevTabAction();
 	void onBringAllToTopAction();
@@ -172,7 +172,6 @@ private:
 	// window menu
 	Action *closeAction, *closeTabAction, *closeAllTabsAction;
 	Action *minimizeAction, *zoomAction, *bringAllToTopAction;
-	Action *toggleFullScreenAction;
 	Action *nextTabAction, *prevTabAction;
 	Action *chatsAction;
 	QMap<ITabPage *, Action *> activeChatsActions;
@@ -196,6 +195,7 @@ private:
 	Action *sortByStatusAction, *sortByNameAction;
 	Action *showOfflineAction;
 	Action *stayOnTopAction;
+	Action *toggleFullScreenAction;
 	// dock menu
 	Action *dockShowMainWindowAction;
 	Action *dockChatsAction;

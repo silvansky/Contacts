@@ -782,6 +782,9 @@ void SipCall::sendLocalDeviceStates() const
 
 		FStanzaProcessor->sendStanzaOut(streamJid(),update);
 	}
+
+	if (pjsua_set_ec(1000, 0) != PJ_SUCCESS)
+		LogError("[SipCall::initDevices]: Failed to enable echo cancellation!");
 }
 
 void SipCall::changeDeviceState(int AType, int AState)

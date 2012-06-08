@@ -3,6 +3,9 @@
 #include <QCursor>
 #include <QApplication>
 
+#include <utils/graphicseffectsstorage.h>
+#include <utils/custombordercontainer.h>
+
 #define MIME_TABITEM_INDEX         "ramblercontacts/x-tabitem-index"
 
 TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
@@ -10,7 +13,7 @@ TabBar::TabBar(QWidget *AParent) : QFrame(AParent)
 	FCurrentIndex = -1;
 	FTabsCloseable = true;
 
-	setProperty("ignoreFilter", true);
+	setProperty(CBC_IGNORE_FILTER, true);
 
 	setAcceptDrops(true);
 	setLayout(FLayout = new TabBarLayout);

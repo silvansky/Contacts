@@ -42,6 +42,7 @@ QToolButton:enabled:pressed
 
 QPushButton#pbtAccept
 {
+	min-width: 100px;
 	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
 }
 

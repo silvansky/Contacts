@@ -10,15 +10,15 @@
 class SimpleAnimation : 
 	public QVariantAnimation
 {
-	Q_OBJECT;
+	Q_OBJECT
 protected:
-	virtual void updateCurrentValue(const QVariant &AValue) { Q_UNUSED(AValue); };
+	virtual void updateCurrentValue(const QVariant &AValue) { Q_UNUSED(AValue); }
 };
 
 class VideoLayout : 
 	public QLayout
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AButtons, QWidget *AParent);
 	~VideoLayout();
@@ -61,7 +61,7 @@ private:
 	bool FVideoVisible;
 	int FLocalMargin;
 	int FLocalStickDelta;
-	int FCtrlVisiblePerc;
+	double FCtrlVisiblePerc;
 	QRectF FLocalScale;
 	QWidget *FButtons;
 	QWidget *FControls;

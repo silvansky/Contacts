@@ -12,21 +12,25 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/imagemanager.h>
+#include <utils/custombordercontainer.h>
 #include "pjsipdefines.h"
 
 CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+#ifdef Q_WS_MAC
+	ui.wdtControlls->layout()->setSpacing(16);
+#endif
 	setMouseTracking(true);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_CALLCONTROLWIDGET);
 
-	setProperty("ignoreFilter",true);
-	ui.lblName->setProperty("ignoreFilter",true);
-	ui.lblNotice->setProperty("ignoreFilter",true);
-	ui.lblAvatar->setProperty("ignoreFilter",true);
-	ui.wdtControlls->setProperty("ignoreFilter",true);
-	ui.frmBackground->setProperty("ignoreFilter",true);
-	ui.wdtDeviceControls->setProperty("ignoreFilter",true);
+	setProperty(CBC_IGNORE_FILTER,true);
+	ui.lblName->setProperty(CBC_IGNORE_FILTER,true);
+	ui.lblNotice->setProperty(CBC_IGNORE_FILTER,true);
+	ui.lblAvatar->setProperty(CBC_IGNORE_FILTER,true);
+	ui.wdtControlls->setProperty(CBC_IGNORE_FILTER,true);
+	ui.frmBackground->setProperty(CBC_IGNORE_FILTER,true);
+	ui.wdtDeviceControls->setProperty(CBC_IGNORE_FILTER,true);
 
 	FAvatars = NULL;
 	FGateways = NULL;
