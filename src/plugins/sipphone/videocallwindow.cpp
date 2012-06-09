@@ -264,7 +264,7 @@ void VideoCallWindow::setVideoVisible(bool AVisible, bool AResizing)
 #endif
 
 		if (CustomBorderStorage::isBordered(window()))
-			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(!FVideoVisible);
+			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(!FVideoVisible && sipCall()->state()==ISipCall::CS_TALKING);
 
 		ui.wdtBackground->setProperty("videovisible",AVisible);
 		StyleStorage::updateStyle(this);
@@ -365,6 +365,10 @@ void VideoCallWindow::onCallStateChanged(int AState)
 {
 	switch (AState)
 	{
+	case ISipCall::CS_TALKING:
+		if (CustomBorderStorage::isBordered(window()))
+			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(!FVideoVisible);
+		break;
 	case ISipCall::CS_FINISHED:
 		closeWindowWithAnimation();
 		break;
