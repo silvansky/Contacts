@@ -664,7 +664,7 @@ int SipCall::onMyPutFrameCallback(void *frame, int w, int h, int stride)
 int SipCall::onMyPreviewFrameCallback(void *frame, const char *colormodelName, int w, int h, int stride)
 {
 	pjmedia_frame * pjframe = (pjmedia_frame*)frame;
-	if (pjframe->type == PJMEDIA_FRAME_TYPE_VIDEO)
+	if (pjframe->type == PJMEDIA_FRAME_TYPE_VIDEO && pjframe->buf != NULL && pjframe->size > 0)
 	{
 		int dstSize = w * h * 3;
 		unsigned char * dst = new unsigned char[dstSize];
