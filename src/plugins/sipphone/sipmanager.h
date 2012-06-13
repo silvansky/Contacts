@@ -99,6 +99,9 @@ protected:
 	void showNotifyInRoster(ISipCall *ACall,const QString &AIconId, const QString &AFooter);
 	void showNotifyInChatWindow(ISipCall *ACall, const QString &AIconId, const QString &ANotify, bool AOpen = false);
 	QList<int> findRelatedNotifies(const Jid &AStreamJid, const Jid &AContactJid) const;
+	void updateCallButtonStatusIcon(IMetaTabWindow *AWindow) const;
+protected:
+	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDestroyed();
@@ -115,6 +118,7 @@ protected slots:
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
 	void onMetaTabWindowCreated(IMetaTabWindow *AWindow);
 	void onMetaTabWindowDestroyed(IMetaTabWindow *AWindow);
+	void onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);
 	void onViewWidgetContentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions);
 private:
 	IPluginManager *FPluginManager;

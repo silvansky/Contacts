@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QProcess>
+#include <QPainter>
 #include <QTextCodec>
 
 #include <definitions/resources.h>
@@ -36,15 +37,12 @@
 # include <utils/macutils.h>
 #endif
 
-#if defined(DEBUG_ENABLED)
-# include <QDebug>
-#endif
-
 #define ADR_STREAM_JID           Action::DR_StreamJid
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
 #define ADR_PHONE_NUMBER         Action::DR_Parametr3
 #define ADR_AUTO_START_VIDEO     Action::DR_Parametr4
+#define ADR_STATUS_ICON          Action::DR_Parametr1
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
@@ -147,6 +145,7 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		{
 			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowCreated(IMetaTabWindow *)), SLOT(onMetaTabWindowCreated(IMetaTabWindow *)));
 			connect(FMetaContacts->instance(), SIGNAL(metaTabWindowDestroyed(IMetaTabWindow *)), SLOT(onMetaTabWindowDestroyed(IMetaTabWindow *)));
+			connect(FMetaContacts->instance(), SIGNAL(metaPresenceChanged(IMetaRoster *, const QString &)), SLOT(onMetaPresenceChanged(IMetaRoster *, const QString &)));
 		}
 	}
 
@@ -943,6 +942,57 @@ QList<int> SipManager::findRelatedNotifies(const Jid &AStreamJid, const Jid &ACo
 	return notifies;
 }
 
+void SipManager::updateCallButtonStatusIcon(IMetaTabWindow *AWindow) const
+{
+	if (isCallsAvailable() && FCallMenus.contains(AWindow))
+	{
+		QImage statusIcon;
+		foreach(Jid itemJid, AWindow->metaRoster()->metaContact(AWindow->metaId()).items)
+		{
+			foreach(IPresenceItem pitem, AWindow->metaRoster()->itemPresences(itemJid)) 
+			{
+				if (isCallSupported(AWindow->metaRoster()->streamJid(),pitem.itemJid))
+				{
+					statusIcon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_METACONTACTS_ONLINE_ICON);
+					break;
+				}
+			}
+		}
+
+		Menu *callMenu = FCallMenus.value(AWindow);
+		callMenu->menuAction()->setData(ADR_STATUS_ICON,statusIcon);
+		AWindow->toolBarChanger()->toolBar()->update();
+	}
+}
+
+bool SipManager::eventFilter(QObject *AObject, QEvent *AEvent)
+{
+	if (AEvent->type() == QEvent::Paint)
+	{
+		QToolButton *button = qobject_cast<QToolButton *>(AObject);
+		if (button)
+		{
+			Action *action = qobject_cast<Action *>(button->defaultAction());
+			QImage statusIcon = action!=NULL ? action->data(ADR_STATUS_ICON).value<QImage>() : QImage();
+			if (!statusIcon.isNull())
+			{
+				button->removeEventFilter(this);
+				QApplication::sendEvent(button, AEvent);
+				button->installEventFilter(this);
+
+				QPainter p(button);
+				QSize iconSize = statusIcon.size();
+				QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
+				p.drawImage(iconRect, statusIcon);
+				p.end();
+
+				return true;
+			}
+		}
+	}
+	return QObject::eventFilter(AObject,AEvent);
+}
+
 void SipManager::onCallStateChanged(int AState)
 {
 	ISipCall *call = qobject_cast<ISipCall *>(sender());
@@ -1140,57 +1190,57 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
-		if (isCallsAvailable() && SipCall::findCalls().isEmpty())
+		QStringList phoneNumbers;
+		QStringList destinations;
+		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
+		foreach(Jid itemJid, contact.items)
 		{
-			QStringList phoneNumbers;
-			QStringList destinations;
-			IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
-			foreach(Jid itemJid, contact.items)
+			foreach(IPresenceItem pitem, window->metaRoster()->itemPresences(itemJid)) 
 			{
-				foreach(IPresenceItem pitem, window->metaRoster()->itemPresences(itemJid)) 
-				{
-					if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
-						destinations.append(pitem.itemJid.full());
-				}
-
-				IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-				if (descriptor.gateId == GSID_SMS)
-				{
-					QString number = itemJid.node();
-					if (FGateways)
-						number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
-					phoneNumbers.append(number);
-				}
-			}
-			if (!destinations.isEmpty())
-			{
-				Action *audioCallAction = new Action(menu);
-				audioCallAction->setText(tr("Call"));
-				audioCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-				audioCallAction->setData(ADR_DESTINATIONS,destinations);
-				audioCallAction->setData(ADR_AUTO_START_VIDEO,false);
-				connect(audioCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
-				menu->addAction(audioCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
-
-				Action *videoCallAction = new Action(menu);
-				videoCallAction->setText(tr("Call with video"));
-				videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-				videoCallAction->setData(ADR_DESTINATIONS,destinations);
-				videoCallAction->setData(ADR_AUTO_START_VIDEO,true);
-				connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
-				menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
+				if (isCallSupported(window->metaRoster()->streamJid(),pitem.itemJid))
+					destinations.append(pitem.itemJid.full());
 			}
 
-			foreach(QString number, phoneNumbers)
+			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
+			if (descriptor.gateId == GSID_SMS)
 			{
-				Action *phoneCallAction = new Action(menu);
-				phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
-				phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-				phoneCallAction->setData(ADR_PHONE_NUMBER,number);
-				connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
-				menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
+				QString number = itemJid.node();
+				if (FGateways)
+					number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
+				phoneNumbers.append(number);
 			}
 		}
+
+		bool phoneCallEnabled = isCallsAvailable() && SipCall::findCalls().isEmpty();
+		foreach(QString number, phoneNumbers)
+		{
+			Action *phoneCallAction = new Action(menu);
+			phoneCallAction->setEnabled(phoneCallEnabled);
+			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
+			phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+			phoneCallAction->setData(ADR_PHONE_NUMBER,number);
+			connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
+			menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
+		}
+
+		bool videoCallEnabled = isCallsAvailable() && SipCall::findCalls().isEmpty() && !destinations.isEmpty();
+		Action *audioCallAction = new Action(menu);
+		audioCallAction->setEnabled(videoCallEnabled);
+		audioCallAction->setText(tr("Audio Call"));
+		audioCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+		audioCallAction->setData(ADR_DESTINATIONS,destinations);
+		audioCallAction->setData(ADR_AUTO_START_VIDEO,false);
+		connect(audioCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+		menu->addAction(audioCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
+
+		Action *videoCallAction = new Action(menu);
+		videoCallAction->setEnabled(videoCallEnabled);
+		videoCallAction->setText(tr("Video Call"));
+		videoCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
+		videoCallAction->setData(ADR_DESTINATIONS,destinations);
+		videoCallAction->setData(ADR_AUTO_START_VIDEO,true);
+		connect(videoCallAction,SIGNAL(triggered()),SLOT(onStartVideoCall()));
+		menu->addAction(videoCallAction,AG_SPCM_SIPPHONE_VIDEO_LIST);
 
 		if (FRosterChanger)
 		{
@@ -1265,19 +1315,28 @@ void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
 
 		Menu *callMenu = new Menu(AWindow->toolBarChanger()->toolBar());
 		callMenu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 0);
+		callMenu->menuAction()->setToolTip(tr("You can make free calls to other Rambler Contacts users"));
 		connect(callMenu, SIGNAL(aboutToShow()), this, SLOT(onCallMenuAboutToShow()));
 		connect(callMenu, SIGNAL(aboutToHide()), this, SLOT(onCallMenuAboutToHide()));
 
 		QToolButton *callButton = AWindow->toolBarChanger()->insertAction(callMenu->menuAction(), TBG_MCMTW_P2P_CALL);
 		callButton->setObjectName("tbSipCall");
 		callButton->setPopupMode(QToolButton::InstantPopup);
+		callButton->installEventFilter(this);
 		FCallMenus.insert(AWindow, callMenu);
+		updateCallButtonStatusIcon(AWindow);
 	}
 }
 
 void SipManager::onMetaTabWindowDestroyed(IMetaTabWindow *AWindow)
 {
 	FCallMenus.remove(AWindow);
+}
+
+void SipManager::onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId)
+{
+	IMetaTabWindow *window = FMetaContacts->findMetaTabWindow(AMetaRoster->streamJid(),AMetaId);
+	updateCallButtonStatusIcon(window);
 }
 
 void SipManager::onViewWidgetContentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions)
