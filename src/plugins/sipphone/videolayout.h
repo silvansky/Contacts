@@ -51,6 +51,7 @@ protected:
 	QRect correctLocalVideoPosition(const QRect &AGeometry) const;
 	QRect correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeometry) const;
 protected slots:
+	void onLocalVideoStateChanged();
 	void onLocalVideoSingleClicked();
 	void onLocalVideoDoubleClicked();
 	void onLocalVideoMove(const QPoint &APos);

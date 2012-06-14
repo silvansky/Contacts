@@ -58,9 +58,14 @@ VideoFrame::~VideoFrame()
 
 }
 
+bool VideoFrame::isNull() const
+{
+	return FDeviceState!=ISipDevice::DS_ENABLED;
+}
+
 bool VideoFrame::isEmpty() const
 {
-	return FVideoFrame.isNull();
+	return isNull() || FVideoFrame.isNull();
 }
 
 bool VideoFrame::isCollapsed() const
@@ -74,6 +79,7 @@ void VideoFrame::setCollapsed(bool ACollapsed)
 	{
 		FCollapsed = ACollapsed;
 		updateGeometry();
+		emit stateChanged();
 		update();
 	}
 }
@@ -89,6 +95,7 @@ void VideoFrame::setMoveEnabled(bool AEnabled)
 	{
 		FMoveEnabled = AEnabled;
 		setProperty(CBC_IGNORE_FILTER, FMoveEnabled||FResizeEnabled);
+		emit stateChanged();
 		update();
 	}
 }
@@ -104,6 +111,7 @@ void VideoFrame::setResizeEnabled(bool AEnabled)
 	{
 		FResizeEnabled = AEnabled;
 		setProperty(CBC_IGNORE_FILTER, FMoveEnabled||FResizeEnabled);
+		emit stateChanged();
 		update();
 	}
 }
@@ -118,6 +126,7 @@ void VideoFrame::setAlignment(Qt::Alignment AAlign)
 	if (FAlignment != AAlign)
 	{
 		FAlignment = AAlign;
+		emit stateChanged();
 		update();
 	}
 }
@@ -130,6 +139,7 @@ QSize VideoFrame::minimumVideoSize() const
 void VideoFrame::setMinimumVideoSize(const QSize &ASize)
 {
 	FMinimumSize = ASize;
+	emit stateChanged();
 }
 
 QSize VideoFrame::maximumVideoSize() const
@@ -140,6 +150,7 @@ QSize VideoFrame::maximumVideoSize() const
 void VideoFrame::setMaximumVideoSize(const QSize &ASize)
 {
 	FMaximumSize = ASize;
+	emit stateChanged();
 }
 
 const QPixmap *VideoFrame::pixmap() const
@@ -181,6 +192,7 @@ void VideoFrame::setVideoDeviceState(int AState)
 	if (FDeviceState != AState)
 	{
 		FDeviceState = AState;
+		emit stateChanged();
 		update();
 	}
 }
@@ -189,7 +201,9 @@ QSize VideoFrame::sizeHint() const
 {
 	if (FCollapsed)
 		return !FCollapsedIcon.isNull() ? FCollapsedIcon.size() : QSize(15,15);
-	return !isEmpty() ? pixmap()->size() : FMinimumSize;
+	else if (isEmpty())
+		return FMinimumSize;
+	return pixmap()->size();
 }
 
 QSize VideoFrame::minimumSizeHint() const
@@ -314,7 +328,7 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,sizeHint(),rect());
 		p.drawPixmap(iconRect, FCollapsedIcon);
 	}
-	else if (FDeviceState != ISipDevice::DS_ENABLED)
+	else if (isNull())
 	{
 		QString text = FDeviceState==ISipDevice::DS_DISABLED ? tr("Camera disabled") : tr("Camera unavailable");
 

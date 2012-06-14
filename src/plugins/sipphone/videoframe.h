@@ -13,6 +13,7 @@ class VideoFrame :
 public:
 	VideoFrame(QWidget *AParent = NULL);
 	~VideoFrame();
+	bool isNull() const;
 	bool isEmpty() const;
 	bool isCollapsed() const;
 	void setCollapsed(bool ACollapsed);
@@ -31,6 +32,7 @@ public:
 	int videoDeviceState() const;
 	void setVideoDeviceState(int AState);
 signals:
+	void stateChanged();
 	void singleClicked();
 	void doubleClicked();
 	void moveTo(const QPoint &APos);

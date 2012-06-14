@@ -4,10 +4,6 @@
 #include <utils/options.h>
 #include <utils/widgetmanager.h>
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWidget *AButtons, QWidget *AParent) : QLayout(AParent)
 {
 	FLocalMargin = 4;
@@ -20,6 +16,7 @@ VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWid
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
 
+	connect(FLocalVideo,SIGNAL(stateChanged()),SLOT(onLocalVideoStateChanged()));
 	connect(FLocalVideo,SIGNAL(singleClicked()),SLOT(onLocalVideoSingleClicked()));
 	connect(FLocalVideo,SIGNAL(doubleClicked()),SLOT(onLocalVideoDoubleClicked()));
 	connect(FLocalVideo,SIGNAL(moveTo(const QPoint &)),SLOT(onLocalVideoMove(const QPoint &)));
@@ -66,7 +63,13 @@ void VideoLayout::setGeometry(const QRect &ARect)
 	if (FVideoVisible && ARect.height()>=FRemoteVideo->minimumVideoSize().height())
 	{
 		bool isSizeValid = ARect.height()>=FRemoteVideo->minimumVideoSize().height() && ARect.width()>=FRemoteVideo->minimumVideoSize().width();
-		if (!FLocalVideo->isCollapsed())
+
+		if (FLocalVideo->isCollapsed())
+		{
+			QRect availRect = ARect.adjusted(FLocalMargin,FLocalMargin,-FLocalMargin,-FLocalMargin);
+			FLocalVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignRight|Qt::AlignBottom,FLocalVideo->sizeHint(),availRect));
+		}
+		else
 		{
 			QRect localRect = adjustLocalVideoSize(FLocalVideo->geometry());
 			localRect =	adjustLocalVideoPosition(localRect);
@@ -74,11 +77,6 @@ void VideoLayout::setGeometry(const QRect &ARect)
 			FLocalVideo->setMaximumVideoSize(ARect.size()/2);
 			if (isSizeValid)
 				FLocalVideo->setAlignment(geometryAlignment(localRect));
-		}
-		else
-		{
-			QRect availRect = ARect.adjusted(FLocalMargin,FLocalMargin,-FLocalMargin,-FLocalMargin);
-			FLocalVideo->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignRight|Qt::AlignBottom,FLocalVideo->sizeHint(),availRect));
 		}
 
 		QSize remoteSize = FRemoteVideo->sizeHint();
@@ -96,9 +94,6 @@ void VideoLayout::setGeometry(const QRect &ARect)
 
 		if (FControls && FControls->isVisible())
 		{
-#ifdef DEBUG_ENABLED
-			qDebug() << "Animating FControls: FCtrlVisiblePerc = " << FCtrlVisiblePerc;
-#endif
 			QSize controlsSize = FControls->sizeHint();
 			QRect availRect = ARect.adjusted(5,5,-5,-20);
 			QRect controlsRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignBottom|Qt::AlignHCenter,controlsSize,availRect);
@@ -130,7 +125,7 @@ void VideoLayout::setVideoVisible(bool AVisible)
 	{
 		FVideoVisible = AVisible;
 		FRemoteVideo->setVisible(AVisible);
-		FLocalVideo->setVisible(AVisible);
+		FLocalVideo->setVisible(AVisible && !FLocalVideo->isNull());
 		if (FButtons)
 			FButtons->setVisible(AVisible);
 		if (FControls)
@@ -204,7 +199,7 @@ void VideoLayout::saveLocalVideoGeometryScale()
 
 Qt::Alignment VideoLayout::remoteVideoAlignment() const
 {
-	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isCollapsed())
+	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isNull() && !FLocalVideo->isCollapsed())
 	{
 		Qt::Alignment remoteAlign = 0;
 		Qt::Alignment localAlign = FLocalVideo->alignment();
@@ -254,7 +249,7 @@ Qt::Alignment VideoLayout::geometryAlignment(const QRect &AGeometry) const
 QRect VideoLayout::adjustRemoteVideoPosition(const QRect &AGeometry) const
 {
 	QRect newGeometry = AGeometry;
-	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isCollapsed() && FLocalVideo->alignment()!=0 && !AGeometry.intersects(FLocalVideo->geometry()))
+	if (!FRemoteVideo->isEmpty() && !FLocalVideo->isNull() && !FLocalVideo->isCollapsed() && FLocalVideo->alignment()!=0 && !AGeometry.intersects(FLocalVideo->geometry()))
 	{
 		QRect availRect = geometry();
 		newGeometry = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,newGeometry.size(),geometry());
@@ -310,19 +305,16 @@ QRect VideoLayout::adjustLocalVideoSize(const QRect &AGeometry) const
 			newGeometry.setBottom(newGeometry.bottom() - delta + delta/2);
 		}
 
-		if (!FLocalVideo->isEmpty() && !FLocalVideo->isCollapsed())
-		{
-			QSize videoSize = FLocalVideo->sizeHint();
-			int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
-			int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
-			newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
-			newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
+		QSize videoSize = FLocalVideo->sizeHint();
+		int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
+		int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
+		newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
+		newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
 
-			if (newGeometry.width()-newWidth > 1)
-				newGeometry.setWidth(newWidth);
-			else if (newGeometry.height()-newHeight > 1)
-				newGeometry.setHeight(newHeight);
-		}
+		if (newGeometry.width()-newWidth > 1)
+			newGeometry.setWidth(newWidth);
+		else if (newGeometry.height()-newHeight > 1)
+			newGeometry.setHeight(newHeight);
 	}
 	return newGeometry;
 }
@@ -409,31 +401,34 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 			newGeometry.setBottom(newGeometry.bottom()-(newGeometry.height()-FLocalVideo->maximumVideoSize().height()));
 	}
 
-	if (!FLocalVideo->isEmpty() && !FLocalVideo->isCollapsed())
-	{
-		QSize videoSize = FLocalVideo->sizeHint();
-		int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
-		int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
-		newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
-		newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
+	QSize videoSize = FLocalVideo->sizeHint();
+	int newWidth = qRound(newGeometry.height()*((qreal)videoSize.width()/videoSize.height()));
+	int newHeight = qRound(newGeometry.width()*((qreal)videoSize.height()/videoSize.width()));
+	newWidth = qMin(qMax(newWidth,FLocalVideo->minimumVideoSize().width()),FLocalVideo->maximumVideoSize().width());
+	newHeight = qMin(qMax(newHeight,FLocalVideo->minimumVideoSize().height()),FLocalVideo->maximumVideoSize().height());
 
-		if (newGeometry.width()-newWidth > 1)
-		{
-			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::BottomLeftCorner)
-				newGeometry.setLeft(newGeometry.left()+(newGeometry.width()-newWidth));
-			else if (ACorner==Qt::TopRightCorner || ACorner==Qt::BottomRightCorner)
-				newGeometry.setRight(newGeometry.right()-(newGeometry.width()-newWidth));
-		}
-		else if (newGeometry.height()-newHeight > 1)
-		{
-			if (ACorner==Qt::TopLeftCorner || ACorner==Qt::TopRightCorner)
-				newGeometry.setTop(newGeometry.top()+(newGeometry.height()-newHeight));
-			else if (ACorner==Qt::BottomLeftCorner || ACorner==Qt::BottomRightCorner)
-				newGeometry.setBottom(newGeometry.bottom()-(newGeometry.height()-newHeight));
-		}
+	if (newGeometry.width()-newWidth > 1)
+	{
+		if (ACorner==Qt::TopLeftCorner || ACorner==Qt::BottomLeftCorner)
+			newGeometry.setLeft(newGeometry.left()+(newGeometry.width()-newWidth));
+		else if (ACorner==Qt::TopRightCorner || ACorner==Qt::BottomRightCorner)
+			newGeometry.setRight(newGeometry.right()-(newGeometry.width()-newWidth));
+	}
+	else if (newGeometry.height()-newHeight > 1)
+	{
+		if (ACorner==Qt::TopLeftCorner || ACorner==Qt::TopRightCorner)
+			newGeometry.setTop(newGeometry.top()+(newGeometry.height()-newHeight));
+		else if (ACorner==Qt::BottomLeftCorner || ACorner==Qt::BottomRightCorner)
+			newGeometry.setBottom(newGeometry.bottom()-(newGeometry.height()-newHeight));
 	}
 
 	return newGeometry;
+}
+
+void VideoLayout::onLocalVideoStateChanged()
+{
+	FLocalVideo->setVisible(FVideoVisible && !FLocalVideo->isNull());
+	update();
 }
 
 void VideoLayout::onLocalVideoSingleClicked()
