@@ -23,14 +23,15 @@ public:
 signals:
 	void chatWindowRequested();
 protected:
-	void showVideoWidget();
-	void restoreWindowGeometryWithAnimation();
+	void saveWindowGeometry();
+	void restoreWindowGeometryWithAnimation(bool AShowVideo);
 	void closeWindowWithAnimation(int ATimeout = 0);
 	void setRecursiveMouseTracking(QWidget *AWidget);
 	void setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration);
 protected:
-	bool canShowVideo() const;
+	bool isVideoAvailable() const;
 	void toggleFullScreen(bool AFullScreen);
+	void setVideoWidgetVisible(bool AVisible);
 	void setVideoVisible(bool AVisible, bool AResizing = false);
 	void setControlsVisible(bool AVisible);
 	void setControlsFullScreenMode(bool AEnabled);
@@ -48,6 +49,7 @@ protected slots:
 	void onFullScreenButtonClicked();
 	void onHideControlsTimerTimeout();
 	void onGeometryAnimationFinished();
+	void onChangeVideoWidgetVisibility();
 #ifdef Q_WS_MAC
 protected slots:
 	void onWindowFullScreenModeWillChange(QWidget *window, bool fullScreen);
@@ -59,6 +61,7 @@ private:
 	bool FVideoShown;
 	bool FIsFirstShow;
 	bool FVideoVisible;
+	bool FFirstRestore;
 	int FBlockVideoChange;
 	bool FAnimatingGeometry;
 	QRect FNormalGeometry;

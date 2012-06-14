@@ -50,6 +50,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FVideoShown = false;
 	FIsFirstShow = true;
 	FVideoVisible = true;
+	FFirstRestore = true;
 	FBlockVideoChange = 0;
 	FAnimatingGeometry = false;
 
@@ -137,44 +138,66 @@ QSize VideoCallWindow::sizeHint() const
 	return QWidget::sizeHint().expandedTo(minHint);
 }
 
-void VideoCallWindow::showVideoWidget()
+void VideoCallWindow::saveWindowGeometry()
 {
-	if (!FVideoShown)
+	if (!FFirstRestore && !FCtrlWidget->isFullScreenMode())
 	{
-		FVideoShown = true;
-		ui.wdtVideo->setVisible(true);
-		if (CustomBorderStorage::isBordered(this))
-			CustomBorderStorage::widgetBorder(this)->setResizable(true);
-		else
-			window()->setWindowFlags(window()->windowFlags() & ~Qt::MSWindowsFixedSizeDialogHint);
+		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+		if (FVideoVisible && FVideoShown)
+		{
+			FVideoLayout->saveLocalVideoGeometry();
+			Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry",ns);
+		}
+		else if (!FVideoShown)
+		{
+			Options::setFileValue(window()->geometry(),"sipphone.audiocall-window.geometry",ns);
+		}
 	}
 }
 
-void VideoCallWindow::restoreWindowGeometryWithAnimation()
+void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 {
-	if (!FVideoShown)
+	if (FFirstRestore || FVideoShown!=AShowVideo)
 	{
 		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
-		QRect newGeometry = Options::fileValue("sipphone.videocall-window.geometry",ns).toRect();
+		QRect newGeometry = Options::fileValue(AShowVideo ? "sipphone.videocall-window.geometry" : "sipphone.audiocall-window.geometry",ns).toRect();
 		if (newGeometry.isEmpty())
-			newGeometry = WidgetManager::alignGeometry(QSize(500,480),window());
+		{
+			if (AShowVideo)
+			{
+				newGeometry = WidgetManager::alignGeometry(QSize(500,480),window());
+			}
+			else if (!FFirstRestore)
+			{
+				newGeometry = window()->geometry();
+				newGeometry.setTop(newGeometry.top()+ui.wdtVideo->height()/2);
+				newGeometry.setBottom(newGeometry.bottom()-(ui.wdtVideo->height()-ui.wdtVideo->height()/2));
+			}
+			else
+			{
+				newGeometry = window()->geometry();
+			}
+		}
+		else if (!AShowVideo)
+		{
+			newGeometry.setHeight(FCtrlWidget->minimumSizeHint().height());
+		}
+		newGeometry = WidgetManager::correctWindowGeometry(newGeometry,this);
+
+		if (!FFirstRestore)
+			saveWindowGeometry();
+		FFirstRestore = false;
 
 		FAnimatingGeometry = true;
-		showVideoWidget();
-		setVideoVisible(true);
+		setVideoWidgetVisible(true);
+		setVideoVisible(AShowVideo);
 		setWindowGeometryWithAnimation(newGeometry,200);
 	}
 }
 
 void VideoCallWindow::closeWindowWithAnimation(int ATimeout)
 {
-	if (FVideoVisible && !FCtrlWidget->isFullScreenMode())
-	{
-		FVideoLayout->saveLocalVideoGeometry();
-		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
-		Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry",ns);
-	}
-
+	saveWindowGeometry();
 	QPropertyAnimation *animation = new QPropertyAnimation(window(),"windowOpacity");
 	animation->setDuration(500);
 	animation->setStartValue(1.0);
@@ -203,12 +226,13 @@ void VideoCallWindow::setWindowGeometryWithAnimation(const QRect &AGeometry, int
 	connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
 	connect(animation,SIGNAL(finished()),FVideoLayout,SLOT(restoreLocalVideoGeometry()));
 	connect(animation,SIGNAL(finished()),SLOT(onGeometryAnimationFinished()));
+	connect(animation,SIGNAL(finished()),SLOT(onChangeVideoWidgetVisibility()));
 	animation->start();
 }
 
-bool VideoCallWindow::canShowVideo() const
+bool VideoCallWindow::isVideoAvailable() const
 {
-	return sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA)!=ISipDevice::DS_UNAVAIL;
+	return sipCall()->deviceState(ISipDevice::DT_REMOTE_CAMERA)==ISipDevice::DS_ENABLED || sipCall()->deviceState(ISipDevice::DT_LOCAL_CAMERA)==ISipDevice::DS_ENABLED;
 }
 
 void VideoCallWindow::toggleFullScreen(bool AFullScreen)
@@ -224,6 +248,21 @@ void VideoCallWindow::toggleFullScreen(bool AFullScreen)
 	else
 		window()->showNormal();
 #endif
+}
+
+void VideoCallWindow::setVideoWidgetVisible(bool AVisible)
+{
+	if (FVideoShown != AVisible)
+	{
+		FVideoShown = AVisible;
+		ui.wdtVideo->setVisible(AVisible);
+		if (CustomBorderStorage::isBordered(this))
+			CustomBorderStorage::widgetBorder(this)->setResizable(AVisible);
+		else if (AVisible)
+			window()->setWindowFlags(window()->windowFlags() & ~Qt::MSWindowsFixedSizeDialogHint);
+		else
+			window()->setWindowFlags(window()->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
+	}
 }
 
 void VideoCallWindow::setVideoVisible(bool AVisible, bool AResizing)
@@ -370,6 +409,7 @@ void VideoCallWindow::onCallStateChanged(int AState)
 	case ISipCall::CS_TALKING:
 		if (CustomBorderStorage::isBordered(window()))
 			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(!FVideoVisible);
+		restoreWindowGeometryWithAnimation(isVideoAvailable());
 		break;
 	case ISipCall::CS_FINISHED:
 		closeWindowWithAnimation();
@@ -387,16 +427,15 @@ void VideoCallWindow::onCallDeviceStateChanged(int AType, int AState)
 {
 	if (AType==ISipDevice::DT_REMOTE_CAMERA)
 	{
-		if (AState==ISipDevice::DS_ENABLED)
-			restoreWindowGeometryWithAnimation();
 		FRemoteCamera->setVideoDeviceState(AState);
 	}
 	else if (AType==ISipDevice::DT_LOCAL_CAMERA)
 	{
-		if (AState==ISipDevice::DS_ENABLED)
-			restoreWindowGeometryWithAnimation();
 		FLocalCamera->setVideoDeviceState(AState);
 	}
+
+	if (sipCall()->state() == ISipCall::CS_TALKING)
+		restoreWindowGeometryWithAnimation(isVideoAvailable());
 }
 
 void VideoCallWindow::onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue)
@@ -460,6 +499,11 @@ void VideoCallWindow::onGeometryAnimationFinished()
 	FVideoLayout->setVideoVisible(FVideoVisible);
 }
 
+void VideoCallWindow::onChangeVideoWidgetVisibility()
+{
+	setVideoWidgetVisible(FVideoVisible);
+}
+
 #ifdef Q_WS_MAC
 void VideoCallWindow::onWindowFullScreenModeWillChange(QWidget *window, bool fullScreen)
 {
@@ -474,4 +518,5 @@ void VideoCallWindow::onWindowFullScreenModeChanged(QWidget *window, bool fullSc
 	Q_UNUSED(window)
 	Q_UNUSED(fullScreen)
 }
+
 #endif

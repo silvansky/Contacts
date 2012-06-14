@@ -4,6 +4,7 @@
 #include <QCursor>
 #include <QApplication>
 #include <QDesktopWidget>
+#include "customborderstorage.h"
 
 #ifdef Q_WS_X11
 #include <QX11Info>
@@ -278,3 +279,39 @@ QRect WidgetManager::alignGeometry(const QSize &ASize, const QWidget *AWidget, Q
 	return QStyle::alignedRect(Qt::LeftToRight,AAlign,ASize.boundedTo(availRect.size()),availRect);
 }
 
+QRect WidgetManager::correctWindowGeometry(const QRect &AGeometry, QWidget *AWindow)
+{
+	QRect newGeometry = AGeometry;
+	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(AGeometry.topLeft()));
+
+	CustomBorderContainer *border = AWindow!=NULL ? CustomBorderStorage::widgetBorder(AWindow) : NULL;
+	if (border)
+	{
+		newGeometry.setLeft(newGeometry.left() + border->leftBorderWidth());
+		newGeometry.setRight(newGeometry.right() - border->rightBorderWidth());
+		newGeometry.setTop(newGeometry.top() + border->topBorderWidth());
+		newGeometry.setBottom(newGeometry.bottom() - border->bottomBorderWidth());
+	}
+
+	if (!screenRect.isEmpty() && !screenRect.contains(newGeometry))
+	{
+		if (newGeometry.left() < screenRect.left())
+			newGeometry.moveLeft(screenRect.left());
+		else if (newGeometry.right() > screenRect.right())
+			newGeometry.moveRight(screenRect.right());
+		if (newGeometry.top() < screenRect.top())
+			newGeometry.moveTop(screenRect.top());
+		else if (newGeometry.bottom() > screenRect.bottom())
+			newGeometry.moveBottom(screenRect.bottom());
+	}
+
+	if (border)
+	{
+		newGeometry.setLeft(newGeometry.left() - border->leftBorderWidth());
+		newGeometry.setRight(newGeometry.right() + border->rightBorderWidth());
+		newGeometry.setTop(newGeometry.top() - border->topBorderWidth());
+		newGeometry.setBottom(newGeometry.bottom() + border->bottomBorderWidth());
+	}
+
+	return newGeometry;
+}
