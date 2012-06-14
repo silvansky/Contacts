@@ -26,6 +26,8 @@ public:
 	Jid streamJid() const;
 	Jid contactJid() const;
 	ISipCall *sipCall() const;
+	QString contactName() const;
+	QImage contactAvatar() const;
 	bool isFullScreenMode() const;
 	void setFullScreenMode(bool AEnabled);
 	bool isMinimumWidthMode() const;

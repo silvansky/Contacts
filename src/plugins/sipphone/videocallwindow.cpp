@@ -266,6 +266,8 @@ void VideoCallWindow::setVideoVisible(bool AVisible, bool AResizing)
 		if (CustomBorderStorage::isBordered(window()))
 			CustomBorderStorage::widgetBorder(window())->setMinimizeButtonVisible(!FVideoVisible && sipCall()->state()==ISipCall::CS_TALKING);
 
+		FRemoteCamera->setNullVideoImage(FCtrlWidget->contactAvatar());
+
 		ui.wdtBackground->setProperty("videovisible",AVisible);
 		StyleStorage::updateStyle(this);
 	}

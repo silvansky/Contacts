@@ -197,6 +197,18 @@ void VideoFrame::setVideoDeviceState(int AState)
 	}
 }
 
+QImage VideoFrame::nullVideoImage() const
+{
+	return FNullVideoImage;
+}
+
+void VideoFrame::setNullVideoImage(const QImage &AImage)
+{
+	FNullVideoImage = AImage;
+	emit stateChanged();
+	update();
+}
+
 QSize VideoFrame::sizeHint() const
 {
 	if (FCollapsed)
@@ -330,19 +342,31 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 	}
 	else if (isNull())
 	{
-		QString text = FDeviceState==ISipDevice::DS_DISABLED ? tr("Camera disabled") : tr("Camera unavailable");
+		if (!FNullVideoImage.isNull())
+		{
+			QSize availSize = rect().size();
+			QSize iconSize = FNullVideoImage.size();
+			if (iconSize.height()>availSize.height() || iconSize.width()>availSize.width())
+				iconSize.scale(availSize,Qt::KeepAspectRatio);
+			QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,iconSize,rect());
+			p.drawImage(iconRect, FNullVideoImage);
+		}
+		else
+		{
+			QString text = FDeviceState==ISipDevice::DS_DISABLED ? tr("Camera disabled") : tr("Camera unavailable");
 
-		QSize textSize = fontMetrics().size(Qt::AlignHCenter|Qt::AlignTop|Qt::TextSingleLine,text);
-		QSize iconSize = FCameraDisabledIcon.size();
+			QSize textSize = fontMetrics().size(Qt::AlignHCenter|Qt::AlignTop|Qt::TextSingleLine,text);
+			QSize iconSize = FCameraDisabledIcon.size();
 
-		QSize iconTextSize(qMax(textSize.width(),iconSize.width()),iconSize.height()+textSize.height()+5);
-		QRect iconTextRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,iconTextSize,rect());
+			QSize iconTextSize(qMax(textSize.width(),iconSize.width()),iconSize.height()+textSize.height()+5);
+			QRect iconTextRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,iconTextSize,rect());
 
-		QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignTop,iconSize,iconTextRect);
-		QRect textRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignBottom,textSize,iconTextRect);
-		
-		p.drawPixmap(iconRect, FCameraDisabledIcon);
-		p.drawText(textRect,Qt::AlignCenter,text);
+			QRect iconRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignTop,iconSize,iconTextRect);
+			QRect textRect = QStyle::alignedRect(Qt::LeftToRight,Qt::AlignHCenter|Qt::AlignBottom,textSize,iconTextRect);
+
+			p.drawPixmap(iconRect, FCameraDisabledIcon);
+			p.drawText(textRect,Qt::AlignCenter,text);
+		}
 	}
 	else if (!isEmpty())
 	{

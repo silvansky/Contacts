@@ -73,7 +73,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 		onMetaAvatarChanged(FMetaId);
 		connect(FMetaRoster->instance(),SIGNAL(metaAvatarChanged(const QString &)),SLOT(onMetaAvatarChanged(const QString &)));
 	}
-	else if (FAvatars && FAvatars->hasAvatar(FAvatars->avatarHash(contactJid())))
+	else if (FAvatars)
 	{
 		FAvatars->insertAutoAvatar(ui.lblAvatar,contactJid(),QSize(38,38));
 	}
@@ -129,6 +129,20 @@ Jid CallControlWidget::contactJid() const
 ISipCall *CallControlWidget::sipCall() const
 {
 	return FSipCall;
+}
+
+QString CallControlWidget::contactName() const
+{
+	return ui.lblName->text();
+}
+
+QImage CallControlWidget::contactAvatar() const
+{
+	if (FMetaRoster!=NULL && !FMetaId.isEmpty())
+		return FMetaRoster->metaAvatarImage(FMetaId,true,false);
+	else if (FAvatars)
+		return FAvatars->avatarImage(contactJid(),true,false);
+	return IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_FEMALE,1);
 }
 
 bool CallControlWidget::isFullScreenMode() const

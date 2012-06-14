@@ -31,6 +31,8 @@ public:
 	void setPixmap(const QPixmap &APixmap);
 	int videoDeviceState() const;
 	void setVideoDeviceState(int AState);
+	QImage nullVideoImage() const;
+	void setNullVideoImage(const QImage &AImage);
 signals:
 	void stateChanged();
 	void singleClicked();
@@ -68,6 +70,7 @@ private:
 	QPixmap FResizeIcon;
 	QPixmap FCollapsedIcon;
 	QPixmap FCameraDisabledIcon;
+	QImage FNullVideoImage;
 	Qt::Alignment FAlignment;
 	QDateTime FDoubleClickTime;
 };
