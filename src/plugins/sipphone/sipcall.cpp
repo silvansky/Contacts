@@ -232,7 +232,7 @@ QString SipCall::errorString() const
 	case EC_BUSY:
 		return tr("Remote user is now talking");
 	case EC_NOTAVAIL:
-		return tr("Remote user could not accept call");
+		return tr("Remote user could not accept the call");
 	case EC_NOANSWER:
 		return tr("Remote user did not accept the call");
 	case EC_REJECTED:

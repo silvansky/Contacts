@@ -1041,9 +1041,15 @@ void SipManager::onCallStateChanged(int AState)
 				case ISipCall::EC_BUSY:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 is now talking. Call later.").arg(userNick));
 					break;
+				case ISipCall::EC_NOTAVAIL:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 could not accept the call.").arg(userNick));
+					break;
 				case ISipCall::EC_NOANSWER:
 				case ISipCall::EC_REJECTED:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call.").arg(userNick));
+					break;
+				case ISipCall::EC_CONNECTIONERR:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
 					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
@@ -1088,6 +1094,9 @@ void SipManager::onCallStateChanged(int AState)
 				case ISipCall::EC_REJECTED:
 					showMissedCallNotify(call);
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_MISSED,tr("Missed call."),true);
+					break;
+				case ISipCall::EC_CONNECTIONERR:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
 					break;
 				default:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
