@@ -38,6 +38,10 @@
     <object mime="image/png">sipphonecallfullscreen.png</object>
   </icon>
   <icon>
+    <key>sipCallResize</key>
+    <object mime="image/png">sipphonecallresize.png</object>
+  </icon>
+  <icon>
     <key>sipVideoWait</key>
     <object mime="image/gif">sipphonevideowait.gif</object>
   </icon>

@@ -256,6 +256,12 @@ void VideoCallWindow::setVideoWidgetVisible(bool AVisible)
 	{
 		FVideoShown = AVisible;
 		ui.wdtVideo->setVisible(AVisible);
+		
+		if (AVisible)
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblResizer,MNI_SIPPHONE_CALL_RESIZE,0,0,"pixmap");
+		else
+			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblResizer);
+
 		if (CustomBorderStorage::isBordered(this))
 			CustomBorderStorage::widgetBorder(this)->setResizable(AVisible);
 		else if (AVisible)

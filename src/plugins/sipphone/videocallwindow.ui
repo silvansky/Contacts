@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>237</height>
+    <width>363</width>
+    <height>231</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -20,9 +20,6 @@
    <item>
     <widget class="QWidget" name="wdtBackground" native="true">
      <layout class="QVBoxLayout" name="verticalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
       <property name="margin">
        <number>0</number>
       </property>
@@ -37,7 +34,33 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="wdtControls" native="true"/>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QWidget" name="wdtControls" native="true"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblResizer">
+          <property name="minimumSize">
+           <size>
+            <width>13</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>13</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

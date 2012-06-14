@@ -331,8 +331,9 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 	QFrame::paintEvent(AEvent);
 
 	QPainter p(this);
+	QRect clipRect = rect().adjusted(lineWidth(),lineWidth(),-lineWidth(),-lineWidth());
 	if (frameShape() != QFrame::NoFrame)
-		p.setClipRect(rect().adjusted(lineWidth(),lineWidth(),-lineWidth(),-lineWidth()),Qt::IntersectClip);
+		p.setClipRect(clipRect,Qt::IntersectClip);
 	p.fillRect(rect(), Qt::black);
 	
 	if (FCollapsed)
@@ -391,7 +392,7 @@ void VideoFrame::paintEvent(QPaintEvent *AEvent)
 			if ((FAlignment & Corners[i].align) == 0)
 			{
 				p.save();
-				p.translate(QStyle::alignedRect(Qt::LeftToRight,Corners[i].align,FResizeIcon.size(),rect()).center());
+				p.translate(QStyle::alignedRect(Qt::LeftToRight,Corners[i].align,FResizeIcon.size(),clipRect).center());
 				p.rotate(Corners[i].rotateAngel);
 				p.drawPixmap(iconRect,FResizeIcon);
 				p.restore();
