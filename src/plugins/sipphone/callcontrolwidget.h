@@ -58,6 +58,7 @@ protected slots:
 	void onRemoteMicrophoneVolumeChanged(qreal AVolume);
 protected slots:
 	void onCallTimerTimeout();
+	void onAnimateNoticeTimeout();
 	void onMetaAvatarChanged(const QString &AMetaId);
 private:
 	Ui::CallControlWidgetClass ui;

@@ -108,6 +108,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbReject,MNI_SIPPHONE_CALL_REJECT);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
 
+	onAnimateNoticeTimeout();
 	onCallStateChanged(FSipCall->state());
 }
 
@@ -435,6 +436,29 @@ void CallControlWidget::onRemoteMicrophoneVolumeChanged(qreal AVolume)
 void CallControlWidget::onCallTimerTimeout()
 {
 	ui.lblNotice->setText(FSipCall->callTimeString());
+}
+
+void CallControlWidget::onAnimateNoticeTimeout()
+{
+	QString notice = ui.lblNotice->text();
+	if (notice.endsWith("."))
+	{
+		int count = 0;
+		while (notice.endsWith("."))
+		{
+			count++;
+			notice.chop(1);
+		}
+		count = count>0 ? (count % 3) + 1 : 0;
+
+		while (count > 0)
+		{
+			count--;
+			notice += ".";
+		}
+		ui.lblNotice->setText(notice);
+	}
+	QTimer::singleShot(500,this,SLOT(onAnimateNoticeTimeout()));
 }
 
 void CallControlWidget::onMetaAvatarChanged(const QString &AMetaId)
