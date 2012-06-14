@@ -105,6 +105,10 @@
         <source>Please, enter your ID and password. You can find your ID on the &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;Odnoklassniki settings page&lt;/a&gt;.</source>
         <translation>Пожалуйста, укажите ваш ID и пароль. Свой ID можно найти внизу &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;страницы настроек Одноклассников&lt;/a&gt;.</translation>
     </message>
+    <message>
+        <source>Waiting for authorization in %1...</source>
+        <translation>Ожидание авторизации в %1...</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>
@@ -382,6 +386,21 @@
     <message>
         <source>You have no linked accounts</source>
         <translation>У вас нет подключенных учётных записей</translation>
+    </message>
+</context>
+<context>
+    <name>OAuthLoginDialog</name>
+    <message>
+        <source>Loading...</source>
+        <translation>Загрузка...</translation>
+    </message>
+    <message>
+        <source>Authorization in %1</source>
+        <translation>Авторизация в %1</translation>
+    </message>
+    <message>
+        <source>Failed to load authorization web page</source>
+        <translation>Не удалось загрузить страницу авторизации</translation>
     </message>
 </context>
 </TS>

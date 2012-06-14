@@ -267,7 +267,7 @@ bool Gateways::initObjects()
 	twitter.loginLabel = tr("Login");
 	twitter.loginField = "username";
 	twitter.passwordField = "password";
-	twitter.homeContactPattern = "^@[a-zA-Z0-9_]+";
+	twitter.homeContactPattern = "^[a-zA-Z0-9_]+";
 	twitter.availContactPattern = twitter.homeContactPattern;
 	FGateDescriptors.append(twitter);
 
@@ -1019,10 +1019,11 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
 			login.password = AFields.password;
 		}
-		else if (FDataForms && FDataForms->isFormValid(AFields.form) && FDataForms->fieldIndex(descriptor.loginField,AFields.form.fields)>=0)
+		else if (FDataForms && FDataForms->isFormValid(AFields.form))
 		{
 			login.isValid = true;
 			login.fields.fieldMask = 0;
+			login.oauthUrl = QUrl::fromUserInput(FDataForms->fieldValue("oauth-url",AFields.form.fields).toString());
 			login.login = FDataForms->fieldValue(descriptor.loginField, AFields.form.fields).toString();
 			login.domain = FDataForms->fieldValue(descriptor.domainField, AFields.form.fields).toString();
 			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
@@ -1059,29 +1060,30 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 		else if (FDataForms)
 		{
 			QMap<QString, QVariant> fields = descriptor.extraFields;
-			if (ALogin.domainSeparator.isEmpty())
+			if (ALogin.oauthUrl.isEmpty())
 			{
-				fields.insert(descriptor.loginField,ALogin.login);
+				if (ALogin.domainSeparator.isEmpty())
+				{
+					fields.insert(descriptor.loginField,ALogin.login);
+				}
+				else if (FDataForms->fieldIndex(descriptor.domainField,ALogin.fields.form.fields)>=0)
+				{
+					fields.insert(descriptor.loginField,ALogin.login);
+					fields.insert(descriptor.domainField,ALogin.domain);
+				}
+				else
+				{
+					fields.insert(descriptor.loginField,ALogin.login + ALogin.domainSeparator + ALogin.domain);
+				}
+				fields.insert(descriptor.passwordField,ALogin.password);
 			}
-			else if (FDataForms->fieldIndex(descriptor.domainField,ALogin.fields.form.fields)>=0)
-			{
-				fields.insert(descriptor.loginField,ALogin.login);
-				fields.insert(descriptor.domainField,ALogin.domain);
-			}
-			else
-			{
-				fields.insert(descriptor.loginField,ALogin.login + ALogin.domainSeparator + ALogin.domain);
-			}
-			fields.insert(descriptor.passwordField, ALogin.password);
 
 			IDataForm form = ALogin.fields.form;
-			QMap<QString, QVariant>::const_iterator it = fields.constBegin();
-			while (it != fields.constEnd())
+			for (QMap<QString, QVariant>::const_iterator it = fields.constBegin(); it != fields.constEnd(); it++)
 			{
 				int index = FDataForms->fieldIndex(it.key(),form.fields);
 				if (index >= 0)
 					form.fields[index].value = it.value();
-				it++;
 			}
 
 			submit.form = FDataForms->dataSubmit(form);
@@ -1281,7 +1283,7 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 		if (serviceDescriptor(AStreamJid,AServiceJid).id == GSID_FACEBOOK)
 			dialog = new AddFacebookAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
 		else
-			dialog = new AddLegacyAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
+			dialog = new AddLegacyAccountDialog(this,FRegistration,FDataForms,presence,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
 #ifdef Q_WS_MAC
 		setWindowGrowButtonEnabled(dialog->window(), false);

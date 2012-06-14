@@ -93,6 +93,7 @@
 #define STS_SIPPHONE_CALL_NOTIFYER                                      "sipCallNotifyer"
 
 //Gateways
+#define STS_GATEWAYS_OAUTHLOGINDIALOG                                   "gatewaysOAuthLoginDialog"
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
 #define STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG                           "gatewaysAddFacebookAccountDialog"
 #define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"

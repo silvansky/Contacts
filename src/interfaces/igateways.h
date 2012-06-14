@@ -22,9 +22,10 @@ enum IGateServiceRestrictions
 struct IGateServiceLogin
 {
 	IGateServiceLogin() { 
-		isValid = false; 
+		isValid = false;
 	}
 	bool isValid;
+	QUrl oauthUrl;
 	QString login;
 	QString domain;
 	QString password;

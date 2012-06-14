@@ -7,12 +7,14 @@
 #include <definitions/stylesheets.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/igateways.h>
+#include <interfaces/idataforms.h>
 #include <interfaces/iregistraton.h>
 #include <utils/log.h>
 #include <utils/menu.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/custominputdialog.h>
+#include "oauthlogindialog.h"
 #include "ui_addlegacyaccountdialog.h"
 
 class AddLegacyAccountDialog :
@@ -20,11 +22,12 @@ class AddLegacyAccountDialog :
 {
 	Q_OBJECT
 public:
-	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent=NULL);
+	AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IDataForms *ADataForms, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent=NULL);
 	~AddLegacyAccountDialog();
 protected:
 	virtual void showEvent(QShowEvent *AEvent);
 protected:
+	bool submitRegistration();
 	void abort(const QString &AMessage);
 	void setError(const QString &AMessage);
 	void setWaitMode(bool AWait, const QString &AMessage = QString::null);
@@ -33,8 +36,10 @@ protected slots:
 	void onLineEditTextChanged(const QString &AText);
 	void onShowPasswordStateChanged(int AState);
 	void onDialogButtonClicked(QAbstractButton *AButton);
-	void onOkClicked();
-	void onCancelClicked();
+	void onOkButtonClicked();
+	void onCancelButtonClicked();
+	void onOAuthLoginDialogAccepted();
+	void onOAuthLoginDialogRejected();
 	void onDomainsMenuActionTriggered();
 	void onRegisterFields(const QString &AId, const IRegisterFields &AFields);
 	void onRegisterSuccess(const QString &AId);
@@ -44,6 +49,7 @@ private:
 private:
 	IPresence *FPresence;
 	IGateways *FGateways;
+	IDataForms *FDataForms;
 	IRegistration *FRegistration;
 private:
 	QString FRegisterId;

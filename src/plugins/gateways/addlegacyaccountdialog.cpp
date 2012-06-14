@@ -7,30 +7,30 @@
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 #include <utils/graphicseffectsstorage.h>
 
-AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
+AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IDataForms *ADataForms, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent)	: QDialog(AParent)
 {
 	ui.setupUi(this);
-	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
-	//GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
+		border->setResizable(false);
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		border->setMaximizeButtonVisible(false);
 		border->setMinimizeButtonVisible(false);
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		connect(this, SIGNAL(rejected()), border, SLOT(close()));
 		connect(this, SIGNAL(accepted()), border, SLOT(close()));
-		border->setResizable(false);
 	}
 	else
 	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
 	}
+	window()->setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->addWidget(ui.pbtOk);
@@ -40,6 +40,7 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 
 	FPresence = APresence;
 	FGateways = AGateways;
+	FDataForms = ADataForms;
 	FRegistration = ARegistration;
 
 	FServiceJid = AServiceJid;
@@ -52,8 +53,8 @@ AddLegacyAccountDialog::AddLegacyAccountDialog(IGateways *AGateways, IRegistrati
 	ui.chbShowPassword->setVisible(false);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblErrorIcon,MNI_GATEWAYS_ADD_ACCOUNT_ERROR,0,0,"pixmap");
 	connect(ui.btbButtons,SIGNAL(clicked(QAbstractButton *)),SLOT(onDialogButtonClicked(QAbstractButton *)));
-	connect(ui.pbtOk, SIGNAL(clicked()), SLOT(onOkClicked()));
-	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelClicked()));
+	connect(ui.pbtOk, SIGNAL(clicked()), SLOT(onOkButtonClicked()));
+	connect(ui.pbtCancel, SIGNAL(clicked()), SLOT(onCancelButtonClicked()));
 	ui.btbButtons->setVisible(false);
 
 	connect(ui.lneLogin,SIGNAL(textChanged(const QString &)),SLOT(onLineEditTextChanged(const QString &)));
@@ -128,6 +129,28 @@ void AddLegacyAccountDialog::showEvent(QShowEvent *AEvent)
 	QTimer::singleShot(0,this,SLOT(onAdjustDialogSize()));
 }
 
+bool AddLegacyAccountDialog::submitRegistration()
+{
+	IRegisterSubmit submit = FGateways->serviceSubmit(FPresence->streamJid(),FServiceJid,FGateLogin);
+	if (submit.serviceJid.isValid())
+	{
+		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
+		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
+		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
+		if (FRegisterId.isEmpty())
+			abort(FAbortMessage);
+		else
+			setWaitMode(true, tr("Waiting for host response..."));
+		return true;
+	}
+	else
+	{
+		LogError(QString("[AddLegacyAccountDialog][%1] Failed to generate registration submit").arg(FServiceJid.full()));
+		setError(tr("Invalid registration params"));
+		return false;
+	}
+}
+
 void AddLegacyAccountDialog::abort(const QString &AMessage)
 {
 	Q_UNUSED(AMessage);
@@ -138,7 +161,7 @@ void AddLegacyAccountDialog::abort(const QString &AMessage)
 	dialog->setDeleteOnClose(true);
 	dialog->show();
 	QTimer::singleShot(0,this,SLOT(reject()));
-	hide();
+	window()->hide();
 }
 
 void AddLegacyAccountDialog::setError(const QString &AMessage)
@@ -214,12 +237,12 @@ void AddLegacyAccountDialog::onShowPasswordStateChanged(int AState)
 void AddLegacyAccountDialog::onDialogButtonClicked(QAbstractButton *AButton)
 {
 	if (ui.btbButtons->standardButton(AButton) == QDialogButtonBox::Ok)
-		onOkClicked();
+		onOkButtonClicked();
 	else
-		onCancelClicked();
+		onCancelButtonClicked();
 }
 
-void AddLegacyAccountDialog::onOkClicked()
+void AddLegacyAccountDialog::onOkButtonClicked()
 {
 	FGateLogin.login = ui.lneLogin->text();
 	FGateLogin.password = ui.lnePassword->text();
@@ -234,28 +257,43 @@ void AddLegacyAccountDialog::onOkClicked()
 		FGateLogin.domain = parts.value(1);
 	}
 
-	IRegisterSubmit submit = FGateways->serviceSubmit(FPresence->streamJid(),FServiceJid,FGateLogin);
-	if (submit.serviceJid.isValid())
-	{
-		FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
-		LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
-		FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
-		if (FRegisterId.isEmpty())
-			abort(FAbortMessage);
-		else
-			setWaitMode(true, tr("Waiting for host response..."));
-	}
-	else
-	{
-		LogError(QString("[AddLegacyAccountDialog][%1] Failed to generate registration submit").arg(FServiceJid.full()));
-		setError(tr("Invalid registration params"));
-	}
+	submitRegistration();
 }
 
-void AddLegacyAccountDialog::onCancelClicked()
+void AddLegacyAccountDialog::onCancelButtonClicked()
 {
 	LogDetail(QString("[AddLegacyAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 	reject();
+}
+
+void AddLegacyAccountDialog::onOAuthLoginDialogAccepted()
+{
+	OAuthLoginDialog *dialog = qobject_cast<OAuthLoginDialog *>(sender());
+	if (dialog)
+	{
+		QMap<QString,QString> items = dialog->urlItems();
+		for (QMap<QString,QString>::const_iterator it=items.constBegin(); it!=items.constEnd(); it++)
+		{
+			int index = FDataForms!=NULL ? FDataForms->fieldIndex(it.key(),FGateLogin.fields.form.fields) : -1;
+			if (index >= 0)
+				FGateLogin.fields.form.fields[index].value = it.value();
+		}
+
+		if (!submitRegistration())
+			abort(FAbortMessage);
+	}
+}
+
+void AddLegacyAccountDialog::onOAuthLoginDialogRejected()
+{
+	OAuthLoginDialog *dialog = qobject_cast<OAuthLoginDialog *>(sender());
+	if (dialog)
+	{
+		if (dialog->errorString().isEmpty())
+			onCancelButtonClicked();
+		else
+			abort(dialog->errorString());
+	}
 }
 
 void AddLegacyAccountDialog::onDomainsMenuActionTriggered()
@@ -304,13 +342,27 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 				ui.btbButtons->button(QDialogButtonBox::Ok)->setText(tr("Change"));
 				ui.pbtOk->setText(tr("Change"));
 			}
+
+			if (!FGateLogin.oauthUrl.isEmpty())
+			{
+				LogDetail(QString("[AddLegacyAccountDialog][%1] OAuth registration requested, id='%2'").arg(AFields.serviceJid.full(),AId));
+				OAuthLoginDialog *dialog = new OAuthLoginDialog(FPresence,FGateLogin.oauthUrl,FGateLabel,FServiceJid,window());
+				connect(dialog,SIGNAL(accepted()),SLOT(onOAuthLoginDialogAccepted()));
+				connect(dialog,SIGNAL(rejected()),SLOT(onOAuthLoginDialogRejected()));
+				WidgetManager::showActivateRaiseWindow(dialog->window());
+				WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
+				setWaitMode(true,tr("Waiting for authorization in %1...").arg(FGateLabel.name));
+			}
+			else
+			{
+				setWaitMode(false);
+			}
 		}
 		else
 		{
 			LogError(QString("[AddLegacyAccountDialog][%1] Unsupported registration fields received, id='%2'").arg(FServiceJid.full(),AId));
 			abort(FAbortMessage);
 		}
-		setWaitMode(false);
 	}
 }
 

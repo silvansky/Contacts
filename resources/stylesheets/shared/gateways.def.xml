@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <styledef>
   <file>
+    <key>gatewaysOAuthLoginDialog</key>
+    <object mime='text/css'>gatewaysaoauthlogindialog.qss</object>
+  </file>
+  <file>
     <key>gatewaysAddLegacyAccountDialog</key>
     <object mime='text/css'>gatewaysaddlegacyaccountdialog.qss</object>
   </file>

@@ -983,7 +983,7 @@ void MetaContacts::initMetaItemDescriptors()
 	twitter.icon = MNI_METACONTACTS_ITEM_TWITTER;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
-	twitter.gatePrefix = "twitter";
+	twitter.gatePrefix = "tw";
 	FMetaItemDescriptors.append(twitter);
 
 	IMetaItemDescriptor fring;
