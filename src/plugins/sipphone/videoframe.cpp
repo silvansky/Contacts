@@ -138,8 +138,11 @@ QSize VideoFrame::minimumVideoSize() const
 
 void VideoFrame::setMinimumVideoSize(const QSize &ASize)
 {
-	FMinimumSize = ASize;
-	emit stateChanged();
+	if (FMinimumSize != ASize)
+	{
+		FMinimumSize = ASize;
+		emit stateChanged();
+	}
 }
 
 QSize VideoFrame::maximumVideoSize() const
@@ -149,8 +152,11 @@ QSize VideoFrame::maximumVideoSize() const
 
 void VideoFrame::setMaximumVideoSize(const QSize &ASize)
 {
-	FMaximumSize = ASize;
-	emit stateChanged();
+	if (FMaximumSize != ASize)
+	{
+		FMaximumSize = ASize;
+		emit stateChanged();
+	}
 }
 
 const QPixmap *VideoFrame::pixmap() const
@@ -204,9 +210,12 @@ QImage VideoFrame::nullVideoImage() const
 
 void VideoFrame::setNullVideoImage(const QImage &AImage)
 {
-	FNullVideoImage = AImage;
-	emit stateChanged();
-	update();
+	if (FNullVideoImage != AImage)
+	{
+		FNullVideoImage = AImage;
+		emit stateChanged();
+		update();
+	}
 }
 
 QSize VideoFrame::sizeHint() const
