@@ -31,6 +31,7 @@ protected:
 protected:
 	bool isVideoAvailable() const;
 	void toggleFullScreen(bool AFullScreen);
+	void setWindowResizeEnabled(bool AEnabled);
 	void setVideoWidgetVisible(bool AVisible);
 	void setVideoVisible(bool AVisible, bool AResizing = false);
 	void setControlsVisible(bool AVisible);

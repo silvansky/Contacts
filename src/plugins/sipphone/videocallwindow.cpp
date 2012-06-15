@@ -27,7 +27,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	if (border)
 	{
 		border->setMovable(true);
-		border->setResizable(false);
+		border->setResizable(true);
 		border->setStaysOnTop(true);
 		border->setCloseButtonVisible(false);
 		border->setMinimizeButtonVisible(false);
@@ -38,7 +38,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
 #ifndef Q_WS_MAC
-		setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint | Qt::MSWindowsFixedSizeDialogHint);
+		setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #else
 		setWindowOntop(this, true);
 		setWindowGrowButtonEnabled(this, false);
@@ -218,6 +218,7 @@ void VideoCallWindow::setWindowGeometryWithAnimation(const QRect &AGeometry, int
 	FAnimatingGeometry = true;
 	setVideoWidgetVisible(true);
 	FVideoLayout->setVideoVisible(false);
+	window()->setMaximumHeight(QWIDGETSIZE_MAX);
 
 	QPropertyAnimation *animation = new QPropertyAnimation(window(),"geometry");
 	animation->setDuration(ADuration);
@@ -250,24 +251,22 @@ void VideoCallWindow::toggleFullScreen(bool AFullScreen)
 #endif
 }
 
+void VideoCallWindow::setWindowResizeEnabled(bool AEnabled)
+{
+	if (AEnabled && CustomBorderStorage::isBordered(window()))
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblResizer,MNI_SIPPHONE_CALL_RESIZE,0,0,"pixmap");
+	else
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblResizer);
+	window()->setMaximumHeight(AEnabled ? QWIDGETSIZE_MAX : window()->minimumSizeHint().height());
+}
+
 void VideoCallWindow::setVideoWidgetVisible(bool AVisible)
 {
 	if (FVideoShown != AVisible)
 	{
 		FVideoShown = AVisible;
 		ui.wdtVideo->setVisible(AVisible);
-		
-		if (AVisible && CustomBorderStorage::isBordered(window()))
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblResizer,MNI_SIPPHONE_CALL_RESIZE,0,0,"pixmap");
-		else
-			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblResizer);
-
-		if (CustomBorderStorage::isBordered(this))
-			CustomBorderStorage::widgetBorder(this)->setResizable(AVisible);
-		else if (AVisible)
-			window()->setWindowFlags(window()->windowFlags() & ~Qt::MSWindowsFixedSizeDialogHint);
-		else
-			window()->setWindowFlags(window()->windowFlags() | Qt::MSWindowsFixedSizeDialogHint);
+		setWindowResizeEnabled(AVisible);
 	}
 }
 
@@ -364,7 +363,10 @@ void VideoCallWindow::setControlsFullScreenMode(bool AEnabled)
 void VideoCallWindow::showEvent(QShowEvent *AEvent)
 {
 	if (FIsFirstShow)
+	{
 		window()->adjustSize();
+		setWindowResizeEnabled(false);
+	}
 	FIsFirstShow = false;
 	QWidget::showEvent(AEvent);
 }
@@ -524,5 +526,4 @@ void VideoCallWindow::onWindowFullScreenModeChanged(QWidget *window, bool fullSc
 	Q_UNUSED(window)
 	Q_UNUSED(fullScreen)
 }
-
 #endif
