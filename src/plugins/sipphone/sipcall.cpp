@@ -827,6 +827,9 @@ void SipCall::setCallState(CallState AState)
 			if (isDirectCall())
 				FRingTimer.start(RING_TIMEOUT);
 
+			if (pjsua_set_ec(PJSUA_DEFAULT_EC_TAIL_LEN, 0) != PJ_SUCCESS)
+				LogError("[SipCall]: Failed to enable echo cancellation!");
+
 			FAccountId = FSipManager->sipAccountId(streamJid());
 			if (FAccountId == -1)
 			{
@@ -844,6 +847,7 @@ void SipCall::setCallState(CallState AState)
 		{
 			if (deviceState(ISipDevice::DT_LOCAL_CAMERA)==ISipDevice::DS_DISABLED && deviceProperty(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::LCP_AUTO_START).toBool())
 				setDeviceState(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::DS_ENABLED);
+			
 			FStartCallTime = QDateTime::currentDateTime();
 		}
 		else if (AState == CS_FINISHED)
