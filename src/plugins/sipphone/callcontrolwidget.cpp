@@ -73,7 +73,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 		onMetaAvatarChanged(FMetaId);
 		connect(FMetaRoster->instance(),SIGNAL(metaAvatarChanged(const QString &)),SLOT(onMetaAvatarChanged(const QString &)));
 	}
-	else if (FAvatars)
+	else if (FAvatars && FAvatars->hasAvatar(FAvatars->avatarHash(contactJid())))
 	{
 		FAvatars->insertAutoAvatar(ui.lblAvatar,contactJid(),QSize(38,38));
 	}

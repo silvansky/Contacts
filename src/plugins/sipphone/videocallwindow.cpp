@@ -189,7 +189,6 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 		FFirstRestore = false;
 
 		FAnimatingGeometry = true;
-		setVideoWidgetVisible(true);
 		setVideoVisible(AShowVideo);
 		setWindowGeometryWithAnimation(newGeometry,200);
 	}
@@ -217,6 +216,7 @@ void VideoCallWindow::setRecursiveMouseTracking(QWidget *AWidget)
 void VideoCallWindow::setWindowGeometryWithAnimation(const QRect &AGeometry, int ADuration)
 {
 	FAnimatingGeometry = true;
+	setVideoWidgetVisible(true);
 	FVideoLayout->setVideoVisible(false);
 
 	QPropertyAnimation *animation = new QPropertyAnimation(window(),"geometry");
@@ -257,7 +257,7 @@ void VideoCallWindow::setVideoWidgetVisible(bool AVisible)
 		FVideoShown = AVisible;
 		ui.wdtVideo->setVisible(AVisible);
 		
-		if (AVisible)
+		if (AVisible && CustomBorderStorage::isBordered(window()))
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblResizer,MNI_SIPPHONE_CALL_RESIZE,0,0,"pixmap");
 		else
 			IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblResizer);
