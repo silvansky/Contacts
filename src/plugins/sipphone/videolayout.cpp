@@ -77,8 +77,7 @@ void VideoLayout::setGeometry(const QRect &ARect)
 			localRect =	adjustLocalVideoPosition(localRect);
 			FLocalVideo->setGeometry(localRect);
 			FLocalVideo->setMaximumVideoSize(ARect.size()/2);
-			if (isSizeValid)
-				FLocalVideo->setAlignment(geometryAlignment(localRect));
+			FLocalVideo->setAlignment(isSizeValid ? geometryAlignment(localRect) : FLocalVideo->alignment());
 		}
 
 		QSize remoteSize = FRemoteVideo->sizeHint();
@@ -442,17 +441,12 @@ void VideoLayout::onLocalVideoSingleClicked()
 {
 	if (FLocalVideo->isCollapsed())
 	{
-		restoreLocalVideoGeometry();
 		FLocalVideo->setCollapsed(false);
 	}
 }
 
 void VideoLayout::onLocalVideoDoubleClicked()
 {
-	if (!FLocalVideo->isCollapsed())
-		saveLocalVideoGeometry();
-	else
-		restoreLocalVideoGeometry();
 	FLocalVideo->setCollapsed(!FLocalVideo->isCollapsed());
 }
 

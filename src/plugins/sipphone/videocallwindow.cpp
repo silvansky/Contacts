@@ -169,6 +169,7 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 				newGeometry.setWidth(newGeometry.width() + (ctrlWidth - ui.wdtControls->width()));
 				newGeometry.moveTopLeft(newGeometry.topLeft() + (ctrlTopLeft - mapToGlobal(ui.wdtControls->geometry().topLeft())));
 			}
+			FVideoLayout->restoreLocalVideoGeometry();
 		}
 		else
 		{
@@ -224,7 +225,6 @@ void VideoCallWindow::setWindowGeometryWithAnimation(const QRect &AGeometry, int
 	animation->setStartValue(window()->geometry());
 	animation->setEndValue(AGeometry);
 	connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
-	connect(animation,SIGNAL(finished()),FVideoLayout,SLOT(restoreLocalVideoGeometry()));
 	connect(animation,SIGNAL(finished()),SLOT(onGeometryAnimationFinished()));
 	connect(animation,SIGNAL(finished()),SLOT(onChangeVideoWidgetVisibility()));
 	animation->start();
