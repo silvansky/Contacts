@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QDesktopServices>
 #include <utils/graphicseffectsstorage.h>
+#include <utils/custombordercontainer.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
 #ifdef Q_WS_MAC
@@ -17,7 +18,12 @@
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+//	ui.scaContacts->setVisible(false);
+	ui.lblName->setProperty(CBC_IGNORE_FILTER, true);
+	ui.lblStatusText->setProperty(CBC_IGNORE_FILTER, true);
 	ui.lblName->setElideMode(Qt::ElideRight);
+	ui.lblStatusText->setElideMode(Qt::ElideRight);
+	ui.lblStatusText->setMultilineElideEnabled(true);
 	setWindowIconText(tr("Contact Profile"));
 
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
@@ -237,7 +243,7 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
-	ui.scaContacts->setFixedHeight(qMin(ui.sawContents->sizeHint().height(),350));
+	//ui.scaContacts->setFixedHeight(qMin(ui.sawContents->sizeHint().height(),350));
 	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
 }
 

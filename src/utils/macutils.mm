@@ -295,6 +295,42 @@ bool isWindowOntop(const QWidget *window)
 	return [wnd level] == NSModalPanelWindowLevel;
 }
 
+void setWindowResizable(QWidget *window, bool enabled)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	bool isResizable = isWindowResizable(window);
+	if ((enabled && !isResizable) || (!enabled && isResizable))
+	{
+		int oldStyleMask = [wnd styleMask];
+		int newStyleMask = enabled ? oldStyleMask | NSResizableWindowMask : oldStyleMask ^ NSResizableWindowMask;
+		[wnd setStyleMask:newStyleMask];
+	}
+}
+
+bool isWindowResizable(QWidget *window)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	return [wnd styleMask] & NSResizableWindowMask;
+}
+
+void setWindowShownOnAllSpaces(QWidget *window, bool enabled)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	bool isEnabled = isWindowShownOnAllSpaces(window);
+	if ((enabled && !isEnabled) || (!enabled && isEnabled))
+	{
+		NSWindowCollectionBehavior oldCollectionBhv = [wnd collectionBehavior];
+		NSWindowCollectionBehavior newCollectionBhv = enabled ? oldCollectionBhv | NSWindowCollectionBehaviorCanJoinAllSpaces : oldCollectionBhv ^ NSWindowCollectionBehaviorCanJoinAllSpaces;
+		[wnd setCollectionBehavior:newCollectionBhv];
+	}
+}
+
+bool isWindowShownOnAllSpaces(QWidget *window)
+{
+	NSWindow *wnd = nsWindowFromWidget(window->window());
+	return [wnd collectionBehavior] & NSWindowCollectionBehaviorCanJoinAllSpaces;
+}
+
 void setAppFullScreenEnabled(bool enabled)
 {
 	NSApplication *app = [NSApplication sharedApplication];

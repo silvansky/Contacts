@@ -41,6 +41,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 		setWindowFlags((windowFlags() & ~(Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint)) | Qt::WindowStaysOnTopHint | Qt::CustomizeWindowHint);
 #else
 		setWindowOntop(this, true);
+		setWindowShownOnAllSpaces(this, true);
 		setWindowGrowButtonEnabled(this, false);
 		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeChanged(QWidget*,bool)), SLOT(onWindowFullScreenModeChanged(QWidget*,bool)));
 		connect(MacUtils::instance(), SIGNAL(windowFullScreenModeWillChange(QWidget*,bool)), SLOT(onWindowFullScreenModeWillChange(QWidget*,bool)));

@@ -50,6 +50,10 @@ void setWindowFullScreen(QWidget *window, bool enabled);
 bool isWindowFullScreen(const QWidget *window);
 void setWindowOntop(QWidget *window, bool enabled);
 bool isWindowOntop(const QWidget *window);
+void setWindowResizable(QWidget *window, bool enabled);
+bool isWindowResizable(QWidget *window);
+void setWindowShownOnAllSpaces(QWidget *window, bool enabled);
+bool isWindowShownOnAllSpaces(QWidget *window);
 
 // app management
 void setAppFullScreenEnabled(bool enabled);
