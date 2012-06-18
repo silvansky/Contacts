@@ -16,6 +16,8 @@ VideoLayout::VideoLayout(VideoFrame *ARemoteVideo, VideoFrame *ALocalVideo, QWid
 	FRemoteVideo = ARemoteVideo;
 	FLocalVideo = ALocalVideo;
 
+	connect(FRemoteVideo,SIGNAL(stateChanged()),SLOT(onRemoteVideoStateChanged()));
+
 	connect(FLocalVideo,SIGNAL(stateChanged()),SLOT(onLocalVideoStateChanged()));
 	connect(FLocalVideo,SIGNAL(singleClicked()),SLOT(onLocalVideoSingleClicked()));
 	connect(FLocalVideo,SIGNAL(doubleClicked()),SLOT(onLocalVideoDoubleClicked()));
@@ -423,6 +425,11 @@ QRect VideoLayout::correctLocalVideoSize(Qt::Corner ACorner, const QRect &AGeome
 	}
 
 	return newGeometry;
+}
+
+void VideoLayout::onRemoteVideoStateChanged()
+{
+	update();
 }
 
 void VideoLayout::onLocalVideoStateChanged()
