@@ -14,7 +14,6 @@
 OAuthLoginDialog::OAuthLoginDialog(IPresence *APresence, const QUrl &AAuthUrl, const IGateServiceLabel &AGateLabel, const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setMinimumSize(600,600);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_OAUTHLOGINDIALOG);
 
 	FGateLabel = AGateLabel;
@@ -23,7 +22,6 @@ OAuthLoginDialog::OAuthLoginDialog(IPresence *APresence, const QUrl &AAuthUrl, c
 	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
-		//border->setResizable(false);
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		border->setMaximizeButtonVisible(false);
 		border->setMinimizeButtonVisible(false);
@@ -37,6 +35,7 @@ OAuthLoginDialog::OAuthLoginDialog(IPresence *APresence, const QUrl &AAuthUrl, c
 		setAttribute(Qt::WA_DeleteOnClose,true);
 		layout()->setContentsMargins(0, 0, 0, 0);
 	}
+	window()->setMinimumSize(715,785);
 	window()->setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 
 	if (APresence->xmppStream() && APresence->xmppStream()->connection())

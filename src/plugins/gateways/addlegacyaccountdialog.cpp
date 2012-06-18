@@ -346,9 +346,10 @@ void AddLegacyAccountDialog::onRegisterFields(const QString &AId, const IRegiste
 			if (!FGateLogin.oauthUrl.isEmpty())
 			{
 				LogDetail(QString("[AddLegacyAccountDialog][%1] OAuth registration requested, id='%2'").arg(AFields.serviceJid.full(),AId));
-				OAuthLoginDialog *dialog = new OAuthLoginDialog(FPresence,FGateLogin.oauthUrl,FGateLabel,FServiceJid,window());
+				OAuthLoginDialog *dialog = new OAuthLoginDialog(FPresence,FGateLogin.oauthUrl,FGateLabel,FServiceJid);
 				connect(dialog,SIGNAL(accepted()),SLOT(onOAuthLoginDialogAccepted()));
 				connect(dialog,SIGNAL(rejected()),SLOT(onOAuthLoginDialogRejected()));
+				connect(this,SIGNAL(rejected()),dialog,SLOT(reject()),Qt::QueuedConnection);
 				WidgetManager::showActivateRaiseWindow(dialog->window());
 				WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 				setWaitMode(true,tr("Waiting for authorization in %1...").arg(FGateLabel.name));
