@@ -65,7 +65,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FLocalCamera->setResizeEnabled(true);
 	FLocalCamera->setFrameShape(QLabel::Box);
 	FLocalCamera->setObjectName("vlbLocalCamera");
-	
+
 	FCtrlWidget = new CallControlWidget(APluginManager,ASipCall,ui.wdtControls);
 	FCtrlWidget->setMinimumWidthMode(true);
 	ui.wdtControls->setLayout(new QHBoxLayout);
@@ -74,11 +74,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	connect(FCtrlWidget,SIGNAL(silentButtonClicked()),SLOT(onSilentButtonClicked()));
 	connect(FCtrlWidget,SIGNAL(chatWindowRequested()),SIGNAL(chatWindowRequested()));
 
-#ifdef Q_WS_MAC
-	FFSButton = NULL;
-	FMinButton = NULL;
-	QWidget *videoButtons = NULL;
-#else
+#if !defined(Q_WS_MAC) || (defined (Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN))
 	QWidget *videoButtons = new QWidget(ui.wdtVideo);
 	videoButtons->setLayout(new QHBoxLayout);
 	videoButtons->layout()->setMargin(0);
@@ -91,13 +87,45 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	connect(FFSButton,SIGNAL(clicked()),SLOT(onFullScreenButtonClicked()));
 	videoButtons->layout()->addWidget(FFSButton);
 
+# if !defined(Q_WS_MAC)
 	FMinButton = new QToolButton(videoButtons);
 	FMinButton->setObjectName("tlbMinimize");
 	FMinButton->setToolTip(tr("Minimize"));
 	FMinButton->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_MINIMIZE));
 	connect(FMinButton,SIGNAL(clicked()),SLOT(onMinimizeButtonClicked()));
 	videoButtons->layout()->addWidget(FMinButton);
+# endif
+
+#elif defined (Q_WS_MAC)
+	FFSButton = NULL;
+	FMinButton = NULL;
+	QWidget *videoButtons = NULL;
 #endif
+
+//#ifdef Q_WS_MAC
+//	FFSButton = NULL;
+//	FMinButton = NULL;
+//	QWidget *videoButtons = NULL;
+//#else
+//	QWidget *videoButtons = new QWidget(ui.wdtVideo);
+//	videoButtons->setLayout(new QHBoxLayout);
+//	videoButtons->layout()->setMargin(0);
+//	videoButtons->layout()->setSpacing(0);
+
+//	FFSButton = new QToolButton(videoButtons);
+//	FFSButton->setObjectName("tlbFullScreen");
+//	FFSButton->setToolTip(tr("Change full screen mode on/off"));
+//	FFSButton->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_FULLSCREEN));
+//	connect(FFSButton,SIGNAL(clicked()),SLOT(onFullScreenButtonClicked()));
+//	videoButtons->layout()->addWidget(FFSButton);
+
+//	FMinButton = new QToolButton(videoButtons);
+//	FMinButton->setObjectName("tlbMinimize");
+//	FMinButton->setToolTip(tr("Minimize"));
+//	FMinButton->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_MINIMIZE));
+//	connect(FMinButton,SIGNAL(clicked()),SLOT(onMinimizeButtonClicked()));
+//	videoButtons->layout()->addWidget(FMinButton);
+//#endif
 
 	FVideoLayout = new VideoLayout(FRemoteCamera,FLocalCamera,videoButtons,ui.wdtVideo);
 	ui.wdtVideo->setLayout(FVideoLayout);

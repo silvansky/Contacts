@@ -118,6 +118,7 @@ void windowDidExitFullScreen(id self, SEL _cmd, id notification)
 // adding methods above to QCocoaWindowDelegate, which is singletone (! that's really important !)
 void initWindowDelegate(NSWindow *wnd)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	LogDetail("[initWindowDelegate]: Initializing NSWindowDelegate: adding -window*FullScreen: methods...");
 	id delegate = [wnd delegate];
 	Class delegateClass = [delegate class];
@@ -144,6 +145,9 @@ void initWindowDelegate(NSWindow *wnd)
 	// resetting delegate to get our methods work
 	[wnd setDelegate:nil];
 	[wnd setDelegate:delegate];
+#else
+	Q_UNUSED(wnd)
+#endif
 }
 
 // public functions
@@ -210,16 +214,16 @@ void setWindowShadowEnabled(QWidget *window, bool enabled)
 
 bool isWindowGrowButtonEnabled(const QWidget *window)
 {
-    if (window)
-        return [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] isEnabled] == YES;
-    else
-        return false;
+	if (window)
+		return [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] isEnabled] == YES;
+	else
+		return false;
 }
 
 void setWindowGrowButtonEnabled(QWidget *window, bool enabled)
 {
-    if (window)
-        [[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] setEnabled: (enabled ? YES : NO)];
+	if (window)
+		[[[nsViewFromWidget(window) window] standardWindowButton: NSWindowZoomButton] setEnabled: (enabled ? YES : NO)];
 }
 
 void hideWindow(void */* (NSWindow*) */ window)
@@ -230,6 +234,7 @@ void hideWindow(void */* (NSWindow*) */ window)
 
 void setWindowFullScreenEnabled(QWidget *window, bool enabled)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	initWindowDelegate(wnd);
 	NSWindowCollectionBehavior b = [wnd collectionBehavior];
@@ -243,16 +248,26 @@ void setWindowFullScreenEnabled(QWidget *window, bool enabled)
 		MacUtils::MacUtilsPrivate::fullScreenWidgets.remove(window->window());
 		[wnd setCollectionBehavior: b ^ NSWindowCollectionBehaviorFullScreenPrimary];
 	}
+#else
+	Q_UNUSED(window)
+	Q_UNUSED(enabled)
+#endif
 }
 
 bool isWindowFullScreenEnabled(const QWidget *window)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary;
+#else
+	Q_UNUSED(window)
+	return false;
+#endif
 }
 
 void setWindowFullScreen(QWidget *window, bool enabled)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	if (isWindowFullScreenEnabled(window))
 	{
 		bool isFullScreen = isWindowFullScreen(window);
@@ -275,12 +290,21 @@ void setWindowFullScreen(QWidget *window, bool enabled)
 			[wnd toggleFullScreen:nil];
 		}
 	}
+#else
+	Q_UNUSED(window)
+	Q_UNUSED(enabled)
+#endif
 }
 
 bool isWindowFullScreen(const QWidget *window)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	NSWindow *wnd = nsWindowFromWidget(window->window());
 	return [wnd styleMask] & NSFullScreenWindowMask;
+#else
+	Q_UNUSED(window)
+	return false;
+#endif
 }
 
 void setWindowOntop(QWidget *window, bool enabled)
@@ -333,16 +357,24 @@ bool isWindowShownOnAllSpaces(QWidget *window)
 
 void setAppFullScreenEnabled(bool enabled)
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	NSApplication *app = [NSApplication sharedApplication];
 	if (enabled)
 		[app setPresentationOptions: [app presentationOptions] | NSApplicationPresentationFullScreen];
 	else if (isAppFullScreenEnabled())
 		[app setPresentationOptions: [app presentationOptions] ^ NSApplicationPresentationFullScreen];
+#else
+	Q_UNUSED(enabled)
+#endif
 }
 
 bool isAppFullScreenEnabled()
 {
+#ifdef __MAC_OS_X_NATIVE_FULLSCREEN
 	return [[NSApplication sharedApplication] presentationOptions] & NSApplicationPresentationFullScreen;
+#else
+	return false;
+#endif
 }
 
 QString convertFromMacCyrillic(const char *str)

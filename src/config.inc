@@ -19,6 +19,16 @@ macx: {
   TARGET_LOADER          = ramblercontacts
 }
 
+macx: {
+	MACX_SL = $$system("[ `uname -r` \\< \"11.0.0\" ] && echo true || echo false")
+	contains(MACX_SL, "true") {
+		DEFINES += __MAC_OS_X_SNOW_LEOPARD
+	} else {
+		DEFINES += __MAC_OS_X_LION
+		DEFINES += __MAC_OS_X_NATIVE_FULLSCREEN
+	}
+}
+
 TARGET_UTILS             = ramblercontactsutils
 unix:!macx:VERSION_UTILS = 1.3.0
 
