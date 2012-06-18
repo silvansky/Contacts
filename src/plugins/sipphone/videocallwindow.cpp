@@ -143,14 +143,12 @@ void VideoCallWindow::saveWindowGeometry()
 	if (!FFirstRestore && !FCtrlWidget->isFullScreenMode())
 	{
 		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+		Options::setFileValue(ui.wdtControls->width(),"sipphone.videocall-window.control-width",ns);
+		Options::setFileValue(mapToGlobal(ui.wdtControls->geometry().topLeft()),"sipphone.videocall-window.control-top-left",ns);
 		if (FVideoVisible && FVideoShown)
 		{
 			FVideoLayout->saveLocalVideoGeometry();
-			Options::setFileValue(window()->geometry(),"sipphone.videocall-window.geometry",ns);
-		}
-		else if (!FVideoShown)
-		{
-			Options::setFileValue(window()->geometry(),"sipphone.audiocall-window.geometry",ns);
+			Options::setFileValue(ui.wdtVideo->height(),"sipphone.videocall-window.video-height",ns);
 		}
 	}
 }
@@ -159,34 +157,35 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 {
 	if (FFirstRestore || FVideoShown!=AShowVideo)
 	{
+		QRect newGeometry = window()->geometry();
 		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
-		QRect newGeometry = Options::fileValue(AShowVideo ? "sipphone.videocall-window.geometry" : "sipphone.audiocall-window.geometry",ns).toRect();
-		if (newGeometry.isEmpty())
+		if (FFirstRestore)
 		{
-			if (AShowVideo)
+			FFirstRestore = false;
+			int ctrlWidth = Options::fileValue("sipphone.videocall-window.control-width",ns).toInt();
+			QPoint ctrlTopLeft = Options::fileValue("sipphone.videocall-window.control-top-left",ns).toPoint();
+			if (ctrlWidth>0 && !ctrlTopLeft.isNull())
 			{
-				newGeometry = WidgetManager::alignGeometry(QSize(500,480),window());
-			}
-			else if (!FFirstRestore)
-			{
-				newGeometry = window()->geometry();
-				newGeometry.setTop(newGeometry.top()+ui.wdtVideo->height()/2);
-				newGeometry.setBottom(newGeometry.bottom()-(ui.wdtVideo->height()-ui.wdtVideo->height()/2));
-			}
-			else
-			{
-				newGeometry = window()->geometry();
+				newGeometry.setWidth(newGeometry.width() + (ctrlWidth - ui.wdtControls->width()));
+				newGeometry.moveTopLeft(newGeometry.topLeft() + (ctrlTopLeft - mapToGlobal(ui.wdtControls->geometry().topLeft())));
 			}
 		}
-		else if (!AShowVideo)
+		else
 		{
-			newGeometry.setHeight(FCtrlWidget->minimumSizeHint().height());
+			saveWindowGeometry();
+		}
+
+		if (AShowVideo)
+		{
+			int videoHeight = Options::fileValue("sipphone.videocall-window.video-height",ns).toInt();
+			videoHeight = videoHeight>100 ? videoHeight : 400;
+			newGeometry.setTop(newGeometry.top() - videoHeight);
+		}
+		else if (FVideoShown)
+		{
+			newGeometry.setTop(newGeometry.top() + ui.wdtVideo->height());
 		}
 		newGeometry = WidgetManager::correctWindowGeometry(newGeometry,this);
-
-		if (!FFirstRestore)
-			saveWindowGeometry();
-		FFirstRestore = false;
 
 		FAnimatingGeometry = true;
 		setVideoVisible(AShowVideo);
