@@ -37,7 +37,7 @@
 # include <qt_windows.h>
 # include <shellapi.h>
 #elif defined Q_WS_MAC
-# include "macwidgets.h"
+# include "macutils.h"
 #endif
 
 #define SHOW_IN_TASKBAR_FLAG (Qt::ToolTip)

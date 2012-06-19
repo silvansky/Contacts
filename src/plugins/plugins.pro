@@ -52,5 +52,4 @@ SUBDIRS += macintegration
 SUBDIRS += win7integration
 SUBDIRS += systemintegration
 SUBDIRS += tcptunnel
-
-win32-msvc2008: SUBDIRS += sipphone
+SUBDIRS += sipphone

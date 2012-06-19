@@ -6,6 +6,10 @@
 #include <QStyleOption>
 #include <QTextLayout>
 
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #include <definitions/textflags.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/resources.h>
@@ -53,10 +57,26 @@ void CustomLabel::setMultilineElideEnabled(bool on)
 
 QSize CustomLabel::sizeHint() const
 {
-	return QLabel::sizeHint();
+	QSize sh = QLabel::sizeHint();
+	//sh.setWidth(sh.width() + 1);
+	//sh.setHeight(sh.height() + 4);
+#ifdef DEBUG_ENABLED
+	qDebug() << "for text:" << text();
+	qDebug() << "  size hint:" << sh;
+#endif
+	QTextDocument *doc = textDocument();
+	sh = doc->documentLayout()->documentSize().toSize();
+#ifdef DEBUG_ENABLED
+	qDebug() << "  doc size:" << sh;
+#endif
+	sh += QSize(doc->documentMargin(), doc->documentMargin());
+#ifdef DEBUG_ENABLED
+	qDebug() << "  doc size with margin:" << sh;
+#endif
+	return sh;
 }
 
-void CustomLabel::paintEvent(QPaintEvent * pe)
+void CustomLabel::paintEvent(QPaintEvent *pe)
 {
 	if ((!text().isEmpty()) &&
 			(textFormat() == Qt::PlainText ||
@@ -97,6 +117,13 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 			break;
 		}
 
+		// magic numbers
+		int dx = -2;
+		int dy = -6;
+		// adding margins
+		dx += contentsMargins().left();
+		dy += contentsMargins().top();
+
 #if 1 // for debug set 0
 		QGraphicsDropShadowEffect *shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(shadowKey));
 #else
@@ -108,6 +135,7 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 		{
 			QImage shadowedText(size(), QImage::Format_ARGB32_Premultiplied);
 #if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
+			// TODO: fix that
 			shadowedText.fill(Qt::red); // DUNNO WHY!!!
 #else
 			shadowedText.fill(Qt::transparent);
@@ -117,14 +145,14 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 			tmpPainter.setRenderHint(QPainter::HighQualityAntialiasing);
 			tmpPainter.setRenderHint(QPainter::TextAntialiasing);
 			tmpPainter.setRenderHint(QPainter::SmoothPixmapTransform);
-			tmpPainter.translate(0, -2);
+			tmpPainter.translate(dx, dy);
 			doc->documentLayout()->draw(&tmpPainter, ctx);
 			painter.drawImage(0, 0, shadowedText);
 		}
 		else
 		{
 			painter.save();
-			painter.translate(0, -2);
+			painter.translate(dx, dy);
 			doc->documentLayout()->draw(&painter, ctx);
 			painter.restore();
 		}
@@ -212,6 +240,11 @@ QTextDocument *CustomLabel::textDocument() const
 	QTextDocument *doc = new QTextDocument;
 	doc->setDefaultFont(font());
 	doc->setPlainText(textToDraw);
+	doc->setTextWidth(wordWrap() ? contentsRect().width() - 1 : -1);
+	//doc->setPageSize(QSizeF(wordWrap() ? contentsRect().width() - 1 : -1, contentsRect().height() - 1));
+	QTextOption textOpt(alignment());
+	textOpt.setWrapMode(QTextOption::WordWrap);
+	doc->setDefaultTextOption(textOpt);
 	return doc;
 }
 
@@ -222,6 +255,7 @@ QAbstractTextDocumentLayout::PaintContext CustomLabel::textDocumentPaintContext(
 	QAbstractTextDocumentLayout::PaintContext ctx;
 	ctx.cursorPosition = -1;
 	ctx.palette = opt.palette;
+	ctx.clip = QRectF(contentsMargins().left(), contentsMargins().top(), contentsRect().width(), contentsRect().height());
 	if (hasSelectedText())
 	{
 		QAbstractTextDocumentLayout::Selection sel;

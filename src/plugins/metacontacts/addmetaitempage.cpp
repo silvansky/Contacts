@@ -15,12 +15,13 @@ AddMetaItemPage::AddMetaItemPage(IPluginManager *APluginManager, IMetaTabWindow 
 
 	FMetaTabWindow = AMetaTabWindow;
 	FDescriptor = ADescriptor;
-	
+
 	FRosterChanger = NULL;
 	FMessageProcessor = NULL;
 	initialize(APluginManager);
 
 	ui.lblInfo->setText(infoMessageForGate());
+	//ui.lblInfo->setElideMode(Qt::ElideRight);
 
 	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaTabWindow->metaRoster()->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
 	if (FAddWidget)
@@ -67,7 +68,7 @@ bool AddMetaItemPage::isActiveTabPage() const
 
 void AddMetaItemPage::assignTabPage()
 {
-	emit tabPageAssign();	
+	emit tabPageAssign();
 }
 
 void AddMetaItemPage::showTabPage()
