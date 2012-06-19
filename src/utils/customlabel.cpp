@@ -243,7 +243,8 @@ QTextDocument *CustomLabel::textDocument() const
 	doc->setTextWidth(wordWrap() ? contentsRect().width() - 1 : -1);
 	//doc->setPageSize(QSizeF(wordWrap() ? contentsRect().width() - 1 : -1, contentsRect().height() - 1));
 	QTextOption textOpt(alignment());
-	textOpt.setWrapMode(QTextOption::WordWrap);
+	textOpt.setWrapMode(wordWrap() ? QTextOption::WordWrap : QTextOption::NoWrap);
+	textOpt.setTextDirection(layoutDirection());
 	doc->setDefaultTextOption(textOpt);
 	return doc;
 }
