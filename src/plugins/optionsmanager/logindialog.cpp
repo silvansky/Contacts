@@ -314,10 +314,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
 
-#ifndef DEBUG_ENABLED
-	ui.cmbDomain->setVisible(false);
-#else
+#ifdef DEBUG_CUSTOMDOMAIN
 	ui.tlbDomain->setVisible(false);
+#else
+	ui.cmbDomain->setVisible(false);
 #endif
 
 	QStringList profiles;
@@ -408,10 +408,10 @@ void LoginDialog::connectIfReady()
 
 Jid LoginDialog::currentStreamJid() const
 {
-#ifndef DEBUG_ENABLED
-	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
-#else
+#ifdef DEBUG_CUSTOMDOMAIN
 	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+#else
+	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
 #endif
 	return streamJid;
 }
@@ -646,12 +646,12 @@ void LoginDialog::showErrorBalloon()
 		QPoint point;
 		if (FNewProfile)
 		{
-#ifndef DEBUG_ENABLED
-			point = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
-			point.setY(point.y() + ui.tlbDomain->height() / 2);
-#else
+#ifdef DEBUG_CUSTOMDOMAIN
 			point = ui.cmbDomain->mapToGlobal(ui.cmbDomain->rect().topRight());
 			point.setY(point.y() + ui.cmbDomain->height() / 2);
+#else
+			point = ui.tlbDomain->mapToGlobal(ui.tlbDomain->rect().topRight());
+			point.setY(point.y() + ui.tlbDomain->height() / 2);
 #endif
 		}
 		else

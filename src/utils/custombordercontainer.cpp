@@ -29,7 +29,7 @@
 #include "custombordercontainer_p.h"
 #include "imagemanager.h"
 
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMBORDER
 # include <QDebug>
 #endif
 
@@ -343,7 +343,7 @@ void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement
 			border.image = image.attribute("src");
 			border.imageFillingStyle = parseImageFillingStyle(image.attribute("image-filling-style"));
 		}
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMBORDER
 		if (border.width && (border.image.isEmpty() && !border.gradient))
 		{
 			qDebug() << "CustomBorderContainerPrivate::parseBorder: no background set for non-zero border!" << borderElement.tagName();
@@ -1016,7 +1016,7 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->globalPos(), widget);
 
-#if defined(DEBUG_ENABLED) && defined(DEBUG_CUSTOMBORDER)
+#if defined(DEBUG_CUSTOMBORDER)
 		qDebug() << "handled = " << handled << " " << widget->objectName()
 			 << " of class " << widget->metaObject()->className()
 			 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");

@@ -9,10 +9,6 @@
 #include "notifykindswidgets.h"
 #include "systemnotifypreferences.h"
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 #define FIRST_KIND                      0x0001
 #define LAST_KIND                       0x8000
 #define UNDEFINED_KINDS                 0xFFFF

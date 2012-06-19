@@ -8,7 +8,7 @@
 #include <QTimer>
 #include <QDateTime>
 
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 # include <QDebug>
 #endif
 
@@ -30,7 +30,7 @@ public:
 		image = _image;
 		interval = _interval;
 		id = getId();
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 		qDebug() << QString("[Statistics::Counter]: Creating counter with url %1, interval %2 (assigned id %3)").arg(_url).arg(_interval).arg(id);
 #endif
 		LogDetail(QString("[Statistics::Counter]: Creating counter with url %1, interval %2 (assigned id %3)").arg(_url).arg(_interval).arg(id));
@@ -53,7 +53,7 @@ public:
 	}
 	~Counter()
 	{
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 		qDebug() << QString("[Statistics::Counter]: Deleting counter %1 with url %2").arg(id).arg(url);
 #endif
 		LogDetail(QString("[Statistics::Counter]: Deleting counter %1 with url %2").arg(id).arg(url));
@@ -64,7 +64,7 @@ public:
 protected slots:
 	void onTimer()
 	{
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 		qDebug() << QString("[Statistics::Counter]: Activating counter %1 with url %2").arg(id).arg(url);
 #endif
 		LogDetail(QString("[Statistics::Counter]: Activating counter %1 with url %2").arg(id).arg(url));
@@ -125,7 +125,7 @@ void Statistics::initCounters()
 
 void Statistics::release()
 {
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 	qDebug() << "[Statistics::release]: Releasing statistics";
 #endif
 	if (inst)
@@ -166,7 +166,7 @@ void Statistics::saveSettings() const
 	QVariantList settings;
 	foreach (Counter *c, counters)
 	{
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 		qDebug() << QString("[Statistics::saveSettings]: Saving state of counter %1 (url %2)").arg(c->id).arg(c->url);
 #endif
 		QVariantMap counterSettings;
@@ -198,7 +198,7 @@ void Statistics::loadSettings()
 			int interval = counterSettings.value(COUNTER_KEY_INTERVAL).toInt();
 			QDateTime lastTimeout = counterSettings.value(COUNTER_KEY_LAST_TIMEOUT).toDateTime();
 			bool execNow = lastTimeout.msecsTo(QDateTime::currentDateTime()) > interval;
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_STATISTICS
 			qDebug() << QString("[Statistics::loadSettings]: Loading state of counter %1 (url %2)").arg(id).arg(url);
 #endif
 			Counter *c = new Counter(url, image, interval, execNow);

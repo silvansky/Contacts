@@ -1,16 +1,5 @@
 #include "pluginmanager.h"
 
-#include <utils/log.h>
-#include <utils/options.h>
-#include <utils/statistics.h>
-#include <utils/networking.h>
-#include <definitions/fonts.h>
-#include <definitions/resources.h>
-#include <interfaces/imainwindow.h>
-#include <utils/custominputdialog.h>
-#include <utils/customborderstorage.h>
-#include <interfaces/isystemintegration.h>
-
 #include <QTimer>
 #include <QStack>
 #include <QProcess>
@@ -20,9 +9,17 @@
 #include <QLibraryInfo>
 #include <QFontDatabase>
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
+#include <definitions/fonts.h>
+#include <definitions/resources.h>
+#include <interfaces/imainwindow.h>
+#include <interfaces/isystemintegration.h>
+#include <utils/log.h>
+#include <utils/options.h>
+#include <utils/statistics.h>
+#include <utils/networking.h>
+#include <utils/systemmanager.h>
+#include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 
 #define DELAYED_QUIT_TIMEOUT        5000
 #define DELAYED_COMMIT_TIMEOUT      2000
@@ -329,6 +326,7 @@ void PluginManager::loadSettings()
 		Log::setLogTypes(types);
 		Log::setLogFormat(Log::Simple);
 		Log::setLogPath(logDir.absolutePath());
+		LogDetail(QString("[PluginManager] %1 v%2 %3").arg(CLIENT_NAME, CLIENT_VERSION, SystemManager::systemOSVersion()));
 	}
 #endif
 
@@ -355,22 +353,18 @@ void PluginManager::loadSettings()
 		{
 			QStringList counterData = QString::fromUtf8(counterFile.readAll()).split(';');
 			QString id = counterData.value(0, "self");
+			if (id.isEmpty())
+				id = "self";
+
 			bool ok = true;
 			int interval = counterData.value(1, "default").toInt(&ok);
 			if (!ok)
 				interval = 24 * 60 * 60 * 1000; // 24 hours
 
-			if (id.isEmpty())
-				id = "self";
-#ifdef DEBUG_ENABLED
-			qDebug() << QString("Loaded rambler usage counter from %1, id is %2").arg(counterFile.fileName(), id);
-#endif
 			Statistics::instance()->addCounter(QString("http://www.rambler.ru/r/p?event=usage&rpid=%1&appid=contact").arg(id), Statistics::Image, interval);
 			Options::setGlobalValue(COUNTER_LOADED_OPTION, true);
 			if (!counterFile.remove())
-			{
 				LogError(QString("[PluginManager::loadSettings]: Failed to remove file %1!").arg(counterFile.fileName()));
-			}
 		}
 	}
 

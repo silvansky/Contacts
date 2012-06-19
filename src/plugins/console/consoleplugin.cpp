@@ -50,6 +50,7 @@ bool ConsolePlugin::initObjects()
 		showConsoleShortcut->setKey(QKeySequence("Ctrl+Alt+Shift+C"));
 		showConsoleShortcut->setEnabled(true);
 		connect(showConsoleShortcut, SIGNAL(activated()), SLOT(onShowXMLConsole()));
+
 #ifdef DEBUG_ENABLED
 		Action *action = new Action(FMainWindowPlugin->mainWindow()->mainMenu());
 		action->setText(tr("XML Console"));

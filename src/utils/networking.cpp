@@ -63,8 +63,6 @@ NetworkingPrivate::NetworkingPrivate()
 	loop = new QEventLoop();
 	connect(nam, SIGNAL(finished(QNetworkReply*)), loop, SLOT(quit()));
 	connect(nam, SIGNAL(finished(QNetworkReply*)), SLOT(onFinished(QNetworkReply*)));
-	_cookiePath = qApp->applicationDirPath();
-	jar->loadCookies(_cookiePath);
 }
 
 NetworkingPrivate::~NetworkingPrivate()

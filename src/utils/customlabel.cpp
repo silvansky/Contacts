@@ -4,10 +4,6 @@
 #include <QStyleOption>
 #include <definitions/textflags.h>
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 CustomLabel::CustomLabel(QWidget *parent) :
 	QLabel(parent)
 {

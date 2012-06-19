@@ -1,5 +1,10 @@
 #include "log.h"
 
+#ifdef Q_OS_UNIX
+# include <execinfo.h>
+# include <stdlib.h>
+#endif
+
 #include <QDir>
 #include <QFile>
 #include <QLocale>
@@ -7,10 +12,6 @@
 #include <QDateTime>
 #include <QApplication>
 #include <QTextDocument>
-#ifdef Q_OS_UNIX
-# include <execinfo.h>
-# include <stdlib.h>
-#endif
 #include <definitions/version.h>
 #include <definitions/applicationreportparams.h>
 #include "datetime.h"

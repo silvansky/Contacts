@@ -24,13 +24,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 
 	FActiveNotice = -1;
 
-#ifdef DEBUG_ENABLED
-	// 5 sec in debug
-	FReadyTimer.setInterval(5*1000);
-#else
-	// 1 hour in release
 	FReadyTimer.setInterval(60*60*1000);
-#endif
 	FReadyTimer.setSingleShot(false);
 	connect(&FReadyTimer,SIGNAL(timeout()),SLOT(onReadyTimerTimeout()));
 	FReadyTimer.start();

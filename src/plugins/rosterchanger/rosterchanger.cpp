@@ -25,10 +25,6 @@
 #define ADR_NOTIFY_ID       Action::DR_UserDefined+2
 #define ADR_NOTICE_ACTION   Action::DR_UserDefined+3
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 static const QList<int> DragGroups = QList<int>() << RIT_GROUP << RIT_GROUP_BLANK;
 
 enum NoticeActions

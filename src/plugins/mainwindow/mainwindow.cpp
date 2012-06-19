@@ -173,6 +173,7 @@ void MainWindow::createMenus()
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
 	connect(FMainMenu, SIGNAL(aboutToShow()), SLOT(onMainMenuAboutToShow()));
 	connect(FMainMenu, SIGNAL(aboutToHide()), SLOT(onMainMenuAboutToHide()));
+
 #if (!defined(Q_WS_MAC)) || defined(DEBUG_ENABLED)
 	QToolButton *button = FTopToolBarChanger->insertAction(FMainMenu->menuAction(), TBG_MWTTB_MAINWINDOW_MAINMENU);
 	button->setObjectName("mainMenuButton");
