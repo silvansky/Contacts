@@ -1,8 +1,11 @@
 #ifndef CUSTOMLABEL_H
 #define CUSTOMLABEL_H
 
-#include <QLabel>
 #include "utilsexport.h"
+
+#include <QLabel>
+#include <QTextDocument>
+#include <QAbstractTextDocumentLayout>
 
 class UTILS_EXPORT CustomLabel : public QLabel
 {
@@ -25,10 +28,14 @@ public:
 	void setElideMode(/*Qt::TextElideMode*/ int mode);
 	bool multilineElideEnabled() const;
 	void setMultilineElideEnabled(bool on);
+public:
+	virtual QSize sizeHint() const;
 protected:
 	void paintEvent(QPaintEvent *);
-signals:
-protected slots:
+private:
+	QString elidedText() const;
+	QTextDocument *textDocument() const;
+	QAbstractTextDocumentLayout::PaintContext textDocumentPaintContext(QTextDocument *doc) const;
 private:
 	ShadowType shadowType;
 	Qt::TextElideMode textElideMode;

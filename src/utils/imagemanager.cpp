@@ -4,21 +4,8 @@
 #include <QPainter>
 #include <QBitmap>
 
-QImage ImageManager::grayscaled(const QImage & image)
+QImage ImageManager::grayscaled(const QImage &image)
 {
-	// TODO: test speed of both methods
-	/*static QVector<QRgb> monoTable;
-	if (monoTable.isEmpty())
-	{
-		for (int i = 0; i <= 255; i++)
-			monoTable.append(qRgb(i, i, i));
-	}
-	QImage gray(image.size(), QImage::Format_ARGB32);
-	QPainter p(&gray);
-	p.drawImage(0, 0, image.convertToFormat(QImage::Format_Indexed8, monoTable));
-	p.end();
-	return gray;*/
-
 	QImage img = image;
 	if (!image.isNull())
 	{
@@ -36,7 +23,7 @@ QImage ImageManager::grayscaled(const QImage & image)
 	return img;
 }
 
-QImage ImageManager::squared(const QImage & image, int size)
+QImage ImageManager::squared(const QImage &image, int size)
 {
 	if (!image.isNull())
 	{
@@ -61,7 +48,7 @@ QImage ImageManager::squared(const QImage & image, int size)
 	return QImage();
 }
 
-QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
+QImage ImageManager::roundSquared(const QImage &image, int size, int radius)
 {
 	if (!image.isNull())
 	{
@@ -87,7 +74,7 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 	return QImage();
 }
 
-QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)
+QImage ImageManager::addShadow(const QImage &image, QColor color, QPoint offset, bool canResize)
 {
 	Q_UNUSED(canResize)
 	if (!image.isNull())
@@ -107,14 +94,15 @@ QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset
 
 		p.drawImage(0, 0, tmp);
 
-		p.drawPixmap(0, 0, QPixmap::fromImage(image));
+		p.drawImage(0, 0, image);
+		//p.drawPixmap(0, 0, QPixmap::fromImage(image));
 		p.end();
 		return shadowed;
 	}
 	return QImage();
 }
 
-QImage ImageManager::colorized(const QImage & image, QColor color)
+QImage ImageManager::colorized(const QImage &image, QColor color)
 {
 	if (!image.isNull())
 	{
@@ -130,7 +118,7 @@ QImage ImageManager::colorized(const QImage & image, QColor color)
 	return QImage();
 }
 
-QImage ImageManager::opacitized(const QImage & image, double opacity)
+QImage ImageManager::opacitized(const QImage &image, double opacity)
 {
 	if (!image.isNull())
 	{
@@ -146,7 +134,7 @@ QImage ImageManager::opacitized(const QImage & image, double opacity)
 	return QImage();
 }
 
-QImage ImageManager::addSpace(const QImage & image, int left, int top, int right, int bottom)
+QImage ImageManager::addSpace(const QImage &image, int left, int top, int right, int bottom)
 {
     if (!image.isNull())
     {
@@ -161,7 +149,7 @@ QImage ImageManager::addSpace(const QImage & image, int left, int top, int right
 	return QImage();
 }
 
-QImage ImageManager::rotatedImage(const QImage & image, qreal angle)
+QImage ImageManager::rotatedImage(const QImage &image, qreal angle)
 {
 	if (!image.isNull())
 	{
@@ -181,7 +169,7 @@ QImage ImageManager::rotatedImage(const QImage & image, qreal angle)
 	return QImage();
 }
 
-void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter *painter)
 {
 	if (!image.isNull())
 	{
@@ -248,12 +236,12 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 	}
 }
 
-void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter)
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter *painter)
 {
 	drawNinePartImage(image, paintRect, border, border, border, border, painter);
 }
 
-QColor ImageManager::resolveColor(const QString & name)
+QColor ImageManager::resolveColor(const QString &name)
 {
 	QColor color;
 	if (QColor::isValidColor(name))

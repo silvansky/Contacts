@@ -9,14 +9,28 @@ CONFIG(debug, debug|release) {
   # release definitions
 }
 
+!contains(DEFINES, WITHOUT_PHONON) {
+  DEFINES               += USE_PHONON
+}
+
 macx: {
   TARGET_LOADER          = Contacts
 } else {
   TARGET_LOADER          = ramblercontacts
 }
 
+macx: {
+	MACX_SL = $$system("[ `uname -r` \\< \"11.0.0\" ] && echo true || echo false")
+	contains(MACX_SL, "true") {
+		DEFINES += __MAC_OS_X_SNOW_LEOPARD
+	} else {
+		DEFINES += __MAC_OS_X_LION
+		DEFINES += __MAC_OS_X_NATIVE_FULLSCREEN
+	}
+}
+
 TARGET_UTILS             = ramblercontactsutils
-unix:!macx:VERSION_UTILS = 1.2.0
+unix:!macx:VERSION_UTILS = 1.3.0
 
 #Configurable values
 isEmpty(INSTALL_PREFIX) {

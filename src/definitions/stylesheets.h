@@ -70,8 +70,8 @@
 #define STS_ROSTERVIEW_TOOLTIP                                          "rosterviewToolTip"
 
 //SipPhone
-#define STS_SIPPHONE_TABBARITEM_CALL                                    "sipphoneTabBarItemCall"
-#define STS_SIPPHONE_NOTIFYWIDGET_CALL                                  "sipphoneNotifyWidgetCall"
+#define STS_SIPPHONE_VIDEOCALLWINDOW                                    "sipphoneVideoCallWindow"
+#define STS_SIPPHONE_CALLCONTROLWIDGET                                  "sipphoneCallControlWidget"
 
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"
@@ -87,10 +87,6 @@
 
 //VCard
 #define STS_VCARDSIMPLEVCARDDIALOG                                      "vcardSimpleVCardDialog"
-
-//SipPhone
-#define STS_SIPPHONE                                                    "sipphone"
-#define STS_SIPPHONE_CALL_NOTIFYER                                      "sipCallNotifyer"
 
 //Gateways
 #define STS_GATEWAYS_OAUTHLOGINDIALOG                                   "gatewaysOAuthLoginDialog"

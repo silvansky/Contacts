@@ -5,7 +5,7 @@
 #include <QDesktopWidget>
 #include <utils/custominputdialog.h>
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 #define ADR_GATE_DESCRIPTOR_ID      Action::DR_Parametr1

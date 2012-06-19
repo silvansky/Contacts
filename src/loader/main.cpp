@@ -8,6 +8,7 @@
 #include <QScopedPointer>
 #include <definitions/commandline.h>
 #include <definitions/applicationreportparams.h>
+#include <definitions/version.h>
 #include <utils/log.h>
 #include <utils/networking.h>
 #include "pluginmanager.h"
@@ -16,6 +17,10 @@
 
 #ifdef Q_WS_WIN32
 # include <thirdparty/holdemutils/RHoldemModule.h>
+#endif
+
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
 #endif
 
 void generateSegfaultReport(int ASigNum)
@@ -32,12 +37,12 @@ void generateSegfaultReport(int ASigNum)
 
 int main(int argc, char *argv[])
 {
-#ifndef DEBUG_ENABLED // Позволяем отладчику обрабатывать эти ошибки
+#ifndef DEBUG_ENABLED // Catching these signals for release build
 	foreach(int sig, QList<int>() << SIGSEGV << SIGILL << SIGFPE << SIGTERM << SIGABRT)
 		signal(sig, generateSegfaultReport);
 #endif
 
-	// Генерируем уникальный идентификатор системы
+	// Generating system UUID
 	QSettings settings(QSettings::NativeFormat,QSettings::UserScope,"Rambler");
 	QUuid systemUuid = settings.value("system/uuid").toString();
 	if (systemUuid.isNull())
@@ -47,7 +52,7 @@ int main(int argc, char *argv[])
 	}
 	Log::setStaticReportParam(ARP_SYSTEM_UUID,systemUuid.toString());
 
-	//Ищем наличие ключа -checkinstall
+	// Checking for "--checkinstall" argument
 	for (int i=1; i<argc; i++)
 	{
 		if (!strcmp(argv[i],CLO_CHECK_INSTALL))
@@ -76,13 +81,17 @@ int main(int argc, char *argv[])
 #endif
 
 	SingleApp app(argc, argv, "Rambler.Contacts");
+	app.setApplicationName(CLIENT_NAME);
+	app.setApplicationVersion(CLIENT_VERSION);
 
-#ifndef DEBUG_ENABLED
+#if !defined(Q_WS_MAC)
+# ifndef DEBUG_ENABLED
 	if (app.isRunning())
 	{
 		app.sendMessage("show");
 		return 0;
 	}
+# endif
 #endif
 
 	app.setQuitOnLastWindowClosed(false);
@@ -104,6 +113,7 @@ int main(int argc, char *argv[])
 
 #ifdef Q_WS_MAC
 	app.addLibraryPath(app.applicationDirPath() + "/../PlugIns");
+	setAppFullScreenEnabled(true);
 #endif
 
 	// plugin manager

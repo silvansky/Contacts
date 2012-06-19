@@ -292,12 +292,15 @@ bool SystemManager::isWorkstationLocked()
 
 bool SystemManager::isScreenSaverRunning()
 {
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 	BOOL aRunning;
 	if (SystemParametersInfo(SPI_GETSCREENSAVERRUNNING,0,&aRunning,0))
 		return aRunning;
+#elif defined(Q_WS_MAC)
+	//int ec = QProcess::execute("ps -ax | grep [S]creenSaverEngine > /dev/null");
+	//return (ec == 0);
 #endif
-	// TODO: Linux and MacOSX implementations
+	// TODO: Linux implementation
 	return false;
 }
 

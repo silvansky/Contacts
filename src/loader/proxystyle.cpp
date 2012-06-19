@@ -18,11 +18,11 @@ void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, c
 			shadowType = TF_LIGHTSHADOW;
 		if (shadowType != TF_NOSHADOW)
 		{
-			QGraphicsDropShadowEffect * shadow;
+			QGraphicsDropShadowEffect *shadow;
 			if (shadowType == TF_DARKSHADOW)
-				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
+				shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
 			else
-				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_NOTICEWIDGET));
+				shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_NOTICEWIDGET));
 			if (shadow)
 			{
 				QRect shadowRect(rect);

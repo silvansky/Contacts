@@ -34,7 +34,7 @@ void CookieJar::loadCookies(const QString & cookiePath)
 	}
 	else
 	{
-		LogError("[CookieJar] Failed to load cookies: " + file.errorString());
+		LogError(QString("[CookieJar] Failed to load cookies from %1: %2").arg(cookiePath + "/cookies.dat", file.errorString()));
 	}
 }
 
@@ -50,7 +50,7 @@ void CookieJar::saveCookies(const QString & cookiePath)
 	}
 	else
 	{
-		LogError("[CookieJar] Failed to save cookies: " + file.errorString());
+		LogError(QString("[CookieJar] Failed to save cookies to %1: %2").arg(cookiePath + "/cookies.dat", file.errorString()));
 	}
 }
 

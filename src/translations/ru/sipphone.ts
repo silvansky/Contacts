@@ -2,237 +2,143 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>AVControl</name>
-    <message>
-        <source>Failed to find the microphone</source>
-        <translation>Не удалось найти подключенный микрофон</translation>
-    </message>
-    <message>
-        <source>Turn off microphone</source>
-        <translation>Выключить микрофон</translation>
-    </message>
-    <message>
-        <source>Turn on microphone</source>
-        <translation>Включить микрофон</translation>
-    </message>
-    <message>
-        <source>Failed to find a web camera on your computer</source>
-        <translation>Не удалось найти веб-камеру на вашем компьютере</translation>
-    </message>
-    <message>
-        <source>Turn off web camera</source>
-        <translation>Выключить вебкамеру</translation>
-    </message>
-    <message>
-        <source>Turn on web camera</source>
-        <translation>Включить вебкамеру</translation>
-    </message>
-    <message>
-        <source>High quality video is not available</source>
-        <translation>Видео высокой четкости недоступно</translation>
-    </message>
-    <message>
-        <source>Turn off high quality video</source>
-        <translation>Выключить видео высокой четкости</translation>
-    </message>
-    <message>
-        <source>Turn on high quality video</source>
-        <translation>Включить видео высокой четкости</translation>
-    </message>
-</context>
-<context>
-    <name>ComplexVideoWidget</name>
-    <message>
-        <source>Camera OFF</source>
-        <translation>Камера выключена</translation>
-    </message>
-</context>
-<context>
-    <name>ContactSelector</name>
-    <message>
-        <source>ContactSelector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>AddContact</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>FullScreenControls</name>
-    <message>
-        <source>Hangup</source>
-        <translation>Отклонить</translation>
-    </message>
-    <message>
-        <source>Toggle full screen on/off</source>
-        <translation>Переключить полноэкранный режим вкл/выкл</translation>
-    </message>
-</context>
-<context>
-    <name>QImageLabel</name>
-    <message>
-        <source>no image</source>
-        <translation>Нет изображения</translation>
-    </message>
-</context>
-<context>
-    <name>RCallControl</name>
-    <message>
-        <source>Accept</source>
-        <translation>Принять</translation>
-    </message>
-    <message>
-        <source>Hangup</source>
-        <translation>Отклонить</translation>
-    </message>
-    <message>
-        <source>Calling failure...</source>
-        <translation>Вызов не удался...</translation>
-    </message>
-    <message>
-        <source>Call again</source>
-        <translation>Перезвонить</translation>
-    </message>
-    <message>
-        <source>Registering on call server...</source>
-        <translation>Регистрация на сервере...</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>Outgoing Call...</source>
-        <translation>Исходящий вызов...</translation>
-    </message>
-    <message>
-        <source>Incoming Call...</source>
-        <translation>Входящий вызов...</translation>
-    </message>
-    <message>
-        <source>No answer...</source>
-        <translation>Нет ответа...</translation>
-    </message>
-    <message>
-        <source>Missed Call...</source>
-        <translation>Пропущенный вызов...</translation>
-    </message>
-    <message>
-        <source>Callback</source>
-        <translation>Перезвонить</translation>
-    </message>
-    <message>
-        <source>Call Error...</source>
-        <translation>Ошибка при попытке вызова...</translation>
-    </message>
-    <message>
-        <source>Accepted</source>
-        <translation>Звонок принят</translation>
-    </message>
-</context>
-<context>
-    <name>RSipPhone</name>
-    <message>
-        <source>Call from %1</source>
-        <translation>Звонок от %1</translation>
-    </message>
+    <name>CallControlWidget</name>
     <message>
         <source>Call to %1</source>
         <translation>Звонок к %1</translation>
     </message>
     <message>
-        <source>Failed to find default audio device</source>
-        <translation>Не удалось найти найти аудио устройство</translation>
+        <source>Call from %1</source>
+        <translation>Звонок от %1</translation>
+    </message>
+    <message>
+        <source>Initializing...</source>
+        <translation>Инициализация...</translation>
+    </message>
+    <message>
+        <source>Calling...</source>
+        <translation>Вызов...</translation>
+    </message>
+    <message>
+        <source>Connecting...</source>
+        <translation>Подключение...</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Подключено</translation>
+    </message>
+    <message>
+        <source>Call finished</source>
+        <translation>Звонок завершен</translation>
+    </message>
+    <message>
+        <source>Disable the camera</source>
+        <translation>Отключить камеру</translation>
+    </message>
+    <message>
+        <source>Enable the camera</source>
+        <translation>Включить камеру</translation>
+    </message>
+    <message>
+        <source>Camera is not available</source>
+        <translation>Камера отсутствует</translation>
+    </message>
+    <message>
+        <source>Disable the microphone</source>
+        <translation>Выключить микрофон</translation>
+    </message>
+    <message>
+        <source>Enable the microphone</source>
+        <translation>Включить микрофон</translation>
+    </message>
+    <message>
+        <source>Microphone is not available</source>
+        <translation>Микрофон отсутствует</translation>
     </message>
 </context>
 <context>
-    <name>RVolumeControl</name>
+    <name>CallControlWidgetClass</name>
     <message>
         <source>Volume control</source>
         <translation>Регулятор громкости</translation>
     </message>
-</context>
-<context>
-    <name>SipCallNotifyer</name>
     <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <source>Accept call</source>
+        <translation>Принять</translation>
     </message>
     <message>
-        <source>avatar</source>
-        <translation type="unfinished"></translation>
+        <source>Reject call</source>
+        <translation>Отклонить</translation>
     </message>
     <message>
-        <source>icon</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>caption</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>notice</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 calling</source>
-        <translation>%1 звонит</translation>
+        <source>Mute and hide</source>
+        <translation>Отключить звук и спрятать</translation>
     </message>
 </context>
 <context>
-    <name>SipPhone</name>
+    <name>SipCall</name>
     <message>
-        <source>SIP Phone</source>
-        <translation>SIP-телефон</translation>
+        <source>Connection error</source>
+        <translation>Ошибка подключения</translation>
+    </message>
+    <message>
+        <source>Undefined error</source>
+        <translation>Неопределенная ошибка</translation>
+    </message>
+    <message>
+        <source>The called user could not accept the call</source>
+        <translation>Вызываемый абонент не может принять звонок</translation>
+    </message>
+    <message>
+        <source>The called user did not accept the call</source>
+        <translation>Вызываемый абонент не принял звонок</translation>
+    </message>
+    <message>
+        <source>The called user rejected the call</source>
+        <translation>Вызываемый абонент отклонил звонок</translation>
+    </message>
+    <message>
+        <source>The called user is now talking</source>
+        <translation>Вызываемый абонент сейчас разговаривает</translation>
+    </message>
+</context>
+<context>
+    <name>SipManager</name>
+    <message>
+        <source>SIP Manager</source>
+        <translation>SIP манеждер</translation>
     </message>
     <message>
         <source>Allows to make voice and video calls over SIP protocol</source>
         <translation>Позволяет делать аудио- и видеозвонки через SIP-протокол</translation>
     </message>
     <message>
-        <source>Accept</source>
-        <translation>Принять</translation>
+        <source>SIP voice and video calls</source>
+        <translation>Голосовые и видеозвонки через SIP</translation>
     </message>
     <message>
-        <source>Decline</source>
-        <translation>Отклонить</translation>
+        <source>Default</source>
+        <translation>По умолчанию</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n missed call(s)</source>
+        <translation>
+            <numerusform>%n пропущенный вызов</numerusform>
+            <numerusform>%n пропущенных вызова</numerusform>
+            <numerusform>%n пропущенных вызовов</numerusform>
+        </translation>
     </message>
     <message>
-        <source>Call</source>
-        <translation>Позвонить</translation>
+        <source>Calling to...</source>
+        <translation>Звоним...</translation>
     </message>
     <message>
         <source>Calling you...</source>
         <translation>Звонит вам...</translation>
     </message>
     <message>
-        <source>SIP voice and video calls</source>
-        <translation>Голосовые и видеозвонки через SIP</translation>
-    </message>
-    <message>
-        <source>Call failure</source>
-        <translation>Ошибка вызова</translation>
-    </message>
-    <message>
-        <source>Calls NOT supported for current contact</source>
-        <translation>Вызов этого контакта не может быть осуществлён</translation>
-    </message>
-    <message>
-        <source>Incoming call</source>
-        <translation>Входящий вызов</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>Ок</translation>
-    </message>
-    <message>
-        <source>Add Contact</source>
-        <translation>Добавить контакт</translation>
+        <source>Call in progress...</source>
+        <translation>Идет разговор...</translation>
     </message>
     <message>
         <source>Calling to %1.</source>
@@ -251,16 +157,28 @@
         <translation>Звонок к %1 отменен.</translation>
     </message>
     <message>
+        <source>%1 is now talking. Call later.</source>
+        <translation>%1 сейчас разговаривает. Перезвоните позднее.</translation>
+    </message>
+    <message>
+        <source>%1 could not accept the call.</source>
+        <translation>%1 не смог принять звонок.</translation>
+    </message>
+    <message>
+        <source>%1 did not accept the call.</source>
+        <translation>%1 не принял звонок.</translation>
+    </message>
+    <message>
+        <source>Call failed, unable to establish connection with %1.</source>
+        <translation>Звонок не удался, невозможно установить подключение с %1.</translation>
+    </message>
+    <message>
+        <source>Call to %1 has failed. Reason: %2.</source>
+        <translation>Звонок к %1 не удался. Причина: %2.</translation>
+    </message>
+    <message>
         <source>%1 calling you.</source>
         <translation>%1 звонит Вам.</translation>
-    </message>
-    <message>
-        <source>Missed call from %1.</source>
-        <translation>Пропущен звонок от %1.</translation>
-    </message>
-    <message>
-        <source>%1 is not responding.</source>
-        <translation>%1 не отвечает.</translation>
     </message>
     <message>
         <source>Call from %1.</source>
@@ -271,32 +189,62 @@
         <translation>Звонок от %1 завершен, продолжительность %2.</translation>
     </message>
     <message>
+        <source>Call from %1 accepted.</source>
+        <translation>Звонок от %1 принят.</translation>
+    </message>
+    <message>
+        <source>Missed call.</source>
+        <translation>Пропущенный звонок.</translation>
+    </message>
+    <message>
         <source>Call from %1 canceled.</source>
         <translation>Звонок от %1 отменен.</translation>
     </message>
-    <message numerus="yes">
-        <source>%n missed call(s)</source>
-        <translation>
-            <numerusform>%n пропущенный вызов</numerusform>
-            <numerusform>%n пропущенных вызова</numerusform>
-            <numerusform>%n пропущенных вызовов</numerusform>
-        </translation>
+    <message>
+        <source>Call from %1 has failed. Reason: %2.</source>
+        <translation>Звонок от %1 не удался. Причина: %2.</translation>
     </message>
     <message>
-        <source>Registration on SIP server has failed.</source>
-        <translation>Регистрация на SIP-сервере не удалась.</translation>
+        <source>Audio Call</source>
+        <translation>Аудиозвонок</translation>
     </message>
     <message>
-        <source>%1 is not responding. Reason: %2</source>
-        <translation>%1 не отвечает. Причина %2</translation>
+        <source>Video Call</source>
+        <translation>Видеозвонок</translation>
     </message>
     <message>
-        <source>Call to %1 has failed. Reason: %2</source>
-        <translation>Звонок к %1 не удался. Причина: %2</translation>
+        <source>Add Number...</source>
+        <translation>Добавить номер...</translation>
     </message>
     <message>
-        <source>Call abort by caller side! Reason: %1</source>
-        <translation>Звонок отменен на вызывающей стороне. Причина: %1</translation>
+        <source>You can make free calls to other Rambler Contacts users</source>
+        <translation>Вы можете бесплатно звонить другим пользователям Рамблер Контактов</translation>
+    </message>
+    <message>
+        <source>SIP Phone</source>
+        <translation>SIP телефон</translation>
+    </message>
+</context>
+<context>
+    <name>VideoCallWindow</name>
+    <message>
+        <source>Minimize</source>
+        <translation>Свернуть</translation>
+    </message>
+    <message>
+        <source>Toggle Full Screen</source>
+        <translation>Переключить полноэкранный режим</translation>
+    </message>
+</context>
+<context>
+    <name>VideoFrame</name>
+    <message>
+        <source>Camera disabled</source>
+        <translation>Камера отключена</translation>
+    </message>
+    <message>
+        <source>Camera unavailable</source>
+        <translation>Камера отсутствует</translation>
     </message>
 </context>
 </TS>

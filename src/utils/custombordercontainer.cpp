@@ -1,4 +1,9 @@
 #include "custombordercontainer.h"
+#include "log.h"
+#include "iconstorage.h"
+#include "custombordercontainer_p.h"
+#include "imagemanager.h"
+
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
@@ -22,18 +27,13 @@
 #include <QTreeView>
 #include <QComboBox>
 #include <QScrollBar>
-// damn, i didn't want that!
 #include <QWebView>
-#include "log.h"
-#include "iconstorage.h"
-#include "custombordercontainer_p.h"
-#include "imagemanager.h"
 
 #ifdef DEBUG_CUSTOMBORDER
 # include <QDebug>
 #endif
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 # include <qt_windows.h>
 # include <shellapi.h>
 #elif defined Q_WS_MAC
@@ -805,16 +805,24 @@ void CustomBorderContainer::setCloseOnDeactivate(bool enabled)
 
 bool CustomBorderContainer::staysOnTop() const
 {
+#ifndef Q_WS_MAC
 	return windowFlags() & Qt::WindowStaysOnTopHint;
+#else
+	return isWindowOntop(this);
+#endif
 }
 
 void CustomBorderContainer::setStaysOnTop(bool on)
 {
+#ifndef Q_WS_MAC
 	if (on && !staysOnTop())
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	else
 		if (staysOnTop())
 			setWindowFlags(windowFlags() ^ Qt::WindowStaysOnTopHint);
+#else
+	setWindowOntop(this, on);
+#endif
 }
 
 bool CustomBorderContainer::dockingEnabled() const
@@ -993,7 +1001,7 @@ bool CustomBorderContainer::event(QEvent * evt)
 bool CustomBorderContainer::winEvent(MSG *message, long *result)
 {
 	// WARNING: works only on XP and earlier
-	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar
+	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar in WinXP
 		showWindowMenu(QCursor::pos());
 	return QWidget::winEvent(message, result);
 }
@@ -1101,14 +1109,13 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 // use only for mouse events
 bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 {
-	if (obj->property("ignoreFilter").toBool())
+	if (obj->property(CBC_IGNORE_FILTER).toBool())
 		return false;
 
 	bool filter = true;
 
 	//static QStringList exceptions;
 	// TODO: make this list customizable
-	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
 			qobject_cast<QSpinBox*>(obj) ||

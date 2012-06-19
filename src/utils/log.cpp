@@ -17,6 +17,10 @@
 #include "datetime.h"
 #include "systemmanager.h"
 
+#if defined(DEBUG_ENABLED) && defined(LOG_TO_CONSOLE)
+# include <QDebug>
+#endif
+
 #define APP_REPORT_VERSION         "1.0"
 #define DIR_HOLDEM_REPORTS         "Rambler/Holdem/Reports"
 
@@ -128,6 +132,9 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 			QFile logFile(FLogPath + "/" + FLogFile + ".txt");
 			logFile.open(QFile::WriteOnly | QFile::Append);
 			logFile.write(QString("%1\t+%2\t[%3]\t%4\r\n").arg(timestamp).arg(timedelta).arg(AType).arg(AMessage).toUtf8());
+#if defined(LOG_TO_CONSOLE) && defined(DEBUG_ENABLED)
+			qDebug() << AMessage;
+#endif
 			logFile.close();
 		}
 
@@ -168,6 +175,25 @@ void Log::writeMessage(uint AType, const QString &AMessage)
 	}
 }
 
+QString Log::generateBacktrace()
+{
+#ifdef Q_OS_UNIX
+	// getting backtrace on *nix
+	void * callstack[128];
+	int i, frames = backtrace(callstack, 128);
+	char ** strs = backtrace_symbols(callstack, frames);
+	QStringList btItems;
+	for (i = 0; i < frames; ++i)
+	{
+		btItems << QString(strs[i]);
+	}
+	free(strs);
+	return btItems.join("\n");
+#else
+	return QString::null;
+#endif
+}
+
 void Log::setStaticReportParam(const QString &AKey, const QString &AValue)
 {
 	if (!AValue.isNull())
@@ -180,22 +206,9 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 {
 	QDomDocument report;
 
-#ifdef Q_OS_UNIX
-	// getting backtrace on *nix
-	void * callstack[128];
-	int i, frames = backtrace(callstack, 128);
-	char ** strs = backtrace_symbols(callstack, frames);
-	QStringList btItems;
-	for (i = 0; i < frames; ++i)
-	{
-		btItems << QString(strs[i]);
-		//printf("%s\n", strs[i]);
-	}
-	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(btItems.join("\n")));
-	free(strs);
-#endif
+	AParams.insert(ARP_APPLICATION_BACKTRACE, Qt::escape(generateBacktrace()));
 
-	// common attributes
+	// Common data
 	AParams.insert(ARP_REPORT_TIME,DateTime(QDateTime::currentDateTime()).toX85DateTime());
 	
 	AParams.insert(ARP_APPLICATION_GUID,CLIENT_GUID);
@@ -208,7 +221,7 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 
 	AParams.insert(ARP_LOCALE_NAME,QLocale().name());
 	
-	// log file
+	// Adding log
 	if (AIncludeLog && !FLogFile.isEmpty())
 	{
 		QFile file(FLogPath + "/" + FLogFile + ".txt");
@@ -225,14 +238,14 @@ QDomDocument Log::generateReport(QMap<QString, QString> &AParams, bool AIncludeL
 		}
 	}
 
-	// predefined attributes
+	// Adding FReportParams
 	for (QMap<QString,QString>::const_iterator it = FReportParams.constBegin(); it!=FReportParams.constEnd(); it++)
 	{
 		if (!AParams.contains(it.key()))
 			AParams.insert(it.key(),it.value());
 	}
 
-	// creating XML
+	// Generating XML
 	QDomElement reportElem = report.appendChild(report.createElement("report")).toElement();
 	reportElem.setAttribute("version",APP_REPORT_VERSION);
 	for (QMap<QString,QString>::const_iterator it = AParams.constBegin(); it!=AParams.constEnd(); it++)

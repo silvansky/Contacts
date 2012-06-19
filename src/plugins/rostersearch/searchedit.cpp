@@ -2,8 +2,9 @@
 
 #include <QPainter>
 #include <QResizeEvent>
-#include <utils/stylestorage.h>
 #include <definitions/resources.h>
+#include <utils/stylestorage.h>
+#include <utils/custombordercontainer.h>
 
 SearchEdit::SearchEdit(QWidget *parent) : QLineEdit(parent)
 {
@@ -17,7 +18,7 @@ SearchEdit::SearchEdit(QWidget *parent) : QLineEdit(parent)
 	iconLabel = new QLabel(this);
 	iconLabel->setFixedSize(16, 16);
 	iconLabel->setMouseTracking(true);
-	iconLabel->setProperty("ignoreFilter", true);
+	iconLabel->setProperty(CBC_IGNORE_FILTER, true);
 	//currentIcon = iconStorage->getIcon(MNI_ROSTERSEARCH_ICON_GLASS);
 	//if (!currentIcon.isNull())
 	//	iconLabel->setPixmap(currentIcon.pixmap(16, QIcon::Normal, QIcon::On));

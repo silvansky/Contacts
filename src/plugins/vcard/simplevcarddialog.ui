@@ -73,7 +73,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="statusText">
+          <widget class="CustomLabel" name="statusText">
            <property name="text">
             <string/>
            </property>
@@ -82,28 +82,46 @@
         </layout>
        </item>
        <item>
-        <widget class="QLabel" name="name">
+        <widget class="CustomLabel" name="name">
+         <property name="cursor">
+          <cursorShape>IBeamCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string/>
          </property>
          <property name="wordWrap">
-          <bool>true</bool>
+          <bool>false</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="mood">
+        <widget class="CustomLabel" name="mood">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="cursor">
+          <cursorShape>IBeamCursor</cursorShape>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
          <property name="text">
           <string/>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>
@@ -162,42 +180,42 @@
       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
      </property>
      <item row="0" column="0">
-      <widget class="QLabel" name="bdCaption">
+      <widget class="CustomLabel" name="bdCaption">
        <property name="text">
         <string>Birth date:</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLabel" name="birthDateLabel">
+      <widget class="CustomLabel" name="birthDateLabel">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="phoneCaption">
+      <widget class="CustomLabel" name="phoneCaption">
        <property name="text">
         <string>Phone number:</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLabel" name="phoneLabel">
+      <widget class="CustomLabel" name="phoneLabel">
        <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="remarkCaption">
+      <widget class="CustomLabel" name="remarkCaption">
        <property name="text">
         <string>Remark:</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLabel" name="remarkLabel">
+      <widget class="CustomLabel" name="remarkLabel">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -332,6 +350,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">utils/customlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

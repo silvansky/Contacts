@@ -1,18 +1,19 @@
 # works only on win and mac
 win32-msvc2008|macx: {
+	TARGET = sipphone
 	include(sipphone.pri)
 	include(../plugins.inc)
 
 	QT    += multimedia
-	contains(DEFINES, USE_PHONON) {
+	contains(DEFINES, USE_PHONON){
 	  QT  += phonon
 	}
+
 	INCLUDEPATH += ../../thirdparty/siplibraries/SipLib/inc
 	INCLUDEPATH += ../../thirdparty/siplibraries/SPEEX/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/Inc/iLBC
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPMediaLib/inc
 	INCLUDEPATH += ../../thirdparty/siplibraries/VoIPVideoLib/inc
-
 } else: {
 	include(../nobuild.inc)
 }
@@ -24,10 +25,10 @@ win32-msvc2008: {
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/SipLib/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPMediaLib/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/VoIPVideoLib/lib
-
-	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/pjsip/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/x264/lib
 	LIBS  += -L$${_PRO_FILE_PWD_}/../../thirdparty/siplibraries/directxsdk/lib
+	
+	LIBS  += -L$${_PRO_FILE_PWD_}/../../../../pjsip_mod/lib
 
 	LIBS  += -lWs2_32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32 -lwinmm
 	LIBS  += -lIphlpapi -lIphlpapi -ldsound -ldxguid -lnetapi32 -lmswsock -luser32 -lgdi32 -ladvapi32
@@ -40,15 +41,38 @@ win32-msvc2008: {
 	INCLUDEPATH += ../../thirdparty/siplibraries/baseclasses/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/ffmpeg/include
 	INCLUDEPATH += ../../thirdparty/siplibraries/sdllib/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjlib-util/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjmedia/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjnath/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/pjsip/include
-	INCLUDEPATH += ../../thirdparty/siplibraries/pjsip/x264/include
+	INCLUDEPATH += ../../thirdparty/siplibraries/x264/include
+	
+	INCLUDEPATH += ../../../../pjsip_mod/pjlib/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjlib-util/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjmedia/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjnath/include
+	INCLUDEPATH += ../../../../pjsip_mod/pjsip/include
 }
+
 macx: {
-	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa -framework VideoDecodeAcceleration -framework QTKit -framework AVFoundation -framework CoreVideo -framework CoreMedia
+	contains(DEFINES, USE_PHONON) {
+	  QT  += dbus
+	}
+
+	CONFIG += thread debug
+	QMAKE_CXXFLAGS += -DPJ_IS_BIG_ENDIAN=0 -DPJ_IS_LITTLE_ENDIAN=1 -DPJMEDIA_VIDEO_DEV_HAS_CALLBACK=1 -I/usr/local/include/SDL -D_THREAD_SAFE -DPJMEDIA_HAS_LIBAVDEVICE=1 -DPJMEDIA_HAS_LIBAVFORMAT=1 -DPJMEDIA_HAS_LIBAVCODEC=1 -DPJMEDIA_HAS_LIBSWSCALE=1 -DPJMEDIA_HAS_LIBAVUTIL=1 -DPJMEDIA_VIDEO_DEV_HAS_QT=1
+
+	DARWIN_VER = $$system("uname -r")
+	PLATFORM = $$system("uname -p")
+	LIB_SUFIX = $${PLATFORM}-apple-darwin$${DARWIN_VER}
+	DARWIN10 = $$system("[ `uname -r` \\< \"11.0.0\" ] && echo true || echo false")
+
+	QMAKE_LFLAGS    += -framework Carbon -framework Cocoa
+	QMAKE_LFLAGS    += -framework ForceFeedback -framework IOKit
+	QMAKE_LFLAGS    += -framework VideoDecodeAcceleration -framework QTKit
+	QMAKE_LFLAGS    += -framework CoreVideo -framework OpenGL
+	contains(DARWIN10, "true") {
+		# Mac OS X 10.6+ frameworks
+	} else {
+		# Mac OS X 10.7+ frameworks
+		QMAKE_LFLAGS    += -framework AVFoundation -framework CoreMedia
+	}
 	LIBS += -L/usr/local/lib
 	INCLUDEPATH += /usr/local/include
 	INCLUDEPATH += /usr/local/include/SDL
@@ -58,39 +82,38 @@ macx: {
 	LIBS += -lssl
 	# zlib
 	LIBS += -lzlib
-	# SDL
-	LIBS += -lSDL
+	# iconv
+	LIBS += -liconv
 	# av
 	LIBS += -lavcodec -lavdevice -lavfilter -lavformat -lavutil
 	# swscale
 	LIBS += -lswscale -lswresample
 	# speex
-	LIBS += -lspeex-i386-apple-darwin11.3.0
+	LIBS += -lspeex-$${LIB_SUFIX}
 	# resample
-	LIBS += -lresample-i386-apple-darwin11.3.0
+	LIBS += -lresample-$${LIB_SUFIX}
 	# iLBC
-	LIBS += -lilbc
+	#LIBS += -lilbc
 	# GSM
-	LIBS += -lgsm
+	#LIBS += -lgsm
 	# bz2
 	LIBS += -lbz2
 	# x264
 	LIBS += -lx264
+	# D-Bus
+	LIBS += -ldbus-1
 	# portaudio
-	LIBS += -lportaudio-i386-apple-darwin11.3.0
+	LIBS += -lportaudio-$${LIB_SUFIX}
 	# pjsip
-	LIBS += -lpj-i386-apple-darwin11.3.0
-	LIBS += -lpjlib-util-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-audiodev-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-codec-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-i386-apple-darwin11.3.0
-	LIBS += -lpjmedia-videodev-i386-apple-darwin11.3.0
-	LIBS += -lpjnath-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-simple-i386-apple-darwin11.3.0
-	LIBS += -lpjsip-ua-i386-apple-darwin11.3.0
-	LIBS += -lpjsua-i386-apple-darwin11.3.0
-	CONFIG(release) {
-		INSTALLS =
-	}
+	LIBS += -lpj-$${LIB_SUFIX}
+	LIBS += -lpjlib-util-$${LIB_SUFIX}
+	LIBS += -lpjmedia-audiodev-$${LIB_SUFIX}
+	LIBS += -lpjmedia-codec-$${LIB_SUFIX}
+	LIBS += -lpjmedia-$${LIB_SUFIX}
+	LIBS += -lpjmedia-videodev-$${LIB_SUFIX}
+	LIBS += -lpjnath-$${LIB_SUFIX}
+	LIBS += -lpjsip-$${LIB_SUFIX}
+	LIBS += -lpjsip-simple-$${LIB_SUFIX}
+	LIBS += -lpjsip-ua-$${LIB_SUFIX}
+	LIBS += -lpjsua-$${LIB_SUFIX}
 }

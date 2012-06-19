@@ -7,7 +7,7 @@
 #include <QTextDocument>
 
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 static const QString NodeDelimiter = ".";

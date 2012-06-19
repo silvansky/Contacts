@@ -171,8 +171,8 @@ which is linked to Rambler</source>
         <translation>Отображать вводимый пароль</translation>
     </message>
     <message>
-        <source>Rambler.Contacts</source>
-        <translation>Рамблер.Контакты</translation>
+        <source>Rambler-Contacts</source>
+        <translation>Рамблер-Контакты</translation>
     </message>
 </context>
 <context>

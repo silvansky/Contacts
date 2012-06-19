@@ -16,7 +16,7 @@
 #include <definitions/graphicseffects.h>
 #include <definitions/stylesheets.h>
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
+# include <utils/macutils.h>
 #endif
 
 AboutQtDialog::AboutQtDialog() : QWidget(NULL)

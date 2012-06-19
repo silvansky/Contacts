@@ -14,7 +14,7 @@
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imainwindow.h>
 #include <utils/custombordercontainer.h>
-#include <utils/macwidgets.h>
+#include <utils/macutils.h>
 #include <utils/imagemanager.h>
 #include <utils/options.h>
 #include <utils/custominputdialog.h>
@@ -511,6 +511,13 @@ void MacIntegrationPlugin::initMenus()
 	connect(stayOnTopAction, SIGNAL(triggered(bool)), SLOT(onStayOnTopAction(bool)));
 	_viewMenu->addAction(stayOnTopAction, 800);
 
+	toggleFullScreenAction = new Action;
+	toggleFullScreenAction->setText(tr("Toggle Full Screen"));
+	toggleFullScreenAction->setEnabled(false);
+	toggleFullScreenAction->setShortcut(QKeySequence("Ctrl+Meta+F"));
+	connect(toggleFullScreenAction, SIGNAL(triggered()), SLOT(onToggleFullScreenAction()));
+	_viewMenu->addAction(toggleFullScreenAction, 850);
+
 	// Status
 	_statusMenu = new Menu;
 	_statusMenu->setTitle(tr("Status"));
@@ -786,7 +793,7 @@ void MacIntegrationPlugin::onOptionsChanged(const OptionsNode &ANode)
 	}
 }
 
-void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
+void MacIntegrationPlugin::onFocusChanged(QWidget *old, QWidget *now)
 {
 	Q_UNUSED(old)
 	if (lastFocusedWidget)
@@ -795,6 +802,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 	if (now)
 	{
 #ifdef DEBUG_ENABLED
+#ifdef DEBUG_FOCUS
 		qDebug() << "focused: " << now->objectName()
 			 << " of class " << now->metaObject()->className();
 		QStringList hierarchy;
@@ -805,6 +813,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 			parent = parent->parentWidget();
 		}
 		qDebug() << "hierarchy: " << hierarchy.join(" -> ");
+#endif
 #endif
 		updateActions();
 		if (QLineEdit * le = qobject_cast<QLineEdit*>(now))
@@ -839,8 +848,9 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		prevTabAction->setEnabled(tw);
 		IMainWindow * mw = findMainWindow(qApp->activeWindow());
 		findAction->setEnabled(mw);
-		minimizeAction->setEnabled(true);
-		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()));
+		minimizeAction->setEnabled(!isWindowFullScreen(qApp->activeWindow()));
+		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()) && !isWindowFullScreen(qApp->activeWindow()));
+		toggleFullScreenAction->setEnabled(isWindowFullScreenEnabled(qApp->activeWindow()));
 	}
 	else
 	{
@@ -851,6 +861,7 @@ void MacIntegrationPlugin::onFocusChanged(QWidget * old, QWidget * now)
 		prevTabAction->setEnabled(false);
 		minimizeAction->setEnabled(false);
 		zoomAction->setEnabled(false);
+		toggleFullScreenAction->setEnabled(false);
 	}
 }
 
@@ -1118,9 +1129,18 @@ void MacIntegrationPlugin::onStayOnTopAction(bool on)
 	Options::node(OPV_MAINWINDOW_STAYONTOP).setValue(on);
 }
 
+void MacIntegrationPlugin::onToggleFullScreenAction()
+{
+	QWidget *activeWindow = QApplication::activeWindow();
+	if (activeWindow && isWindowFullScreenEnabled(activeWindow))
+	{
+		setWindowFullScreen(activeWindow, !isWindowFullScreen(activeWindow));
+	}
+}
+
 void MacIntegrationPlugin::onStatusAction()
 {
-	Action * a = qobject_cast<Action*>(sender());
+	Action *a = qobject_cast<Action *>(sender());
 	if (a && statusChanger && accountManager)
 	{
 		a->setChecked(false);

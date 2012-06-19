@@ -11,7 +11,7 @@
 #include <definitions/graphicseffects.h>
 
 #ifdef Q_WS_MAC
-# include "macwidgets.h"
+# include "macutils.h"
 #endif
 #include "stylestorage.h"
 #include "widgetmanager.h"

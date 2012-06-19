@@ -15,7 +15,7 @@
 #include <QTimer>
 
 #include <utils/log.h>
-#include <utils/macwidgets.h>
+#include <utils/macutils.h>
 #include <utils/imagemanager.h>
 
 #include "macintegration_p.h"
@@ -78,7 +78,7 @@ static QString resolveGrowlType(const QString & notifyType)
 	return self;
 }
 
-// TODO: make localized
+// TODO: make localized (and make it work...)
 //- (NSDictionary *) registrationDictionaryForGrowl
 //{
 //	NSLog(@"registrationDictionaryForGrowl");
@@ -123,7 +123,6 @@ static QString resolveGrowlType(const QString & notifyType)
 - (void) growlNotificationTimedOut:(id)clickContext
 {
 	Q_UNUSED(clickContext)
-	//NSLog(@"Growl notify timed out! id: %@", (NSNumber*)clickContext);
 }
 
 @end
@@ -134,7 +133,6 @@ void dockClickHandler(id self, SEL _cmd)
 {
 	Q_UNUSED(self)
 	Q_UNUSED(_cmd)
-	NSLog(@"void dockClickHandler(id self, SEL _cmd)");
 	MacIntegrationPrivate::instance()->emitClick();
 }
 
@@ -151,9 +149,8 @@ MacIntegrationPrivate::MacIntegrationPrivate() :
 {
 	// dock click handler
 	Class cls = [[[NSApplication sharedApplication] delegate] class];
-	NSLog(@"App delegate class: %@", cls);
 	if (!class_addMethod(cls, @selector(applicationShouldHandleReopen:hasVisibleWindows:), (IMP) dockClickHandler, "v@:"))
-		LogError("MacIntegrationPrivate::MacIntegrationPrivate() : class_addMethod failed!");
+		LogError("[MacIntegrationPrivate::MacIntegrationPrivate]: class_addMethod failed!");
 
 	// growl agent
 	growlAgent = [[GrowlAgent alloc] init];
@@ -202,38 +199,6 @@ void MacIntegrationPrivate::release()
 	}
 }
 
-// warning! nsimage isn't released!
-NSImage * MacIntegrationPrivate::nsImageFromQImage(const QImage & image)
-{
-	if (!image.isNull())
-	{
-		CGImageRef ref = QPixmap::fromImage(image).toMacCGImageRef();
-		NSImage * nsimg = [[NSImage alloc] initWithCGImage: ref size: NSZeroSize];
-		CGImageRelease(ref);
-		return nsimg;
-	}
-	else
-		return nil;
-}
-
-QImage MacIntegrationPrivate::qImageFromNSImage(NSImage * image)
-{
-	if (image)
-	{
-		CGImageRef ref = [image CGImageForProposedRect:NULL context:nil hints:nil];
-		QImage result = QPixmap::fromMacCGImageRef(ref).toImage();
-		return result;
-	}
-	return QImage();
-}
-
-// warning! nsstring isn't released!
-NSString * MacIntegrationPrivate::nsStringFromQString(const QString & s)
-{
-	const char * utf8String = s.toUtf8().constData();
-	return [[NSString alloc] initWithUTF8String: utf8String];
-}
-
 void MacIntegrationPrivate::startDockAnimation()
 {
 	updateTimer->start();
@@ -266,7 +231,7 @@ bool MacIntegrationPrivate::isDockAnimationRunning() const
 
 void MacIntegrationPrivate::emitClick()
 {
-	NSLog(@"void MacIntegrationPrivate::emitClick()");
+	//NSLog(@"void MacIntegrationPrivate::emitClick()");
 	emit dockClicked();
 }
 

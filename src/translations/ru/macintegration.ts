@@ -243,5 +243,9 @@
         <source>New Group...</source>
         <translation>Новая группа...</translation>
     </message>
+    <message>
+        <source>Toggle Full Screen</source>
+        <translation>Переключить полноэкранный режим</translation>
+    </message>
 </context>
 </TS>

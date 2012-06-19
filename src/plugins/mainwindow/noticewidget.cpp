@@ -20,7 +20,7 @@ InternalNoticeWidget::InternalNoticeWidget(QWidget *AParent) : QWidget(AParent)
 
 	ui.wdtActions->setLayout(new QHBoxLayout);
 	ui.wdtActions->layout()->setMargin(0);
-	ui.wdtActions->setProperty("ignoreFilter", true);
+	ui.wdtActions->setProperty(CBC_IGNORE_FILTER, true);
 
 	FActiveNotice = -1;
 
@@ -133,7 +133,7 @@ void InternalNoticeWidget::updateWidgets(int ANoticeId)
 							imageLabel->setPixmap(QPixmap::fromImage(img));
 							imageLabel->setCursor(QCursor(Qt::PointingHandCursor));
 							imageLabel->setToolTip(action->text());
-							imageLabel->setProperty("ignoreFilter", true);
+							imageLabel->setProperty(CBC_IGNORE_FILTER, true);
 							FActionLabels.insert(imageLabel, action);
 							imageLabel->installEventFilter(this);
 							ui.wdtActions->layout()->addWidget(imageLabel);
