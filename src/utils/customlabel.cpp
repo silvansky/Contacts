@@ -111,7 +111,11 @@ void CustomLabel::paintEvent(QPaintEvent * pe)
 		if (shadow)
 		{
 			QImage shadowedText(size(), QImage::Format_ARGB32_Premultiplied);
+#if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
+			shadowedText.fill(Qt::red); // DUNNO WHY!!!
+#else
 			shadowedText.fill(Qt::transparent);
+#endif
 			QPainter tmpPainter(&shadowedText);
 			tmpPainter.setRenderHint(QPainter::Antialiasing);
 			tmpPainter.setRenderHint(QPainter::HighQualityAntialiasing);

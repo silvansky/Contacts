@@ -94,6 +94,8 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FMinButton->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_MINIMIZE));
 	connect(FMinButton,SIGNAL(clicked()),SLOT(onMinimizeButtonClicked()));
 	videoButtons->layout()->addWidget(FMinButton);
+# else
+	FMinButton = NULL;
 # endif
 
 #elif defined (Q_WS_MAC)
@@ -267,7 +269,7 @@ bool VideoCallWindow::isVideoAvailable() const
 void VideoCallWindow::toggleFullScreen(bool AFullScreen)
 {
 	setControlsFullScreenMode(AFullScreen);
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC) && defined(__MAC_OS_X_NATIVE_FULLSCREEN)
 	setWindowFullScreen(this, AFullScreen);
 #else
 	if (CustomBorderStorage::isBordered(window()))
