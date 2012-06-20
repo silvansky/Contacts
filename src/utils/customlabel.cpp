@@ -119,7 +119,7 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 
 		// magic numbers
 		int dx = -2;
-		int dy = -6;
+		int dy = -2;
 		// adding margins
 		dx += contentsMargins().left();
 		dy += contentsMargins().top();
@@ -129,17 +129,18 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 #else
 		QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect;
 		shadow->setColor(Qt::red);
-		shadow->setOffset(20, 20);
+		shadow->setOffset(1, 1);
 #endif
 		if (shadow)
 		{
+#if 0
 			QImage shadowedText(size(), QImage::Format_ARGB32_Premultiplied);
-#if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
+# if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
 			// TODO: fix that
 			shadowedText.fill(Qt::red); // DUNNO WHY!!!
-#else
+# else
 			shadowedText.fill(Qt::transparent);
-#endif
+# endif
 			QPainter tmpPainter(&shadowedText);
 			tmpPainter.setRenderHint(QPainter::Antialiasing);
 			tmpPainter.setRenderHint(QPainter::HighQualityAntialiasing);
@@ -148,6 +149,24 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 			tmpPainter.translate(dx, dy);
 			doc->documentLayout()->draw(&tmpPainter, ctx);
 			painter.drawImage(0, 0, shadowedText);
+#else
+			QPalette origPal = ctx.palette;
+			ctx.palette.setColor(QPalette::Text, shadow->color());
+
+			// draw shadow
+			painter.save();
+			painter.translate(dx + shadow->xOffset(), dy + shadow->yOffset());
+			doc->documentLayout()->draw(&painter, ctx);
+			painter.restore();
+
+			ctx.palette = origPal;
+
+			// draw text
+			painter.save();
+			painter.translate(dx, dy);
+			doc->documentLayout()->draw(&painter, ctx);
+			painter.restore();
+#endif
 		}
 		else
 		{
