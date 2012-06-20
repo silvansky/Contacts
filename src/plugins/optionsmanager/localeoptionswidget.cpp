@@ -37,6 +37,7 @@ LocaleOptionsWidget::LocaleOptionsWidget(QWidget *AParent) : QWidget(AParent)
 		button->setText(it.key());
 		layout->addWidget(button);
 		FLocales.insert(button,it.value());
+		connect(button,SIGNAL(toggled(bool)),SIGNAL(modified()));
 	}
 
 	QLabel *label = new QLabel(tr("*Language settings will be applied on next application launch"),this);
