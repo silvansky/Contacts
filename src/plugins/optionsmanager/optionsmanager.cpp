@@ -25,7 +25,7 @@
 #define ADR_PROFILE                     Action::DR_Parametr1
 
 #define PST_OPTIONS                     "options"
-#define PSN_OPTIONS                     "ramblercontacts:options"
+#define PSN_OPTIONS                     "rambler:options"
 
 OptionsManager::OptionsManager()
 {
@@ -39,7 +39,11 @@ OptionsManager::OptionsManager()
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
-	connect(&FAutoSaveTimer, SIGNAL(timeout()),SLOT(onAutoSaveTimerTimeout()));
+	connect(&FAutoSaveTimer, SIGNAL(timeout()),SLOT(onAutoSaveOptionsTimerTimeout()));
+
+	FServerOptionsTimer.setInterval(1000);
+	FServerOptionsTimer.setSingleShot(true);
+	connect(&FServerOptionsTimer, SIGNAL(timeout()),SLOT(onSaveServerOptionsTimerTimeout()));
 
 	qsrand(QDateTime::currentDateTime().toTime_t());
 }
@@ -87,6 +91,8 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorageOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
 				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),
+				SLOT(onPrivateStorageDataChanged(const QString &, const Jid &, const QDomElement &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
@@ -712,16 +718,21 @@ bool OptionsManager::saveOptions() const
 
 bool OptionsManager::loadServerOptions(const Jid &AStreamJid)
 {
-	if (FPrivateStorage && AStreamJid.isValid())
+	if (FPrivateStorage && AStreamJid.isValid() && Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
 	{
-		return !FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).isEmpty();
+		LogDetail(QString("[OptionsManager] Loading options from server"));
+		if (FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).isEmpty())
+			LogError(QString("[OptionsManager] Failed to load options from server"));
+		else
+			return true;
 	}
 	return false;
 }
 
 bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 {
-	if (FPrivateStorage && AStreamJid.isValid())
+	FServerOptionsTimer.stop();
+	if (FPrivateStorage && AStreamJid.isValid() && Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
 	{
 		QDomDocument doc;
 		doc.appendChild(doc.createElement("options"));
@@ -777,6 +788,16 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			QTimer::singleShot(0, FPluginManager->instance(), SLOT(restart()));
 		}
 	}
+
+	foreach(QString path, FServerOptions)
+	{
+		if(Options::node(path).isChildNode(ANode))
+		{
+			FServerOptionsTimer.start();
+			break;
+		}
+	}
+
 	FAutoSaveTimer.start();
 }
 
@@ -812,26 +833,29 @@ void OptionsManager::onLoginDialogRejected()
 		FPluginManager->quit();
 }
 
-void OptionsManager::onAutoSaveTimerTimeout()
+void OptionsManager::onAutoSaveOptionsTimerTimeout()
 {
 	saveOptions();
 }
 
+void OptionsManager::onSaveServerOptionsTimerTimeout()
+{
+	saveServerOptions(FOptionsStreamJid);
+}
+
 void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
 {
-	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
+	if (FOptionsStreamJid.isEmpty())
 	{
-		if (loadServerOptions(AStreamJid))
-			LogDetail(QString("[OptionsManager] Loading options from server"));
-		else
-			LogError(QString("[OptionsManager] Failed to load options from server"));
+		FOptionsStreamJid = AStreamJid;
+		loadServerOptions(FOptionsStreamJid);
 	}
 }
 
 void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
-	Q_UNUSED(AId); Q_UNUSED(AStreamJid);
-	if (AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
+	Q_UNUSED(AId);
+	if (FOptionsStreamJid==AStreamJid && AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
 	{
 		LogDetail(QString("[OptionsManager] Importing options from server"));
 		foreach(QString path, FServerOptions)
@@ -839,10 +863,20 @@ void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &A
 	}
 }
 
+void OptionsManager::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
+{
+	if (FOptionsStreamJid==AStreamJid && ATagName==PST_OPTIONS && ANamespace==PSN_OPTIONS)
+		loadServerOptions(FOptionsStreamJid);
+}
+
 void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 {
-	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
-		saveServerOptions(AStreamJid);
+	if (FOptionsStreamJid == AStreamJid)
+	{
+		if (FServerOptionsTimer.isActive())
+			saveServerOptions(FOptionsStreamJid);
+		FOptionsStreamJid = Jid::null;
+	}
 }
 
 void OptionsManager::onAboutToQuit()

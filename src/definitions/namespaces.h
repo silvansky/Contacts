@@ -69,6 +69,7 @@
 #define NS_RAMBLER_MAIL_NOTICE                               "rambler:mail:notice"
 #define NS_RAMBLER_GATEWAY_REGISTER                          "rambler:gateway:register"
 #define NS_RAMBLER_TCPTUNNEL_CONNECT                         "rambler:tcptunnel:connect"
+#define NS_RAMBLER_PRIVATESTORAGE_UPDATE                     "rambler:privatestorage:update"
 
 #define NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED             "rambler:gateway:roster:add-prohibited"
 #define NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED          "rambler:gateway:roster:delete-prohibited"

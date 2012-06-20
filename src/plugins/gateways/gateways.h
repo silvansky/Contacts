@@ -129,6 +129,7 @@ signals:
 protected:
 	void registerDiscoFeatures();
 	void startAutoLogin(const Jid &AStreamJid);
+	void saveKeepConnections(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
 	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
@@ -139,11 +140,12 @@ protected slots:
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
-	void onPrivateStorateOpened(const Jid &AStreamJid);
-	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void onPrivateStorateAboutToClose(const Jid &AStreamJid);
 	void onPrivateStorateClosed(const Jid &AStreamJid);
 	void onKeepTimerTimeout();
+	void onSaveKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onDiscoInfoChanged(const IDiscoInfo &AInfo);
@@ -177,6 +179,8 @@ private:
 	INotifications *FNotifications;
 private:
 	QTimer FKeepTimer;
+	QTimer FSaveKeepTimer;
+	QSet<Jid> FSaveKeepStreams;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
 private:
 	QList<QString> FPromptRequests;

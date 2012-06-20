@@ -111,9 +111,11 @@ protected slots:
 	void onShowOptionsDialogByAction(bool);
 	void onLoginDialogAccepted();
 	void onLoginDialogRejected();
-	void onAutoSaveTimerTimeout();
+	void onAutoSaveOptionsTimerTimeout();
+	void onSaveServerOptionsTimerTimeout();
 	void onPrivateStorageOpened(const Jid &AStreamJid);
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
 private:
@@ -131,6 +133,8 @@ private:
 	QDomDocument FProfileOptions;
 	QtLockedFile *FProfileLocker;
 private:
+	Jid FOptionsStreamJid;
+	QTimer FServerOptionsTimer;
 	QList<QString> FServerOptions;
 private:
 	Action *FChangeProfileAction;

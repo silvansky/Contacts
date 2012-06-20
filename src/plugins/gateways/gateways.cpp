@@ -14,7 +14,7 @@
 #define ADR_LOG_IN                Action::DR_Parametr3
 
 #define PST_GATEWAYS_SERVICES     "services"
-#define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
+#define PSN_GATEWAYS_KEEP         "rambler:gateways:keep"
 
 #define GATEWAY_TIMEOUT           30000
 #define KEEP_INTERVAL             120000
@@ -44,6 +44,10 @@ Gateways::Gateways()
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
+
+	FSaveKeepTimer.setInterval(1000);
+	FSaveKeepTimer.setSingleShot(true);
+	connect(&FSaveKeepTimer,SIGNAL(timeout()),SLOT(onSaveKeepTimerTimeout()));
 }
 
 Gateways::~Gateways()
@@ -125,9 +129,10 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FPrivateStorage = qobject_cast<IPrivateStorage *>(plugin->instance());
 		if (FPrivateStorage)
 		{
-			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorateOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
-				SLOT(onPrivateStorageLoaded(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),
+				SLOT(onPrivateStorageDataChanged(const QString &, const Jid &, const QDomElement &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorateAboutToClose(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageClosed(const Jid &)),SLOT(onPrivateStorateClosed(const Jid &)));
 		}
@@ -592,10 +597,19 @@ void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, 
 	IXmppStream *stream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (stream && stream->isOpen())
 	{
-		if (AEnabled)
-			FKeepConnections[AStreamJid] += AServiceJid;
-		else
-			FKeepConnections[AStreamJid] -= AServiceJid;
+		QSet<Jid> &services = FKeepConnections[AStreamJid];
+		if (AEnabled && !services.contains(AServiceJid))
+		{
+			services += AServiceJid;
+			FSaveKeepStreams += AStreamJid;
+			FSaveKeepTimer.start();
+		}
+		else if (!AEnabled && services.contains(AServiceJid))
+		{
+			services -= AServiceJid;
+			FSaveKeepStreams += AStreamJid;
+			FSaveKeepTimer.start();
+		}
 	}
 }
 
@@ -1354,6 +1368,19 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 	}
 }
 
+void Gateways::saveKeepConnections(const Jid &AStreamJid)
+{
+	if (FPrivateStorage && FKeepConnections.contains(AStreamJid))
+	{
+		QDomDocument doc;
+		doc.appendChild(doc.createElement("services"));
+		QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
+		foreach(Jid service, FKeepConnections.value(AStreamJid))
+			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
+		FPrivateStorage->saveData(AStreamJid,elem);
+	}
+}
+
 IGateServiceDescriptor Gateways::findGateDescriptor(const IDiscoInfo &AInfo) const
 {
 	int index = FDiscovery ? FDiscovery->findIdentity(AInfo.identity,"gateway",QString::null) : -1;
@@ -1538,43 +1565,54 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 	}
 }
 
-void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
-{
-	Q_UNUSED(AStreamJid);
-}
-
-void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
+void Gateways::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
 	Q_UNUSED(AId);
-	if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_KEEP)
+	if (AElement.tagName()==PST_GATEWAYS_SERVICES && AElement.namespaceURI()==PSN_GATEWAYS_KEEP)
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
+			QSet<Jid> newServices;
 			QDomElement elem = AElement.firstChildElement("service");
 			while (!elem.isNull())
 			{
-				IRosterItem ritem = roster->rosterItem(elem.text());
-				if (ritem.isValid && isServiceEnabled(AStreamJid,ritem.itemJid))
-					setKeepConnection(AStreamJid,ritem.itemJid,true);
+				Jid service = elem.text();
+				IRosterItem ritem = roster->rosterItem(service);
+				if (ritem.isValid)
+				{
+					newServices += service;
+					setKeepConnection(AStreamJid,service,true);
+				}
 				elem = elem.nextSiblingElement("service");
 			}
+
+			QSet<Jid> oldServices = FKeepConnections.value(AStreamJid) - newServices;
+			foreach(Jid service, oldServices)
+				setKeepConnection(AStreamJid,service,false);
+
+			FKeepConnections[AStreamJid] = newServices;
 		}
+	}
+}
+
+void Gateways::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
+{
+	if (ATagName==PST_GATEWAYS_SERVICES && ANamespace==PSN_GATEWAYS_KEEP)
+	{
+		FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
 	}
 }
 
 void Gateways::onPrivateStorateAboutToClose(const Jid &AStreamJid)
 {
-	QDomDocument doc;
-	doc.appendChild(doc.createElement("services"));
-	QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
-	foreach(Jid service, FKeepConnections.value(AStreamJid))
-		elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
-	FPrivateStorage->saveData(AStreamJid,elem);
+	if (FSaveKeepTimer.isActive())
+		saveKeepConnections(AStreamJid);
 }
 
 void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
 {
+	FSaveKeepStreams -= AStreamJid;
 	FKeepConnections.remove(AStreamJid);
 }
 
@@ -1601,6 +1639,13 @@ void Gateways::onKeepTimerTimeout()
 			}
 		}
 	}
+}
+
+void Gateways::onSaveKeepTimerTimeout()
+{
+	foreach(Jid streamJid, FSaveKeepStreams)
+		saveKeepConnections(streamJid);
+	FSaveKeepStreams.clear();
 }
 
 void Gateways::onVCardReceived(const Jid &AContactJid)
