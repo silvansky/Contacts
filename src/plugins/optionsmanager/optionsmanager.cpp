@@ -92,7 +92,7 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
 				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),
-				SLOT(onPrivateStorageDataChanged(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateStorageDataChanged(const Jid &, const QString &, const QString &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
@@ -788,6 +788,11 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			QTimer::singleShot(0, FPluginManager->instance(), SLOT(restart()));
 		}
 	}
+	else if (ANode.path() == OPV_MISC_OPTIONS_SAVE_ON_SERVER)
+	{
+		if (ANode.value().toBool())
+			loadServerOptions(FOptionsStreamJid);
+	}
 
 	foreach(QString path, FServerOptions)
 	{
@@ -840,7 +845,10 @@ void OptionsManager::onAutoSaveOptionsTimerTimeout()
 
 void OptionsManager::onSaveServerOptionsTimerTimeout()
 {
-	saveServerOptions(FOptionsStreamJid);
+	if (FOptionsDialog == NULL)
+		saveServerOptions(FOptionsStreamJid);
+	else
+		FServerOptionsTimer.start();
 }
 
 void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
