@@ -61,8 +61,8 @@ SipCall::~SipCall()
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
-	//if (findCalls(streamJid()).isEmpty())
-	//	FSipManager->setSipAccountRegistration(streamJid(),false);
+	if (findCalls(streamJid()).isEmpty())
+		FSipManager->setSipAccountRegistration(streamJid(),false);
 	emit callDestroyed();
 	LogDetail(QString("[SipCall] Call destroyed, sid='%1'").arg(sessionId()));
 }
@@ -200,7 +200,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 			if (status != PJ_SUCCESS)
 				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(SipManager::resolveErrorCode(status)));
-			setCallState(CS_FINISHED);
+			//setCallState(CS_FINISHED);
 			break;
 		}
 	default:
@@ -610,7 +610,13 @@ void SipCall::onCallState(int call_id, void *e)
 		}
 		else if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
 		{
-			emit startUpdateCallState(CS_FINISHED);
+			bool mediaClosed = true;
+			for (unsigned i = 0; i < ci.media_cnt; i++) {
+				if (ci.media[i].status != PJSUA_CALL_MEDIA_NONE)
+					mediaClosed = false;
+			}
+			if (mediaClosed)
+				emit startUpdateCallState(CS_FINISHED);
 		}
 	}
 }
