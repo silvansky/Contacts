@@ -21,6 +21,10 @@
 VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipCall, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	FPluginManager = APluginManager;
+	connect(FPluginManager->instance(), SIGNAL(shutdownStarted()), SLOT(onShutDownStarted()));
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_VIDEOCALLWINDOW);
 
 	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_VIDEOCALL);
@@ -54,6 +58,7 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 	FFirstRestore = true;
 	FBlockVideoChange = 0;
 	FAnimatingGeometry = false;
+	FShutdownRequested = false;
 
 	FRemoteCamera = new VideoFrame(ui.wdtVideo);
 	FRemoteCamera->setMinimumVideoSize(QSize(100,100));
@@ -415,6 +420,21 @@ void VideoCallWindow::mouseMoveEvent(QMouseEvent *AEvent)
 	QWidget::mouseMoveEvent(AEvent);
 }
 
+void VideoCallWindow::closeEvent(QCloseEvent *AEvent)
+{
+	qDebug() << "close event!";
+	if ((!FShutdownRequested) && (sipCall()->state() == ISipCall::CS_TALKING))
+	{
+		AEvent->ignore();
+	}
+	else
+		QWidget::closeEvent(AEvent);
+	if (FShutdownRequested)
+		FPluginManager->continueShutdown();
+	else
+		sipCall()->rejectCall();
+}
+
 void VideoCallWindow::onCallStateChanged(int AState)
 {
 	switch (AState)
@@ -462,6 +482,18 @@ void VideoCallWindow::onCallDevicePropertyChanged(int AType, int AProperty, cons
 	{
 		QImage frame = AValue.value<QImage>();
 		FLocalCamera->setPixmap(QPixmap::fromImage(frame));
+	}
+}
+
+void VideoCallWindow::onShutDownStarted()
+{
+	qDebug() << "Shutdown started!";
+	if (sipCall()->state() == ISipCall::CS_TALKING)
+	{
+		qDebug() << "Rejecting call!";
+		FPluginManager->delayShutdown();
+		sipCall()->rejectCall();
+		FShutdownRequested = true;
 	}
 }
 

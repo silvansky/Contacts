@@ -16,6 +16,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/inotifications.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
@@ -71,6 +72,7 @@ private:
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
 	INotifications *FNotifications;
+	ISystemIntegration *FSystemIntegration;
 private:
 	int FMinimizeNotifyId;
 	Action *FOpenAction;

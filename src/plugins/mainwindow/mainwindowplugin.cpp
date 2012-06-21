@@ -15,6 +15,7 @@ MainWindowPlugin::MainWindowPlugin()
 	FOptionsManager = NULL;
 	FTrayManager = NULL;
 	FNotifications = NULL;
+	FSystemIntegration = NULL;
 
 	FOpenAction = NULL;
 	FMinimizeNotifyId = 0;
@@ -94,6 +95,12 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
+	if (plugin)
+	{
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
+	}
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -105,12 +112,18 @@ bool MainWindowPlugin::initConnections(IPluginManager *APluginManager, int &AIni
 
 bool MainWindowPlugin::initObjects()
 {
-	Action *action = new Action(this);
-	action->setText(tr("Quit"));
-	action->setData(Action::DR_SortString,QString("900"));
-	connect(action,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
-	FMainWindow->mainMenu()->addAction(action,AG_MMENU_MAINWINDOW_QUIT,true);
+	Action *quitAction = new Action(this);
+	quitAction->setText(tr("Quit"));
+	quitAction->setData(Action::DR_SortString,QString("900"));
+	connect(quitAction,SIGNAL(triggered()),FPluginManager->instance(),SLOT(quit()));
+	FMainWindow->mainMenu()->addAction(quitAction,AG_MMENU_MAINWINDOW_QUIT,true);
 	FMainWindow->mainMenu()->setTitle(tr("Menu"));
+
+	if (FSystemIntegration)
+	{
+		quitAction->setMenuRole(QAction::QuitRole);
+		FSystemIntegration->addAction(ISystemIntegration::ApplicationRole, quitAction);
+	}
 
 	FOpenAction = new Action(this);
 	FOpenAction->setVisible(false);

@@ -109,7 +109,8 @@ void SystemIntegration::addAction(MenuActionRole role, Action * action, int grou
 	switch (role)
 	{
 	case ApplicationRole:
-		action->setMenuRole(QAction::ApplicationSpecificRole);
+		if (action->menuRole() != QAction::QuitRole)
+			action->setMenuRole(QAction::ApplicationSpecificRole);
 		if (impl && impl->fileMenu())
 			impl->fileMenu()->addAction(action, group);
 		break;
