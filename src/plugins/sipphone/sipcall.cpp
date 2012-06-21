@@ -200,7 +200,8 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 			if (status != PJ_SUCCESS)
 				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(SipManager::resolveErrorCode(status)));
-			//setCallState(CS_FINISHED);
+			if (state() != CS_TALKING)
+				setCallState(CS_FINISHED);
 			break;
 		}
 	default:
