@@ -117,6 +117,7 @@ protected slots:
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onXmppStreamRemoved(IXmppStream *AXmppStream);
+	void onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo);
 	void onMetaTabWindowCreated(IMetaTabWindow *AWindow);
 	void onMetaTabWindowDestroyed(IMetaTabWindow *AWindow);
 	void onMetaPresenceChanged(IMetaRoster *AMetaRoster, const QString &AMetaId);

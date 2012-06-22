@@ -128,7 +128,13 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 
 	plugin = APluginManager->pluginInterface("IServiceDiscovery").value(0,NULL);
 	if (plugin)
+	{
 		FDiscovery = qobject_cast<IServiceDiscovery *>(plugin->instance());
+		if (FDiscovery)
+		{
+			connect(FDiscovery->instance(),SIGNAL(discoInfoReceived(const IDiscoInfo &)),SLOT(onDiscoInfoReceived(const IDiscoInfo &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
@@ -1324,6 +1330,13 @@ void SipManager::onXmppStreamRemoved(IXmppStream *AXmppStream)
 	foreach(ISipCall *call, SipCall::findCalls(AXmppStream->streamJid()))
 		call->rejectCall(ISipCall::RC_BYUSER);
 	setSipAccountRegistration(AXmppStream->streamJid().bare(),false);
+}
+
+void SipManager::onDiscoInfoReceived(const IDiscoInfo &ADiscoInfo)
+{
+	IMetaRoster *mroster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(ADiscoInfo.streamJid) : NULL;
+	IMetaTabWindow *window = mroster!=NULL ? FMetaContacts->findMetaTabWindow(mroster->streamJid(),mroster->itemMetaContact(ADiscoInfo.contactJid)) : NULL;
+	updateCallButtonStatusIcon(window);
 }
 
 void SipManager::onMetaTabWindowCreated(IMetaTabWindow *AWindow)
