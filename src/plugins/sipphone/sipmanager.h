@@ -108,6 +108,7 @@ protected slots:
 protected slots:
 	void onStartVideoCall();
 	void onStartPhoneCall();
+	void onShutDownStarted();
 	void onShowAddContactDialog();
 	void onCallMenuAboutToShow();
 	void onCallMenuAboutToHide();

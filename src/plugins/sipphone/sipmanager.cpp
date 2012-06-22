@@ -121,6 +121,7 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
+
 	IPlugin *plugin = APluginManager->pluginInterface("IStanzaProcessor").value(0,NULL);
 	if (plugin)
 		FStanzaProcessor = qobject_cast<IStanzaProcessor *>(plugin->instance());
@@ -189,6 +190,8 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 			connect(FNotifications->instance(),SIGNAL(notificationRemoved(int)),SLOT(onNotificationRemoved(int)));
 		}
 	}
+
+	connect(FPluginManager->instance(), SIGNAL(shutdownStarted()), SLOT(onShutDownStarted()));
 
 	return FStanzaProcessor;
 }
@@ -546,7 +549,7 @@ bool SipManager::handleSipCall(int AOrder, ISipCall *ACall)
 		else
 		{
 			ACall->rejectCall(ISipCall::RC_BUSY);
-			ACall->instance()->deleteLater();
+			ACall->destroyCall();
 		}
 		return true;
 	}
@@ -1114,6 +1117,7 @@ void SipManager::onCallDestroyed()
 		CallNotifyParams params = FCallNotifyParams.take(call);
 		if (FRostersViewPlugin)
 			FRostersViewPlugin->rostersView()->removeNotify(params.rosterNotifyId);
+		FPluginManager->continueShutdown();
 	}
 }
 
@@ -1157,6 +1161,15 @@ void SipManager::onStartPhoneCall()
 			WidgetManager::showActivateRaiseWindow(window->window());
 			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
 		}
+	}
+}
+
+void SipManager::onShutDownStarted()
+{
+	foreach(ISipCall *call, SipCall::findCalls())
+	{
+		FPluginManager->delayShutdown();
+		call->destroyCall();
 	}
 }
 

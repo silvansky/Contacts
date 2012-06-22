@@ -24,7 +24,6 @@
 
 QList<SipCall *> SipCall::FCallInstances;
 
-
 SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId)
 {
 	FDirectCall = true;
@@ -57,7 +56,7 @@ SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, I
 
 SipCall::~SipCall()
 {
-	rejectCall(RC_BYUSER);
+	rejectCall();
 	if (FStanzaProcessor)
 		FStanzaProcessor->removeStanzaHandle(FSHICallAccept);
 	FCallInstances.removeAll(this);
@@ -200,13 +199,21 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 			pj_status_t status = (FCallId != -1) ? pjsua_call_hangup(FCallId, PJSIP_SC_DECLINE, NULL, NULL) : PJ_SUCCESS;
 			if (status != PJ_SUCCESS)
 				LogError(QString("[SipCall::rejectCall]: Failed to end call! pjsua_call_hangup() returned (%1) %2").arg(status).arg(SipManager::resolveErrorCode(status)));
-			if (state() != CS_TALKING)
-				setCallState(CS_FINISHED);
+			setCallState(CS_FINISHED);
 			break;
 		}
 	default:
 		break;
 	}
+}
+
+void SipCall::destroyCall()
+{
+	rejectCall();
+	if (!FHaveActiveMedia)
+		deleteLater();
+	else
+		FDestroyCall = true;
 }
 
 ISipCall::CallerRole SipCall::role() const
@@ -611,13 +618,7 @@ void SipCall::onCallState(int call_id, void *e)
 		}
 		else if (ci.state == PJSIP_INV_STATE_DISCONNECTED)
 		{
-			bool mediaClosed = true;
-			for (unsigned i = 0; i < ci.media_cnt; i++) {
-				if (ci.media[i].status != PJSUA_CALL_MEDIA_NONE)
-					mediaClosed = false;
-			}
-			if (mediaClosed)
-				emit startUpdateCallState(CS_FINISHED);
+			emit startUpdateCallState(CS_FINISHED);
 		}
 	}
 }
@@ -741,6 +742,9 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 	FState = CS_INIT;
 	FErrorCode = EC_EMPTY;
 	FRejectCode = RC_EMPTY;
+
+	FDestroyCall = false;
+	FHaveActiveMedia = false;
 
 	changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_MAX_VOLUME,MAX_VOLUME);
 	changeDeviceProperty(ISipDevice::DT_LOCAL_MICROPHONE,ISipDevice::LMP_VOLUME,DEF_VOLUME);
@@ -1008,9 +1012,13 @@ void SipCall::updateDeviceStates()
 		pjsua_call_info ci;
 		if (pjsua_call_get_info(FCallId, &ci) == PJ_SUCCESS)
 		{
+			FHaveActiveMedia = false;
 			QMap<int, ISipDevice::State> newStates;
 			for (unsigned media_index=0; media_index<ci.media_cnt; ++media_index)
 			{
+				if (ci.media[media_index].status != PJSUA_CALL_MEDIA_NONE)
+					FHaveActiveMedia = true;
+
 				if (ci.media[media_index].type == PJMEDIA_TYPE_AUDIO)
 				{
 					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
@@ -1041,6 +1049,13 @@ void SipCall::updateDeviceStates()
 			if (hasUpdates)
 				sendLocalDeviceStates();
 		}
+		else
+		{
+			FHaveActiveMedia = false;
+		}
+
+		if (FDestroyCall && !FHaveActiveMedia)
+			deleteLater();
 	}
 }
 

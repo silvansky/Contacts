@@ -13,8 +13,8 @@ class SipCall :
 		public IStanzaHandler,
 		public IStanzaRequestOwner
 {
-	Q_OBJECT
-	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner)
+	Q_OBJECT;
+	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner);
 public:
 	SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId);
 	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const Jid &AContactJid, const QString &ASessionId);
@@ -30,6 +30,7 @@ public:
 	virtual void startCall();
 	virtual void acceptCall();
 	virtual void rejectCall(RejectionCode ACode = RC_BYUSER);
+	virtual void destroyCall();
 	virtual CallerRole role() const;
 	virtual CallState state() const;
 	virtual ErrorCode errorCode() const;
@@ -100,6 +101,7 @@ private:
 	int FAccountId;
 private:
 	bool FDirectCall;
+	bool FDestroyCall;
 	Jid FContactJid;
 	QString FSessionId;
 	CallerRole FRole;
@@ -118,7 +120,7 @@ private:
 	QList<Jid> FActiveDestinations;
 	QMap<QString,Jid> FCallRequests;
 private:
-	// i/o devices
+	bool FHaveActiveMedia;
 	QMap<int, ISipDevice::State> FDeviceStates;
 	QMap<int, QMap<int, QVariant> > FDeviceProperties;
 private:

@@ -40,13 +40,10 @@ protected:
 	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
 	void mouseMoveEvent(QMouseEvent *AEvent);
-	void closeEvent(QCloseEvent *AEvent);
 protected slots:
 	void onCallStateChanged(int AState);
 	void onCallDeviceStateChanged(int AType, int AState);
 	void onCallDevicePropertyChanged(int AType, int AProperty, const QVariant &AValue);
-protected slots:
-	void onShutDownStarted();
 protected slots:
 	void onSilentButtonClicked();
 	void onMinimizeButtonClicked();
@@ -66,7 +63,6 @@ private:
 	bool FIsFirstShow;
 	bool FVideoVisible;
 	bool FFirstRestore;
-	bool FShutdownRequested;
 	int FBlockVideoChange;
 	bool FAnimatingGeometry;
 	QRect FNormalGeometry;
@@ -77,7 +73,6 @@ private:
 	VideoFrame *FRemoteCamera;
 	VideoLayout *FVideoLayout;
 	CallControlWidget *FCtrlWidget;
-	IPluginManager *FPluginManager;
 };
 
 #endif // VIDEOCALLWINDOW_H
