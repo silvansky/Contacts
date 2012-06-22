@@ -24,10 +24,6 @@
         <translation>Подключение...</translation>
     </message>
     <message>
-        <source>Connected</source>
-        <translation>Подключено</translation>
-    </message>
-    <message>
         <source>Call finished</source>
         <translation>Звонок завершен</translation>
     </message>

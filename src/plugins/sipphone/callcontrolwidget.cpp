@@ -320,8 +320,8 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbReject->setVisible(true);
 		ui.tlbSilent->setVisible(false);
 		ui.wdtDeviceControls->setVisible(true);
-		ui.lblNotice->setText(tr("Connected"));
 		updateDevicesStateAndProperties();
+		onCallTimerTimeout();
 		break;
 	case ISipCall::CS_FINISHED:
 		ui.pbtAccept->setVisible(false);

@@ -167,7 +167,6 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 		QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
 		if (FFirstRestore)
 		{
-			FFirstRestore = false;
 			int ctrlWidth = Options::fileValue("sipphone.videocall-window.control-width",ns).toInt();
 			QPoint ctrlTopLeft = Options::fileValue("sipphone.videocall-window.control-top-left",ns).toPoint();
 			if (ctrlWidth>0 && !ctrlTopLeft.isNull())
@@ -177,7 +176,7 @@ void VideoCallWindow::restoreWindowGeometryWithAnimation(bool AShowVideo)
 			}
 			FVideoLayout->restoreLocalVideoGeometry();
 		}
-		else
+		else if (!FAnimatingGeometry)
 		{
 			saveWindowGeometry();
 		}
@@ -208,6 +207,7 @@ void VideoCallWindow::closeWindowWithAnimation(int ATimeout)
 	animation->setStartValue(1.0);
 	animation->setEndValue(0.0);
 	connect(animation,SIGNAL(finished()),window(),SLOT(close()));
+	connect(animation,SIGNAL(finished()),animation,SLOT(deleteLater()));
 	QTimer::singleShot(ATimeout,animation,SLOT(start()));
 }
 
@@ -508,6 +508,7 @@ void VideoCallWindow::onHideControlsTimerTimeout()
 
 void VideoCallWindow::onGeometryAnimationFinished()
 {
+	FFirstRestore = false;
 	FAnimatingGeometry = false;
 	FVideoLayout->setVideoVisible(FVideoVisible);
 }
