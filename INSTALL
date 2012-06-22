@@ -1,6 +1,7 @@
 * Common
 
 You need Qt version > 4.7.0, but there are some issues with Linux build on 4.8.0.
+Before building Contacts you should build pjsip_mod and it's dependencies. See instructions in pjsip_mod repo.
 
 * Linux
 
@@ -15,6 +16,9 @@ You need Qt version > 4.7.0, but there are some issues with Linux build on 4.8.0
 Then you can run "ramblercontacts" from terminal.
 
 * Mac OS X
+
+On Mac OS X 10.7.x you should use Qt 4.8.0 (note that you can't use 4.8.1 or greater).
+On Mac OS X 10.6.x you should use Qt 4.7.4.
 
 First, you have to download Growl.framework (from Growl SDK version 1.3+) and Sparkle.framework and cp them to /Library/Frameworks/.
 Then run following commands:
