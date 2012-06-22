@@ -82,7 +82,7 @@ protected:
 	void setCallError(ErrorCode ACode);
 	void continueAfterRegistration(bool ARegistered);
 	void notifyActiveDestinations(const QString &AType);
-	void sipCallTo(const Jid &AContactJid);
+	void sipCallTo(const QString &APeer);
 protected slots:
 	void updateDeviceStates();
 	void updateCallState(int AState);
@@ -103,6 +103,7 @@ private:
 	bool FDirectCall;
 	bool FDestroyCall;
 	Jid FContactJid;
+	QString FSipPeer;
 	QString FSessionId;
 	CallerRole FRole;
 	CallState FState;

@@ -478,7 +478,10 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 	if (AHandleId==FSHICallAccept && state()==CS_CALLING)
 	{
 		bool sendResult = true;
-		QString type = AStanza.firstElement("query",NS_RAMBLER_PHONE).attribute("type");
+
+		QDomElement queryElem = AStanza.firstElement("query",NS_RAMBLER_PHONE);
+		QString type = queryElem.attribute("type");
+
 		LogDetail(QString("[SipCall] Action stanza received with type='%1' from='%2', sid='%3'").arg(type,AStanza.from(),sessionId()));
 		if (role()==CR_INITIATOR && FActiveDestinations.contains(AStanza.from()))
 		{
@@ -489,6 +492,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 				FCallRequests.clear();
 				FAcceptStanza = AStanza;
 				FContactJid = AStanza.from();
+				FSipPeer = queryElem.attribute("peer",FContactJid.eBare());
 				setCallState(CS_CONNECTING);
 			}
 			else if (type == "deny")
@@ -897,7 +901,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
 				FStanzaProcessor->sendStanzaOut(streamJid(), result);
 			}
-			sipCallTo(FContactJid);
+			sipCallTo(FSipPeer);
 		}
 		else
 		{
@@ -923,7 +927,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "accept");
 				queryElem.setAttribute("sid", sessionId());
-				queryElem.setAttribute("peer", streamJid().pBare());
+				queryElem.setAttribute("peer", streamJid().eBare());
 				if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
 					FCallRequests.insert(accept.id(), contactJid());
 				else
@@ -959,12 +963,12 @@ void SipCall::notifyActiveDestinations(const QString &AType)
 	}
 }
 
-void SipCall::sipCallTo(const Jid &AContactJid)
+void SipCall::sipCallTo(const QString &APeer)
 {
 	pj_status_t status;
 	char uriTmp[512];
 
-	pj_ansi_sprintf(uriTmp, "sip:%s", AContactJid.prepared().eBare().toAscii().constData());
+	pj_ansi_sprintf(uriTmp, "sip:%s", APeer.toAscii().constData());
 	pj_str_t uri = pj_str((char*)uriTmp);
 
 	if (FCallId == -1)
