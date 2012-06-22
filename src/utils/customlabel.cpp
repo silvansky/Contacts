@@ -6,7 +6,7 @@
 #include <QStyleOption>
 #include <QTextLayout>
 
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMLABEL
 # include <QDebug>
 #endif
 
@@ -60,17 +60,17 @@ QSize CustomLabel::sizeHint() const
 	QSize sh = QLabel::sizeHint();
 	//sh.setWidth(sh.width() + 1);
 	//sh.setHeight(sh.height() + 4);
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "for text:" << text();
 	qDebug() << "  size hint:" << sh;
 #endif
 	QTextDocument *doc = textDocument();
 	sh = doc->documentLayout()->documentSize().toSize();
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "  doc size:" << sh;
 #endif
 	sh += QSize(doc->documentMargin(), doc->documentMargin());
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "  doc size with margin:" << sh;
 #endif
 	return sh;
