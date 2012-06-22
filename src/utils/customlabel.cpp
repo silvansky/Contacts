@@ -83,24 +83,33 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 			 (textFormat() == Qt::AutoText && !Qt::mightBeRichText(text()))))
 	{
 		QPainter painter(this);
-//		int align = QStyle::visualAlignment(text().isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, alignment());
-//		int flags = align | (!text().isRightToLeft() ? Qt::TextForceLeftToRight : Qt::TextForceRightToLeft);
-//		if (wordWrap())
-//			flags |= Qt::TextWordWrap;
-//		switch (shadowType)
-//		{
-//		case NoShadow:
-//			flags |= TF_NOSHADOW;
-//			break;
-//		case DarkShadow:
-//			flags |= TF_DARKSHADOW;
-//			break;
-//		case LightShadow:
-//			flags |= TF_LIGHTSHADOW;
-//			break;
-//		default:
-//			break;
-//		}
+#ifndef DEBUG_CUSTOMLABEL
+		QRectF lr = contentsRect();
+		lr.moveBottom(lr.bottom() - 1); // angry and dirty hack!
+		QStyleOption opt;
+		opt.initFrom(this);
+
+		int align = QStyle::visualAlignment(text().isRightToLeft() ? Qt::RightToLeft : Qt::LeftToRight, alignment());
+		int flags = align | (!text().isRightToLeft() ? Qt::TextForceLeftToRight : Qt::TextForceRightToLeft);
+		if (wordWrap())
+			flags |= Qt::TextWordWrap;
+		switch (shadowType)
+		{
+		case NoShadow:
+			flags |= TF_NOSHADOW;
+			break;
+		case DarkShadow:
+			flags |= TF_DARKSHADOW;
+			break;
+		case LightShadow:
+			flags |= TF_LIGHTSHADOW;
+			break;
+		default:
+			break;
+		}
+		QString textToDraw = elidedText();
+		style()->drawItemText(&painter, lr.toRect(), flags, opt.palette, isEnabled(), textToDraw, QPalette::WindowText);
+#else // DEBUG_CUSTOMLABEL
 		QTextDocument *doc = textDocument();
 		QAbstractTextDocumentLayout::PaintContext ctx = textDocumentPaintContext(doc);
 		QString shadowKey;
@@ -124,23 +133,23 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 		dx += contentsMargins().left();
 		dy += contentsMargins().top();
 
-#if 1 // for debug set 0
+# if 1 // for debug set 0
 		QGraphicsDropShadowEffect *shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(shadowKey));
-#else
+# else // debug shadow
 		QGraphicsDropShadowEffect *shadow = new QGraphicsDropShadowEffect;
 		shadow->setColor(Qt::red);
 		shadow->setOffset(1, 1);
-#endif
+# endif
 		if (shadow)
 		{
-#if 0
+# if 0 // for "image method" set 1
 			QImage shadowedText(size(), QImage::Format_ARGB32_Premultiplied);
-# if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
+#  if defined(Q_WS_MAC) && !defined(__MAC_OS_X_NATIVE_FULLSCREEN)
 			// TODO: fix that
 			shadowedText.fill(Qt::red); // DUNNO WHY!!!
-# else
+#  else
 			shadowedText.fill(Qt::transparent);
-# endif
+#  endif
 			QPainter tmpPainter(&shadowedText);
 			tmpPainter.setRenderHint(QPainter::Antialiasing);
 			tmpPainter.setRenderHint(QPainter::HighQualityAntialiasing);
@@ -149,7 +158,7 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 			tmpPainter.translate(dx, dy);
 			doc->documentLayout()->draw(&tmpPainter, ctx);
 			painter.drawImage(0, 0, shadowedText);
-#else
+# else // text method
 			QPalette origPal = ctx.palette;
 			ctx.palette.setColor(QPalette::Text, shadow->color());
 
@@ -166,7 +175,7 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 			painter.translate(dx, dy);
 			doc->documentLayout()->draw(&painter, ctx);
 			painter.restore();
-#endif
+# endif // shadow method
 		}
 		else
 		{
@@ -176,6 +185,7 @@ void CustomLabel::paintEvent(QPaintEvent *pe)
 			painter.restore();
 		}
 		doc->deleteLater();
+#endif // DEBUG_CUSTOMLABEL
 	}
 	else
 		QLabel::paintEvent(pe);

@@ -19,7 +19,7 @@ Then you can run "ramblercontacts" from terminal.
 First, you have to download Growl.framework (from Growl SDK version 1.3+) and Sparkle.framework and cp them to /Library/Frameworks/.
 Then run following commands:
 
-  qmake -r virtus.pro CONFIG+=release CONFIG-=debug CONFIG-=debug_and_release DEFINES+=USE_PHONON
+  qmake -r virtus.pro -spec macx-g++ CONFIG+=release CONFIG-=debug CONFIG-=debug_and_release DEFINES+=USE_PHONON
   make
   make install
 
