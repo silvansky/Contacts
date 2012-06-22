@@ -152,6 +152,7 @@ private slots:
 private:
 	QWidget *lastFocusedWidget;
 	MacIntegrationPrivate *p;
+private:
 	// menus
 	// dock menu
 	Menu *_dockMenu;
@@ -163,6 +164,7 @@ private:
 	Menu *_statusMenu;
 	Menu *_windowMenu;
 	Menu *_helpMenu;
+private:
 	// actions
 	// app menu
 	Action *checkForUpdatesAction;
@@ -202,6 +204,7 @@ private:
 	QList<Action *> recentContactsActions;
 	// for fun =)
 	QString currentFunLink;
+private:
 	// other plugins
 	IPluginManager *pluginManager;
 	IAccountManager *accountManager;

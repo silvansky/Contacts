@@ -7,11 +7,11 @@ SOURCES += \
 
 OBJECTIVE_HEADERS += \
 	drawhelper.h \
-	dockoverlayhelper.h
+	dockoverlayhelper.h \
+	appdelegatehelper.h
 
 OBJECTIVE_SOURCES += \
 	macintegration.mm \
 	drawhelper.mm \
-	dockoverlayhelper.mm
-
-
+	dockoverlayhelper.mm \
+	appdelegatehelper.mm

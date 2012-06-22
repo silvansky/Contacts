@@ -279,6 +279,8 @@ void MacIntegrationPlugin::init()
 
 	if (pluginManager)
 	{
+		MacIntegrationPrivate::improveAppDelegate(pluginManager);
+
 		connect(pluginManager->instance(),SIGNAL(aboutToQuit()),SLOT(onAboutToQuit()));
 
 		IPlugin *plugin = pluginManager->pluginInterface("IAccountManager").value(0,NULL);
