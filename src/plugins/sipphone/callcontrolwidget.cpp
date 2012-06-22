@@ -248,6 +248,12 @@ void CallControlWidget::updateDevicesStateAndProperties()
 	ui.vlcRemoteMicrophome->setMaximumValume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat());
 }
 
+void CallControlWidget::showEvent(QShowEvent *AEvent)
+{
+	setMaximumHeight(minimumSizeHint().height());
+	QWidget::showEvent(AEvent);
+}
+
 void CallControlWidget::resizeEvent(QResizeEvent *AEvent)
 {
 	QWidget::resizeEvent(AEvent);
