@@ -84,6 +84,7 @@ private slots:
 	void onAboutToQuit();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onFocusChanged(QWidget *old, QWidget *now);
+	void onWindowFullScreenModeChanged(QWidget *window, bool fullScreen);
 	// profiles
 	void onProfileOpened(const QString &name);
 	void onProfileClosed(const QString &name);

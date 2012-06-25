@@ -25,7 +25,7 @@ MainWindowPlugin::MainWindowPlugin()
 #elif defined(Q_WS_MAC)
 	FMainWindow = new MainWindow(NULL, Qt::Window);
 	setWindowGrowButtonEnabled(FMainWindow, false);
-	setWindowFullScreenEnabled(FMainWindow, true);
+	//setWindowFullScreenEnabled(FMainWindow, true);
 #else
 	FMainWindow = new MainWindow(NULL, Qt::Window|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
 #endif

@@ -29,7 +29,7 @@
 
 extern void qt_mac_set_dock_menu(QMenu *); // Qt internal function
 
-static ITabWindow * findTabWindow(QObject * parent)
+static ITabWindow * findTabWindow(QObject *parent)
 {
 	ITabWindow * tw = qobject_cast<ITabWindow*>(parent);
 	if (parent && !tw)
@@ -51,7 +51,7 @@ static ITabWindow * findTabWindow(QObject * parent)
 	return tw;
 }
 
-static IMainWindow * findMainWindow(QObject * parent)
+static IMainWindow * findMainWindow(QObject *parent)
 {
 	IMainWindow * mw = qobject_cast<IMainWindow*>(parent);
 	if (parent && !mw)
@@ -630,6 +630,10 @@ void MacIntegrationPlugin::initMenus()
 	funLinks.insert("http://maps.rambler.ru/?ZinGs2o", tr("Where Lahdenpohja is?"));
 	// TODO: replace google shortener with rambler's one
 	funLinks.insert("http://goo.gl/TMwtu", tr("Medical certificate for swimming pool"));
+
+	// connections
+	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
+	connect(MacUtils::instance(), SIGNAL(windowFullScreenModeChanged(QWidget*,bool)), SLOT(onWindowFullScreenModeChanged(QWidget*,bool)));
 }
 
 void MacIntegrationPlugin::initDock()
@@ -659,7 +663,6 @@ void MacIntegrationPlugin::initDock()
 
 	connect(MacIntegrationPrivate::instance(), SIGNAL(dockClicked()), SIGNAL(dockClicked()));
 	connect(MacIntegrationPrivate::instance(), SIGNAL(growlNotifyClicked(int)), SIGNAL(systemNotificationClicked(int)));
-	connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(onFocusChanged(QWidget*,QWidget*)));
 }
 
 void MacIntegrationPlugin::updateActions()
@@ -842,17 +845,21 @@ void MacIntegrationPlugin::onFocusChanged(QWidget *old, QWidget *now)
 	}
 	if (qApp->activeWindow())
 	{
-		ITabWindow * tw = findTabWindow(qApp->activeWindow());
+		QWidget *aw = qApp->activeWindow();
+		ITabWindow * tw = findTabWindow(aw);
 		closeAction->setEnabled(!tw);
 		closeTabAction->setEnabled(tw);
 		closeAllTabsAction->setEnabled(tw);
 		nextTabAction->setEnabled(tw);
 		prevTabAction->setEnabled(tw);
-		IMainWindow * mw = findMainWindow(qApp->activeWindow());
+		IMainWindow * mw = findMainWindow(aw);
 		findAction->setEnabled(mw);
-		minimizeAction->setEnabled(!isWindowFullScreen(qApp->activeWindow()));
-		zoomAction->setEnabled(isWindowGrowButtonEnabled(qApp->activeWindow()) && !isWindowFullScreen(qApp->activeWindow()));
-		toggleFullScreenAction->setEnabled(isWindowFullScreenEnabled(qApp->activeWindow()));
+		minimizeAction->setEnabled(!isWindowFullScreen(aw));
+		zoomAction->setEnabled(isWindowGrowButtonEnabled(aw) && !isWindowFullScreen(aw));
+		toggleFullScreenAction->setEnabled(isWindowFullScreenEnabled(aw));
+		toggleFullScreenAction->setChecked(isWindowFullScreen(aw));
+		stayOnTopAction->setEnabled(!isWindowFullScreen(aw));
+		stayOnTopAction->setChecked(isWindowOntop(aw));
 	}
 	else
 	{
@@ -863,8 +870,18 @@ void MacIntegrationPlugin::onFocusChanged(QWidget *old, QWidget *now)
 		prevTabAction->setEnabled(false);
 		minimizeAction->setEnabled(false);
 		zoomAction->setEnabled(false);
+		stayOnTopAction->setEnabled(false);
+		stayOnTopAction->setChecked(false);
 		toggleFullScreenAction->setEnabled(false);
+		toggleFullScreenAction->setChecked(false);
 	}
+}
+
+void MacIntegrationPlugin::onWindowFullScreenModeChanged(QWidget *window, bool fullScreen)
+{
+	Q_UNUSED(fullScreen)
+	Q_UNUSED(window)
+	onFocusChanged(NULL, lastFocusedWidget);
 }
 
 void MacIntegrationPlugin::onProfileOpened(const QString & name)
