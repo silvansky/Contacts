@@ -8,6 +8,8 @@
 
 #include "log.h"
 
+#define MACUTILS_ONTOP_WAS_SET "macUtilsOnTopWasSet"
+
 #include <QDebug>
 
 // class MacUtils::MacUtilsPrivate
@@ -21,12 +23,28 @@ MacUtils::MacUtilsPrivate::MacUtilsPrivate(MacUtils *parent)
 
 void MacUtils::MacUtilsPrivate::emitWindowFullScreenModeWillChange(QWidget *window, bool fullScreen)
 {
+	// save "ontop" if it is set
+	if (fullScreen && isWindowOntop(window))
+	{
+		NSLog(@"Window is ontop! Saving state...");
+		window->setProperty(MACUTILS_ONTOP_WAS_SET, true);
+		setWindowOntop(window, false);
+	}
+
 	//qDebug() << QString("Emitting windowFullScreenModeWillChange signal with %1").arg(window->windowTitle());
 	emit windowFullScreenModeWillChange(window, fullScreen);
 }
 
 void MacUtils::MacUtilsPrivate::emitWindowFullScreenModeChanged(QWidget *window, bool fullScreen)
 {
+	// restore "ontop" if needed
+	if (!fullScreen && window->property(MACUTILS_ONTOP_WAS_SET).toBool())
+	{
+		NSLog(@"Window was ontop! Restoring state...");
+		window->setProperty(MACUTILS_ONTOP_WAS_SET, false);
+		setWindowOntop(window, true);
+	}
+
 	//qDebug() << QString("Emitting windowFullScreenModeChanged signal with %1").arg(window->windowTitle());
 	emit windowFullScreenModeChanged(window, fullScreen);
 }
