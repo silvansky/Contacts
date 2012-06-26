@@ -18,7 +18,6 @@
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-//	ui.scaContacts->setVisible(false);
 	ui.lblName->setProperty(CBC_IGNORE_FILTER, true);
 	ui.lblStatusText->setProperty(CBC_IGNORE_FILTER, true);
 	ui.lblName->setElideMode(Qt::ElideRight);
@@ -54,9 +53,9 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 	FMetaRoster = AMetaRoster;
 	FMetaContacts = AMetaContacts;
 
-	ui.sawContents->setLayout(new QVBoxLayout);
-	ui.sawContents->layout()->setSpacing(10);
-	ui.sawContents->layout()->setContentsMargins(0,10,0,0);
+	ui.wdtMetaItems->setLayout(new QVBoxLayout);
+	ui.wdtMetaItems->layout()->setSpacing(10);
+	ui.wdtMetaItems->layout()->setContentsMargins(0,10,0,0);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
@@ -158,10 +157,10 @@ void MetaProfileDialog::updateBirthday()
 	if (birthday.isValid())
 	{
 		MetaContainer &container = FMetaContainers[BIRTHDAY_META_ORDER];
-		container.metaWidget = new QWidget(ui.sawContents);
+		container.metaWidget = new QWidget(ui.wdtMetaItems);
 		container.metaWidget->setLayout(new QHBoxLayout);
 		container.metaWidget->layout()->setMargin(0);
-		ui.sawContents->layout()->addWidget(container.metaWidget);
+		ui.wdtMetaItems->layout()->addWidget(container.metaWidget);
 
 		container.metaLabel = new QLabel(tr("Birthday:"),container.metaWidget);
 		container.metaWidget->layout()->addWidget(container.metaLabel);
@@ -243,7 +242,6 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
-	//ui.scaContacts->setFixedHeight(qMin(ui.sawContents->sizeHint().height(),350));
 	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
 }
 
@@ -354,11 +352,11 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				MetaContainer &container = FMetaContainers[descriptor.metaOrder];
 				if (!container.metaWidget)
 				{
-					container.metaWidget = new QWidget(ui.sawContents);
-					container.metaWidget->setObjectName("metaWidget");
+					container.metaWidget = new QWidget(ui.wdtMetaItems);
+					container.metaWidget->setObjectName("wdtMetaWidget");
 					container.metaWidget->setLayout(new QHBoxLayout);
 					container.metaWidget->layout()->setMargin(0);
-					ui.sawContents->layout()->addWidget(container.metaWidget);
+					ui.wdtMetaItems->layout()->addWidget(container.metaWidget);
 
 					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
 					container.metaLabel->setObjectName("lblMetaLabel");
@@ -416,7 +414,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 
 				if (container.itemWidgets.isEmpty())
 				{
-					ui.sawContents->layout()->removeWidget(container.metaWidget);
+					ui.wdtMetaItems->layout()->removeWidget(container.metaWidget);
 					delete container.metaWidget;
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
@@ -426,4 +424,3 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 		}
 	}
 }
-
