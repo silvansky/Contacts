@@ -12,7 +12,7 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	FSendKey = FChatWindow->editWidget()->sendKey();
 	FErrorMessage = Qt::escape(tr("SMS service is unavailable, please try later."));
 
-	ui.lblPhoneNumber->setText(AWindow->contactJid().node());
+	ui.lblPhoneNumber->setText(AWindow->contactJid().uNode());
 	ui.lblSupplement->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Supplement")));
 	connect(ui.lblSupplement,SIGNAL(linkActivated(const QString &)),SLOT(onSupplementLinkActivated()));
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));

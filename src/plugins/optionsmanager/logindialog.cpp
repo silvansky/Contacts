@@ -79,7 +79,7 @@ public:
 
 		QTextCharFormat nodeFormat = cursor.charFormat();
 		nodeFormat.setForeground(option.palette.brush(QPalette::Normal, isSelected ? QPalette::HighlightedText : QPalette::Text));
-		cursor.insertText(streamJid.node(),nodeFormat);
+		cursor.insertText(streamJid.uNode(),nodeFormat);
 
 		QTextCharFormat domainFormat = cursor.charFormat();
 		domainFormat.setForeground(option.palette.brush(QPalette::Disabled, isSelected ? QPalette::HighlightedText : QPalette::Text));
@@ -391,7 +391,7 @@ void LoginDialog::loadLastProfile()
 	Jid lastStreamJid = Jid::decode(FOptionsManager->lastActiveProfile());
 	if (lastStreamJid.isValid())
 	{
-		ui.lneNode->setText(lastStreamJid.pNode());
+		ui.lneNode->setText(lastStreamJid.uNode());
 		QString domain = lastStreamJid.pDomain();
 		ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(domain));
 		ui.tlbDomain->setText("@"+domain);
@@ -409,9 +409,9 @@ void LoginDialog::connectIfReady()
 Jid LoginDialog::currentStreamJid() const
 {
 #ifdef DEBUG_CUSTOMDOMAIN
-	Jid streamJid(ui.lneNode->text().trimmed(),ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString(),CLIENT_NAME);
+	Jid streamJid = Jid::fromUserInput(ui.lneNode->text().trimmed()+"@"+ui.cmbDomain->itemData(ui.cmbDomain->currentIndex()).toString()+"/"CLIENT_NAME);
 #else
-	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
+	Jid streamJid = Jid::fromUserInput(ui.lneNode->text().trimmed()+"@"+ui.tlbDomain->property("domain").toString()+"/"CLIENT_NAME);
 #endif
 	return streamJid;
 }
@@ -1130,7 +1130,7 @@ void LoginDialog::onCompleterHighLighted(const QString &AText)
 	int domainIndex = ui.cmbDomain->findData(streamJid.pDomain());
 	if (!streamJid.pDomain().isEmpty() && domainIndex>=0)
 	{
-		ui.lneNode->setText(streamJid.node());
+		ui.lneNode->setText(streamJid.uNode());
 		ui.cmbDomain->setCurrentIndex(domainIndex);
 		ui.tlbDomain->setText("@"+streamJid.pDomain());
 		ui.tlbDomain->setProperty("domain", streamJid.pDomain());

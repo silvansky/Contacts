@@ -87,7 +87,7 @@ bool SASLAuth::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 					responseMap["realm"] = challengeMap.value("realm");
 				else
 					responseMap["realm"] = FXmppStream->streamJid().pDomain().toUtf8();
-				responseMap["username"] = FXmppStream->streamJid().prepared().eNode().toUtf8();
+				responseMap["username"] = FXmppStream->streamJid().pNode().toUtf8();
 				responseMap["nonce"] = challengeMap.value("nonce");
 				responseMap["nc"] = "00000001";
 				responseMap["qop"] = challengeMap.value("qop");
@@ -177,7 +177,7 @@ bool SASLAuth::start(const QDomElement &AElem)
 			LogDetail(QString("[SASLAuth][%1] Authorization with %2 mechanism").arg(FXmppStream->streamJid().bare()).arg(AUTH_DIGEST_MD5));
 
 			QByteArray resp;
-			resp.append('\0').append(FXmppStream->streamJid().prepared().eNode().toUtf8()).append('\0').append(FXmppStream->password().toUtf8());
+			resp.append('\0').append(FXmppStream->streamJid().pNode().toUtf8()).append('\0').append(FXmppStream->password().toUtf8());
 
 			Stanza auth("auth");
 			auth.setAttribute("xmlns",NS_FEATURE_SASL).setAttribute("mechanism",AUTH_PLAIN);

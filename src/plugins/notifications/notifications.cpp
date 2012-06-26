@@ -597,7 +597,7 @@ QString Notifications::contactName(const Jid &AStreamJid, const Jid &AContactJid
 	if (name.isEmpty())
 	{
 		Jid legacyJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(AStreamJid,AContactJid) : AContactJid;
-		name = legacyJid.bare();
+		name = legacyJid.uBare();
 	}
 	return name;
 }

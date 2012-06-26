@@ -222,7 +222,7 @@ QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime
 
 QString MessageStyles::defaultContactNick(const Jid &AContactJid) const
 {
-	QString nick = !AContactJid.node().isEmpty() ? AContactJid.node() : AContactJid.domain();
+	QString nick = !AContactJid.node().isEmpty() ? AContactJid.uNode() : AContactJid.domain();
 	if (!nick.isEmpty())
 	{
 		nick[0] = nick[0].toUpper();

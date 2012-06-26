@@ -689,7 +689,7 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 
 QString MetaContacts::itemFormattedLogin(const Jid &AItemJid) const
 {
-	QString hint = AItemJid.bare();
+	QString hint = AItemJid.uBare();
 	if (FGateways)
 	{
 		IMetaItemDescriptor descriptor = metaDescriptorByItem(AItemJid);
@@ -1832,7 +1832,7 @@ void MetaContacts::onSendContactDataAction(bool)
 				foreach(Jid itemJid, contact.items)
 				{
 					IMetaItemDescriptor descriptor = metaDescriptorByItem(itemJid);
-					QString login = FGateways!=NULL ? FGateways->legacyIdFromUserJid(mroster->streamJid(),itemJid) : itemJid.bare();
+					QString login = FGateways!=NULL ? FGateways->legacyIdFromUserJid(mroster->streamJid(),itemJid) : itemJid.uBare();
 					if (!login.isEmpty())
 						editor->append(descriptor.name + ": " + login);
 				}

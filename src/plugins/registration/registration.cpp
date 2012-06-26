@@ -181,7 +181,7 @@ IDataFormLocale Registration::dataFormLocale(const QString &AFormType)
 QString Registration::sendRegiterRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	Stanza reg("iq");
-	reg.setTo(AServiceJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+	reg.setTo(AServiceJid.full()).setType("get").setId(FStanzaProcessor->newId());
 	reg.addElement("query",NS_JABBER_REGISTER);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,reg,REGISTRATION_TIMEOUT))
 	{
@@ -199,7 +199,7 @@ QString Registration::sendRegiterRequest(const Jid &AStreamJid, const Jid &AServ
 QString Registration::sendUnregiterRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	Stanza unreg("iq");
-	unreg.setTo(AServiceJid.eFull()).setType("set").setId(FStanzaProcessor->newId());
+	unreg.setTo(AServiceJid.full()).setType("set").setId(FStanzaProcessor->newId());
 	unreg.addElement("query",NS_JABBER_REGISTER).appendChild(unreg.createElement("remove"));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,unreg,REGISTRATION_TIMEOUT))
 	{
@@ -217,7 +217,7 @@ QString Registration::sendUnregiterRequest(const Jid &AStreamJid, const Jid &ASe
 QString Registration::sendChangePasswordRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AUserName, const QString &APassword)
 {
 	Stanza change("iq");
-	change.setTo(AServiceJid.eFull()).setType("set").setId(FStanzaProcessor->newId());
+	change.setTo(AServiceJid.full()).setType("set").setId(FStanzaProcessor->newId());
 	QDomElement elem = change.addElement("query",NS_JABBER_REGISTER);
 	elem.appendChild(change.createElement("username")).appendChild(change.createTextNode(AUserName));
 	elem.appendChild(change.createElement("password")).appendChild(change.createTextNode(APassword));
@@ -237,7 +237,7 @@ QString Registration::sendChangePasswordRequest(const Jid &AStreamJid, const Jid
 QString Registration::sendSubmit(const Jid &AStreamJid, const IRegisterSubmit &ASubmit)
 {
 	Stanza submit("iq");
-	submit.setTo(ASubmit.serviceJid.eFull()).setType("set").setId(FStanzaProcessor->newId());
+	submit.setTo(ASubmit.serviceJid.full()).setType("set").setId(FStanzaProcessor->newId());
 	QDomElement query = submit.addElement("query",NS_JABBER_REGISTER);
 	if (ASubmit.form.type.isEmpty())
 	{

@@ -89,14 +89,14 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	}
 	else if (FGateways)
 	{
-		if (contactJid().domain() == SIP_DOMAIN)
-			ui.lblName->setText(FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),contactJid().node()));
+		if (sipCall()->isDirectCall())
+			ui.lblName->setText(FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),contactJid().uNode()));
 		else
 			ui.lblName->setText(FGateways->legacyIdFromUserJid(streamJid(),contactJid()));
 	}
 	else
 	{
-		ui.lblName->setText(contactJid().bare());
+		ui.lblName->setText(contactJid().uBare());
 	}
 	ui.lblName->setElideMode(Qt::ElideRight);
 

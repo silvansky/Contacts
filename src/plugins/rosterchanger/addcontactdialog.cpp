@@ -133,7 +133,7 @@ void AddContactDialog::setContactJid(const Jid &AContactJid)
 {
 	if (FContactJid != AContactJid.bare())
 	{
-		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.bare();
+		QString contact = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),AContactJid) : AContactJid.uBare();
 		setContactText(contact);
 		if (FGateways && FGateways->streamServices(streamJid()).contains(AContactJid.domain()))
 			setGatewayJid(AContactJid.domain());
@@ -363,7 +363,7 @@ bool AddContactDialog::isContactPresentInRoster() const
 
 QString AddContactDialog::defaultContactNick(const Jid &AContactJid) const
 {
-	QString nick = AContactJid.node();
+	QString nick = AContactJid.uNode();
 	nick = nick.isEmpty() ? AContactJid.domain() : nick;
 	if (!nick.isEmpty())
 	{

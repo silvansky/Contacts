@@ -288,7 +288,7 @@ bool VCardPlugin::requestVCard(const Jid &AStreamJid, const Jid &AContactJid)
 		if (FVCardRequestId.key(AContactJid).isEmpty())
 		{
 			Stanza request("iq");
-			request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+			request.setTo(AContactJid.full()).setType("get").setId(FStanzaProcessor->newId());
 			request.addElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,VCARD_TIMEOUT))
 			{
@@ -316,7 +316,7 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 		if (FVCardPublishId.key(AStreamJid.pBare()).isEmpty())
 		{
 			Stanza publish("iq");
-			publish.setTo(AStreamJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+			publish.setTo(AStreamJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 			QDomElement elem = publish.element().appendChild(AVCard->vcardElem().cloneNode(true)).toElement();
 			removeEmptyChildElements(elem);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,publish,VCARD_TIMEOUT))
@@ -350,7 +350,7 @@ bool VCardPlugin::requestAvatars(const Jid &AStreamJid, const Jid &AContactJid)
 			{
 				// requesting default avatars from the rambler server
 				Stanza request("iq");
-				request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+				request.setTo(AContactJid.full()).setType("get").setId(FStanzaProcessor->newId());
 				request.addElement("query", NS_RAMBLER_AVATAR);
 				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
 				{

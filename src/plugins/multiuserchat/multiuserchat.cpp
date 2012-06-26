@@ -237,7 +237,7 @@ void MultiUserChat::setNickName(const QString &ANick)
 	{
 		Jid userJid(FRoomJid.node(),FRoomJid.domain(),ANick);
 		Stanza presence("presence");
-		presence.setTo(userJid.eFull());
+		presence.setTo(userJid.full());
 		FStanzaProcessor->sendStanzaOut(FStreamJid,presence);
 	}
 	else
@@ -278,7 +278,7 @@ void MultiUserChat::setPresence(int AShow, const QString &AStatus)
 		Jid userJid(FRoomJid.node(),FRoomJid.domain(),FNickName);
 
 		Stanza presence("presence");
-		presence.setTo(userJid.eFull());
+		presence.setTo(userJid.full());
 
 		QString showText;
 		switch (AShow)
@@ -325,7 +325,7 @@ bool MultiUserChat::sendMessage(const Message &AMessage, const QString &AToNick)
 		toJid.setResource(AToNick);
 
 		Message message = AMessage;
-		message.setTo(toJid.eFull());
+		message.setTo(toJid.full());
 		message.setType(AToNick.isEmpty() ? Message::GroupChat : Message::Chat);
 
 		if (FMessageProcessor == NULL)
@@ -349,7 +349,7 @@ bool MultiUserChat::requestVoice()
 	if (FStanzaProcessor && isOpen() && FMainUser->data(MUDR_ROLE).toString()==MUC_ROLE_VISITOR)
 	{
 		Message message;
-		message.setTo(FRoomJid.eBare());
+		message.setTo(FRoomJid.bare());
 
 		Stanza &mstanza = message.stanza();
 		QDomElement formElem = mstanza.addElement("x",NS_JABBER_DATA);
@@ -376,11 +376,11 @@ bool MultiUserChat::inviteContact(const Jid &AContactJid, const QString &AReason
 	if (FStanzaProcessor && isOpen() && AContactJid.isValid())
 	{
 		Message message;
-		message.setTo(FRoomJid.eBare());
+		message.setTo(FRoomJid.bare());
 
 		Stanza &mstanza = message.stanza();
 		QDomElement invElem = mstanza.addElement("x",NS_MUC_USER).appendChild(mstanza.createElement("invite")).toElement();
-		invElem.setAttribute("to",AContactJid.eFull());
+		invElem.setAttribute("to",AContactJid.full());
 		if (!AReason.isEmpty())
 			invElem.appendChild(mstanza.createElement("reason")).appendChild(mstanza.createTextNode(AReason));
 
@@ -399,7 +399,7 @@ void MultiUserChat::setSubject(const QString &ASubject)
 	if (FStanzaProcessor && isOpen())
 	{
 		Message message;
-		message.setTo(FRoomJid.eBare()).setType(Message::GroupChat).setSubject(ASubject);
+		message.setTo(FRoomJid.bare()).setType(Message::GroupChat).setSubject(ASubject);
 		FStanzaProcessor->sendStanzaOut(FStreamJid,message.stanza());
 	}
 }
@@ -409,7 +409,7 @@ void MultiUserChat::sendDataFormMessage(const IDataForm &AForm)
 	if (FStanzaProcessor && FDataForms && isOpen())
 	{
 		Message message;
-		message.setTo(FRoomJid.eBare());
+		message.setTo(FRoomJid.bare());
 		QDomElement elem = message.stanza().element();
 		FDataForms->xmlForm(AForm,elem);
 		if (FStanzaProcessor->sendStanzaRequest(this,FStreamJid,message.stanza(),0))
@@ -423,7 +423,7 @@ void MultiUserChat::setRole(const QString &ANick, const QString &ARole, const QS
 	if (FStanzaProcessor && user)
 	{
 		Stanza role("iq");
-		role.setTo(FRoomJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+		role.setTo(FRoomJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 		QDomElement itemElem = role.addElement("query",NS_MUC_ADMIN).appendChild(role.createElement("item")).toElement();
 		itemElem.setAttribute("role",ARole);
 		itemElem.setAttribute("nick",ANick);
@@ -441,7 +441,7 @@ void MultiUserChat::setAffiliation(const QString &ANick, const QString &AAffilia
 	if (FStanzaProcessor && user)
 	{
 		Stanza role("iq");
-		role.setTo(FRoomJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+		role.setTo(FRoomJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 		QDomElement itemElem = role.addElement("query",NS_MUC_ADMIN).appendChild(role.createElement("item")).toElement();
 		itemElem.setAttribute("affiliation",AAffiliation);
 		itemElem.setAttribute("nick",ANick);
@@ -462,7 +462,7 @@ bool MultiUserChat::requestAffiliationList(const QString &AAffiliation)
 	else if (FStanzaProcessor && isOpen() && AAffiliation!=MUC_AFFIL_NONE)
 	{
 		Stanza iq("iq");
-		iq.setTo(FRoomJid.eBare()).setType("get").setId(FStanzaProcessor->newId());
+		iq.setTo(FRoomJid.bare()).setType("get").setId(FStanzaProcessor->newId());
 		QDomElement itemElem = iq.addElement("query",NS_MUC_ADMIN).appendChild(iq.createElement("item")).toElement();
 		itemElem.setAttribute("affiliation",AAffiliation);
 		if (FStanzaProcessor->sendStanzaRequest(this,FStreamJid,iq,MUC_LIST_TIMEOUT))
@@ -483,7 +483,7 @@ bool MultiUserChat::changeAffiliationList(const QList<IMultiUserListItem> &ADelt
 	if (FStanzaProcessor && isOpen() && !ADeltaList.isEmpty())
 	{
 		Stanza iq("iq");
-		iq.setTo(FRoomJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+		iq.setTo(FRoomJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 		QDomElement query = iq.addElement("query",NS_MUC_ADMIN);
 		foreach(IMultiUserListItem listItem, ADeltaList)
 		{
@@ -514,7 +514,7 @@ bool MultiUserChat::requestConfigForm()
 	else if (FStanzaProcessor && isOpen())
 	{
 		Stanza iq("iq");
-		iq.setTo(FRoomJid.eBare()).setType("get").setId(FStanzaProcessor->newId());
+		iq.setTo(FRoomJid.bare()).setType("get").setId(FStanzaProcessor->newId());
 		iq.addElement("query",NS_MUC_OWNER);
 		if (FStanzaProcessor->sendStanzaRequest(this,FStreamJid,iq,MUC_IQ_TIMEOUT))
 		{
@@ -535,7 +535,7 @@ bool MultiUserChat::sendConfigForm(const IDataForm &AForm)
 	else if (FStanzaProcessor && FDataForms)
 	{
 		Stanza iq("iq");
-		iq.setTo(FRoomJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+		iq.setTo(FRoomJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 		QDomElement queryElem = iq.addElement("query",NS_MUC_OWNER).toElement();
 		FDataForms->xmlForm(AForm,queryElem);
 		if (FStanzaProcessor->sendStanzaRequest(this,FStreamJid,iq,MUC_IQ_TIMEOUT))
@@ -554,9 +554,9 @@ bool MultiUserChat::destroyRoom(const QString &AReason)
 	if (FStanzaProcessor && isOpen())
 	{
 		Stanza iq("iq");
-		iq.setTo(FRoomJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+		iq.setTo(FRoomJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 		QDomElement destroyElem = iq.addElement("query",NS_MUC_OWNER).appendChild(iq.createElement("destroy")).toElement();
-		destroyElem.setAttribute("jid",FRoomJid.eBare());
+		destroyElem.setAttribute("jid",FRoomJid.bare());
 		if (!AReason.isEmpty())
 			destroyElem.appendChild(iq.createElement("reason")).appendChild(iq.createTextNode(AReason));
 		if (FStanzaProcessor->sendStanzaRequest(this,FStreamJid,iq,MUC_IQ_TIMEOUT))

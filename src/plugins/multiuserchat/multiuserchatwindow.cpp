@@ -265,18 +265,18 @@ INotification MultiUserChatWindow::messageNotify(INotifications *ANotifications,
 					{
 						notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_MUC_MESSAGE_MENTION);
 						notify.typeId = NNT_MUC_MESSAGE_MENTION;
-						notify.data.insert(NDR_POPUP_TEXT,tr("Mention message in conference: %1").arg(contactJid.node()));
+						notify.data.insert(NDR_POPUP_TEXT,tr("Mention message in conference: %1").arg(contactJid.uNode()));
 						notify.data.insert(NDR_POPUP_CAPTION,tr("Mention in conference"));
 					}
 					else
 					{
 						notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_MUC_MESSAGE_GROUPCHAT);
 						notify.typeId = NNT_MUC_MESSAGE_GROUPCHAT;
-						notify.data.insert(NDR_POPUP_TEXT,tr("New message in conference: %1").arg(contactJid.node()));
+						notify.data.insert(NDR_POPUP_TEXT,tr("New message in conference: %1").arg(contactJid.uNode()));
 						notify.data.insert(NDR_POPUP_CAPTION,tr("Conference message"));
 					}
 					notify.data.insert(NDR_ICON,storage->getIcon(MNI_MUC_MESSAGE));
-					notify.data.insert(NDR_POPUP_TITLE,tr("[%1] in conference %2").arg(contactJid.resource()).arg(contactJid.node()));
+					notify.data.insert(NDR_POPUP_TITLE,tr("[%1] in conference %2").arg(contactJid.resource()).arg(contactJid.uNode()));
 					notify.data.insert(NDR_SOUND_FILE,SDF_MUC_MESSAGE);
 
 					FActiveMessages.append(messageId);
@@ -294,7 +294,7 @@ INotification MultiUserChatWindow::messageNotify(INotifications *ANotifications,
 					notify.data.insert(NDR_ICON,storage->getIcon(MNI_MUC_PRIVATE_MESSAGE));
 					notify.data.insert(NDR_POPUP_TEXT,tr("Private message from: [%1]").arg(contactJid.resource()));
 					notify.data.insert(NDR_POPUP_CAPTION,tr("Private message"));
-					notify.data.insert(NDR_POPUP_TITLE,tr("[%1] in conference %2").arg(contactJid.resource()).arg(contactJid.node()));
+					notify.data.insert(NDR_POPUP_TITLE,tr("[%1] in conference %2").arg(contactJid.resource()).arg(contactJid.uNode()));
 					notify.data.insert(NDR_SOUND_FILE,SDF_MUC_PRIVATE_MESSAGE);
 
 					if (FDestroyTimers.contains(window))
@@ -338,7 +338,7 @@ INotification MultiUserChatWindow::messageNotify(INotifications *ANotifications,
 				notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_MUC_MESSAGE_PRIVATE);
 				notify.typeId = NNT_MUC_MESSAGE_PRIVATE;
 				notify.data.insert(NDR_ICON,storage->getIcon(MNI_MUC_DATA_MESSAGE));
-				notify.data.insert(NDR_TRAY_TOOLTIP,tr("Data form received from: %1").arg(contactJid.node()));
+				notify.data.insert(NDR_TRAY_TOOLTIP,tr("Data form received from: %1").arg(contactJid.uNode()));
 				notify.data.insert(NDR_POPUP_CAPTION,tr("Data form received"));
 				notify.data.insert(NDR_POPUP_TITLE,ANotifications->contactName(FMultiChat->streamJid(),contactJid));
 				notify.data.insert(NDR_POPUP_IMAGE,ANotifications->contactAvatar(FMultiChat->streamJid(),contactJid));
@@ -1133,7 +1133,7 @@ bool MultiUserChatWindow::execShortcutCommand(const QString &AText)
 		if (userJid.isValid())
 			FMultiChat->inviteContact(userJid,parts.join(" "));
 		else
-			showStatusMessage(tr("%1 is not valid contact JID").arg(userJid.full()),IMessageContentOptions::Notification, 0);
+			showStatusMessage(tr("%1 is not valid contact JID").arg(userJid.uFull()),IMessageContentOptions::Notification, 0);
 		hasCommand = true;
 	}
 	else if (AText.startsWith("/join "))
@@ -1147,7 +1147,7 @@ bool MultiUserChatWindow::execShortcutCommand(const QString &AText)
 			FChatPlugin->showJoinMultiChatDialog(streamJid(),roomJid,FMultiChat->nickName(),parts.join(" "));
 		}
 		else
-			showStatusMessage(tr("%1 is not valid room JID").arg(roomJid.full()),IMessageContentOptions::Notification, 0);
+			showStatusMessage(tr("%1 is not valid room JID").arg(roomJid.uFull()),IMessageContentOptions::Notification, 0);
 		hasCommand = true;
 	}
 	else if (AText.startsWith("/msg "))
@@ -1337,11 +1337,11 @@ void MultiUserChatWindow::updateWindow()
 	else
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_MUC_CONFERENCE,0,0,"windowIcon");
 
-	QString roomName = tr("%1 (%2)").arg(FMultiChat->roomJid().node()).arg(FUsers.count());
+	QString roomName = tr("%1 (%2)").arg(FMultiChat->roomJid().uNode()).arg(FUsers.count());
 	setWindowIconText(roomName);
 	setWindowTitle(tr("%1 - Conference").arg(roomName));
 
-	ui.lblRoom->setText(QString("<big><b>%1</b></big> - %2").arg(Qt::escape(FMultiChat->roomJid().full())).arg(Qt::escape(FMultiChat->nickName())));
+	ui.lblRoom->setText(QString("<big><b>%1</b></big> - %2").arg(Qt::escape(FMultiChat->roomJid().uFull())).arg(Qt::escape(FMultiChat->nickName())));
 
 	emit tabPageChanged();
 }
@@ -1859,7 +1859,7 @@ void MultiUserChatWindow::onServiceMessageReceived(const Message &AMessage)
 
 void MultiUserChatWindow::onInviteDeclined(const Jid &AContactJid, const QString &AReason)
 {
-	QString nick = AContactJid && roomJid() ? AContactJid.resource() : AContactJid.full();
+	QString nick = AContactJid && roomJid() ? AContactJid.resource() : AContactJid.uFull();
 	showStatusMessage(tr("%1 has declined your invite to this room. %2").arg(nick).arg(AReason),IMessageContentOptions::Notification);
 }
 
@@ -1895,7 +1895,7 @@ void MultiUserChatWindow::onAffiliationListReceived(const QString &AAffiliation,
 		listName = tr("Edit administrators list - %1");
 	else if (AAffiliation == MUC_AFFIL_OWNER)
 		listName = tr("Edit owners list - %1");
-	dialog->setTitle(listName.arg(roomJid().bare()));
+	dialog->setTitle(listName.arg(roomJid().uBare()));
 	connect(dialog,SIGNAL(accepted()),SLOT(onAffiliationListDialogAccepted()));
 	connect(FMultiChat->instance(),SIGNAL(chatClosed()),dialog,SLOT(reject()));
 	dialog->show();
@@ -2015,7 +2015,7 @@ void MultiUserChatWindow::onChatMessageReady()
 	if (window && FMultiChat->isOpen() && FMultiChat->userByNick(window->contactJid().resource())!=NULL)
 	{
 		Message message;
-		message.setType(Message::Chat).setTo(window->contactJid().eFull());
+		message.setType(Message::Chat).setTo(window->contactJid().full());
 
 		if (FMessageProcessor)
 			FMessageProcessor->textToMessage(message,window->editWidget()->document());
@@ -2126,7 +2126,7 @@ void MultiUserChatWindow::onToolBarActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action == FChangeNick)
 	{
-		QString nick = QInputDialog::getText(this,tr("Change nick name"),tr("Enter your new nick name in room %1").arg(roomJid().node()),
+		QString nick = QInputDialog::getText(this,tr("Change nick name"),tr("Enter your new nick name in room %1").arg(roomJid().uNode()),
 			QLineEdit::Normal,FMultiChat->nickName());
 		if (!nick.isEmpty())
 			FMultiChat->setNickName(nick);
@@ -2136,7 +2136,7 @@ void MultiUserChatWindow::onToolBarActionTriggered(bool)
 		if (FMultiChat->isOpen())
 		{
 			QString newSubject = FMultiChat->subject();
-			InputTextDialog *dialog = new InputTextDialog(this,tr("Change subject"),tr("Enter new subject for room %1").arg(roomJid().node()), newSubject);
+			InputTextDialog *dialog = new InputTextDialog(this,tr("Change subject"),tr("Enter new subject for room %1").arg(roomJid().uNode()), newSubject);
 			if (dialog->exec() == QDialog::Accepted)
 				FMultiChat->setSubject(newSubject);
 		}

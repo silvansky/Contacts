@@ -218,7 +218,7 @@ void Roster::setItem(const Jid &AItemJid, const QString &AName, const QSet<QStri
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
 		QDomElement itemElem = query.addElement("query", NS_JABBER_ROSTER).appendChild(query.createElement("item")).toElement();
-		itemElem.setAttribute("jid", AItemJid.eBare());
+		itemElem.setAttribute("jid", AItemJid.bare());
 
 		if (!AName.isEmpty())
 			itemElem.setAttribute("name", AName);
@@ -250,7 +250,7 @@ void Roster::removeItem(const Jid &AItemJid)
 		Stanza query("iq");
 		query.setType("set").setId(FStanzaProcessor->newId());
 		QDomElement itemElem = query.addElement("query",NS_JABBER_ROSTER).appendChild(query.createElement("item")).toElement();
-		itemElem.setAttribute("jid", AItemJid.eBare());
+		itemElem.setAttribute("jid", AItemJid.bare());
 		itemElem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
 
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),query))
@@ -279,7 +279,7 @@ void Roster::saveRosterItems(const QString &AFileName) const
 	foreach(IRosterItem ritem, FRosterItems)
 	{
 		QDomElement itemElem = elem.appendChild(xml.createElement("item")).toElement();
-		itemElem.setAttribute("jid",ritem.itemJid.eBare());
+		itemElem.setAttribute("jid",ritem.itemJid.bare());
 		itemElem.setAttribute("name",ritem.name);
 		itemElem.setAttribute("subscription",ritem.subscription);
 		itemElem.setAttribute("ask",ritem.ask);
@@ -343,7 +343,7 @@ void Roster::sendSubscription(const Jid &AItemJid, int ASubsType, const QString 
 	if (!type.isEmpty())
 	{
 		Stanza subscr("presence");
-		subscr.setTo(AItemJid.eBare()).setType(type);
+		subscr.setTo(AItemJid.bare()).setType(type);
 		if (!AText.isEmpty())
 			subscr.addElement("status").appendChild(subscr.createTextNode(AText));
 		if (FStanzaProcessor->sendStanzaOut(FXmppStream->streamJid(),subscr))

@@ -277,7 +277,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 						Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
 						contactJid = FGateways->legacyIdFromUserJid(streamJid,contactJid);
 					}
-					display = contactJid.bare();
+					display = contactJid.uBare();
 				}
 				return display;
 			}
@@ -293,7 +293,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				if (display.isEmpty())
 				{
 					Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
-					display = indexJid.bare();
+					display = indexJid.uBare();
 				}
 				return display;
 			}

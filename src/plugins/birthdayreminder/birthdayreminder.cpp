@@ -441,7 +441,7 @@ void BirthdayReminder::onNotificationTest(const QString &ATypeId, ushort AKinds)
 		if (AKinds & INotification::PopupWindow)
 		{
 			Jid contactJid = "vasilisa@rambler/ramblercontacts";
-         notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid.full()));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contactJid));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Birthday today!"));
 			notify.data.insert(NDR_POPUP_STYLEKEY,STS_NOTIFICATION_NOTIFYWIDGET);

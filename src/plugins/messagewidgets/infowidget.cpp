@@ -79,7 +79,7 @@ void InfoWidget::autoUpdateField(InfoField AField)
 	{
 	case AccountName:
 	{
-		setField(AField, FAccount!=NULL ? FAccount->name() : FStreamJid.full());
+		setField(AField, FAccount!=NULL ? FAccount->name() : FStreamJid.uFull());
 		break;
 	}
 	case ContactName:
@@ -88,7 +88,7 @@ void InfoWidget::autoUpdateField(InfoField AField)
 		if (!(FStreamJid && FContactJid))
 		{
 			IRosterItem ritem = FRoster ? FRoster->rosterItem(FContactJid) : IRosterItem();
-			name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : (!FContactJid.node().isEmpty() ? FContactJid.node() : FContactJid.bare());
+			name = ritem.isValid && !ritem.name.isEmpty() ? ritem.name : (!FContactJid.node().isEmpty() ? FContactJid.uNode() : FContactJid.uBare());
 		}
 		else
 			name = FContactJid.resource();
@@ -259,9 +259,9 @@ void InfoWidget::updateFieldLabel(IInfoWidget::InfoField AField)
 
 		IRosterItem ritem = FRoster ? FRoster->rosterItem(FContactJid) : IRosterItem();
 		if (isFiledAutoUpdated(AField) && ritem.name.isEmpty())
-			ui.lblName->setText(Qt::escape(FContactJid.full()));
+			ui.lblName->setText(Qt::escape(FContactJid.uFull()));
 		else
-			ui.lblName->setText(QString("<big><b>%1</b></big> - %2").arg(Qt::escape(name)).arg(Qt::escape(FContactJid.full())));
+			ui.lblName->setText(QString("<big><b>%1</b></big> - %2").arg(Qt::escape(name)).arg(Qt::escape(FContactJid.uFull())));
 
 		ui.lblName->setVisible(isFieldVisible(AField));
 		break;

@@ -573,7 +573,7 @@ bool RosterChanger::xmppUriOpen(const Jid &AStreamJid, const Jid &AContactJid, c
 				if (dialog)
 				{
 					dialog->setContactJid(AContactJid);
-					dialog->setNickName(AParams.contains("name") ? AParams.value("name") : AContactJid.node());
+					dialog->setNickName(AParams.contains("name") ? AParams.value("name") : AContactJid.uNode());
 					dialog->setGroup(AParams.contains("group") ? AParams.value("group") : QString::null);
 					dialog->instance()->show();
 				}
@@ -751,7 +751,7 @@ QWidget *RosterChanger::showAddContactDialog(const Jid &AStreamJid)
 
 QString RosterChanger::contactName(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	return FNotifications!=NULL ? FNotifications->contactName(AStreamJid,AContactJid) : (FGateways!=NULL ? FGateways->legacyIdFromUserJid(AStreamJid,AContactJid) : AContactJid.bare());
+	return FNotifications!=NULL ? FNotifications->contactName(AStreamJid,AContactJid) : (FGateways!=NULL ? FGateways->legacyIdFromUserJid(AStreamJid,AContactJid) : AContactJid.uBare());
 }
 
 QString RosterChanger::subscriptionNotify(const Jid &AStreamJid, const Jid &AContactJid, int ASubsType) const
@@ -1730,7 +1730,7 @@ void RosterChanger::onRemoveItemFromRoster(bool)
 			if (roster->rosterItem(contactJid).isValid)
 			{
 				if (QMessageBox::question(NULL,tr("Remove contact"),
-					tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(Qt::escape(contactJid.bare())),
+					tr("You are assured that wish to remove a contact <b>%1</b> from roster?").arg(Qt::escape(contactJid.uBare())),
 					QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
 				{
 					roster->removeItem(contactJid);

@@ -30,7 +30,7 @@ macx: {
 }
 
 TARGET_UTILS             = ramblercontactsutils
-unix:!macx:VERSION_UTILS = 1.3.0
+unix:!macx:VERSION_UTILS = 1.4.0
 
 #Configurable values
 isEmpty(INSTALL_PREFIX) {

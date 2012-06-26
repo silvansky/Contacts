@@ -536,7 +536,7 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.bare());
 		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
@@ -557,7 +557,7 @@ QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.bare());
 		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_TIMEOUT))
 		{
@@ -973,7 +973,7 @@ void SmsMessageHandler::onMessageReady()
 	if (window)
 	{
 		Message message;
-		message.setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
+		message.setTo(window->contactJid().full()).setType(Message::Chat).setId(FStanzaProcessor->newId());
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		if (!message.body().trimmed().isEmpty())
 		{

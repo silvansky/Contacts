@@ -143,13 +143,13 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 					Message message;
 					if (elem.tagName() == "to")
 					{
-						message.setTo(result.with.eFull());
+						message.setTo(result.with.full());
 						message.setFrom(AStreamJid.pBare());
 					}
 					else
 					{
 						message.setTo(AStreamJid.pBare());
-						message.setFrom(result.with.eFull());
+						message.setFrom(result.with.full());
 					}
 
 					message.setType(Message::Chat);
@@ -290,13 +290,13 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 				if (!newItemPrefs.save.isEmpty())
 				{
 					QDomElement itemElem = prefElem.appendChild(save.createElement("item")).toElement();
-					itemElem.setAttribute("jid",itemJid.eFull());
+					itemElem.setAttribute("jid",itemJid.full());
 					itemElem.setAttribute("save",newItemPrefs.save);
 				}
 				else
 				{
 					QDomElement itemElem = prefElem.appendChild(save.createElement("itemremove")).toElement();
-					itemElem.setAttribute("jid",itemJid.eFull());
+					itemElem.setAttribute("jid",itemJid.full());
 				}
 			}
 			itemsChanged |= itemChanged;
@@ -326,7 +326,7 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 		Stanza retrieve("iq");
 		retrieve.setType("get").setId(FStanzaProcessor->newId());
 		QDomElement retrieveElem = retrieve.addElement("retrieve",NS_RAMBLER_ARCHIVE);
-		retrieveElem.setAttribute("with",ARetrieve.with.eFull());
+		retrieveElem.setAttribute("with",ARetrieve.with.full());
 		retrieveElem.setAttribute("last",ARetrieve.count);
 		if (!ARetrieve.beforeId.isEmpty() || !ARetrieve.beforeTime.isNull())
 		{

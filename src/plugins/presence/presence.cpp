@@ -317,7 +317,7 @@ bool Presence::sendPresence(const Jid &AContactJid, int AShow, const QString &AS
 		}
 
 		Stanza pres("presence");
-		pres.setTo(AContactJid.eFull());
+		pres.setTo(AContactJid.full());
 		if (AShow == Invisible)
 		{
 			pres.setType("invisible");

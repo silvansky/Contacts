@@ -85,8 +85,8 @@ void ViewHistoryWindow::initViewHtml()
 		</body></html>";
 
 	QString html = HtmlTemplate.arg(
-		QUrl::toPercentEncoding(contactJid().eBare()).constData(),
-		streamJid().eBare(),
+		QUrl::toPercentEncoding(contactJid().bare()).constData(),
+		streamJid().bare(),
 		streamJid().pDomain(),
 		FRoster->xmppStream()->password(),
 		QString("Enter"),
@@ -113,7 +113,7 @@ void ViewHistoryWindow::updateTitle()
 {
 	IRosterItem ritem = FRoster!=NULL ? FRoster->rosterItem(contactJid()) : IRosterItem();
 	if (ritem.name.isEmpty())
-		ritem.name = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),contactJid()) : contactJid().bare();
+		ritem.name = FGateways!=NULL ? FGateways->legacyIdFromUserJid(streamJid(),contactJid()) : contactJid().uBare();
 
 	QString title = tr("Chat history - %1").arg(ritem.name);
 	if (FProgress>0 && FProgress<100)

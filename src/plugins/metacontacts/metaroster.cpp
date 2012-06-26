@@ -307,7 +307,7 @@ void MetaRoster::saveMetaContacts(const QString &AFileName) const
 			{
 				IRosterItem ritem = roster()->rosterItem(itemJid);
 				QDomElement itemElem = mcElem.appendChild(xml.createElement("item")).toElement();
-				itemElem.setAttribute("jid", itemJid.eBare());
+				itemElem.setAttribute("jid", itemJid.bare());
 				itemElem.setAttribute("subscription",ritem.subscription);
 				itemElem.setAttribute("ask",ritem.ask);
 			}
@@ -373,7 +373,7 @@ QString MetaRoster::createContact(const IMetaContact &AContact)
 				QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_CREATE);
 				mcElem.setAttribute("name",AContact.name);
-				mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+				mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.bare());
 
 				foreach(QString group, AContact.groups)
 					if (!group.isEmpty())
@@ -454,7 +454,7 @@ QString MetaRoster::deleteContact(const QString &AMetaId)
 			QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 			mcElem.setAttribute("action",MC_ACTION_DELETE);
 			mcElem.setAttribute("id",AMetaId);
-			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+			mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",itemJid.bare());
 
 			if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 			{
@@ -549,7 +549,7 @@ QString MetaRoster::detachContactItem(const QString &AMetaId, const Jid &AItemJi
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_RELEASE);
 		mcElem.setAttribute("id",AMetaId);
-		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.bare());
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
@@ -571,7 +571,7 @@ QString MetaRoster::deleteContactItem(const QString &AMetaId, const Jid &AItemJi
 		QDomElement mcElem = query.addElement("query",NS_RAMBLER_METACONTACTS).appendChild(query.createElement("mc")).toElement();
 		mcElem.setAttribute("action",MC_ACTION_DELETE);
 		mcElem.setAttribute("id",AMetaId);
-		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.eBare());
+		mcElem.appendChild(query.createElement("item")).toElement().setAttribute("jid",AItemJid.bare());
 
 		if (FStanzaProcessor->sendStanzaRequest(this,streamJid(),query,ACTION_TIMEOUT))
 		{
@@ -850,7 +850,7 @@ void MetaRoster::processMetasElement(QDomElement AMetasElement, bool ACompleteRo
 Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 {
 	Stanza iq("iq");
-	iq.setType("set").setTo(streamJid().eFull()).setId(FStanzaProcessor->newId());
+	iq.setType("set").setTo(streamJid().full()).setId(FStanzaProcessor->newId());
 
 	if (!AMetaElem.isNull())
 	{
@@ -889,7 +889,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					if (ritem.isValid)
 					{
 						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
-						rosterItem.setAttribute("jid",itemJid.eBare());
+						rosterItem.setAttribute("jid",itemJid.bare());
 						rosterItem.setAttribute("name",mcElem.attribute("name"));
 						rosterItem.setAttribute("subscription",ritem.subscription);
 						rosterItem.setAttribute("ask",ritem.ask);
@@ -908,7 +908,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					if (ritem.isValid)
 					{
 						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
-						rosterItem.setAttribute("jid",itemJid.eBare());
+						rosterItem.setAttribute("jid",itemJid.bare());
 						rosterItem.setAttribute("name",ritem.name);
 						rosterItem.setAttribute("subscription",ritem.subscription);
 						rosterItem.setAttribute("ask",ritem.ask);
@@ -941,7 +941,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 					foreach(Jid itemJid, contact.items)
 					{
 						QDomElement rosterItem = queryElem.appendChild(iq.createElement("item")).toElement();
-						rosterItem.setAttribute("jid",itemJid.eBare());
+						rosterItem.setAttribute("jid",itemJid.bare());
 						rosterItem.setAttribute("subscription",SUBSCRIPTION_REMOVE);
 					}
 				}
@@ -956,7 +956,7 @@ Stanza MetaRoster::convertMetaElemToRosterStanza(QDomElement AMetaElem) const
 Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 {
 	Stanza iq("iq");
-	iq.setType("set").setFrom(streamJid().eFull()).setId(FStanzaProcessor->newId());
+	iq.setType("set").setFrom(streamJid().full()).setId(FStanzaProcessor->newId());
 	QDomElement queryElem = iq.element().appendChild(iq.createElement("query",NS_RAMBLER_METACONTACTS)).toElement();
 
 	if (!ARosterElem.isNull())
@@ -974,7 +974,7 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_DELETE);
 				mcElem.setAttribute("id",metaId);
-				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.bare());
 			}
 			//   
 			else if (!ritem.isValid)
@@ -982,7 +982,7 @@ Stanza MetaRoster::convertRosterElemToMetaStanza(QDomElement ARosterElem) const
 				QDomElement mcElem = queryElem.appendChild(iq.createElement("mc")).toElement();
 				mcElem.setAttribute("action",MC_ACTION_CREATE);
 				mcElem.setAttribute("name",itemElem.attribute("name"));
-				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.eBare());
+				mcElem.appendChild(iq.createElement("item")).toElement().setAttribute("jid",itemJid.bare());
 
 				QDomElement itemGroupElem = itemElem.firstChildElement("group");
 				while (!itemGroupElem.isNull())

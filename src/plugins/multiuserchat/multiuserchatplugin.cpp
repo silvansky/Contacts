@@ -487,7 +487,7 @@ bool MultiUserChatPlugin::messageShowWindow(int AMessageId)
 			fields.password = inviteElem.firstChildElement("password").text();
 
 			QString reason = inviteElem.firstChildElement("reason").text();
-			QString msg = tr("You are invited to the conference %1 by %2.<br>Reason: %3").arg(Qt::escape(roomJid.bare())).arg(Qt::escape(fromJid.full())).arg(Qt::escape(reason));
+			QString msg = tr("You are invited to the conference %1 by %2.<br>Reason: %3").arg(Qt::escape(roomJid.uBare())).arg(Qt::escape(fromJid.uFull())).arg(Qt::escape(reason));
 			msg+="<br><br>";
 			msg+=tr("Do you want to join this conference?");
 
@@ -537,7 +537,7 @@ IMultiUserChat *MultiUserChatPlugin::getMultiUserChat(const Jid &AStreamJid, con
 	IMultiUserChat *chat = multiUserChat(AStreamJid,ARoomJid);
 	if (!chat)
 	{
-		chat = new MultiUserChat(this,AStreamJid,ARoomJid,ANick.isEmpty() ? AStreamJid.node() : ANick,APassword,this);
+		chat = new MultiUserChat(this,AStreamJid,ARoomJid,ANick.isEmpty() ? AStreamJid.uNode() : ANick,APassword,this);
 		connect(chat->instance(),SIGNAL(chatDestroyed()),SLOT(onMultiUserChatDestroyed()));
 		FChats.append(chat);
 		emit multiUserChatCreated(chat);
@@ -591,7 +591,7 @@ void MultiUserChatPlugin::insertChatAction(IMultiUserChatWindow *AWindow)
 	{
 		Action *action = new Action(FChatMenu);
 		action->setIcon(RSR_STORAGE_MENUICONS,MNI_MUC_CONFERENCE);
-		action->setText(tr("%1 as %2").arg(AWindow->multiUserChat()->roomJid().bare()).arg(AWindow->multiUserChat()->nickName()));
+		action->setText(tr("%1 as %2").arg(AWindow->multiUserChat()->roomJid().uBare()).arg(AWindow->multiUserChat()->nickName()));
 		connect(action,SIGNAL(triggered(bool)),SLOT(onChatActionTriggered(bool)));
 		FChatMenu->addAction(action,AG_DEFAULT,false);
 		FChatActions.insert(AWindow,action);
@@ -709,7 +709,7 @@ Menu *MultiUserChatPlugin::createInviteMenu(const Jid &AContactJid, QWidget *APa
 		{
 			Action *action = new Action(inviteMenu);
 			action->setIcon(RSR_STORAGE_MENUICONS,MNI_MUC_CONFERENCE);
-			action->setText(tr("%1 from %2").arg(window->roomJid().full()).arg(window->multiUserChat()->nickName()));
+			action->setText(tr("%1 from %2").arg(window->roomJid().uFull()).arg(window->multiUserChat()->nickName()));
 			action->setData(ADR_STREAM_JID,window->streamJid().full());
 			action->setData(ADR_HOST,AContactJid.full());
 			action->setData(ADR_ROOM,window->roomJid().full());
@@ -908,10 +908,10 @@ void MultiUserChatPlugin::onInviteDialogFinished(int AResult)
 		else if (AResult == QMessageBox::No)
 		{
 			Message decline;
-			decline.setTo(fields.roomJid.eBare());
+			decline.setTo(fields.roomJid.bare());
 			Stanza &mstanza = decline.stanza();
 			QDomElement declElem = mstanza.addElement("x",NS_MUC_USER).appendChild(mstanza.createElement("decline")).toElement();
-			declElem.setAttribute("to",fields.fromJid.eFull());
+			declElem.setAttribute("to",fields.fromJid.full());
 			QString reason = tr("I'm too busy right now");
 			reason = QInputDialog::getText(inviteDialog,tr("Decline invite"),tr("Enter a reason"),QLineEdit::Normal,reason);
 			if (!reason.isEmpty())

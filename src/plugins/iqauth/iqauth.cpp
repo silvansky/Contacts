@@ -60,7 +60,7 @@ bool IqAuth::start(const QDomElement &AElem)
 		Stanza auth("iq");
 		auth.setType("set").setTo(FXmppStream->streamJid().domain()).setId("auth");
 		QDomElement query = auth.addElement("query",NS_JABBER_IQ_AUTH);
-		query.appendChild(auth.createElement("username")).appendChild(auth.createTextNode(FXmppStream->streamJid().prepared().eNode()));
+		query.appendChild(auth.createElement("username")).appendChild(auth.createTextNode(FXmppStream->streamJid().pNode()));
 		QByteArray shaData = FXmppStream->streamId().toUtf8()+FXmppStream->password().toUtf8();
 		QByteArray shaDigest = QCryptographicHash::hash(shaData,QCryptographicHash::Sha1).toHex();
 

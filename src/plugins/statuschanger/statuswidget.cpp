@@ -322,7 +322,7 @@ void StatusWidget::onVCardReceived(const Jid &AContactJid)
 			if (name.isEmpty())
 				name = vcard->value(VVN_GIVEN_NAME);
 			if (name.isEmpty())
-				name = vcard->contactJid().node();
+				name = vcard->contactJid().uNode();
 			setUserName(name);
 			vcard->unlock();
 		}

@@ -175,7 +175,7 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 			foreach(IDiscoItem ditem, ditems.items)
 			{
 				QDomElement elem = query.appendChild(result.createElement("item")).toElement();
-				elem.setAttribute("jid",ditem.itemJid.eFull());
+				elem.setAttribute("jid",ditem.itemJid.full());
 				if (!ditem.node.isEmpty())
 					elem.setAttribute("node",ditem.node);
 				if (!ditem.name.isEmpty())
@@ -451,7 +451,7 @@ bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AConta
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
 		Stanza iq("iq");
-		iq.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
+		iq.setTo(AContactJid.full()).setId(FStanzaProcessor->newId()).setType("get");
 		QDomElement query =  iq.addElement("query",NS_DISCO_INFO);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);
@@ -506,7 +506,7 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
 		Stanza iq("iq");
-		iq.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
+		iq.setTo(AContactJid.full()).setId(FStanzaProcessor->newId()).setType("get");
 		QDomElement query =  iq.addElement("query",NS_DISCO_ITEMS);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);

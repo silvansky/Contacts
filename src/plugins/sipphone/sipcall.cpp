@@ -111,7 +111,7 @@ void SipCall::startCall()
 				foreach(Jid destination, FDestinations)
 				{
 					Stanza request("iq");
-					request.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
+					request.setTo(destination.full()).setType("set").setId(FStanzaProcessor->newId());
 					QDomElement queryElem = request.addElement("query", NS_RAMBLER_PHONE);
 					queryElem.setAttribute("type", "request");
 					queryElem.setAttribute("sid", sessionId());
@@ -179,7 +179,7 @@ void SipCall::rejectCall(ISipCall::RejectionCode ACode)
 				if (FStanzaProcessor)
 				{
 					Stanza deny("iq");
-					deny.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+					deny.setTo(contactJid().full()).setType("set").setId(FStanzaProcessor->newId());
 					QDomElement queryElem = deny.addElement("query",NS_RAMBLER_PHONE);
 					if (ACode == RC_BUSY)
 						queryElem.setAttribute("type","busy");
@@ -492,7 +492,7 @@ bool SipCall::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &ASta
 				FCallRequests.clear();
 				FAcceptStanza = AStanza;
 				FContactJid = AStanza.from();
-				FSipPeer = queryElem.attribute("peer",FContactJid.eBare());
+				FSipPeer = queryElem.attribute("peer",FContactJid.bare());
 				setCallState(CS_CONNECTING);
 			}
 			else if (type == "deny")
@@ -773,7 +773,7 @@ void SipCall::sendLocalDeviceStates() const
 	if (FStanzaProcessor && !isDirectCall())
 	{
 		Stanza update("message");
-		update.setTo(contactJid().eFull());
+		update.setTo(contactJid().full());
 		QDomElement xElem = update.addElement("x",NS_RAMBLER_PHONE_DEVICESTATES);
 		xElem.setAttribute("sid",sessionId());
 		
@@ -923,11 +923,11 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 			if (ARegistered)
 			{
 				Stanza accept("iq");
-				accept.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				accept.setTo(contactJid().full()).setType("set").setId(FStanzaProcessor->newId());
 				QDomElement queryElem = accept.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "accept");
 				queryElem.setAttribute("sid", sessionId());
-				queryElem.setAttribute("peer", streamJid().eBare());
+				queryElem.setAttribute("peer", streamJid().bare());
 				if (FStanzaProcessor->sendStanzaRequest(this, streamJid(), accept, CALL_REQUEST_TIMEOUT))
 					FCallRequests.insert(accept.id(), contactJid());
 				else
@@ -936,7 +936,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 			else
 			{
 				Stanza error("iq");
-				error.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				error.setTo(contactJid().full()).setType("set").setId(FStanzaProcessor->newId());
 				QDomElement queryElem = error.addElement("query", NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type", "callee_error");
 				queryElem.setAttribute("sid", sessionId());
@@ -954,7 +954,7 @@ void SipCall::notifyActiveDestinations(const QString &AType)
 		if (FStanzaProcessor && destination!=FContactJid)
 		{
 			Stanza reply("iq");
-			reply.setTo(destination.eFull()).setType("set").setId(FStanzaProcessor->newId());
+			reply.setTo(destination.full()).setType("set").setId(FStanzaProcessor->newId());
 			QDomElement queryElem = reply.addElement("query",NS_RAMBLER_PHONE);
 			queryElem.setAttribute("type",AType);
 			queryElem.setAttribute("sid",sessionId());
@@ -1088,7 +1088,7 @@ void SipCall::onRingTimerTimeout()
 			if (FStanzaProcessor && !isDirectCall())
 			{
 				Stanza timeout("iq");
-				timeout.setTo(contactJid().eFull()).setType("set").setId(FStanzaProcessor->newId());
+				timeout.setTo(contactJid().full()).setType("set").setId(FStanzaProcessor->newId());
 				QDomElement queryElem = timeout.addElement("query",NS_RAMBLER_PHONE);
 				queryElem.setAttribute("type","timeout_error");
 				queryElem.setAttribute("sid",sessionId());

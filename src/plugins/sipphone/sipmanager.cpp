@@ -1025,7 +1025,7 @@ void SipManager::onCallStateChanged(int AState)
 		}
 
 		// Notify in chat window
-		QString userNick = FMessageStyles!=NULL ? FMessageStyles->contactName(call->streamJid(),call->contactJid()) : call->contactJid().bare();
+		QString userNick = FMessageStyles!=NULL ? FMessageStyles->contactName(call->streamJid(),call->contactJid()) : call->contactJid().uBare();
 		if (call->role() == ISipCall::CR_INITIATOR)
 		{
 			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
@@ -1232,9 +1232,7 @@ void SipManager::onCallMenuAboutToShow()
 			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 			if (descriptor.gateId == GSID_SMS)
 			{
-				QString number = itemJid.node();
-				if (FGateways)
-					number = FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number);
+				QString number = FGateways!=NULL ? FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),itemJid.uNode()) : itemJid.node();
 				phoneNumbers.append(number);
 			}
 		}

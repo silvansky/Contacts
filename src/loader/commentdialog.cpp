@@ -83,7 +83,7 @@ CommentDialog::CommentDialog(IPluginManager *APluginManager, QWidget *AParent) :
 	IVCard* vCard = vCardPlugin->vcard(streamJid);
 	fullName = vCard->value(VVN_FULL_NAME);
 	if (fullName.isEmpty())
-		fullName = streamJid.node();
+		fullName = streamJid.uNode();
 	QString email = vCard->value(VVN_EMAIL);
 	if ((emailIsJid = email.isEmpty()))
 		email = streamJid.bare();

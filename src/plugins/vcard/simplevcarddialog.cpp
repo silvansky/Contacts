@@ -76,7 +76,7 @@ void SimpleVCardDialog::updateDialog()
 	if (FRosterItem.isValid)
 		ui->name->setText(FRosterItem.name);
 	else
-		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
+		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.uBare() : FVCard->value(VVN_FULL_NAME));
 	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 
 	if (FAvatars)

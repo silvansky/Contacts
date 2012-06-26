@@ -754,12 +754,12 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 	}
 	else if (ADescriptor.id == GSID_FACEBOOK)
 	{
-		QString node = Jid(contact).node();
+		QString node = Jid(contact).uNode();
 		contact = QString("ID: %1").arg(node.right(node.length()-1));
 	}
 	else if (ADescriptor.type == "xmpp")
 	{
-		contact = Jid(contact).full();
+		contact = Jid(contact).uFull();
 	}
 	return contact;
 }
@@ -815,7 +815,7 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
 
 			if (ADescriptor.type == "xmpp")
-				contact = Jid(contact).eFull();
+				contact = Jid::fromUserInput(contact).full();
 		}
 	}
 	return contact;
@@ -1212,7 +1212,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 		if (FRosterChanger)
 			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 
-		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid.full());
+		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
 			RemoveRequestParams params;
@@ -1228,7 +1228,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 
 QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
 {
-	QString legacyId = AUserJid.node();
+	QString legacyId = AUserJid.uNode();
 	for (int i=1; i<legacyId.length(); i++)
 	{
 		if (legacyId.at(i)=='%' && legacyId.at(i-1)!='\\')
@@ -1262,7 +1262,7 @@ QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid
 QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	Stanza request("iq");
-	request.setType("get").setTo(AServiceJid.eFull()).setId(FStanzaProcessor->newId());
+	request.setType("get").setTo(AServiceJid.full()).setId(FStanzaProcessor->newId());
 	request.addElement("query",NS_JABBER_GATEWAY);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
@@ -1276,7 +1276,7 @@ QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJi
 QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID)
 {
 	Stanza request("iq");
-	request.setType("set").setTo(AServiceJid.eFull()).setId(FStanzaProcessor->newId());
+	request.setType("set").setTo(AServiceJid.full()).setId(FStanzaProcessor->newId());
 	QDomElement elem = request.addElement("query",NS_JABBER_GATEWAY);
 	elem.appendChild(request.createElement("prompt")).appendChild(request.createTextNode(AContactID));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
@@ -1376,7 +1376,7 @@ void Gateways::saveKeepConnections(const Jid &AStreamJid)
 		doc.appendChild(doc.createElement("services"));
 		QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
 		foreach(Jid service, FKeepConnections.value(AStreamJid))
-			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
+			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.bare()));
 		FPrivateStorage->saveData(AStreamJid,elem);
 	}
 }

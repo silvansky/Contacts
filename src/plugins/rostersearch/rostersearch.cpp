@@ -515,7 +515,7 @@ QVariant RosterSearch::preparedItemJidValue(const Jid &AItemJid, const IGateServ
 			return FGateways->legacyIdFromUserJid(AItemJid);
 		}
 	}
-	return AItemJid.full();
+	return AItemJid.uFull();
 }
 
 void RosterSearch::createSearchLinks()

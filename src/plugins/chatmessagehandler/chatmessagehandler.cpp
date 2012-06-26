@@ -273,7 +273,7 @@ Action *ChatMessageHandler::tabPageAction(const QString &ATabPageId, QObject *AP
 		{
 			Action *action = new Action(AParent);
 			action->setData(ADR_TAB_PAGE_ID, ATabPageId);
-			action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.bare());
+			action->setText(FNotifications!=NULL ? FNotifications->contactName(presence->streamJid(),pageInfo.contactJid) : pageInfo.contactJid.uBare());
 			connect(action,SIGNAL(triggered(bool)),SLOT(onOpenTabPageAction(bool)));
 
 			ITabPage *page = tabPageFind(ATabPageId);
@@ -707,7 +707,7 @@ void ChatMessageHandler::sendOfflineMessages(IChatWindow *AWindow)
 		while (!wstatus.offline.isEmpty())
 		{
 			Message message = wstatus.offline.takeAt(0);
-			message.setTo(AWindow->contactJid().eFull());
+			message.setTo(AWindow->contactJid().full());
 			if (!FMessageProcessor->sendMessage(AWindow->streamJid(),message,IMessageProcessor::MessageOut))
 			{
 				wstatus.offline.clear();
@@ -856,7 +856,7 @@ void ChatMessageHandler::fillContentOptions(IChatWindow *AWindow, IMessageConten
 	{
 		AOptions.senderId = AWindow->streamJid().full();
 		if (AWindow->streamJid() && AWindow->contactJid())
-			AOptions.senderName = Qt::escape(!AWindow->streamJid().resource().isEmpty() ? AWindow->streamJid().resource() : AWindow->streamJid().node());
+			AOptions.senderName = Qt::escape(!AWindow->streamJid().resource().isEmpty() ? AWindow->streamJid().resource() : AWindow->streamJid().uNode());
 		else
 			AOptions.senderName = Qt::escape(FMessageStyles->contactName(AWindow->streamJid()));
 		AOptions.senderAvatar = FMessageStyles->contactAvatar(AWindow->streamJid());
@@ -991,7 +991,7 @@ void ChatMessageHandler::onMessageReady()
 	if (window)
 	{
 		Message message;
-		message.setTo(window->contactJid().eFull()).setType(Message::Chat);
+		message.setTo(window->contactJid().full()).setType(Message::Chat);
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		if (!message.body().isEmpty())
 		{
@@ -1272,7 +1272,7 @@ void ChatMessageHandler::onNotificationTest(const QString &ATypeId, ushort AKind
 			notify.data.insert(NDR_ICON_STORAGE,RSR_STORAGE_MENUICONS);
 			notify.data.insert(NDR_POPUP_ICON, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_CHAT_MHANDLER_MESSAGE));
 			notify.data.insert(NDR_POPUP_TITLE,tr("Vasilisa Premudraya"));
-		 notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contsctJid.full()));
+			notify.data.insert(NDR_POPUP_IMAGE,FNotifications->contactAvatar(Jid::null,contsctJid));
 			notify.data.insert(NDR_POPUP_TEXT,tr("Hi! Come on www.rambler.ru :)"));
 		}
 		if (AKinds & INotification::SoundPlay)

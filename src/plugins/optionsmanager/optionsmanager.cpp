@@ -646,7 +646,7 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
 		Options::node(OPV_MISC_CUSTOMBORDERSENABLED).setValue(CustomBorderStorage::isBordersEnabled());
 		FShowOptionsDialogAction->setVisible(true);
-		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).node()));
+		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).uNode()));
 		emit profileOpened(AProfile);
 	}
 }
