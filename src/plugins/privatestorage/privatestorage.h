@@ -3,20 +3,23 @@
 
 #include <QMap>
 #include <definitions/namespaces.h>
+#include <definitions/stanzahandlerorders.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iprivatestorage.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/ixmppstreams.h>
+#include <interfaces/ipresence.h>
 #include <utils/stanza.h>
 
 class PrivateStorage :
 	public QObject,
 	public IPlugin,
 	public IPrivateStorage,
+	public IStanzaHandler,
 	public IStanzaRequestOwner
 {
 	Q_OBJECT;
-	Q_INTERFACES(IPlugin IPrivateStorage IStanzaRequestOwner);
+	Q_INTERFACES(IPlugin IPrivateStorage IStanzaHandler IStanzaRequestOwner);
 public:
 	PrivateStorage();
 	~PrivateStorage();
@@ -25,12 +28,13 @@ public:
 	virtual QUuid pluginUuid() const { return PRIVATESTORAGE_UUID; }
 	virtual void pluginInfo(IPluginInfo *APluginInfo);
 	virtual bool initConnections(IPluginManager *APluginManager, int &AInitOrder);
-	virtual bool initObjects() { return true; }
+	virtual bool initObjects();
 	virtual bool initSettings() { return true; }
 	virtual bool startPlugin() { return true; }
+	//IStanzaHandler
+	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IPrivateStorage
 	virtual bool hasData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const;
 	virtual QDomElement getData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const;
@@ -39,10 +43,11 @@ public:
 	virtual QString removeData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 signals:
 	void storageOpened(const Jid &AStreamJid);
+	void dataError(const QString &AId, const QString &AError);
 	void dataSaved(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void dataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void dataRemoved(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
-	void dataError(const QString &AId, const QString &AError);
+	void dataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void storageAboutToClose(const Jid &AStreamJid);
 	void storageClosed(const Jid &AStreamJid);
 protected:
@@ -50,18 +55,22 @@ protected:
 	void removeStreamElement(const Jid &AStreamJid);
 	QDomElement insertElement(const Jid &AStreamJid, const QDomElement &AElement);
 	void removeElement(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
+	void notifyDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 protected slots:
 	void onStreamOpened(IXmppStream *AXmppStream);
 	void onStreamAboutToClose(IXmppStream *AXmppStream);
 	void onStreamClosed(IXmppStream *AXmppStream);
 private:
+	IPresencePlugin *FPresencePlugin;
 	IStanzaProcessor *FStanzaProcessor;
 private:
-	QDomDocument FStorage;
-	QMap<Jid, QDomElement> FStreamElements;
+	int FSHINotifyDataChanged;
 	QMap<QString, QDomElement> FSaveRequests;
 	QMap<QString, QDomElement> FLoadRequests;
 	QMap<QString, QDomElement> FRemoveRequests;
+private:
+	QDomDocument FStorage;
+	QMap<Jid, QDomElement> FStreamElements;
 };
 
 #endif // PRIVATESTORAGE_H

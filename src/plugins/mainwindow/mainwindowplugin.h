@@ -9,11 +9,14 @@
 #include <definitions/optionnodes.h>
 #include <definitions/optionwidgetorders.h>
 #include <definitions/optionvalues.h>
+#include <definitions/notificationtypes.h>
+#include <definitions/notificationdataroles.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/itraymanager.h>
-#include <interfaces/imacintegration.h>
+#include <interfaces/inotifications.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/widgetmanager.h>
 #include <utils/action.h>
 #include <utils/options.h>
@@ -43,11 +46,14 @@ public:
 	virtual QMultiMap<int, IOptionsWidget *> optionsWidgets(const QString &ANodeId, QWidget *AParent);
 	//IMainWindowPlugin
 	virtual IMainWindow *mainWindow() const;
-	virtual CustomBorderContainer * mainWindowBorder() const;
+	virtual QWidget *mainWindowTopWidget() const;
+	virtual bool isMinimizeToTray() const;
 	virtual void showMainWindow() const;
+	virtual void hideMainWindow() const;
 protected:
 	void updateTitle();
 	void correctWindowPosition() const;
+	void showMinimizeToTrayNotify();
 protected:
 	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected slots:
@@ -55,21 +61,24 @@ protected slots:
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onProfileRenamed(const QString &AProfile, const QString &ANewName);
+	void onNotificationActivated(int ANotifyId);
+	void onNotificationRemoved(int ANotifyId);
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowMainWindowByAction(bool);
 	void onMainWindowClosed();
-	void onDockIconClicked();
-	void onApplicationQuitStarted();
+	void onShutdownStarted();
 private:
 	IPluginManager *FPluginManager;
 	IOptionsManager *FOptionsManager;
 	ITrayManager *FTrayManager;
-	IMacIntegration *FMacIntegration;
+	INotifications *FNotifications;
+	ISystemIntegration *FSystemIntegration;
 private:
+	int FMinimizeNotifyId;
 	Action *FOpenAction;
 	MainWindow *FMainWindow;
-	CustomBorderContainer *FMainWindowBorder;
 	QTime FActivationChanged;
+	CustomBorderContainer *FMainWindowBorder;
 };
 
 #endif // MAINWINDOW_H

@@ -48,13 +48,8 @@ SUBDIRS += messagecarbons
 SUBDIRS += console
 SUBDIRS += multiuserchat
 SUBDIRS += stylesheeteditor
-
-# platform specific plugins
-
-win32-msvc2008: {
-  SUBDIRS += sipphone
-}
-
-macx: {
-  SUBDIRS += macintegration
-}
+SUBDIRS += macintegration
+SUBDIRS += win7integration
+SUBDIRS += systemintegration
+SUBDIRS += tcptunnel
+SUBDIRS += sipphone

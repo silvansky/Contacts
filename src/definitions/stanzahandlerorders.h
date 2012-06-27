@@ -2,7 +2,7 @@
 #define DEF_STANZAHANDLERORDERS_H
 
 //Message In
-#define SHO_MI_CAPTCHAFORMS           300
+#define SHO_MI_PRIVATESTORAGE         300
 #define SHO_MI_MAIL_NOTIFY            300
 #define SHO_MI_CHATSTATES             500
 #define SHO_MI_SMSRECEIPTS            500

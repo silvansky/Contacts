@@ -134,19 +134,18 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 		if (dinfo.error.code >= 0)
 		{
 			AAccept = true;
-			Stanza reply = AStanza.replyError(dinfo.error.condition,EHN_DEFAULT,dinfo.error.code,dinfo.error.message);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+			Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(dinfo.error.condition,dinfo.error.code));
+			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 		}
 		else
 		{
 			AAccept = true;
-			Stanza reply("iq");
-			reply.setTo(AStanza.from()).setId(AStanza.id()).setType("result");
-			QDomElement query = reply.addElement("query",NS_DISCO_INFO);
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+			QDomElement query = result.addElement("query",NS_DISCO_INFO);
 			if (!dinfo.node.isEmpty())
 				query.setAttribute("node",dinfo.node);
 			discoInfoToElem(dinfo,query);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
 	else if (FSHIItems.value(AStreamJid) == AHandlerId)
@@ -163,27 +162,26 @@ bool ServiceDiscovery::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, St
 		if (ditems.error.code >= 0)
 		{
 			AAccept = true;
-			Stanza reply = AStanza.replyError(ditems.error.condition,EHN_DEFAULT,ditems.error.code,ditems.error.message);
-			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+			Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler(ditems.error.condition,ditems.error.code));
+			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 		}
 		else
 		{
 			AAccept = true;
-			Stanza reply("iq");
-			reply.setTo(AStanza.from()).setId(AStanza.id()).setType("result");
-			QDomElement query = reply.addElement("query",NS_DISCO_ITEMS);
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+			QDomElement query = result.addElement("query",NS_DISCO_ITEMS);
 			if (!ditems.node.isEmpty())
 				query.setAttribute("node",ditems.node);
 			foreach(IDiscoItem ditem, ditems.items)
 			{
-				QDomElement elem = query.appendChild(reply.createElement("item")).toElement();
-				elem.setAttribute("jid",ditem.itemJid.eFull());
+				QDomElement elem = query.appendChild(result.createElement("item")).toElement();
+				elem.setAttribute("jid",ditem.itemJid.full());
 				if (!ditem.node.isEmpty())
 					elem.setAttribute("node",ditem.node);
 				if (!ditem.name.isEmpty())
 					elem.setAttribute("name",ditem.name);
 			}
-			FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+			FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 		}
 	}
 	else if (FSHIPresenceIn.value(AStreamJid) == AHandlerId)
@@ -256,40 +254,6 @@ void ServiceDiscovery::stanzaRequestResult(const Jid &AStreamJid, const Stanza &
 	{
 		DiscoveryRequest drequest = FItemsRequestsId.take(AStanza.id());
 		IDiscoItems ditems = parseDiscoItems(AStanza,drequest);
-		emit discoItemsReceived(ditems);
-	}
-}
-
-void ServiceDiscovery::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (FInfoRequestsId.contains(AStanzaId))
-	{
-		IDiscoInfo dinfo;
-		DiscoveryRequest drequest = FInfoRequestsId.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		dinfo.streamJid = drequest.streamJid;
-		dinfo.contactJid = drequest.contactJid;
-		dinfo.node = drequest.node;
-		dinfo.error.code = err.code();
-		dinfo.error.condition = err.condition();
-		dinfo.error.message = err.message();
-		FDiscoInfo[dinfo.streamJid][dinfo.contactJid].insert(dinfo.node,dinfo);
-		LogError(QString("[ServiceDiscovery] Failed to request discovery information from '%1' node='%2' id='%3': %4").arg(dinfo.contactJid.full(),dinfo.node,AStanzaId,err.message()));	
-		emit discoInfoReceived(dinfo);
-	}
-	else if (FItemsRequestsId.contains(AStanzaId))
-	{
-		IDiscoItems ditems;
-		DiscoveryRequest drequest = FItemsRequestsId.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		ditems.streamJid = drequest.streamJid;
-		ditems.contactJid = drequest.contactJid;
-		ditems.node = drequest.node;
-		ditems.error.code = err.code();
-		ditems.error.condition = err.condition();
-		ditems.error.message = err.message();
-		LogError(QString("[ServiceDiscovery] Failed to request discovery items from '%1' node='%2' id='%3': %4").arg(ditems.contactJid.full(),ditems.node,AStanzaId,err.message()));	
 		emit discoItemsReceived(ditems);
 	}
 }
@@ -487,7 +451,7 @@ bool ServiceDiscovery::requestDiscoInfo(const Jid &AStreamJid, const Jid &AConta
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
 		Stanza iq("iq");
-		iq.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
+		iq.setTo(AContactJid.full()).setId(FStanzaProcessor->newId()).setType("get");
 		QDomElement query =  iq.addElement("query",NS_DISCO_INFO);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);
@@ -542,7 +506,7 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 	else if (FStanzaProcessor && AStreamJid.isValid() && AContactJid.isValid())
 	{
 		Stanza iq("iq");
-		iq.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
+		iq.setTo(AContactJid.full()).setId(FStanzaProcessor->newId()).setType("get");
 		QDomElement query =  iq.addElement("query",NS_DISCO_ITEMS);
 		if (!ANode.isEmpty())
 			query.setAttribute("node",ANode);
@@ -550,7 +514,7 @@ bool ServiceDiscovery::requestDiscoItems(const Jid &AStreamJid, const Jid &ACont
 		if (sent)
 		{
 			FItemsRequestsId.insert(iq.id(),drequest);
-			LogDetaile(QString("[ServiceDiscovery] Discovery items request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
+			LogDetail(QString("[ServiceDiscovery] Discovery items request sent to='%1' node='%2' id='%3'").arg(AContactJid.full(),ANode,iq.id()));
 		}
 		else
 		{
@@ -697,7 +661,7 @@ IDiscoItems ServiceDiscovery::parseDiscoItems(const Stanza &AStanza, const Disco
 			result.items.append(ditem);
 			elem = elem.nextSiblingElement("item");
 		}
-		LogDetaile(QString("[ServiceDiscovery] Discovery items received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
+		LogDetail(QString("[ServiceDiscovery] Discovery items received from '%1' node='%2' id='%3'").arg(result.contactJid.full(),result.node,AStanza.id()));
 	}
 	return result;
 }
@@ -977,22 +941,7 @@ void ServiceDiscovery::onStreamOpened(IXmppStream *AXmppStream)
 	myCaps.hash = CAPS_HASH_SHA1;
 	myCaps.ver = calcCapsHash(selfDiscoInfo(myCaps.entityJid),myCaps.hash);
 
-	Jid streamDomane = AXmppStream->streamJid().domain();
-	requestDiscoInfo(AXmppStream->streamJid(),streamDomane);
-	requestDiscoItems(AXmppStream->streamJid(),streamDomane);
-
-	IRoster *roster = FRosterPlugin->findRoster(AXmppStream->streamJid());
-	QList<IRosterItem> ritems = roster!=NULL ? roster->rosterItems() : QList<IRosterItem>();
-	foreach(IRosterItem ritem, ritems)
-	{
-		if (ritem.itemJid.node().isEmpty())
-		{
-			DiscoveryRequest request;
-			request.streamJid = AXmppStream->streamJid();
-			request.contactJid = ritem.itemJid;
-			appendQueuedRequest(QUEUE_REQUEST_START,request);
-		}
-	}
+	requestDiscoInfo(AXmppStream->streamJid(),AXmppStream->streamJid().domain());
 }
 
 void ServiceDiscovery::onStreamClosed(IXmppStream *AXmppStream)
@@ -1087,7 +1036,7 @@ void ServiceDiscovery::onSelfCapsChanged()
 			IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(streamJid) : NULL;
 			if (presence && presence->isOpen())
 			{
-				LogDetaile(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));
+				LogDetail(QString("[ServiceDiscovery] Updating self entity caps on stream '%1'").arg(presence->streamJid().bare()));
 				presence->setPresence(presence->show(),presence->status(),presence->priority());
 			}
 		}

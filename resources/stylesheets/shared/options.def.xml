@@ -12,4 +12,8 @@
     <key>optionsConnectionSettings</key>
     <object mime='text/css'>optionsconnectionsettings.qss</object>
   </file>
+  <file>
+    <key>optionsLocaleOptionsWidget</key>
+    <object mime='text/css'>optionslocaleoptionswidget.qss</object>
+  </file>
 </styledef>

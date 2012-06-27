@@ -163,7 +163,7 @@ void CustomMailPage::paintEvent(QPaintEvent *AEvent)
 
 void CustomMailPage::onContinueButtonClicked()
 {
-	QString contact = FGateways->normalizedContactLogin(FDescriptor,ui.lneContactMail->text().trimmed());
+	QString contact = FGateways->normalizedContactLogin(FDescriptor,ui.lneContactMail->text());
 	FRequestId = FGateways->sendUserJidRequest(streamJid(),serviceJid(),contact);
 	if (!FRequestId.isEmpty())
 	{
@@ -174,7 +174,7 @@ void CustomMailPage::onContinueButtonClicked()
 
 void CustomMailPage::onContactMailChanged(const QString &AText)
 {
-	QString contact = FGateways->normalizedContactLogin(FDescriptor,AText.trimmed());
+	QString contact = FGateways->normalizedContactLogin(FDescriptor,AText);
 	QString error = FGateways->checkNormalizedContactLogin(FDescriptor,contact);
 	ui.pbtContinue->setEnabled(error.isNull());
 }

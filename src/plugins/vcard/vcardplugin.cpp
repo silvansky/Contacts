@@ -135,8 +135,7 @@ bool VCardPlugin::initObjects()
 	if (FRostersViewPlugin)
 	{
 		FRostersView = FRostersViewPlugin->rostersView();
-		connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),
-			SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
+		//connect(FRostersView->instance(),SIGNAL(indexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)),SLOT(onRosterIndexContextMenu(IRosterIndex *, QList<IRosterIndex *>, Menu *)));
 	}
 	if (FDiscovery)
 	{
@@ -158,7 +157,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		QDomElement elem = AStanza.firstElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 		if (AStanza.type()=="result")
 		{
-			LogDetaile(QString("[VCardPlugin] Received vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Received vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(elem,fromJid);
 			emit vcardReceived(fromJid);
 		}
@@ -175,7 +174,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 		Stanza stanza = FVCardPublishStanza.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[VCardPlugin] Published vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Published vCard of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			saveVCardFile(stanza.element().firstChildElement(VCARD_TAGNAME),fromJid);
 			emit vcardPublished(fromJid);
 		}
@@ -209,7 +208,7 @@ void VCardPlugin::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStan
 				}
 			}
 			saveVCardFile(elem,fromJid);
-			LogDetaile(QString("[VCardPlugin] Received avatrs of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
+			LogDetail(QString("[VCardPlugin] Received avatrs of '%1', id='%2'").arg(fromJid.full(),AStanza.id()));
 			emit avatarsRecieved(fromJid);
 		}
 		else if (AStanza.type()=="error")
@@ -289,11 +288,11 @@ bool VCardPlugin::requestVCard(const Jid &AStreamJid, const Jid &AContactJid)
 		if (FVCardRequestId.key(AContactJid).isEmpty())
 		{
 			Stanza request("iq");
-			request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+			request.setTo(AContactJid.full()).setType("get").setId(FStanzaProcessor->newId());
 			request.addElement(VCARD_TAGNAME,NS_VCARD_TEMP);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,VCARD_TIMEOUT))
 			{
-				LogDetaile(QString("[VCardPlugin] Load vCard of '%1' request sent, id='%2'").arg(AContactJid.full(),request.id()));
+				LogDetail(QString("[VCardPlugin] Load vCard of '%1' request sent, id='%2'").arg(AContactJid.full(),request.id()));
 				FVCardRequestId.insert(request.id(),AContactJid);
 				return true;
 			}
@@ -317,12 +316,12 @@ bool VCardPlugin::publishVCard(IVCard *AVCard, const Jid &AStreamJid)
 		if (FVCardPublishId.key(AStreamJid.pBare()).isEmpty())
 		{
 			Stanza publish("iq");
-			publish.setTo(AStreamJid.eBare()).setType("set").setId(FStanzaProcessor->newId());
+			publish.setTo(AStreamJid.bare()).setType("set").setId(FStanzaProcessor->newId());
 			QDomElement elem = publish.element().appendChild(AVCard->vcardElem().cloneNode(true)).toElement();
 			removeEmptyChildElements(elem);
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,publish,VCARD_TIMEOUT))
 			{
-				LogDetaile(QString("[VCardPlugin] Publish vCard of '%1' request sent, id='%2'").arg(AStreamJid.bare(),publish.id()));
+				LogDetail(QString("[VCardPlugin] Publish vCard of '%1' request sent, id='%2'").arg(AStreamJid.bare(),publish.id()));
 				FVCardPublishId.insert(publish.id(),AStreamJid.pBare());
 				FVCardPublishStanza.insert(publish.id(),publish);
 				return true;
@@ -351,11 +350,11 @@ bool VCardPlugin::requestAvatars(const Jid &AStreamJid, const Jid &AContactJid)
 			{
 				// requesting default avatars from the rambler server
 				Stanza request("iq");
-				request.setTo(AContactJid.eFull()).setType("get").setId(FStanzaProcessor->newId());
+				request.setTo(AContactJid.full()).setType("get").setId(FStanzaProcessor->newId());
 				request.addElement("query", NS_RAMBLER_AVATAR);
 				if (FStanzaProcessor->sendStanzaRequest(this, AStreamJid, request, AVATARS_TIMEOUT))
 				{
-					LogDetaile(QString("[VCardPlugin] Load avatars of '%1' request sent, id='%2'").arg(AStreamJid.bare(),request.id()));
+					LogDetail(QString("[VCardPlugin] Load avatars of '%1' request sent, id='%2'").arg(AStreamJid.bare(),request.id()));
 					FAvatarsRequestId.insert(request.id(),AContactJid);
 					return true;
 				}
@@ -381,25 +380,15 @@ void VCardPlugin::showSimpleVCardDialog(const Jid &AStreamJid, const Jid &AConta
 		if (FSimpleVCardDialogs.contains(AContactJid))
 		{
 			SimpleVCardDialog *dialog = FSimpleVCardDialogs.value(AContactJid);
-			WidgetManager::showActivateRaiseWindow(dialog);
+			WidgetManager::showActivateRaiseWindow(dialog->window());
 		}
 		else if (AStreamJid.isValid() && AContactJid.isValid())
 		{
 			SimpleVCardDialog *dialog = new SimpleVCardDialog(this,FAvatars, FStatusIcons, FStatusChanger, FRosterPlugin, FPresencePlugin, FRosterChanger, AStreamJid, AContactJid);
-			StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(dialog, STS_VCARDSIMPLEVCARDDIALOG);
-			CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-			if (border)
-			{
-				border->setMinimizeButtonVisible(false);
-				border->setMaximizeButtonVisible(false);
-				border->setAttribute(Qt::WA_DeleteOnClose, true);
-				connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-				connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-				connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-			}
 			connect(dialog,SIGNAL(destroyed(QObject *)),SLOT(onSimpleVCardDialogDestroyed(QObject *)));
 			FSimpleVCardDialogs.insert(AContactJid, dialog);
-			WidgetManager::showActivateRaiseWindow(border ? (QWidget*)border : (QWidget*)dialog);
+			WidgetManager::showActivateRaiseWindow(dialog->window());
+			WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		}
 	}
 }

@@ -4,5 +4,6 @@
 #define MWO_MESSAGEPROCESSOR                  0
 #define MWO_MESSAGEPROCESSOR_ANCHORS          200
 #define MWO_EMOTICONS                         500
+#define MWO_MESSAGEPROCESSOR_ERROR            1000
 
 #endif // DEF_MESSAGEWRITERORDERS_H

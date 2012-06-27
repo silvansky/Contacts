@@ -61,6 +61,8 @@ public:
 	virtual QWidget *styleWidget() const =0;
 	virtual IMessageStyle *messageStyle() const =0;
 	virtual void setMessageStyle(IMessageStyle *AStyle, const IMessageStyleOptions &AOptions) =0;
+	virtual Message messageByContentId(const QUuid &AId) const =0;
+	virtual QUuid contentIdByMessageId(const QString &AId) const =0;
 	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
@@ -278,7 +280,12 @@ public:
 	virtual void setCurrentTabPage(ITabPage *APage) =0;
 	virtual void detachTabPage(ITabPage *APage) =0;
 	virtual void removeTabPage(ITabPage *APage) =0;
-protected:
+public: // slots
+	virtual void nextTab() = 0;
+	virtual void previousTab() = 0;
+	virtual void closeCurrentTab() = 0;
+	virtual void closeAllTabs() = 0;
+protected: // signals
 	virtual void currentTabPageChanged(ITabPage *APage) =0;
 	virtual void tabPageAdded(ITabPage *APage) =0;
 	virtual void tabPageRemoved(ITabPage *APage) =0;
@@ -419,6 +426,7 @@ public:
 	virtual QList<ITabPageHandler *> tabPageHandlers() const =0;
 	virtual void insertTabPageHandler(ITabPageHandler *AHandler) =0;
 	virtual void removeTabPageHandler(ITabPageHandler *AHandler) =0;
+    virtual QList<Action *> createLastTabPagesActions(QObject *AParent) const =0;
 protected:
 	virtual void infoWidgetCreated(IInfoWidget *AInfoWidget) =0;
 	virtual void viewWidgetCreated(IViewWidget *AViewWidget) =0;

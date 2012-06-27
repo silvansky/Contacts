@@ -41,7 +41,7 @@ bool Compression::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AO
 		FXmppStream->removeXmppStanzaHandler(this, XSHO_XMPP_FEATURE);
 		if (AStanza.tagName() == "compressed")
 		{
-			LogDetaile(QString("[Compression] XMPP stream compression started"));
+			LogDetail(QString("[Compression] XMPP stream compression started"));
 			FXmppStream->insertXmppDataHandler(this, XDHO_FEATURE_COMPRESS);
 			emit finished(true);
 		}
@@ -80,7 +80,7 @@ bool Compression::start(const QDomElement &AElem)
 			{
 				if (startZlib())
 				{
-					LogDetaile(QString("[Compression] Starting XMPP stream compression"));
+					LogDetail(QString("[Compression] Starting XMPP stream compression"));
 					Stanza compress("compress");
 					compress.setAttribute("xmlns",NS_PROTOCOL_COMPRESS);
 					compress.addElement("method").appendChild(compress.createTextNode("zlib"));
@@ -146,30 +146,20 @@ void Compression::stopZlib()
 
 void Compression::processData(QByteArray &AData, bool ADataOut)
 {
-	if (AData.size()>0)
+	if (AData.size() > 0)
 	{
-		z_streamp zstream;
-		int (*zfunc) OF((z_streamp strm, int flush));
-		if (ADataOut)
-		{
-			zstream = &FDefStruc;
-			zfunc = deflate;
-		}
-		else
-		{
-			zstream = &FInfStruc;
-			zfunc = inflate;
-		}
-
 		int ret;
 		int dataPosOut = 0;
+
+		z_streamp zstream = ADataOut ? &FDefStruc : &FInfStruc;
 		zstream->avail_in = AData.size();
 		zstream->next_in = (Bytef *)(AData.constData());
+
 		do
 		{
 			zstream->avail_out = FOutBuffer.capacity() - dataPosOut;
 			zstream->next_out = (Bytef *)(FOutBuffer.data() + dataPosOut);
-			ret = zfunc(zstream,Z_SYNC_FLUSH);
+			ret = ADataOut ? deflate(zstream,Z_SYNC_FLUSH) : inflate(zstream,Z_SYNC_FLUSH);
 			switch (ret)
 			{
 			case Z_OK:
@@ -193,6 +183,9 @@ void Compression::processData(QByteArray &AData, bool ADataOut)
 				LogError(QString("[Compression] Zlib version mismatch!"));
 				emit error(tr("Zlib version mismatch!"));
 				break;
+			default:
+				LogError(QString("[Compression] Unknown Zlib error, %1").arg(ret));
+				emit error(tr("Unknown Zlib error, %1").arg(ret));
 			}
 		} while (ret == Z_OK && zstream->avail_out == 0);
 		AData.resize(dataPosOut);

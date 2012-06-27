@@ -81,7 +81,7 @@ void AddMetaItemWidget::setContactJid(const Jid &AContactJid)
 {
 	if (FContactJid != AContactJid.bare())
 	{
-		QString contact = AContactJid.bare();
+		QString contact = AContactJid.uBare();
 		Jid serviceJid = AContactJid.domain();
 		if (FGateways->availServices(streamJid()).contains(serviceJid))
 		{

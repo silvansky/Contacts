@@ -37,7 +37,7 @@ void Account::setActive(bool AActive)
 {
 	if (AActive && FXmppStream==NULL && isValid())
 	{
-		LogDetaile(QString("[Account] Account activate: %1").arg(streamJid().full()));
+		LogDetail(QString("[Account] Account activate: %1").arg(streamJid().full()));
 		FXmppStream = FXmppStreams->newXmppStream(streamJid());
 		FXmppStream->setPassword(password());
 		connect(FXmppStream->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()),Qt::QueuedConnection);
@@ -46,7 +46,7 @@ void Account::setActive(bool AActive)
 	}
 	else if (!AActive && FXmppStream!=NULL)
 	{
-		LogDetaile(QString("[Account] Account deactivate: %1").arg(streamJid().full()));
+		LogDetail(QString("[Account] Account deactivate: %1").arg(streamJid().full()));
 		emit activeChanged(false);
 		FXmppStreams->removeXmppStream(FXmppStream);
 		FXmppStreams->destroyXmppStream(FXmppStream->streamJid());

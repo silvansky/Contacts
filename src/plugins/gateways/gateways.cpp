@@ -4,6 +4,9 @@
 #include <QTextDocument>
 #include <definitions/customborder.h>
 #include <utils/customborderstorage.h>
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
 
 #define ADR_STREAM_JID            Action::DR_StreamJid
 #define ADR_SERVICE_JID           Action::DR_Parametr1
@@ -11,7 +14,7 @@
 #define ADR_LOG_IN                Action::DR_Parametr3
 
 #define PST_GATEWAYS_SERVICES     "services"
-#define PSN_GATEWAYS_KEEP         "virtus:gateways:keep"
+#define PSN_GATEWAYS_KEEP         "rambler:gateways:keep"
 
 #define GATEWAY_TIMEOUT           30000
 #define KEEP_INTERVAL             120000
@@ -37,10 +40,14 @@ Gateways::Gateways()
 	FMainWindowPlugin = NULL;
 	FNotifications = NULL;
 
-	FInternalNoticeId = -1;
+	FInternalServicesNoticeId = -1;
 
 	FKeepTimer.setSingleShot(false);
 	connect(&FKeepTimer,SIGNAL(timeout()),SLOT(onKeepTimerTimeout()));
+
+	FSaveKeepTimer.setInterval(1000);
+	FSaveKeepTimer.setSingleShot(true);
+	connect(&FSaveKeepTimer,SIGNAL(timeout()),SLOT(onSaveKeepTimerTimeout()));
 }
 
 Gateways::~Gateways()
@@ -122,9 +129,10 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		FPrivateStorage = qobject_cast<IPrivateStorage *>(plugin->instance());
 		if (FPrivateStorage)
 		{
-			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorateOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
-				SLOT(onPrivateStorageLoaded(const QString &, const Jid &, const QDomElement &)));
+				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),
+				SLOT(onPrivateStorageDataChanged(const Jid &, const QString &, const QString &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorateAboutToClose(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageClosed(const Jid &)),SLOT(onPrivateStorateClosed(const Jid &)));
 		}
@@ -147,7 +155,13 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 
 	plugin = APluginManager->pluginInterface("IRosterChanger").value(0,NULL);
 	if (plugin)
+	{
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+		if (FRosterChanger)
+		{
+			connect(FRosterChanger->instance(),SIGNAL(welcomeScreenVisibleChanged(bool)),SLOT(onWelcomeScreenVisibleChanged(bool)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IRostersViewPlugin").value(0,NULL);
 	if (plugin)
@@ -200,14 +214,13 @@ bool Gateways::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 		}
 	}
 
-	return FStanzaProcessor!=NULL;
+	return FStanzaProcessor;
 }
 
 bool Gateways::initObjects()
 {
 	static const QString JabberContactPattern = "^"JID_NODE_PATTERN"@"JID_DOMAIN_PATTERN"$";
 
-	// !!Последовательность добавления дескрипторов имеет значение!!
 	IGateServiceDescriptor sms;
 	sms.id = GSID_SMS;
 	sms.needGate = true;
@@ -243,7 +256,7 @@ bool Gateways::initObjects()
 	icq.loginLabel = tr("Login");
 	icq.loginField = "username";
 	icq.passwordField = "password";
-	icq.homeContactPattern = "^\\d{5,10}$";
+	icq.homeContactPattern = "^(\\d{5,10}|"MAIL_NODE_PATTERN"@"JID_DOMAIN_PATTERN")$";
 	icq.availContactPattern = icq.homeContactPattern;
 	FGateDescriptors.append(icq);
 
@@ -272,7 +285,7 @@ bool Gateways::initObjects()
 	twitter.loginLabel = tr("Login");
 	twitter.loginField = "username";
 	twitter.passwordField = "password";
-	twitter.homeContactPattern = "^@[a-zA-Z0-9_]+";
+	twitter.homeContactPattern = "^[a-zA-Z0-9_]+";
 	twitter.availContactPattern = twitter.homeContactPattern;
 	FGateDescriptors.append(twitter);
 
@@ -297,7 +310,7 @@ bool Gateways::initObjects()
 	yonline.id = GSID_YONLINE;
 	yonline.type = "xmpp";
 	yonline.prefix = "yandex";
-	yonline.name = tr("Y.Online");
+	yonline.name = tr("Ya.Online");
 	yonline.iconKey = MNI_GATEWAYS_SERVICE_YONLINE;
 	yonline.loginLabel = tr("E-mail");
 	yonline.domains << "ya.ru" << "yandex.ru" << "yandex.net" << "yandex.com" << "yandex.by" << "yandex.kz" << "yandex.ua" << "yandex-co.ru" << "narod.ru";
@@ -324,7 +337,7 @@ bool Gateways::initObjects()
 	qip.domainField = "server";
 	qip.passwordField = "password";
 	qip.domainSeparator = "@";
-	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@qip\\.ru$";
+	qip.homeContactPattern = "^"MAIL_NODE_PATTERN"@((qip|pochta|front|hotbox|hotmail|land|newmail|nightmail|nm|pochtamt|pop3|rbcmail|smtp|5ballov|aeterna|ziza|memori|photofile|fotoplenka)\\.ru|(fromru|mail15|mail333)\\.com|(krovatka)\\.su|(pisem)\\.net)$";
 	qip.availContactPattern = JabberContactPattern;
 	qip.linkedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(qip);
@@ -332,7 +345,6 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor vkontakte;
 	vkontakte.id = GSID_VKONTAKTE;
 	vkontakte.needGate = true;
-	vkontakte.readOnly = true;
 	vkontakte.type = "xmpp";
 	vkontakte.prefix = "vk";
 	vkontakte.name = tr("VKontakte");
@@ -345,10 +357,26 @@ bool Gateways::initObjects()
 	vkontakte.blockedDescriptors.append(GSID_MAIL);
 	FGateDescriptors.append(vkontakte);
 
+	IGateServiceDescriptor odnoklasniki;
+	odnoklasniki.id = GSID_ODNOKLASNIKI;
+	odnoklasniki.needGate = true;
+	odnoklasniki.type = "xmpp";
+	odnoklasniki.prefix = "ok";
+	odnoklasniki.name = tr("Odnoklassniki");
+	odnoklasniki.iconKey = MNI_GATEWAYS_SERVICE_ODNOKLASNIKI;
+	odnoklasniki.loginLabel = tr("Login");
+	odnoklasniki.domains << "odnoklassniki.ru";
+	odnoklasniki.loginField = "username";
+	odnoklasniki.passwordField = "password";
+	odnoklasniki.domainSeparator = "@";
+	odnoklasniki.homeContactPattern = "^"MAIL_NODE_PATTERN"@odnoklassniki\\.ru$";
+	odnoklasniki.availContactPattern = JabberContactPattern;
+	odnoklasniki.blockedDescriptors.append(GSID_MAIL);
+	FGateDescriptors.append(odnoklasniki);
+
 	IGateServiceDescriptor facebook;
 	facebook.id = GSID_FACEBOOK;
 	facebook.needGate = true;
-	facebook.readOnly = true;
 	facebook.type = "xmpp";
 	facebook.prefix = "fb";
 	facebook.name = tr("Facebook");
@@ -401,6 +429,7 @@ bool Gateways::initObjects()
 	IGateServiceDescriptor jabber;
 	jabber.id = GSID_JABBER;
 	jabber.type = "xmpp";
+	jabber.prefix = "jabber";
 	jabber.name = tr("Jabber");
 	jabber.iconKey = MNI_GATEWAYS_SERVICE_JABBER;
 	jabber.loginLabel = tr("Login");
@@ -413,7 +442,6 @@ bool Gateways::initObjects()
 	jabber.availContactPattern = JabberContactPattern;
 	FGateDescriptors.append(jabber);
 
-	// Почта должна быть после джаббера т.к. их идентификаторы идентичны
 	IGateServiceDescriptor mail;
 	mail.id = GSID_MAIL;
 	mail.needGate = true;
@@ -481,7 +509,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[Gateways] Gateway prompt received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
+			LogDetail(QString("[Gateways] Gateway prompt received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			QString desc = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("desc").text();
 			QString prompt = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("prompt").text();
 			emit promptReceived(AStanza.id(),desc,prompt);
@@ -498,7 +526,7 @@ void Gateways::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
 	{
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[Gateways] User JID received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
+			LogDetail(QString("[Gateways] User JID received from '%1', id='%2'").arg(AStanza.from(),AStanza.id()));
 			Jid userJid = AStanza.firstElement("query",NS_JABBER_GATEWAY).firstChildElement("jid").text();
 			emit userJidReceived(AStanza.id(),userJid);
 		}
@@ -561,12 +589,12 @@ void Gateways::sendLogPresence(const Jid &AStreamJid, const Jid &AServiceJid, bo
 	{
 		if (ALogIn)
 		{
-			LogDetaile(QString("[Gateways] Sending Log-In presence to service '%1'").arg(AServiceJid.full()));
+			LogDetail(QString("[Gateways] Sending Log-In presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,presence->show(),presence->status(),presence->priority());
 		}
 		else
 		{
-			LogDetaile(QString("[Gateways] Sending Log-Out presence to service '%1'").arg(AServiceJid.full()));
+			LogDetail(QString("[Gateways] Sending Log-Out presence to service '%1'").arg(AServiceJid.full()));
 			presence->sendPresence(AServiceJid,IPresence::Offline,tr("Log Out"),0);
 		}
 	}
@@ -582,10 +610,19 @@ void Gateways::setKeepConnection(const Jid &AStreamJid, const Jid &AServiceJid, 
 	IXmppStream *stream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (stream && stream->isOpen())
 	{
-		if (AEnabled)
-			FKeepConnections[AStreamJid] += AServiceJid;
-		else
-			FKeepConnections[AStreamJid] -= AServiceJid;
+		QSet<Jid> &services = FKeepConnections[AStreamJid];
+		if (AEnabled && !services.contains(AServiceJid))
+		{
+			services += AServiceJid;
+			FSaveKeepStreams += AStreamJid;
+			FSaveKeepTimer.start();
+		}
+		else if (!AEnabled && services.contains(AServiceJid))
+		{
+			services -= AServiceJid;
+			FSaveKeepStreams += AStreamJid;
+			FSaveKeepTimer.start();
+		}
 	}
 }
 
@@ -724,12 +761,18 @@ QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescripto
 	}
 	else if (ADescriptor.id == GSID_ICQ)
 	{
-		for(int pos=3; contact.length()-pos>=2; pos+=4)
-			contact.insert(pos,"-");
+		if (!contact.contains("@"))
+			for(int pos=3; contact.length()-pos>=2; pos+=4)
+				contact.insert(pos,"-");
+	}
+	else if (ADescriptor.id == GSID_FACEBOOK)
+	{
+		QString node = Jid(contact).uNode();
+		contact = QString("ID: %1").arg(node.right(node.length()-1));
 	}
 	else if (ADescriptor.type == "xmpp")
 	{
-		contact = Jid(contact).full();
+		contact = Jid(contact).uFull();
 	}
 	return contact;
 }
@@ -739,7 +782,6 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		// Очистим номер от мусора
 		if (ADescriptor.id == GSID_SMS)
 		{
 			QString number;
@@ -768,28 +810,25 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 		}
 		else if (ADescriptor.id == GSID_ICQ)
 		{
-			QString number;
-			for (int i=0; i<contact.length(); i++)
+			if (!contact.contains("@"))
 			{
-				QChar ch = contact.at(i);
-				if (ch.isDigit() || ch.isLetter())
-					number += ch;
+				QString number;
+				for (int i=0; i<contact.length(); i++)
+				{
+					QChar ch = contact.at(i);
+					if (ch.isDigit() || ch.isLetter())
+						number += ch;
+				}
+				contact = number;
 			}
-			contact = number;
 		}
 		else
 		{
-			// Добавим домен, если не указан
 			if (AComplete && !ADescriptor.domainSeparator.isEmpty() && !contact.contains(ADescriptor.domainSeparator) && !ADescriptor.domains.isEmpty())
-			{
 				contact += ADescriptor.domainSeparator + ADescriptor.domains.value(0);
-			}
 
-			// Поддержка Jid Escaping
 			if (ADescriptor.type == "xmpp")
-			{
-				contact = Jid(contact).eFull();
-			}
+				contact = Jid::fromUserInput(contact).full();
 		}
 	}
 	return contact;
@@ -799,7 +838,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 {
 	QString errMessage;
 
-	// Проверки на правильность ввода
 	if (ADescriptor.id == GSID_SMS)
 	{
 		bool validChars = true;
@@ -820,7 +858,6 @@ QString Gateways::checkNormalizedContactLogin(const IGateServiceDescriptor &ADes
 		}
 	}
 
-	// Проверка на соответствие контакта дескриптору
 	QRegExp availRegExp(ADescriptor.availContactPattern);
 	availRegExp.setCaseSensitivity(Qt::CaseInsensitive);
 	if (errMessage.isEmpty() && !availRegExp.exactMatch(AContact))
@@ -919,18 +956,26 @@ QList<Jid> Gateways::streamServices(const Jid &AStreamJid, const IDiscoIdentity 
 	return services;
 }
 
+quint32 Gateways::gateDescriptorRestrictions(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const
+{
+	quint32 restrictions = 0;
+	foreach(Jid gateJid, gateDescriptorServices(AStreamJid,ADescriptor,false))
+		restrictions |= serviceRestrictions(AStreamJid,gateJid,false);
+	return restrictions;
+}
+
 QList<Jid> Gateways::gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly) const
 {
 	IDiscoIdentity identity;
 	identity.category = "gateway";
 	identity.type = ADescriptor.type;
 	QList<Jid> gates = AStreamOnly ? streamServices(AStreamJid,identity) : availServices(AStreamJid,identity);
-	if (ADescriptor.needGate && !ADescriptor.prefix.isEmpty())
+	if (!ADescriptor.prefix.isEmpty())
 	{
 		QRegExp regexp(QString(GATE_PREFIX_PATTERN).arg(ADescriptor.prefix));
 		for(QList<Jid>::iterator it = gates.begin(); it!=gates.end(); )
 		{
-			if (regexp.exactMatch(it->pDomain()))
+			if (!regexp.exactMatch(it->pDomain()))
 				it = gates.erase(it);
 			else
 				it++;
@@ -958,13 +1003,39 @@ IPresenceItem Gateways::servicePresence(const Jid &AStreamJid, const Jid &AServi
 
 IGateServiceDescriptor Gateways::serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const
 {
-	return FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	return FDiscovery ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+}
+
+quint32 Gateways::serviceRestrictions(const Jid &AStreamJid, const Jid &AServiceJid, bool ACheckPresence) const
+{
+	quint32 restrictions = 0;
+	if (FDiscovery && availServices(AStreamJid).contains(AServiceJid))
+	{
+		IPresenceItem pitem = servicePresence(AStreamJid,AServiceJid);
+		if (ACheckPresence && (pitem.show==IPresence::Offline || pitem.show==IPresence::Error))
+		{
+			restrictions = GSR_ADD_CONTACT|GSR_DELETE_CONTACT|GSR_RENAME_CONTACT|GSR_CHANGE_GROUPS;
+		}
+		else if (FDiscovery->hasDiscoInfo(AStreamJid,AServiceJid))
+		{
+			IDiscoInfo dinfo = FDiscovery->discoInfo(AStreamJid,AServiceJid);
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED))
+				restrictions |= GSR_ADD_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED))
+				restrictions |= GSR_DELETE_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_RENAME_PROHIBITED))
+				restrictions |= GSR_RENAME_CONTACT;
+			if (dinfo.features.contains(NS_RAMBLER_GATEWAY_ROSTER_GROUP_CHANGE_PROHIBITED))
+				restrictions |= GSR_CHANGE_GROUPS;
+		}
+	}
+	return restrictions;
 }
 
 IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const
 {
 	IGateServiceLogin login;
-	IGateServiceDescriptor descriptor = FDiscovery!=NULL ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
+	IGateServiceDescriptor descriptor = FDiscovery ? findGateDescriptor(FDiscovery->discoInfo(AStreamJid, AServiceJid)) : IGateServiceDescriptor();
 	if (!descriptor.id.isEmpty())
 	{
 		login.fields = AFields;
@@ -975,19 +1046,20 @@ IGateServiceLogin Gateways::serviceLogin(const Jid &AStreamJid, const Jid &AServ
 			login.login = AFields.fieldMask & IRegisterFields::Username ? AFields.username : AFields.email;
 			login.password = AFields.password;
 		}
-		else if (FDataForms && FDataForms->isFormValid(AFields.form) && FDataForms->fieldIndex(descriptor.loginField,AFields.form.fields)>=0)
+		else if (FDataForms && FDataForms->isFormValid(AFields.form))
 		{
 			login.isValid = true;
 			login.fields.fieldMask = 0;
+			login.oauthUrl = QUrl::fromUserInput(FDataForms->fieldValue("oauth-url",AFields.form.fields).toString());
 			login.login = FDataForms->fieldValue(descriptor.loginField, AFields.form.fields).toString();
 			login.domain = FDataForms->fieldValue(descriptor.domainField, AFields.form.fields).toString();
 			login.password = FDataForms->fieldValue(descriptor.passwordField, AFields.form.fields).toString();
 		}
 		if (login.isValid && !descriptor.domainSeparator.isEmpty() && login.domain.isEmpty())
 		{
-			QStringList parts = login.login.split(descriptor.domainSeparator);
-			login.login = parts.value(0);
-			login.domain = parts.value(1);
+			int sepPos = login.login.lastIndexOf(descriptor.domainSeparator);
+			login.domain = sepPos>=0 ? login.login.right(login.login.length()-sepPos-1) : QString::null;
+			login.login = sepPos>=0 ? login.login.left(sepPos) : login.login;
 			login.isValid = login.domain.isEmpty() || descriptor.domains.isEmpty() || descriptor.domains.contains(login.domain);
 		}
 	}
@@ -1015,29 +1087,30 @@ IRegisterSubmit Gateways::serviceSubmit(const Jid &AStreamJid, const Jid &AServi
 		else if (FDataForms)
 		{
 			QMap<QString, QVariant> fields = descriptor.extraFields;
-			if (ALogin.domainSeparator.isEmpty())
+			if (ALogin.oauthUrl.isEmpty())
 			{
-				fields.insert(descriptor.loginField,ALogin.login);
+				if (ALogin.domainSeparator.isEmpty())
+				{
+					fields.insert(descriptor.loginField,ALogin.login);
+				}
+				else if (FDataForms->fieldIndex(descriptor.domainField,ALogin.fields.form.fields)>=0)
+				{
+					fields.insert(descriptor.loginField,ALogin.login);
+					fields.insert(descriptor.domainField,ALogin.domain);
+				}
+				else
+				{
+					fields.insert(descriptor.loginField,ALogin.login + ALogin.domainSeparator + ALogin.domain);
+				}
+				fields.insert(descriptor.passwordField,ALogin.password);
 			}
-			else if (FDataForms->fieldIndex(descriptor.domainField,ALogin.fields.form.fields)>=0)
-			{
-				fields.insert(descriptor.loginField,ALogin.login);
-				fields.insert(descriptor.domainField,ALogin.domain);
-			}
-			else
-			{
-				fields.insert(descriptor.loginField,ALogin.login + ALogin.domainSeparator + ALogin.domain);
-			}
-			fields.insert(descriptor.passwordField, ALogin.password);
 
 			IDataForm form = ALogin.fields.form;
-			QMap<QString, QVariant>::const_iterator it = fields.constBegin();
-			while (it != fields.constEnd())
+			for (QMap<QString, QVariant>::const_iterator it = fields.constBegin(); it != fields.constEnd(); it++)
 			{
 				int index = FDataForms->fieldIndex(it.key(),form.fields);
 				if (index >= 0)
 					form.fields[index].value = it.value();
-				it++;
 			}
 
 			submit.form = FDataForms->dataSubmit(form);
@@ -1064,11 +1137,11 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (roster && roster->isOpen())
 	{
-		LogDetaile(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
+		LogDetail(QString("[Gateways] Changing service '%1' state to enabled='%2'").arg(AServiceJid.full()).arg(AEnabled));
 		if (AEnabled)
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,true,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Subscribe);
 			sendLogPresence(AStreamJid,AServiceJid,true);
@@ -1077,7 +1150,7 @@ bool Gateways::setServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid, 
 		else
 		{
 			if (FRosterChanger)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 			setKeepConnection(AStreamJid,AServiceJid,false);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribe);
 			roster->sendSubscription(AServiceJid,IRoster::Unsubscribed);
@@ -1093,7 +1166,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 	IPresence *presence = FPresencePlugin!=NULL ? FPresencePlugin->findPresence(AStreamJid) : NULL;
 	if (roster && presence && FRosterChanger && presence->isOpen() && AServiceFrom.isValid() && AServiceTo.isValid() && AServiceFrom.pDomain()!=AServiceTo.pDomain())
 	{
-		LogDetaile(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
+		LogDetail(QString("[Gateways] Changing service from '%1' to '%2'").arg(AServiceFrom.full()).arg(AServiceTo.full()));
 		
 		IRosterItem ritemOld = roster->rosterItem(AServiceFrom);
 		IRosterItem ritemNew = roster->rosterItem(AServiceTo);
@@ -1121,7 +1194,7 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 				if (ARemove)
 				{
 					oldItems.append(ritem);
-					FRosterChanger->insertAutoSubscribe(AStreamJid, ritem.itemJid, true, false, true);
+					FRosterChanger->insertAutoSubscribtion(AStreamJid, ritem.itemJid, true, false, true);
 				}
 			}
 		}
@@ -1132,8 +1205,8 @@ bool Gateways::changeService(const Jid &AStreamJid, const Jid &AServiceFrom, con
 		{
 			curItems+=newItems;
 			foreach(IRosterItem ritem, curItems)
-				FRosterChanger->insertAutoSubscribe(AStreamJid,ritem.itemJid, true, true, false);
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceTo,true,true,false);
+				FRosterChanger->insertAutoSubscribtion(AStreamJid,ritem.itemJid, true, true, false);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceTo,true,true,false);
 			roster->sendSubscription(AServiceTo,IRoster::Subscribe);
 		}
 
@@ -1147,12 +1220,12 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 	if (FRegistration && roster && roster->isOpen())
 	{
-		LogDetaile(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
+		LogDetail(QString("[Gateways] Removing service '%1', with_contacts='%2'").arg(AServiceJid.full()).arg(AWithContacts));
 
 		if (FRosterChanger)
-			FRosterChanger->insertAutoSubscribe(AStreamJid,AServiceJid,true,false,true);
+			FRosterChanger->insertAutoSubscribtion(AStreamJid,AServiceJid,true,false,true);
 
-		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid.full());
+		QString requestId = FRegistration->sendUnregiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
 			RemoveRequestParams params;
@@ -1168,7 +1241,7 @@ QString Gateways::removeService(const Jid &AStreamJid, const Jid &AServiceJid, b
 
 QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
 {
-	QString legacyId = AUserJid.node();
+	QString legacyId = AUserJid.uNode();
 	for (int i=1; i<legacyId.length(); i++)
 	{
 		if (legacyId.at(i)=='%' && legacyId.at(i-1)!='\\')
@@ -1177,11 +1250,18 @@ QString Gateways::legacyIdFromUserJid(const Jid &AUserJid) const
 	return legacyId;
 }
 
+QString Gateways::legacyIdFromUserJid(const Jid &AStreamJid, const Jid &AUserJid) const
+{
+	if (streamServices(AStreamJid).contains(AUserJid.domain()))
+		return legacyIdFromUserJid(AUserJid);
+	return AUserJid.bare();
+}
+
 QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	if (FRegistration)
 	{
-		LogDetaile(QString("[Gateways] Sending login request to '%1'").arg(AServiceJid.full()));
+		LogDetail(QString("[Gateways] Sending login request to '%1'").arg(AServiceJid.full()));
 		QString requestId = FRegistration->sendRegiterRequest(AStreamJid,AServiceJid);
 		if (!requestId.isEmpty())
 		{
@@ -1195,11 +1275,11 @@ QString Gateways::sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid
 QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid)
 {
 	Stanza request("iq");
-	request.setType("get").setTo(AServiceJid.eFull()).setId(FStanzaProcessor->newId());
+	request.setType("get").setTo(AServiceJid.full()).setId(FStanzaProcessor->newId());
 	request.addElement("query",NS_JABBER_GATEWAY);
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
-		LogDetaile(QString("[Gateways] Gateway prompt request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
+		LogDetail(QString("[Gateways] Gateway prompt request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FPromptRequests.append(request.id());
 		return request.id();
 	}
@@ -1209,12 +1289,12 @@ QString Gateways::sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJi
 QString Gateways::sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID)
 {
 	Stanza request("iq");
-	request.setType("set").setTo(AServiceJid.eFull()).setId(FStanzaProcessor->newId());
+	request.setType("set").setTo(AServiceJid.full()).setId(FStanzaProcessor->newId());
 	QDomElement elem = request.addElement("query",NS_JABBER_GATEWAY);
 	elem.appendChild(request.createElement("prompt")).appendChild(request.createTextNode(AContactID));
 	if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,GATEWAY_TIMEOUT))
 	{
-		LogDetaile(QString("[Gateways] User JID request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
+		LogDetail(QString("[Gateways] User JID request sent to '%1' id='%2'").arg(AServiceJid.full(),request.id()));
 		FUserJidRequests.append(request.id());
 		return request.id();
 	}
@@ -1230,26 +1310,13 @@ QDialog *Gateways::showAddLegacyAccountDialog(const Jid &AStreamJid, const Jid &
 		if (serviceDescriptor(AStreamJid,AServiceJid).id == GSID_FACEBOOK)
 			dialog = new AddFacebookAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
 		else
-			dialog = new AddLegacyAccountDialog(this,FRegistration,presence,AServiceJid,AParent);
+			dialog = new AddLegacyAccountDialog(this,FRegistration,FDataForms,presence,AServiceJid,AParent);
 		connect(presence->instance(),SIGNAL(closed()),dialog,SLOT(reject()));
-
-		CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(dialog, CBS_DIALOG);
-		if (border)
-		{
-			border->setAttribute(Qt::WA_DeleteOnClose, true);
-			border->setMaximizeButtonVisible(false);
-			border->setMinimizeButtonVisible(false);
-			connect(border, SIGNAL(closeClicked()), dialog, SLOT(reject()));
-			connect(dialog, SIGNAL(rejected()), border, SLOT(close()));
-			connect(dialog, SIGNAL(accepted()), border, SLOT(close()));
-			border->setResizable(false);
-			border->show();
-			border->adjustSize();
-		}
-		else
-		{
-			dialog->show();
-		}
+#ifdef Q_WS_MAC
+		setWindowGrowButtonEnabled(dialog->window(), false);
+#endif
+		WidgetManager::showActivateRaiseWindow(dialog->window());
+		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 		return dialog;
 	}
 	return NULL;
@@ -1262,6 +1329,30 @@ void Gateways::registerDiscoFeatures()
 	dfeature.var = NS_JABBER_GATEWAY;
 	dfeature.name = tr("Gateway Interaction");
 	dfeature.description = tr("Supports the adding of the contact by the username of the legacy system");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_ADD_PROHIBITED;
+	dfeature.name = tr("Adding contacts is prohibited");
+	dfeature.description = tr("Adding contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_DELETE_PROHIBITED;
+	dfeature.name = tr("Deleting contacts is prohibited");
+	dfeature.description = tr("Deleting contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_RENAME_PROHIBITED;
+	dfeature.name = tr("Renaming contacts is prohibited");
+	dfeature.description = tr("Renaming contacts through this gateway is prohibited");
+	FDiscovery->insertDiscoFeature(dfeature);
+
+	dfeature.active = false;
+	dfeature.var = NS_RAMBLER_GATEWAY_ROSTER_GROUP_CHANGE_PROHIBITED;
+	dfeature.name = tr("Changing contacts groups is prohibited");
+	dfeature.description = tr("Changing contacts groups through this gateway is prohibited");
 	FDiscovery->insertDiscoFeature(dfeature);
 }
 
@@ -1277,7 +1368,7 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				IGateServiceDescriptor descriptor = findGateDescriptor(FDiscovery->discoInfo(AStreamJid,ditem.itemJid));
 				if (!descriptor.id.isEmpty() && descriptor.autoLogin)
 				{
-					LogDetaile(QString("[Gateways] Sending auto login register request to '%1'").arg(ditem.itemJid.full()));
+					LogDetail(QString("[Gateways] Sending auto login register request to '%1'").arg(ditem.itemJid.full()));
 					QString requestId = FRegistration->sendRegiterRequest(AStreamJid,ditem.itemJid);
 					if (!requestId.isEmpty())
 					{
@@ -1287,6 +1378,19 @@ void Gateways::startAutoLogin(const Jid &AStreamJid)
 				}
 			}
 		}
+	}
+}
+
+void Gateways::saveKeepConnections(const Jid &AStreamJid)
+{
+	if (FPrivateStorage && FKeepConnections.contains(AStreamJid))
+	{
+		QDomDocument doc;
+		doc.appendChild(doc.createElement("services"));
+		QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
+		foreach(Jid service, FKeepConnections.value(AStreamJid))
+			elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.bare()));
+		FPrivateStorage->saveData(AStreamJid,elem);
 	}
 }
 
@@ -1319,7 +1423,7 @@ void Gateways::insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 		notice.iconKey = descriptor.iconKey;
 		notice.iconStorage = RSR_STORAGE_MENUICONS;
 		notice.caption = tr("Account disconnected");
-		notice.message = QString("%1<br><i>%2</i>").arg(ALogin).arg(tr("Disconnected"));
+		notice.message = QString("%1<br><i>%2</i>").arg(ALogin).arg(tr("disconnected"));
 
 		Action *action = new Action(this);
 		action->setText(tr("Enable"));
@@ -1337,6 +1441,25 @@ void Gateways::removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJi
 	IInternalNoticeWidget *noticeWidget = FMainWindowPlugin!=NULL ? FMainWindowPlugin->mainWindow()->noticeWidget() : NULL;
 	if (noticeWidget)
 		noticeWidget->removeNotice(FConflictNotices.value(AStreamJid).value(AServiceJid));
+}
+
+void Gateways::insertInternalServicesNotice()
+{
+	if (FMainWindowPlugin && FInternalServicesNoticeId==-1)
+	{
+		IInternalNotice notice;
+		notice.priority = INP_GATEWAYS_SERVICES;
+		notice.message = tr("Connect with other services to see all your friends in one place");
+
+		Action *action = new Action(this);
+		action->setData(IInternalNotice::TypeRole, IInternalNotice::ImageAction);
+		action->setData(IInternalNotice::ImageRole, IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ALL_SERVICES));
+		action->setText(tr("Add my accounts..."));
+		connect(action, SIGNAL(triggered()), SLOT(onInternalServicesNoticeActionTriggered()));
+		notice.actions.append(action);
+
+		FInternalServicesNoticeId = FMainWindowPlugin->mainWindow()->noticeWidget()->insertNotice(notice);
+	}
 }
 
 void Gateways::onXmppStreamOpened(IXmppStream *AXmppStream)
@@ -1375,13 +1498,13 @@ void Gateways::onRosterOpened(IRoster *ARoster)
 	if (FDiscovery)
 	{
 		foreach(IRosterItem ritem, ARoster->rosterItems())
-			if (ritem.itemJid.node().isEmpty() && !FDiscovery->hasDiscoInfo(ARoster->streamJid(),ritem.itemJid))
+			if (ritem.itemJid.node().isEmpty())
 				FDiscovery->requestDiscoInfo(ARoster->streamJid(),ritem.itemJid);
 	}
 	if (FPrivateStorage)
 	{
 		FPrivateStorage->loadData(ARoster->streamJid(),PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
-		FKeepTimer.start(KEEP_INTERVAL);
+		//FKeepTimer.start(KEEP_INTERVAL);
 	}
 	startAutoLogin(ARoster->streamJid());
 }
@@ -1416,7 +1539,7 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			if (FNotifications)
 			{
 				INotification notify;
-				notify.kinds = FNotifications->notificationKinds(NNT_BIRTHDAY_REMIND);
+				notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_BIRTHDAY_REMIND);
 				if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 				{
 					IGateServiceDescriptor descriptor = serviceDescriptor(APresence->streamJid(),AItem.itemJid);
@@ -1427,12 +1550,12 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 					notify.data.insert(NDR_SOUND_FILE,SDF_GATEWAYS_CONFLICT);
 					if (descriptor.id == GSID_ICQ)
 					{
-						notify.data.insert(NDR_POPUP_TITLE,tr("ICQ disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TITLE,tr("ICQ disconnected (offline)"));
 						notify.data.insert(NDR_POPUP_TEXT,tr("Your ICQ was connected from another computer. You can enable ICQ again."));
 					}
 					else if (descriptor.id == GSID_MAGENT)
 					{
-						notify.data.insert(NDR_POPUP_TITLE,tr("Agent@Mail disconnected (offline)").arg(descriptor.name));
+						notify.data.insert(NDR_POPUP_TITLE,tr("Agent@Mail disconnected (offline)"));
 						notify.data.insert(NDR_POPUP_TEXT,tr("Your Agent@Mail was connected from another computer. You can enable it again."));
 					}
 					else
@@ -1445,55 +1568,64 @@ void Gateways::onPresenceItemReceived(IPresence *APresence, const IPresenceItem 
 			}
 			if (FMainWindowPlugin && !FConflictNotices.value(APresence->streamJid()).contains(AItem.itemJid))
 			{
-				LogDetaile(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
+				LogDetail(QString("[Gateways] Sending conflict login request to '%1'").arg(AItem.itemJid.full()));
 				QString requestId = FRegistration->sendRegiterRequest(APresence->streamJid(),AItem.itemJid);
 				if (!requestId.isEmpty())
-				{
 					FConflictLoginRequests.insert(requestId,APresence->streamJid());
-				}
 			}
 		}
 		emit servicePresenceChanged(APresence->streamJid(),AItem.itemJid,AItem);
 	}
 }
 
-void Gateways::onPrivateStorateOpened(const Jid &AStreamJid)
-{
-	Q_UNUSED(AStreamJid);
-}
-
-void Gateways::onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
+void Gateways::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
 	Q_UNUSED(AId);
-	if (AElement.tagName() == PST_GATEWAYS_SERVICES && AElement.namespaceURI() == PSN_GATEWAYS_KEEP)
+	if (AElement.tagName()==PST_GATEWAYS_SERVICES && AElement.namespaceURI()==PSN_GATEWAYS_KEEP)
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
+			QSet<Jid> newServices;
 			QDomElement elem = AElement.firstChildElement("service");
 			while (!elem.isNull())
 			{
-				IRosterItem ritem = roster->rosterItem(elem.text());
-				if (ritem.isValid && isServiceEnabled(AStreamJid,ritem.itemJid))
-					setKeepConnection(AStreamJid,ritem.itemJid,true);
+				Jid service = elem.text();
+				IRosterItem ritem = roster->rosterItem(service);
+				if (ritem.isValid)
+				{
+					newServices += service;
+					setKeepConnection(AStreamJid,service,true);
+				}
 				elem = elem.nextSiblingElement("service");
 			}
+
+			QSet<Jid> oldServices = FKeepConnections.value(AStreamJid) - newServices;
+			foreach(Jid service, oldServices)
+				setKeepConnection(AStreamJid,service,false);
+
+			FKeepConnections[AStreamJid] = newServices;
 		}
+	}
+}
+
+void Gateways::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
+{
+	if (ATagName==PST_GATEWAYS_SERVICES && ANamespace==PSN_GATEWAYS_KEEP)
+	{
+		FPrivateStorage->loadData(AStreamJid,PST_GATEWAYS_SERVICES,PSN_GATEWAYS_KEEP);
 	}
 }
 
 void Gateways::onPrivateStorateAboutToClose(const Jid &AStreamJid)
 {
-	QDomDocument doc;
-	doc.appendChild(doc.createElement("services"));
-	QDomElement elem = doc.documentElement().appendChild(doc.createElementNS(PSN_GATEWAYS_KEEP,PST_GATEWAYS_SERVICES)).toElement();
-	foreach(Jid service, FKeepConnections.value(AStreamJid))
-		elem.appendChild(doc.createElement("service")).appendChild(doc.createTextNode(service.eBare()));
-	FPrivateStorage->saveData(AStreamJid,elem);
+	if (FSaveKeepTimer.isActive())
+		saveKeepConnections(AStreamJid);
 }
 
 void Gateways::onPrivateStorateClosed(const Jid &AStreamJid)
 {
+	FSaveKeepStreams -= AStreamJid;
 	FKeepConnections.remove(AStreamJid);
 }
 
@@ -1522,6 +1654,13 @@ void Gateways::onKeepTimerTimeout()
 	}
 }
 
+void Gateways::onSaveKeepTimerTimeout()
+{
+	foreach(Jid streamJid, FSaveKeepStreams)
+		saveKeepConnections(streamJid);
+	FSaveKeepStreams.clear();
+}
+
 void Gateways::onVCardReceived(const Jid &AContactJid)
 {
 	if (FResolveNicks.contains(AContactJid))
@@ -1543,7 +1682,7 @@ void Gateways::onDiscoInfoChanged(const IDiscoInfo &AInfo)
 {
 	if (AInfo.contactJid.node().isEmpty() && AInfo.node.isEmpty())
 	{
-		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AInfo.streamJid) : NULL;
+		IRoster *roster = FRosterPlugin ? FRosterPlugin->findRoster(AInfo.streamJid) : NULL;
 		if (roster && roster->isOpen())
 			startAutoLogin(roster->streamJid());
 		if (roster && roster->rosterItem(AInfo.contactJid).isValid)
@@ -1575,7 +1714,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
-			LogDetaile(QString("[Gateways] Gateway login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
+			LogDetail(QString("[Gateways] Gateway login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			emit loginReceived(AId, login);
 		}
 		else
@@ -1586,7 +1725,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 	}
 	else if (FAutoLoginRequests.contains(AId))
 	{
-		LogDetaile(QString("[Gateways] Auto login register fields received from '%1' id='%2' registered='%3'").arg(AFields.serviceJid.full(),AId).arg(AFields.registered));
+		LogDetail(QString("[Gateways] Auto login register fields received from '%1' id='%2' registered='%3'").arg(AFields.serviceJid.full(),AId).arg(AFields.registered));
 		Jid streamJid = FAutoLoginRequests.take(AId).first;
 		if (!AFields.registered)
 		{
@@ -1596,14 +1735,21 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			submit.serviceJid = AFields.serviceJid;
 			submit.username = streamJid.pBare();
 
-			LogDetaile(QString("[Gateways] Sending auto login register submit to '%1'").arg(submit.serviceJid.full()));
+			LogDetail(QString("[Gateways] Sending auto login register submit to '%1'").arg(submit.serviceJid.full()));
 			QString submitId = FRegistration->sendSubmit(streamJid,submit);
 			if (!submitId.isEmpty())
 				FAutoLoginRequests.insert(submitId,qMakePair<Jid,Jid>(streamJid,AFields.serviceJid));
 		}
-		else if (FRosterChanger)
+		else if (FRosterPlugin)
 		{
-			FRosterChanger->subscribeContact(streamJid,AFields.serviceJid,QString::null,true);
+			IRoster *roster = FRosterPlugin->findRoster(streamJid);
+			IRosterItem ritem = roster!=NULL ? roster->rosterItem(AFields.serviceJid) : IRosterItem();
+			if (ritem.subscription != SUBSCRIPTION_BOTH)
+			{
+				if (ritem.subscription == SUBSCRIPTION_TO)
+					roster->sendSubscription(AFields.serviceJid,IRoster::Unsubscribe);
+				roster->sendSubscription(AFields.serviceJid,IRoster::Subscribe);
+			}
 		}
 	}
 	else if (FConflictLoginRequests.contains(AId))
@@ -1615,7 +1761,7 @@ void Gateways::onRegisterFields(const QString &AId, const IRegisterFields &AFiel
 			QString login = gslogin.login;
 			if (!gslogin.domain.isEmpty())
 				login += "@" + gslogin.domain;
-			LogDetaile(QString("[Gateways] Conflict notice login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
+			LogDetail(QString("[Gateways] Conflict notice login received from '%1' id='%2': %3").arg(AFields.serviceJid.full(),AId,login));
 			insertConflictNotice(streamJid,AFields.serviceJid,login);
 		}
 		else
@@ -1630,13 +1776,13 @@ void Gateways::onRegisterSuccess(const QString &AId)
 	if (FAutoLoginRequests.contains(AId))
 	{
 		QPair<Jid,Jid> service = FAutoLoginRequests.take(AId);
-		LogDetaile(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
+		LogDetail(QString("[Gateways] Auto login registration finished on '%1' id='%2'").arg(service.second.full(),AId));
 		setServiceEnabled(service.first,service.second,true);
 	}
 	else if (FRemoveRequests.contains(AId))
 	{
 		RemoveRequestParams params = FRemoveRequests.take(AId);
-		LogDetaile(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
+		LogDetail(QString("[Gateways] Registration removed on '%1' id='%2'").arg(params.serviceJid.full(),AId));
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(params.streamJid) : NULL;
 		if (roster && roster->isOpen())
 		{
@@ -1647,7 +1793,7 @@ void Gateways::onRegisterSuccess(const QString &AId)
 					if (ritem.itemJid!=params.serviceJid && ritem.itemJid.pDomain()==params.serviceJid.pDomain())
 						roster->removeItem(ritem.itemJid);
 			}
-			LogDetaile(QString("[Gateways] Service '%1' removed from roster id='%2'").arg(params.serviceJid.full(),AId));
+			LogDetail(QString("[Gateways] Service '%1' removed from roster id='%2'").arg(params.serviceJid.full(),AId));
 			emit serviceRemoved(AId);
 		}
 		else
@@ -1695,22 +1841,10 @@ void Gateways::onInternalNoticeReady()
 		if (streamServices(FOptionsStreamJid,identity).isEmpty() && !availServices(FOptionsStreamJid,identity).isEmpty())
 		{
 			int showCount = Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).value().toInt();
-			int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
 			QDateTime showLast = Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).value().toDateTime();
-			if (showCount <= 3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*removeCount))
+			if (showCount<=3 && (!showLast.isValid() || showLast.daysTo(QDateTime::currentDateTime())>=7*showCount))
 			{
-				IInternalNotice notice;
-				notice.priority = INP_DEFAULT;
-				notice.iconStorage = RSR_STORAGE_MENUICONS;
-				notice.caption = tr("Add your accounts");
-				notice.message = Qt::escape(tr("Add your accounts and send messages to your friends on these services"));
-
-				Action *action = new Action(this);
-				action->setText(tr("Add my accounts..."));
-				connect(action,SIGNAL(triggered()),SLOT(onInternalAccountNoticeActionTriggered()));
-				notice.actions.append(action);
-
-				FInternalNoticeId = widget->insertNotice(notice);
+				insertInternalServicesNotice();
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWCOUNT).setValue(showCount+1);
 				Options::node(OPV_GATEWAYS_NOTICE_SHOWLAST).setValue(QDateTime::currentDateTime());
 			}
@@ -1718,7 +1852,7 @@ void Gateways::onInternalNoticeReady()
 	}
 }
 
-void Gateways::onInternalAccountNoticeActionTriggered()
+void Gateways::onInternalServicesNoticeActionTriggered()
 {
 	if (FOptionsManager)
 	{
@@ -1737,11 +1871,9 @@ void Gateways::onInternalConflictNoticeActionTriggered()
 
 void Gateways::onInternalNoticeRemoved(int ANoticeId)
 {
-	if (ANoticeId>0 && ANoticeId==FInternalNoticeId)
+	if (ANoticeId == FInternalServicesNoticeId)
 	{
-		int removeCount = Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).value().toInt();
-		Options::node(OPV_GATEWAYS_NOTICE_REMOVECOUNT).setValue(removeCount+1);
-		FInternalNoticeId = -1;
+		FInternalServicesNoticeId = -1;
 	}
 	else foreach(Jid streamJid, FConflictNotices.keys())
 	{
@@ -1772,5 +1904,12 @@ void Gateways::onNotificationRemoved(int ANotifyId)
 	}
 }
 
+void Gateways::onWelcomeScreenVisibleChanged(bool AVisible)
+{
+	if (AVisible)
+		insertInternalServicesNotice();
+	else if (FMainWindowPlugin)
+		FMainWindowPlugin->mainWindow()->noticeWidget()->removeNotice(FInternalServicesNoticeId);
+}
 
 Q_EXPORT_PLUGIN2(plg_gateways, Gateways)

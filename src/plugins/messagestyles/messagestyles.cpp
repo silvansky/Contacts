@@ -6,6 +6,7 @@
 MessageStyles::MessageStyles()
 {
 	FAvatars = NULL;
+	FGateways = NULL;
 	FStatusIcons = NULL;
 	FVCardPlugin = NULL;
 	FRosterPlugin = NULL;
@@ -45,6 +46,10 @@ bool MessageStyles::initConnections(IPluginManager *APluginManager, int &AInitOr
 	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
 	if (plugin)
 		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IStatusIcons").value(0,NULL);
 	if (plugin)
@@ -141,7 +146,8 @@ QString MessageStyles::contactName(const Jid &AStreamJid, const Jid &AContactJid
 	QString name;
 	if (!AContactJid.isValid())
 	{
-		if (!FStreamNames.contains(AStreamJid.bare()))
+		name = FStreamNames.value(AStreamJid.bare());
+		if (name.isEmpty())
 		{
 			IVCard *vcard = FVCardPlugin!=NULL ? FVCardPlugin->vcard(AStreamJid.bare()) : NULL;
 			if (vcard)
@@ -155,23 +161,24 @@ QString MessageStyles::contactName(const Jid &AStreamJid, const Jid &AContactJid
 
 			FStreamNames.insert(AStreamJid.bare(),name);
 		}
-		else
-		{
-			name = FStreamNames.value(AStreamJid.bare());
-		}
 	}
 	else if (AStreamJid && AContactJid)
 	{
-		name = AContactJid.resource();
+		if (!AContactJid.resource().isEmpty())
+			name = AContactJid.resource();
+		else
+			name = defaultContactNick(AContactJid);
 	}
 	else
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		name = roster!=NULL ? roster->rosterItem(AContactJid).name : QString::null;
+		if (name.isEmpty())
+		{
+			Jid legacyJid = FGateways!=NULL ? FGateways->legacyIdFromUserJid(AStreamJid,AContactJid) : AContactJid;
+			name = defaultContactNick(legacyJid);
+		}
 	}
-
-	if (name.isEmpty())
-		name = defaultContactNick(AContactJid.isValid() ? AContactJid : AStreamJid);
 
 	return name;
 }
@@ -215,8 +222,7 @@ QString MessageStyles::timeFormat(const QDateTime &AMessageTime, const QDateTime
 
 QString MessageStyles::defaultContactNick(const Jid &AContactJid) const
 {
-	QString nick = AContactJid.node();
-	nick = nick.isEmpty() ? AContactJid.domain() : nick;
+	QString nick = !AContactJid.node().isEmpty() ? AContactJid.uNode() : AContactJid.domain();
 	if (!nick.isEmpty())
 	{
 		nick[0] = nick[0].toUpper();

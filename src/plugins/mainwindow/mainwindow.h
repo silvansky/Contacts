@@ -4,9 +4,11 @@
 #include <interfaces/imainwindow.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 #include <definitions/toolbargroups.h>
 #include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include "noticewidget.h"
 
 class MainWindow :
@@ -32,19 +34,18 @@ public:
 	virtual ToolBarChanger *statusToolBarChanger() const;
 public:
 	virtual QMenu *createPopupMenu();
+signals:
+	void closed();
 protected:
 	void createLayouts();
 	void createToolBars();
 	void createMenus();
 protected:
-	void keyPressEvent(QKeyEvent *AEvent);
 	void closeEvent(QCloseEvent *);
 protected slots:
 	void onStackedWidgetChanged(int AIndex);
 	void onMainMenuAboutToShow();
 	void onMainMenuAboutToHide();
-signals:
-	void closed();
 private:
 	Menu *FMainMenu;
 	ToolBarChanger *FTopToolBarChanger;

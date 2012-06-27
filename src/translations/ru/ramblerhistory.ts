@@ -25,6 +25,10 @@
         <source>Chat history - %1</source>
         <translation>История чата - %1</translation>
     </message>
+    <message>
+        <source>Loading... %1%</source>
+        <translation>Загрузка... %1%</translation>
+    </message>
 </context>
 <context>
     <name>ViewHistoryWindowClass</name>

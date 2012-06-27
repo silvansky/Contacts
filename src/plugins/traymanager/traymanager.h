@@ -9,6 +9,7 @@
 #include <definitions/optionvalues.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/itraymanager.h>
+#include <interfaces/imainwindow.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/versionparser.h>
@@ -59,11 +60,12 @@ protected slots:
 	void onTrayIconActivated(QSystemTrayIcon::ActivationReason AReason);
 	void onBlinkTimerTimeout();
 	void onTriggerTimerTimeout();
-	void onApplicationQuitStarted();
+	void onShutdownStarted();
 	void onOptionsOpened();
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
 	IPluginManager *FPluginManager;
+	IMainWindowPlugin *FMainWindowPlugin;
 private:
 	Menu *FContextMenu;
 private:
@@ -73,6 +75,7 @@ private:
 	bool FIconHidden;
 	int FActiveNotify;
 	QIcon FIcon;
+	QIcon FEmptyIcon;
 	QString FToolTip;
 	QTimer FTriggerTimer;
 	QList<int> FNotifyOrder;

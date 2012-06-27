@@ -1,12 +1,12 @@
 #include "custombordercontainer.h"
 #include "log.h"
+#include "iconstorage.h"
+#include "custombordercontainer_p.h"
+#include "imagemanager.h"
+
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
-#include "custombordercontainer_p.h"
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
 #include <QLinearGradient>
 #include <QGradientStop>
 #include <QPainter>
@@ -27,14 +27,20 @@
 #include <QTreeView>
 #include <QComboBox>
 #include <QScrollBar>
-// damn, i didn't want that!
 #include <QWebView>
-#include "iconstorage.h"
-#ifdef Q_WS_WIN
-# include <qt_windows.h>
-#elif defined Q_WS_MAC
-# include "macwidgets.h"
+
+#ifdef DEBUG_CUSTOMBORDER
+# include <QDebug>
 #endif
+
+#if defined(Q_WS_WIN)
+# include <qt_windows.h>
+# include <shellapi.h>
+#elif defined Q_WS_MAC
+# include "macutils.h"
+#endif
+
+#define SHOW_IN_TASKBAR_FLAG (Qt::ToolTip)
 
 // internal functions
 static void repaintRecursive(QWidget *widget, const QRect & globalRect)
@@ -64,6 +70,7 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(CustomBorderContainer
 }
 
 CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderContainerPrivate& other) :
+	p(NULL),
 	topLeft(other.topLeft),
 	topRight(other.topRight),
 	bottomLeft(other.bottomLeft),
@@ -80,9 +87,8 @@ CustomBorderContainerPrivate::CustomBorderContainerPrivate(const CustomBorderCon
 	maximize(other.maximize),
 	close(other.close),
 	restore(other.restore),
-	headerButtons(other.headerButtons),
 	dragAnywhere(other.dragAnywhere),
-	p(NULL),
+	headerButtons(other.headerButtons),
 	dockingEnabled(other.dockingEnabled),
 	dockWidth(other.dockWidth)
 {
@@ -231,28 +237,7 @@ void CustomBorderContainerPrivate::setAllDefaults()
 
 QColor CustomBorderContainerPrivate::parseColor(const QString & name)
 {
-	QColor color;
-	if (QColor::isValidColor(name))
-		color.setNamedColor(name);
-	else
-	{
-		// trying to parse "#RRGGBBAA" color
-		if (name.length() == 9)
-		{
-			QString solidColor = name.left(7);
-			if (QColor::isValidColor(solidColor))
-			{
-				color.setNamedColor(solidColor);
-				int alpha = name.right(2).toInt(0, 16);
-				color.setAlpha(alpha);
-			}
-		}
-	}
-
-	if (!color.isValid())
-		LogError(QString("[CustomBorderContainerPrivate] Can\'t parse color: %1").arg(name));
-
-	return color;
+	return ImageManager::resolveColor(name);
 }
 
 // HINT: only linear gradients are supported for now
@@ -358,7 +343,7 @@ void CustomBorderContainerPrivate::parseBorder(const QDomElement & borderElement
 			border.image = image.attribute("src");
 			border.imageFillingStyle = parseImageFillingStyle(image.attribute("image-filling-style"));
 		}
-#ifdef DEBUG_ENABLED
+#ifdef DEBUG_CUSTOMBORDER
 		if (border.width && (border.image.isEmpty() && !border.gradient))
 		{
 			qDebug() << "CustomBorderContainerPrivate::parseBorder: no background set for non-zero border!" << borderElement.tagName();
@@ -693,7 +678,7 @@ CustomBorderContainer::CustomBorderContainer(const CustomBorderContainerPrivate 
 CustomBorderContainer::~CustomBorderContainer()
 {
 	delete borderStyle;
-	setWidget(NULL);
+	delete releaseWidget(); // Important for widgets to see border in destructor
 }
 
 QWidget * CustomBorderContainer::widget() const
@@ -787,7 +772,7 @@ void CustomBorderContainer::setResizable(bool resizable)
 
 bool CustomBorderContainer::isShowInTaskBarEnabled() const
 {
-	return !(windowFlags() & (Qt::Tool ^ Qt::Window));
+	return !(windowFlags() & (SHOW_IN_TASKBAR_FLAG ^ Qt::Window));
 }
 
 void CustomBorderContainer::setShowInTaskBar(bool show)
@@ -798,11 +783,11 @@ void CustomBorderContainer::setShowInTaskBar(bool show)
 	if (show)
 	{
 		if (!isShowInTaskBarEnabled())
-			setWindowFlags((windowFlags() ^ Qt::Tool) | Qt::Window);
+			setWindowFlags((windowFlags() ^ SHOW_IN_TASKBAR_FLAG) | Qt::Window);
 	}
 	else if (isShowInTaskBarEnabled())
 	{
-		setWindowFlags(windowFlags() | Qt::Tool);
+		setWindowFlags(windowFlags() | SHOW_IN_TASKBAR_FLAG);
 	}
 	if (wasVisible)
 		this->show();
@@ -820,16 +805,24 @@ void CustomBorderContainer::setCloseOnDeactivate(bool enabled)
 
 bool CustomBorderContainer::staysOnTop() const
 {
+#ifndef Q_WS_MAC
 	return windowFlags() & Qt::WindowStaysOnTopHint;
+#else
+	return isWindowOntop(this);
+#endif
 }
 
 void CustomBorderContainer::setStaysOnTop(bool on)
 {
+#ifndef Q_WS_MAC
 	if (on && !staysOnTop())
 		setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	else
 		if (staysOnTop())
 			setWindowFlags(windowFlags() ^ Qt::WindowStaysOnTopHint);
+#else
+	setWindowOntop(this, on);
+#endif
 }
 
 bool CustomBorderContainer::dockingEnabled() const
@@ -1008,7 +1001,7 @@ bool CustomBorderContainer::event(QEvent * evt)
 bool CustomBorderContainer::winEvent(MSG *message, long *result)
 {
 	// WARNING: works only on XP and earlier
-	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar
+	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar in WinXP
 		showWindowMenu(QCursor::pos());
 	return QWidget::winEvent(message, result);
 }
@@ -1031,7 +1024,7 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 		if (((QMouseEvent*)event)->button() == Qt::LeftButton)
 			handled = mousePress(((QMouseEvent*)event)->globalPos(), widget);
 
-#if defined(DEBUG_ENABLED) && defined(DEBUG_CUSTOMBORDER)
+#if defined(DEBUG_CUSTOMBORDER)
 		qDebug() << "handled = " << handled << " " << widget->objectName()
 			 << " of class " << widget->metaObject()->className()
 			 << " " << (qobject_cast<QPushButton*>(widget) ? ((qobject_cast<QPushButton*>(widget))->isDefault() ? "default" : " NOT default!") : "");
@@ -1116,29 +1109,13 @@ bool CustomBorderContainer::eventFilter(QObject *object, QEvent *event)
 // use only for mouse events
 bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 {
-	if (obj->property("ignoreFilter").toBool())
+	if (obj->property(CBC_IGNORE_FILTER).toBool())
 		return false;
 
 	bool filter = true;
 
 	//static QStringList exceptions;
 	// TODO: make this list customizable
-//	if (exceptions.isEmpty())
-//		exceptions << "QAbstractButton"
-//			   << "QLineEdit"
-//			   << "QTextEdit"
-//			   << "QScrollBar"
-//			   << "QWebView"
-//			   << "QAbstractItemView";
-//	foreach (QString item, exceptions)
-//	{
-//		if (obj->inherits(item.toLatin1()))
-//		{
-//			filter = false;
-//			break;
-//		}
-//	}
-	// TODO: optimize
 	if (qobject_cast<QAbstractButton*>(obj) ||
 			qobject_cast<QLineEdit*>(obj) ||
 			qobject_cast<QSpinBox*>(obj) ||
@@ -1158,7 +1135,7 @@ bool CustomBorderContainer::shouldFilterEvents(QObject* obj)
 void CustomBorderContainer::init()
 {
 #ifdef Q_WS_MAC
-	ChangeWindowAttributes(windowRefFromWidget(this), kWindowNoShadowAttribute, kWindowNoAttributes);
+	setWindowShadowEnabled(this, false);
 #endif
 	windowMenu = NULL;
 	// vars
@@ -1703,13 +1680,15 @@ void CustomBorderContainer::childsRecursive(QObject *object, bool install)
 
 void CustomBorderContainer::mouseMove(const QPoint & globalPos, QWidget * widget)
 {
-	bool needToRepaintHeaderButtons = headerButtonsRect().contains(mapFromGlobal(globalPos)) || headerButtonsRect().contains(lastMousePosition);
+	QRect hbr = headerButtonsRect();
+	bool needToRepaintHeaderButtons = hbr.contains(mapFromGlobal(globalPos)) || hbr.contains(lastMousePosition);
+	// TODO: debug this variable!
 	lastMousePosition = mapFromGlobal(globalPos);
 #ifdef DEBUG_CUSTOMBORDER
 	qDebug() << "mouseMove: needToRepaintHeaderButtons:" << needToRepaintHeaderButtons << " pos:" << globalPos;
 #endif
 	if (needToRepaintHeaderButtons)
-		QTimer::singleShot(10, this, SLOT(repaintHeaderButtons()));
+		QTimer::singleShot(0, this, SLOT(repaintHeaderButtons()));
 	if (geometryState() != None)
 	{
 		updateGeometry(globalPos);
@@ -2441,7 +2420,18 @@ void CustomBorderContainer::maximizeWidget()
 	{
 		normalGeometry = geometry();
 		setLayoutMargins();
-		setGeometry(qApp->desktop()->availableGeometry(this));
+		QRect availGeometry = qApp->desktop()->availableGeometry(this);
+#ifdef Q_WS_WIN
+		APPBARDATA pabd;
+		memset(&pabd, 0, sizeof(APPBARDATA));
+		pabd.cbSize = sizeof(APPBARDATA);
+		UINT state = SHAppBarMessage(ABM_GETSTATE, &pabd);
+		if (state & ABS_AUTOHIDE)
+		{
+			availGeometry.moveBottom(availGeometry.bottom() - 1);
+		}
+#endif
+		setGeometry(availGeometry);
 		//updateShape();
 	}
 }

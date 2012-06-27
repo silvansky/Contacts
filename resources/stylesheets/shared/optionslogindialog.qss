@@ -40,9 +40,9 @@ QComboBox[error="true"]:!editable
 QPushButton#tlbDomain
 {
 	margin-top: 1px;
-	min-width: 80px;
-	max-width: 80px;
-	width: 80px;
+	min-width: 100px;
+	max-width: 100px;
+	width: 100px;
 	text-align: left;
 	min-height: 25px;
 }
@@ -131,7 +131,7 @@ QCheckBox
 
 #frmLogin
 {
-	margin-top: 10px;
+	margin-top: 6px;
 	padding-right: 3px;
 	padding-bottom: 0px;
 }
@@ -159,8 +159,6 @@ QCheckBox
 QComboBox#cmbDomain
 {
 	margin-top: 2px;
-	min-width: 78px;
-	max-width: 78px;
 }
 
 QComboBox#cmbDomain[error="true"]

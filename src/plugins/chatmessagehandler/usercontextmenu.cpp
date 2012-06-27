@@ -41,12 +41,12 @@ void UserContextMenu::updateMenu()
 	{
 		Jid jid = FChatWindow->contactJid();
 		QString name = FRosterIndex->data(RDR_NAME).toString();
-		setTitle(!name.isEmpty() ? QString("<b>%1</b><br>%2").arg(name).arg(jid.bare()): jid.bare());
+		setTitle(!name.isEmpty() ? QString("<b>%1</b><br>%2").arg(name).arg(jid.uBare()): jid.uBare());
 		menuAction()->setVisible(true);
 	}
 	else
 	{
-		setTitle(FChatWindow->contactJid().full());
+		setTitle(FChatWindow->contactJid().uFull());
 		menuAction()->setVisible(false);
 	}
 }

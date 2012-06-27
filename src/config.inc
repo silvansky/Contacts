@@ -1,40 +1,60 @@
-TARGET_LOADER            = ramblercontacts
+# common definitions
+DEFINES                 += LOG_ENABLED
+DEFINES                 += WITH_CONSOLE
+CONFIG(debug, debug|release) {
+  # debug definitions
+  DEFINES               += DEBUG_ENABLED
+  DEFINES               += WITH_SSEDITOR
+} else {
+  # release definitions
+}
+
+!contains(DEFINES, WITHOUT_PHONON) {
+  DEFINES               += USE_PHONON
+}
+
+macx: {
+  TARGET_LOADER          = Contacts
+} else {
+  TARGET_LOADER          = ramblercontacts
+}
+
+macx: {
+	MACX_SL = $$system("[ `uname -r` \\< \"11.0.0\" ] && echo true || echo false")
+	contains(MACX_SL, "true") {
+		DEFINES += __MAC_OS_X_SNOW_LEOPARD
+	} else {
+		DEFINES += __MAC_OS_X_LION
+		DEFINES += __MAC_OS_X_NATIVE_FULLSCREEN
+	}
+}
 
 TARGET_UTILS             = ramblercontactsutils
-unix:!macx:VERSION_UTILS = 1.1.0
-
-macx:CONFIG             += x86
-macx:QMAKE_INFO_PLIST = MyInfo.plist
+unix:!macx:VERSION_UTILS = 1.4.0
 
 #Configurable values
 isEmpty(INSTALL_PREFIX) {
   win32:INSTALL_PREFIX   = "c:"
-  unix: INSTALL_PREFIX   = /usr/local
+  unix:!macx: INSTALL_PREFIX   = /usr/local
   macx: INSTALL_PREFIX   = /Applications
 }
 
 isEmpty(INSTALL_APP_DIR) {
   win32:INSTALL_APP_DIR  = ramblercontacts
-  unix: INSTALL_APP_DIR  = ramblercontacts
-  macx: INSTALL_APP_DIR  = ramblercontacts.app
+  unix:!macx: INSTALL_APP_DIR  = ramblercontacts
+  macx: INSTALL_APP_DIR  = Contacts.app
 }
 
 isEmpty(INSTALL_LIB_DIR) {
   win32:INSTALL_LIB_DIR  = .
-  unix: INSTALL_LIB_DIR  = lib
+  unix:!macx: INSTALL_LIB_DIR  = lib
   macx: INSTALL_LIB_DIR  = Frameworks
 }
 
 isEmpty(INSTALL_RES_DIR) {
   win32:INSTALL_RES_DIR  = .
-  unix: INSTALL_RES_DIR  = share
+  unix:!macx: INSTALL_RES_DIR  = share
   macx: INSTALL_RES_DIR  = Resources
-}
-
-#Preprocessor definations
-DEFINES                 += LOG_ENABLED
-CONFIG(debug, debug|release) {
-  DEFINES               += DEBUG_ENABLED
 }
 
 #under mac you should install app before debugging it

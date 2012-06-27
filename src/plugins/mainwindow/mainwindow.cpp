@@ -4,9 +4,22 @@
 
 MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(AParent,AFlags)
 {
-	setAttribute(Qt::WA_DeleteOnClose,false);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MAINWINDOW_WINDOW);
 
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_ROSTER);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose,false);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		border->setDockingEnabled(true);
+		border->installEventFilter(this);
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,false);
+	}
+	
 	QIcon icon;
 	IconStorage *iconStorage = IconStorage::staticStorage(RSR_STORAGE_MENUICONS);
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO16), QSize(16,16));
@@ -16,6 +29,8 @@ MainWindow::MainWindow(QWidget *AParent, Qt::WindowFlags AFlags) : QMainWindow(A
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO64), QSize(64,64));
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO96), QSize(96,96));
 	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO128), QSize(128,128));
+	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO256), QSize(256,256));
+	icon.addFile(iconStorage->fileFullName(MNI_MAINWINDOW_LOGO512), QSize(512,512));
 	setWindowIcon(icon);
 
 	setIconSize(QSize(16,16));
@@ -116,6 +131,7 @@ void MainWindow::createLayouts()
 	FMainLayout->addWidget(FRostersWidget);
 	FMainLayout->addWidget(FBottomWidget);
 	FMainLayout->addWidget(FNoticeWidget);
+	FMainLayout->setStretch(1, 10);
 
 	QWidget *centralWidget = new QWidget(this);
 	centralWidget->setLayout(FMainLayout);
@@ -129,6 +145,9 @@ void MainWindow::createToolBars()
 	toolbar->setMovable(false);
 	toolbar->setObjectName("statusToolBar");
 	addToolBar(Qt::TopToolBarArea, toolbar);
+#ifdef Q_WS_MAC
+	toolbar->layout()->setContentsMargins(0, 0, 0, 0);
+#endif
 	FStatusToolBarChanger = new ToolBarChanger(toolbar);
 	FStatusToolBarChanger->setSeparatorsVisible(false);
 
@@ -154,47 +173,18 @@ void MainWindow::createMenus()
 	FMainMenu->setIcon(RSR_STORAGE_MENUICONS,MNI_MAINWINDOW_MENU);
 	connect(FMainMenu, SIGNAL(aboutToShow()), SLOT(onMainMenuAboutToShow()));
 	connect(FMainMenu, SIGNAL(aboutToHide()), SLOT(onMainMenuAboutToHide()));
+
+#if (!defined(Q_WS_MAC)) || defined(DEBUG_ENABLED)
 	QToolButton *button = FTopToolBarChanger->insertAction(FMainMenu->menuAction(), TBG_MWTTB_MAINWINDOW_MAINMENU);
 	button->setObjectName("mainMenuButton");
 	button->setPopupMode(QToolButton::InstantPopup);
+#endif
 }
 
-void MainWindow::keyPressEvent(QKeyEvent * AEvent)
+void MainWindow::closeEvent(QCloseEvent *AEvent)
 {
-	if (AEvent->key() == Qt::Key_Escape)
-	{
-		if (parentWidget())
-		{
-#ifdef Q_WS_WIN
-			if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			{
-				if (CustomBorderContainer * border = qobject_cast<CustomBorderContainer*>(parentWidget()))
-					border->minimizeWidget();
-				else
-					parentWidget()->showMinimized();
-			}
-			else
-#endif
-				parentWidget()->close();
-		}
-		else
-#ifdef Q_WS_WIN
-		if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-			showMinimized();
-		else
-#endif
-			close();
-	}
-	QMainWindow::keyPressEvent(AEvent);
-}
-
-void MainWindow::closeEvent(QCloseEvent * ce)
-{
-#ifdef Q_WS_WIN
-	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
-		emit closed();
-#endif
-	QMainWindow::closeEvent(ce);
+	QMainWindow::closeEvent(AEvent);
+	emit closed();
 }
 
 void MainWindow::onStackedWidgetChanged(int AIndex)

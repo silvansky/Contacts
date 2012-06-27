@@ -7,6 +7,7 @@
 
 RosterSearch::RosterSearch()
 {
+	FGateways = NULL;
 	FMainWindow = NULL;
 	FRostersModel = NULL;
 	FRostersViewPlugin = NULL;
@@ -65,7 +66,13 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 
 	plugin = APluginManager->pluginInterface("IRostersModel").value(0,NULL);
 	if (plugin)
+	{
 		FRostersModel = qobject_cast<IRostersModel *>(plugin->instance());
+		if (FRostersModel)
+		{
+			connect(FRostersModel->instance(),SIGNAL(streamRemoved(const Jid &)),SLOT(onRosterStreamRemoved(const Jid &)));
+		}
+	}
 
 	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
 	if (plugin)
@@ -75,6 +82,16 @@ bool RosterSearch::initConnections(IPluginManager *APluginManager, int &AInitOrd
 		{
 			FMainWindow = mainWindowPlugin->mainWindow();
 			FMainWindow->instance()->installEventFilter(this);
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+		if (FGateways)
+		{
+			connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onStreamServicesChanged(const Jid &)));
 		}
 	}
 
@@ -180,12 +197,12 @@ QVariant RosterSearch::rosterData(const IRosterIndex *AIndex, int ARole) const
 			if (!block && FRostersModel && FSearchStarted)
 			{
 				block = true;
-				int field = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
-				if ((field >= 0) && (field != RDR_NAME))
+				int fieldRole = findAcceptableField(FRostersModel->modelIndexByRosterIndex(const_cast<IRosterIndex *>(AIndex)));
+				if ((fieldRole >= 0) && (fieldRole != RDR_NAME))
 				{
 					QVariantMap footer = AIndex->data(ARole).toMap();
-					QString fieldValue = findFieldMatchedValue(AIndex,field);
-					QString note = QString("%1: %2").arg(FSearchFields.value(field).name).arg(fieldValue);
+					QString fieldValue = findFieldMatchedValue(AIndex,fieldRole);
+					QString note = QString("%1: %2").arg(FSearchFields.value(fieldRole).name).arg(fieldValue);
 					footer.insert(QString("%1").arg(FTO_ROSTERSVIEW_STATUS,10,10,QLatin1Char('0')),note);
 					data = footer;
 				}
@@ -235,22 +252,21 @@ void RosterSearch::startSearch()
 		//createSearchLinks();
 		if (!FSearchStarted && FRostersViewPlugin)
 		{
+			FRostersViewPlugin->setExpandedMode(true);
 			FLastShowOffline = Options::node(OPV_ROSTER_SHOWOFFLINE).value().toBool();
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(true);
-			FRostersViewPlugin->rostersView()->instance()->expandAll();
-			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(false);
 			FRostersViewPlugin->rostersView()->instance()->setCurrentIndex(FRostersViewPlugin->rostersView()->instance()->model()->index(1, 0, QModelIndex()));
 		}
 		FSearchStarted = true;
 	}
 	else
 	{
+		FSearchEdit->setFocus();
 		destroyNotFoundItem();
 		//destroySearchLinks();
 		if (FSearchStarted && FRostersViewPlugin)
 		{
-			FRostersViewPlugin->startRestoreExpandState();
-			FRostersViewPlugin->rostersView()->instance()->setItemsExpandable(true);
+			FRostersViewPlugin->setExpandedMode(false);
 			Options::node(OPV_ROSTER_SHOWOFFLINE).setValue(FLastShowOffline);
 		}
 		FSearchStarted = false;
@@ -396,7 +412,7 @@ bool RosterSearch::eventFilter(QObject *AWatched, QEvent *AEvent)
 	}
 	else if (AWatched==(FMainWindow ? FMainWindow->instance() : NULL) || AWatched==(FRostersViewPlugin ? FRostersViewPlugin->rostersView()->instance() : NULL))
 	{
-		if ( AEvent->type() == QEvent::KeyPress)
+		if (AEvent->type() == QEvent::KeyPress)
 		{
 			QKeyEvent *keyEvent = static_cast<QKeyEvent *>(AEvent);
 			if ((keyEvent->key() >= Qt::Key_Space && keyEvent->key() <= Qt::Key_AsciiTilde) || (keyEvent->key() == Qt::Key_F && keyEvent->modifiers() == Qt::ShiftModifier))
@@ -421,8 +437,8 @@ int RosterSearch::findAcceptableField(const QModelIndex &AIndex) const
 	{
 		if (it->enabled)
 		{
-			QVariant field = AIndex.data(it.key());
-			QString string = field.type()==QVariant::StringList ? field.toStringList().join(" ") : field.toString();
+			QVariant fieldValue = prepareFieldValue(it.key(),AIndex.data(it.key()));
+			QString string = fieldValue.type()==QVariant::StringList ? fieldValue.toStringList().join(" ") : fieldValue.toString();
 			if (string.contains(regExp))
 				return it.key();
 		}
@@ -434,11 +450,11 @@ QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AFie
 {
 	if (FSearchFields.contains(AField))
 	{
-		QVariant field = AIndex->data(AField);
-		if (field.type() == QVariant::StringList)
+		QVariant fieldValue = prepareFieldValue(AField, AIndex->data(AField));
+		if (fieldValue.type() == QVariant::StringList)
 		{
 			const QRegExp regExp = searchRegExp(searchPattern());
-			foreach(QString string, field.toStringList())
+			foreach(QString string, fieldValue.toStringList())
 			{
 				if (string.contains(regExp))
 					return string;
@@ -446,10 +462,60 @@ QString RosterSearch::findFieldMatchedValue(const IRosterIndex *AIndex, int AFie
 		}
 		else
 		{
-			return field.toString();
+			return fieldValue.toString();
 		}
 	}
 	return QString::null;
+}
+
+QVariant RosterSearch::prepareFieldValue(int AFieldRole, const QVariant &AValue) const
+{
+	if (FGateways && AValue.isValid())
+	{
+		if (AFieldRole == RDR_PREP_BARE_JID)
+		{
+			Jid itemJid = AValue.toString();
+			return preparedItemJidValue(itemJid,FStreamServices.value(itemJid.domain()));
+		}
+		else if (AFieldRole == RDR_METACONTACT_ITEMS)
+		{
+			QStringList itemJidList;
+			foreach(Jid itemJid, AValue.toStringList())
+			{
+				QVariant prepValue = preparedItemJidValue(itemJid,FStreamServices.value(itemJid.domain()));
+				if (prepValue.type()==QVariant::StringList)
+					itemJidList += prepValue.toStringList();
+				else
+					itemJidList.append(prepValue.toString());
+			}
+			return itemJidList;
+		}
+	}
+	return AValue;
+}
+
+QVariant RosterSearch::preparedItemJidValue(const Jid &AItemJid, const IGateServiceDescriptor &ADescriptor) const
+{
+	if (FGateways && !ADescriptor.id.isEmpty())
+	{
+		if (ADescriptor.id == GSID_SMS)
+		{
+			QString legacyId = FGateways->legacyIdFromUserJid(AItemJid);
+			if (legacyId.startsWith("+7"))
+			{
+				QStringList values;
+				values.append(legacyId);
+				values.append(legacyId.replace("+7","8"));
+				return values;
+			}
+			return legacyId;
+		}
+		else
+		{
+			return FGateways->legacyIdFromUserJid(AItemJid);
+		}
+	}
+	return AItemJid.uFull();
 }
 
 void RosterSearch::createSearchLinks()
@@ -471,6 +537,7 @@ void RosterSearch::createSearchLinks()
 		FSearchHistory->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchHistory->setData(RDR_SEARCH_LINK, "http://id-planet.rambler.ru");
 		FSearchHistory->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
+		connect(FSearchHistory->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchHistory, searchRoot);
 
 		if (!FSearchRambler)
@@ -481,6 +548,7 @@ void RosterSearch::createSearchLinks()
 		FSearchRambler->setData(RDR_TYPE_ORDER,RITO_SEARCH);
 		FSearchRambler->setData(RDR_SEARCH_LINK, searchUrl.toString());
 		FSearchRambler->setData(RDR_MOUSE_CURSOR, Qt::PointingHandCursor);
+		connect(FSearchRambler->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchRambler, searchRoot);
 	}
 }
@@ -509,6 +577,7 @@ void RosterSearch::createNotFoundItem()
 		FSearchNotFound->setFlags(0);
 		FSearchNotFound->setData(Qt::DisplayRole, tr("Contacts not found"));
 		FSearchNotFound->setData(RDR_TYPE_ORDER,RITO_SEARCH_NOT_FOUND);
+		connect(FSearchNotFound->instance(),SIGNAL(indexDestroyed(IRosterIndex *)),SLOT(onRosterIndexDestroyed(IRosterIndex *)));
 		FRostersModel->insertRosterIndex(FSearchNotFound, searchRoot);
 	}
 }
@@ -554,6 +623,33 @@ void RosterSearch::onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId)
 	if (AIndex == FSearchHistory || AIndex == FSearchRambler)
 	{
 		QDesktopServices::openUrl(QUrl(AIndex->data(RDR_SEARCH_LINK).toString()));
+	}
+}
+
+void RosterSearch::onRosterIndexDestroyed(IRosterIndex *AIndex)
+{
+	if (AIndex == FSearchHistory)
+		FSearchHistory = NULL;
+	else if (AIndex == FSearchRambler)
+		FSearchRambler = NULL;
+	else if (AIndex == FSearchNotFound)
+		FSearchNotFound = NULL;
+}
+
+void RosterSearch::onRosterStreamRemoved(const Jid &AStreamJid)
+{
+	Q_UNUSED(AStreamJid);
+	if (FRostersModel->streams().isEmpty())
+		setSearchPattern(QString::null);
+}
+
+void RosterSearch::onStreamServicesChanged(const Jid &AStreamJid)
+{
+	FStreamServices.clear();
+	foreach(Jid serviceJid, FGateways->streamServices(AStreamJid))
+	{
+		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(AStreamJid,serviceJid);
+		FStreamServices.insert(serviceJid,descriptor);
 	}
 }
 

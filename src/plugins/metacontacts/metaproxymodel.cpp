@@ -72,7 +72,7 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 		{
 			QString name = AIndex->data(RDR_NAME).toString();
 			if (name.isEmpty())
-				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toStringList().value(0)).node();
+				name = Jid(AIndex->data(RDR_METACONTACT_ITEMS).toStringList().value(0)).uNode();
 			data = name;
 		}
 		else if (!block)
@@ -92,10 +92,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			else if (AIndex->data(RDR_ASK).toString() == SUBSCRIPTION_SUBSCRIBE)
 			{
@@ -108,10 +108,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			else if (AIndex->data(RDR_SUBSCRIBTION).toString() == SUBSCRIPTION_NONE)
 			{
@@ -124,10 +124,10 @@ QVariant MetaProxyModel::rosterData(const IRosterIndex *AIndex, int ARole) const
 						data = footer;
 					}
 				}
-				else if (ARole == Qt::DecorationRole)
-				{
-					data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
-				}
+				//else if (ARole == Qt::DecorationRole)
+				//{
+				//	data = IconStorage::staticStorage(RSR_STORAGE_STATUSICONS)->getIcon(STI_NOAUTH);
+				//}
 			}
 			block = false;
 		}
@@ -277,12 +277,12 @@ void MetaProxyModel::onMetaAvatarChanged(IMetaRoster *AMetaRoster, const QString
 {
 	QString hash = AMetaRoster->metaAvatarHash(AMetaId);
 	QImage originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, false);
-	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 2);
+	QImage avatar = ImageManager::roundSquared(originalAvatar, 24, 3);
 
 	originalAvatar = AMetaRoster->metaAvatarImage(AMetaId, true);
 	if (originalAvatar.isNull())
 		originalAvatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_MALE, 1);
-	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 2);
+	QImage largeAvatar = ImageManager::roundSquared(originalAvatar, 36, 3);
 
 	foreach(IRosterIndex *index, findMetaIndexes(AMetaRoster,AMetaId))
 	{

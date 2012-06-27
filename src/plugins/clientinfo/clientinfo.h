@@ -70,11 +70,9 @@ public:
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IDataLocalizer
 	virtual IDataFormLocale dataFormLocale(const QString &AFormType);
 	//IClientInfo
-	virtual QString osVersion() const;
 	//Software Version
 	virtual bool hasSoftwareInfo(const Jid &AContactJid) const;
 	virtual bool requestSoftwareInfo( const Jid &AStreamJid, const Jid &AContactJid);

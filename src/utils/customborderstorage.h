@@ -12,11 +12,17 @@ class UTILS_EXPORT CustomBorderStorage : public FileStorage
 public:
 	CustomBorderStorage(const QString &AStorage, const QString &ASubStorage = QString::null, QObject *AParent = NULL);
 	~CustomBorderStorage();
-	CustomBorderContainer * addBorder(QWidget * widget, const QString & key);
+	CustomBorderContainer *addBorder(QWidget *widget, const QString & key);
 	void removeBorder(QWidget * widget);
 public:
-	static CustomBorderStorage * staticStorage(const QString & storage);
+	static bool isBordersAvail();
+	static bool isBordersEnabled();
+	static void setBordersEnabled(bool enabled);
+	static bool isBordered(QWidget *widget);
+	static CustomBorderContainer *widgetBorder(QWidget *widget);
+	static CustomBorderStorage *staticStorage(const QString & storage);
 private:
+	static bool bordersEnabled;
 	static QHash<QString, CustomBorderContainerPrivate *> borderStyleCache;
 	static QHash<QWidget *, CustomBorderContainer *> borderCache;
 	static QHash<QString, CustomBorderStorage *> staticStorages;

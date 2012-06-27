@@ -1,9 +1,13 @@
 #include "options.h"
 
+#include <definitions/version.h>
+
 #include <QFile>
 #include <QRect>
+#include <QSettings>
 #include <QDataStream>
 #include <QStringList>
+#include <QKeySequence>
 #include <QCryptographicHash>
 
 QDomElement findChildElement(const QDomElement &AParent, const QString &APath, const QString &ANSpace,
@@ -56,14 +60,29 @@ QString variantToString(const QVariant &AVariant)
 		QRect rect = AVariant.toRect();
 		return QString("%1;%2;%3;%4").arg(rect.left()).arg(rect.top()).arg(rect.width()).arg(rect.height());
 	}
+	else if (AVariant.type() == QVariant::RectF)
+	{
+		QRectF rect = AVariant.toRectF();
+		return QString("%1;%2;%3;%4").arg(rect.left()).arg(rect.top()).arg(rect.width()).arg(rect.height());
+	}
 	else if (AVariant.type() == QVariant::Point)
 	{
 		QPoint point = AVariant.toPoint();
 		return QString("%1;%2").arg(point.x()).arg(point.y());
 	}
+	else if (AVariant.type() == QVariant::PointF)
+	{
+		QPointF point = AVariant.toPoint();
+		return QString("%1;%2").arg(point.x()).arg(point.y());
+	}
 	else if (AVariant.type() == QVariant::Size)
 	{
 		QSize size = AVariant.toSize();
+		return QString("%1;%2").arg(size.width()).arg(size.height());
+	}
+	else if (AVariant.type() == QVariant::SizeF)
+	{
+		QSizeF size = AVariant.toSize();
 		return QString("%1;%2").arg(size.width()).arg(size.height());
 	}
 	else if (AVariant.type() == QVariant::ByteArray)
@@ -73,6 +92,10 @@ QString variantToString(const QVariant &AVariant)
 	else if (AVariant.type() == QVariant::StringList)
 	{
 		return AVariant.toStringList().join(" ;; ");
+	}
+	else if (AVariant.type() == QVariant::KeySequence)
+	{
+		return AVariant.value<QKeySequence>().toString(QKeySequence::PortableText);
 	}
 	return AVariant.toString();
 }
@@ -85,17 +108,35 @@ QVariant stringToVariant(const QString &AString, QVariant::Type AType)
 		if (parts.count() == 4)
 			return QRect(parts.at(0).toInt(),parts.at(1).toInt(),parts.at(2).toInt(),parts.at(3).toInt());
 	}
+	else if (AType == QVariant::RectF)
+	{
+		QList<QString> parts = AString.split(";",QString::SkipEmptyParts);
+		if (parts.count() == 4)
+			return QRectF(parts.at(0).toFloat(),parts.at(1).toFloat(),parts.at(2).toFloat(),parts.at(3).toFloat());
+	}
 	else if (AType == QVariant::Point)
 	{
 		QList<QString> parts = AString.split(";",QString::SkipEmptyParts);
 		if (parts.count() == 2)
 			return QPoint(parts.at(0).toInt(),parts.at(1).toInt());
 	}
+	else if (AType == QVariant::PointF)
+	{
+		QList<QString> parts = AString.split(";",QString::SkipEmptyParts);
+		if (parts.count() == 2)
+			return QPointF(parts.at(0).toFloat(),parts.at(1).toFloat());
+	}
 	else if (AType == QVariant::Size)
 	{
 		QList<QString> parts = AString.split(";",QString::SkipEmptyParts);
 		if (parts.count() == 2)
 			return QSize(parts.at(0).toInt(),parts.at(1).toInt());
+	}
+	else if (AType == QVariant::SizeF)
+	{
+		QList<QString> parts = AString.split(";",QString::SkipEmptyParts);
+		if (parts.count() == 2)
+			return QSizeF(parts.at(0).toFloat(),parts.at(1).toFloat());
 	}
 	else if (AType == QVariant::ByteArray)
 	{
@@ -104,6 +145,10 @@ QVariant stringToVariant(const QString &AString, QVariant::Type AType)
 	else if (AType == QVariant::StringList)
 	{
 		return !AString.isEmpty() ? AString.split(" ;; ") : QStringList();
+	}
+	else if(AType == QVariant::KeySequence)
+	{
+		return QKeySequence::fromString(AString,QKeySequence::PortableText);
 	}
 	else
 	{
@@ -457,10 +502,12 @@ struct OptionItem
 
 struct Options::OptionsData
 {
+	OptionsData() : globalSettings(QSettings::IniFormat, QSettings::UserScope, CLIENT_ORGANIZATION_NAME, CLIENT_NAME){}
 	QString filesPath;
 	QByteArray cryptKey;
 	QDomDocument options;
 	QHash<QString, OptionItem> items;
+	QSettings globalSettings;
 };
 
 Options::OptionsData *Options::d = new Options::OptionsData;
@@ -671,4 +718,25 @@ void Options::importNode(const QString &APath, const QDomElement &AFromElem)
 		OptionsNode node = Options::node(APath);
 		importOptionNode(node,nodeElem);
 	}
+}
+
+void Options::setGlobalValue(const QString &key, const QVariant &value)
+{
+	d->globalSettings.setValue(key, value);
+	d->globalSettings.sync();
+}
+
+QVariant Options::globalValue(const QString &key, const QVariant &defaultValue)
+{
+	return d->globalSettings.value(key, defaultValue);
+}
+
+bool Options::hasGlobalValue(const QString &key)
+{
+	return d->globalSettings.contains(key);
+}
+
+void Options::removeGlobalValue(const QString &key)
+{
+	d->globalSettings.remove(key);
 }

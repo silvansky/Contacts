@@ -1,0 +1,14 @@
+QPushButton#tlbDomains
+{
+	min-width: 80px;
+	max-width: 80px;
+	width: 80px;
+	min-height: 25px;
+	text-align: left;
+	margin-top: 0px;
+}
+
+QLineEdit#lneLogin
+{
+	margin-top: 2px;
+}

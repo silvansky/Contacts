@@ -2,12 +2,14 @@
 #define CONSOLEPLUGIN_H
 
 #include <QObjectCleanupHandler>
+#include <QShortcut>
 #include <definitions/actiongroups.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/imainwindow.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/iconstorage.h>
 #include <utils/action.h>
 #include "consolewidget.h"
@@ -18,8 +20,8 @@ class ConsolePlugin :
 			public QObject,
 			public IPlugin
 {
-	Q_OBJECT;
-	Q_INTERFACES(IPlugin);
+    Q_OBJECT
+    Q_INTERFACES(IPlugin)
 public:
 	ConsolePlugin();
 	~ConsolePlugin();
@@ -32,12 +34,14 @@ public:
 	virtual bool initSettings();
 	virtual bool startPlugin() { return true; }
 protected slots:
-	void onShowXMLConsole(bool);
+	void onShowXMLConsole();
 private:
 	IPluginManager *FPluginManager;
 	IMainWindowPlugin *FMainWindowPlugin;
+	ISystemIntegration * FSystemIntegration;
 private:
 	QObjectCleanupHandler FCleanupHandler;
+	QShortcut * showConsoleShortcut;
 };
 
 #endif // CONSOLEPLUGIN_H

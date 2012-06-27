@@ -9,14 +9,19 @@ AddMetaItemPage::AddMetaItemPage(IPluginManager *APluginManager, IMetaTabWindow 
 	ui.setupUi(this);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_ADDMETAITEMPAGE);
 
+#ifdef Q_WS_MAC
+	ui.appendLayout->setContentsMargins(0, 6, 0, 0);
+#endif
+
 	FMetaTabWindow = AMetaTabWindow;
 	FDescriptor = ADescriptor;
-	
+
 	FRosterChanger = NULL;
 	FMessageProcessor = NULL;
 	initialize(APluginManager);
 
 	ui.lblInfo->setText(infoMessageForGate());
+	//ui.lblInfo->setElideMode(Qt::ElideRight);
 
 	FAddWidget = FRosterChanger->newAddMetaItemWidget(FMetaTabWindow->metaRoster()->streamJid(),ADescriptor.gateId,ui.wdtAddMetaItem);
 	if (FAddWidget)
@@ -63,7 +68,7 @@ bool AddMetaItemPage::isActiveTabPage() const
 
 void AddMetaItemPage::assignTabPage()
 {
-	emit tabPageAssign();	
+	emit tabPageAssign();
 }
 
 void AddMetaItemPage::showTabPage()
@@ -214,7 +219,7 @@ void AddMetaItemPage::onMetaContactReceived(const IMetaContact &AContact, const 
 	if (FAddWidget && AContact.id!=FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))
 	{
 		if (FRosterChanger)
-			FRosterChanger->insertAutoSubscribe(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),true,true,false);
+			FRosterChanger->insertAutoSubscribtion(FMetaTabWindow->metaRoster()->streamJid(),FAddWidget->contactJid(),true,true,false);
 		QTimer::singleShot(2000,this,SLOT(onDelayedMergeRequest()));
 	}
 	else if (FAddWidget && AContact.id==FMetaTabWindow->metaId() && AContact.items.contains(FAddWidget->contactJid()))

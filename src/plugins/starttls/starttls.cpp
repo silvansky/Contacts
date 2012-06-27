@@ -19,7 +19,7 @@ bool StartTLS::xmppStanzaIn(IXmppStream *AXmppStream, Stanza &AStanza, int AOrde
 		FXmppStream->removeXmppStanzaHandler(this,XSHO_XMPP_FEATURE);
 		if (AStanza.tagName() == "proceed")
 		{
-			LogDetaile(QString("[StartTLS][%1] Starting connection encryption").arg(FXmppStream->streamJid().bare()));
+			LogDetail(QString("[StartTLS][%1] Starting connection encryption").arg(FXmppStream->streamJid().bare()));
 			connect(FConnection->instance(),SIGNAL(encrypted()),SLOT(onConnectionEncrypted()));
 			FConnection->startClientEncryption();
 		}
@@ -51,7 +51,7 @@ bool StartTLS::start(const QDomElement &AElem)
 	FConnection = qobject_cast<IDefaultConnection *>(FXmppStream->connection()->instance());
 	if (FConnection && AElem.tagName()=="starttls")
 	{
-		LogDetaile(QString("[StartTLS][%1] Negotiating StartTLS encryption").arg(FXmppStream->streamJid().bare()));
+		LogDetail(QString("[StartTLS][%1] Negotiating StartTLS encryption").arg(FXmppStream->streamJid().bare()));
 		Stanza request("starttls");
 		request.setAttribute("xmlns",NS_FEATURE_STARTTLS);
 		FXmppStream->insertXmppStanzaHandler(this,XSHO_XMPP_FEATURE);

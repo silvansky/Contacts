@@ -127,7 +127,7 @@ void RosterPlugin::notifyContactAdded(IRoster *ARoster, const IRosterItem &AItem
 	if (FNotifications && ARoster->isOpen() && !AItem.itemJid.node().isEmpty())
 	{
 		INotification notify;
-		notify.kinds = FNotifications->notificationKinds(NNT_CONTACT_ADDED);
+		notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_CONTACT_ADDED);
 		if (notify.kinds > 0)
 		{
 			notify.typeId = NNT_CONTACT_ADDED;

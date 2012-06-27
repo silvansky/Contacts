@@ -1,0 +1,36 @@
+QWidget 
+{
+	background-color: transparent;
+}
+
+QWidget#wdtBackground[videovisible="false"]
+{
+	background-color: rgba(22, 22, 22, 240);
+}
+
+QWidget#wdtBackground[videovisible="true"]
+{
+	background-color: black;
+}
+
+QWidget#wdtVideo 
+{
+	background-color: black;
+}
+
+VideoFrame
+{
+	color: white;
+}
+
+QToolButton#tlbFullScreen, QToolButton#tlbMinimize
+{
+	border: none;
+	padding: 0px;
+	border-image: none;
+	min-width: 27px;
+	max-width: 27px;
+	min-height: 27px;
+	max-height: 27px;
+	background-color: rgba(22, 22, 22, 50);
+}

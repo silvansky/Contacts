@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>LocaleOptionsWidget</name>
+    <message>
+        <source>System language</source>
+        <translation>Системный язык</translation>
+    </message>
+    <message>
+        <source>*Language settings will be applied on next application launch</source>
+        <translation>*Настройки языка интерфейса будут применены при следующем запуске приложения</translation>
+    </message>
+</context>
+<context>
     <name>LoginDialog</name>
     <message>
         <source>Caps Lock is ON</source>
@@ -91,10 +102,6 @@ Turn off &lt;CapsLock&gt; before entering password.</source>
         <translation>Свой домен...</translation>
     </message>
     <message>
-        <source>Enter your Rambler login and password, or %1.</source>
-        <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
-    </message>
-    <message>
         <source>register</source>
         <translation>зарегистрируйтесь</translation>
     </message>
@@ -132,6 +139,10 @@ which is linked to Rambler</source>
         <source>Connection terminated by user</source>
         <translation>Подключение прервано пользователем</translation>
     </message>
+    <message>
+        <source>Enter your Rambler login and password or %1.</source>
+        <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>
@@ -160,8 +171,8 @@ which is linked to Rambler</source>
         <translation>Отображать вводимый пароль</translation>
     </message>
     <message>
-        <source>Rambler.Contacts</source>
-        <translation>Рамблер.Контакты</translation>
+        <source>Rambler-Contacts</source>
+        <translation>Рамблер-Контакты</translation>
     </message>
 </context>
 <context>
@@ -228,6 +239,18 @@ which is linked to Rambler</source>
     <message>
         <source>Ctrl+,</source>
         <translation>Ctrl+,</translation>
+    </message>
+    <message>
+        <source>Synchronization</source>
+        <translation>Синхронизация</translation>
+    </message>
+    <message>
+        <source>Enable windows customization (restart required)</source>
+        <translation>Включить стилизацию окон (требуется перезапуск)</translation>
+    </message>
+    <message>
+        <source>Interface language</source>
+        <translation>Язык интерфейса</translation>
     </message>
 </context>
 </TS>

@@ -6,7 +6,8 @@ EmoticonsContainer::EmoticonsContainer( IEditWidget *AParent ) : QWidget(AParent
 {
 	FEditWidget = AParent;
 	setLayout(new QVBoxLayout);
-	layout()->setMargin(0);
+	layout()->setContentsMargins(0, 0, 0, 0);
+	setCursor(Qt::ArrowCursor);
 }
 
 IEditWidget *EmoticonsContainer::editWidget() const

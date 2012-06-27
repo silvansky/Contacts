@@ -28,6 +28,13 @@
 #include "aboutbox.h"
 #include "commentdialog.h"
 
+enum ShutdownKind {
+	SK_START,
+	SK_WORK,
+	SK_QUIT,
+	SK_RESTART
+};
+
 struct PluginItem
 {
 	IPlugin *plugin;
@@ -49,6 +56,7 @@ public:
 	virtual QString version() const;
 	virtual QString revision() const;
 	virtual QDateTime revisionDate() const;
+	virtual bool isShutingDown() const;
 	virtual QString homePath() const;
 	virtual void setHomePath(const QString &APath);
 	virtual void setLocale(QLocale::Language ALanguage, QLocale::Country ACountry);
@@ -57,21 +65,28 @@ public:
 	virtual const IPluginInfo *pluginInfo(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesOn(const QUuid &AUuid) const;
 	virtual QList<QUuid> pluginDependencesFor(const QUuid &AUuid) const;
+	virtual void showFeedbackDialog();
 public slots:
 	virtual void quit();
 	virtual void restart();
+	virtual void delayShutdown();
+	virtual void continueShutdown();
 	virtual void shutdownRequested();
+signals:
+	void aboutToQuit();
+	void shutdownStarted();
 public slots:
 	void showMainWindow();
-signals:
-	void quitStarted();
-	void aboutToQuit();
 protected:
 	void loadSettings();
 	void saveSettings();
 	void loadPlugins();
 	bool initPlugins();
 	void startPlugins();
+protected:
+	void startShutdown();
+	void finishShutdown();
+	void closeTopLevelWidgets();
 protected:
 	void removePluginItem(const QUuid &AUuid, const QString &AError);
 	void unloadPlugin(const QUuid &AUuid, const QString &AError = QString::null);
@@ -93,12 +108,16 @@ protected slots:
 	void onShowAboutBoxDialog();
 	void onShowCommentsDialog();
 	void onMessageBoxButtonClicked(QAbstractButton *AButton);
+	void onShutdownTimerTimeout();
 private:
 	QPointer<AboutBox> FAboutDialog;
 	QPointer<CommentDialog> FCommentDialog;
 	QPointer<SetupPluginsDialog> FPluginsDialog;
 private:
-	bool FQuitStarted;
+	int FShutdownKind;
+	int FShutdownDelayCount;
+	QTimer FShutdownTimer;
+private:
 	QString FDataPath;
 	QDomDocument FPluginsSetup;
 	QTranslator *FQtTranslator;

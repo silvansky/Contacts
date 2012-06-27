@@ -36,7 +36,8 @@ HEADERS = utilsexport.h \
 	customlabel.h \
 	nonmodalopenfiledialog.h \
 	networking.h \
-	networking_p.h
+	networking_p.h \
+	statistics.h
 
 SOURCES = jid.cpp \
 	versionparser.cpp \
@@ -72,14 +73,15 @@ SOURCES = jid.cpp \
 	customlistview.cpp \
 	customlabel.cpp \
 	nonmodalopenfiledialog.cpp \
-	networking.cpp
+	networking.cpp \
+	statistics.cpp
 
 macx: {
 
-HEADERS += \
-	macwidgets.h
+HEADERS += macutils.h \
+           macutils_p.h
 
-OBJECTIVE_SOURCES += \
-	macwidgets.mm
+
+OBJECTIVE_SOURCES += macutils.mm
 
 }

@@ -113,6 +113,8 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 		before = nextGroupSeparator(AGroup);
 		before != NULL ? QMenu::insertAction(before,AAction) : QMenu::addAction(AAction);
 		separator = insertSeparator(AAction);
+//		if (FActions.isEmpty())
+//			separator->setVisible(false);
 		FSeparators.insert(AGroup,separator);
 	}
 	else
@@ -167,6 +169,12 @@ void Menu::addAction(Action *AAction, int AGroup, bool ASort)
 	emit actionInserted(before,AAction,AGroup,ASort);
 	if (separator)
 		emit separatorInserted(AAction,separator);
+}
+
+void Menu::addActions(QList<Action *> AActions, int AGroup)
+{
+	foreach(Action * a, AActions)
+		addAction(a, AGroup);
 }
 
 void Menu::addMenuActions(const Menu *AMenu, int AGroup, bool ASort)

@@ -24,12 +24,12 @@
 #include <interfaces/idefaultconnection.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/inotifications.h>
+#include <utils/menu.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
-#include <utils/menu.h>
 #include "ui_logindialog.h"
 
 class LoginDialog :
@@ -46,15 +46,16 @@ public:
 public slots:
 	virtual void reject();
 protected:
-	virtual void showEvent(QShowEvent *AEvent);
-	virtual void keyPressEvent(QKeyEvent *AEvent);
-	virtual bool eventFilter(QObject *AWatched, QEvent *AEvent);
-	void moveEvent(QMoveEvent *);
-	void mousePressEvent(QMouseEvent *);
+	bool event(QEvent *AEvent);
+	void showEvent(QShowEvent *AEvent);
+	void keyPressEvent(QKeyEvent *AEvent);
+	bool eventFilter(QObject *AWatched, QEvent *AEvent);
 protected:
 	void initialize(IPluginManager *APluginManager);
 	bool isCapsLockOn() const;
-	void showCapsLockBalloon(const QPoint & p);
+	void showCapsLockBalloon(const QPoint &APoint);
+	void showErrorBalloon();
+	void hideErrorBallon();
 	void closeCurrentProfile();
 	bool tryNextConnectionSettings();
 	void setConnectEnabled(bool AEnabled);
@@ -88,7 +89,6 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowPasswordToggled(int state);
 	void onStylePreviewReset();
-	//void hidePopup();
 private:
 	Ui::LoginDialogClass ui;
 private:
@@ -106,6 +106,7 @@ private:
 	bool FSavedPasswordCleared;
 	int FDomainPrevIndex;
 	int FConnectionSettings;
+	int FActiveErrorType;
 	QUuid FAccountId;
 	Menu *FDomainsMenu;
 	QTimer FAbortTimer;

@@ -1,5 +1,7 @@
 #include "statuschanger.h"
 
+#include <stdlib.h>
+
 #include <QTimer>
 #include <QSysInfo>
 #include <QToolButton>
@@ -14,8 +16,17 @@
 #define ADR_STREAMJID                       Action::DR_StreamJid
 #define ADR_STATUS_CODE                     Action::DR_Parametr1
 
+#define MAX_RECON_STEP                      2
+
+static const struct {int base; int random; } ReconSteps[] = {
+	{ 5, 5 },
+	{ 10, 20 },
+	{ 30, 60 }
+};
+
 StatusChanger::StatusChanger()
 {
+	FPluginManager = NULL;
 	FPresencePlugin = NULL;
 	FRosterPlugin = NULL;
 	FMainWindowPlugin = NULL;
@@ -53,6 +64,7 @@ void StatusChanger::pluginInfo(IPluginInfo *APluginInfo)
 bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOrder)
 {
 	AInitOrder = PIO_STATUSCHANGER;
+	FPluginManager = APluginManager;
 
 	IPlugin *plugin = APluginManager->pluginInterface("IPresencePlugin").value(0,NULL);
 	if (plugin)
@@ -160,6 +172,7 @@ bool StatusChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsClosed()),SLOT(onOptionsClosed()));
+	connect(APluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
 
 	return FPresencePlugin!=NULL;
 }
@@ -204,9 +217,6 @@ bool StatusChanger::initObjects()
 
 bool StatusChanger::initSettings()
 {
-	Options::setDefaultValue(OPV_STATUS_SHOW,IPresence::Online);
-	Options::setDefaultValue(OPV_STATUS_TEXT,nameByShow(IPresence::Online));
-	Options::setDefaultValue(OPV_STATUS_PRIORITY,0);
 	Options::setDefaultValue(OPV_STATUSES_MAINSTATUS,STATUS_ONLINE);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTOCONNECT,false);
 	Options::setDefaultValue(OPV_ACCOUNT_AUTORECONNECT,true);
@@ -217,6 +227,7 @@ bool StatusChanger::initSettings()
 
 bool StatusChanger::startPlugin()
 {
+	qsrand(QDateTime::currentDateTime().toTime_t());
 	updateMainMenu();
 	return true;
 }
@@ -306,7 +317,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 					FChangingPresence = NULL;
 					if (newStatus.show!=IPresence::Offline && newStatus.show!=IPresence::Error && !presence->xmppStream()->isOpen())
 					{
-						LogDetaile(QString("[StatusChanger] Opening XMPP stream '%1'").arg(presence->streamJid().full()));
+						LogDetail(QString("[StatusChanger] Opening XMPP stream '%1'").arg(presence->streamJid().full()));
 						if (presence->xmppStream()->open())
 						{
 							setStreamStatusId(presence, STATUS_CONNECTING_ID);
@@ -326,7 +337,7 @@ void StatusChanger::setStreamStatus(const Jid &AStreamJid, int AStatusId)
 
 					if (newStatus.show==IPresence::Offline || newStatus.show==IPresence::Error)
 					{
-						LogDetaile(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
+						LogDetail(QString("[StatusChanger] Closing XMPP stream '%1'").arg(presence->streamJid().bare()));
 						presence->xmppStream()->close();
 					}
 					else
@@ -515,6 +526,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 30;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_AWAY;
 	status.name = nameByShow(IPresence::Away);
@@ -522,6 +534,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 20;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_DND;
 	status.name = nameByShow(IPresence::DoNotDisturb);
@@ -529,6 +542,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 15;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_OFFLINE;
 	status.name = nameByShow(IPresence::Offline);
@@ -536,6 +550,7 @@ void StatusChanger::createDefaultStatus()
 	status.priority = 0;
 	FStatusItems.insert(status.code,status);
 	createStatusActions(status.code);
+    emit statusItemAdded(status.code);
 
 	status.code = STATUS_ERROR_ID;
 	status.name = nameByShow(IPresence::Error);
@@ -603,8 +618,10 @@ void StatusChanger::updateStatusAction(int AStatusId, Action *AAction) const
 	{
 		QImage img = srcIcon.pixmap(srcIcon.availableSizes().value(0)).toImage();
 		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
-		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
+		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage), QIcon::Normal);
+		AAction->setData(Action::DR_UserDefined + 2, srcIcon);
 		AAction->setIcon(shadowedIcon);
+		shadow->deleteLater();
 	}
 	else
 	{
@@ -678,6 +695,7 @@ void StatusChanger::updateMainMenu()
 		QImage shadowedImage = ImageManager::addShadow(img, shadow->color(), shadow->offset().toPoint());
 		shadowedIcon.addPixmap(QPixmap::fromImage(shadowedImage));
 		FStatusMenu->setIcon(shadowedIcon);
+		shadow->deleteLater();
 	}
 	else
 		FStatusMenu->setIcon(srcIcon);
@@ -736,8 +754,11 @@ void StatusChanger::autoReconnect(IPresence *APresence)
 		int statusShow = statusItemShow(statusId);
 		if (statusShow!=IPresence::Offline && statusShow!=IPresence::Error)
 		{
-			static const int reconSecs = 30;
-			LogDetaile(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
+			int reconStep = qMin(FReconnectStep.value(APresence,0),MAX_RECON_STEP);
+			int reconSecs = ReconSteps[reconStep].base + qRound(ReconSteps[reconStep].random * qrand() / (RAND_MAX + 1.0));
+			FReconnectStep[APresence] = reconStep+1;
+
+			LogDetail(QString("[StatusChanger] Starting auto reconnection of '%1' after %2 seconds").arg(APresence->streamJid().full()).arg(reconSecs));
 			FPendingReconnect.insert(APresence,QPair<QDateTime,int>(QDateTime::currentDateTime().addSecs(reconSecs),statusId));
 			QTimer::singleShot(reconSecs*1000+100,this,SLOT(onReconnectTimer()));
 		}
@@ -796,7 +817,7 @@ void StatusChanger::updateStatusNotification(IPresence *APresence)
 			removeStatusNotification(APresence);
 
 			INotification notify;
-			notify.kinds = FNotifications->notificationKinds(NNT_CONNECTION_STATE);
+			notify.kinds = FNotifications->enabledTypeNotificationKinds(NNT_CONNECTION_STATE);
 			if (notify.kinds > 0)
 			{
 				notify.typeId = NNT_CONNECTION_STATE;
@@ -910,16 +931,24 @@ void StatusChanger::onRosterOpened(IRoster *ARoster)
 	IPresence *presence = FPresencePlugin->findPresence(ARoster->streamJid());
 	if (FConnectStatus.contains(presence))
 	{
-		LogDetaile(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
+		LogDetail(QString("[StatusChanger] Sending initial presence of stream '%1'").arg(ARoster->streamJid().full()));
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
 	}
+	FReconnectStep.remove(presence);
 }
 
 void StatusChanger::onRosterClosed(IRoster *ARoster)
 {
 	IPresence *presence = FPresencePlugin->findPresence(ARoster->streamJid());
-	if (FConnectStatus.contains(presence))
+	if (FShutdownList.contains(presence))
+	{
+		FShutdownList.removeAll(presence);
+		FPluginManager->continueShutdown();
+	}
+	else if (FConnectStatus.contains(presence))
+	{
 		setStreamStatus(presence->streamJid(), FConnectStatus.value(presence));
+	}
 }
 
 void StatusChanger::onStreamJidChanged(const Jid &ABefour, const Jid &AAfter)
@@ -944,69 +973,19 @@ void StatusChanger::onDefaultStatusIconsChanged()
 void StatusChanger::onOptionsOpened()
 {
 	removeAllCustomStatuses();
-	/*foreach (QString ns, Options::node(OPV_STATUSES_ROOT).childNSpaces("status"))
-	{
-		int statusId = ns.toInt();
-		OptionsNode soptions = Options::node(OPV_STATUS_ITEM, ns);
-		QString statusName = soptions.value("name").toString();
-		if (statusId > STATUS_MAX_STANDART_ID)
-		{
-			if (!statusName.isEmpty() && statusByName(statusName)==STATUS_NULL_ID)
-			{
-				StatusItem status;
-				status.code = statusId;
-				status.name = nameByShow(status.show);//statusName;
-				status.show = (IPresence::Show)soptions.value("show").toInt();
-				status.text = soptions.value("text").toString();
-				status.priority = soptions.value("priority").toInt();
-				status.lastActive = soptions.value("last-active").toDateTime();
-				FStatusItems.insert(status.code,status);
-				createStatusActions(status.code);
-			}
-		}
-		else if (statusId > STATUS_NULL_ID && FStatusItems.contains(statusId))
-		{
-			StatusItem &status = FStatusItems[statusId];
-			if (!statusName.isEmpty())
-				status.name = statusName;
-			status.text = soptions.hasValue("text") ? soptions.value("text").toString() : QString::null;
-			status.priority = soptions.hasValue("priority") ? soptions.value("priority").toInt() : status.priority;
-			updateStatusActions(statusId);
-		}
-	}*/
 	removeRedundantCustomStatuses();
 
-	QString commonStatusText = statusItemText(STATUS_ONLINE);
+	QString mood = Options::node(OPV_STATUSES_MOOD).value().toString();
 	foreach(int statusId, statusItems())
-		if (statusId>STATUS_NULL_ID && statusItemText(statusId)!=commonStatusText)
-			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),commonStatusText,statusItemPriority(statusId));
+		if (statusId > STATUS_NULL_ID)
+			updateStatusItem(statusId,statusItemName(statusId),statusItemShow(statusId),mood,statusItemPriority(statusId));
 
 	setMainStatusId(Options::node(OPV_STATUSES_MAINSTATUS).value().toInt());
 }
 
 void StatusChanger::onOptionsClosed()
 {
-	/*QList<QString> oldNS = Options::node(OPV_STATUSES_ROOT).childNSpaces("status");
-	foreach (StatusItem status, FStatusItems)
-	{
-		if (status.code > STATUS_NULL_ID)
-		{
-			OptionsNode soptions = Options::node(OPV_STATUS_ITEM, QString::number(status.code));
-			if (status.code > STATUS_MAX_STANDART_ID)
-			{
-				soptions.setValue(status.show,"show");
-				soptions.setValue(status.lastActive,"last-active");
-			}
-			soptions.setValue(status.name,"name");
-			soptions.setValue(status.text,"text");
-			soptions.setValue(status.priority,"priority");
-		}
-		oldNS.removeAll(QString::number(status.code));
-	}
-
-	foreach(QString ns, oldNS)
-		Options::node(OPV_STATUSES_ROOT).removeChilds("status",ns);*/
-
+	Options::node(OPV_STATUSES_MOOD).setValue(statusItemText(STATUS_ONLINE));
 	Options::node(OPV_STATUSES_MAINSTATUS).setValue(FStatusItems.value(STATUS_MAIN_ID).code);
 
 	setMainStatusId(STATUS_OFFLINE);
@@ -1025,6 +1004,20 @@ void StatusChanger::onProfileOpened(const QString &AProfile)
 			if (!FStatusItems.contains(statusId))
 				statusId = STATUS_MAIN_ID;
 			setStreamStatus(presence->streamJid(), statusId);
+		}
+	}
+}
+
+void StatusChanger::onShutdownStarted()
+{
+	FShutdownList.clear();
+	foreach(IPresence *presence, FCurrentStatus.keys())
+	{
+		if (presence->isOpen())
+		{
+			FPluginManager->delayShutdown();
+			FShutdownList.append(presence);
+			presence->xmppStream()->close();
 		}
 	}
 }
@@ -1063,15 +1056,31 @@ void StatusChanger::onClearCustomStatusAction(bool)
 
 void StatusChanger::onTrayContextMenuAboutToShow()
 {
+	// remove old actions
+	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS))
+	{
+		FTrayManager->contextMenu()->removeAction(action);
+		action->deleteLater();
+	}
+
+	// create new actions
 	if (FStatusMenu->menuAction()->isVisible())
-		foreach(Action *action, FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS)) {
-			FTrayManager->contextMenu()->addAction(action,AG_TMTM_STATUSCHANGER_CHANGESTATUS,true); }
+		foreach(Action *action, FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_CUSTOM_STATUS)+FStatusMenu->groupActions(AG_SCSM_STATUSCHANGER_DEFAULT_STATUS))
+		{
+			Action * newAction = new Action;
+			newAction->setText(action->text());
+			QIcon newIcon = action->data(Action::DR_UserDefined + 2).value<QIcon>();
+			newAction->setIcon(newIcon);
+			connect(newAction, SIGNAL(triggered()), action, SLOT(trigger()));
+			FTrayManager->contextMenu()->addAction(newAction,AG_TMTM_STATUSCHANGER_CHANGESTATUS,true);
+		}
 }
 
 void StatusChanger::onTrayContextMenuAboutToHide()
 {
-	foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS)) {
-		FTrayManager->contextMenu()->removeAction(action); }
+	// moved to onShow for Mac OS X compitability
+	//foreach(Action *action, FTrayManager->contextMenu()->groupActions(AG_TMTM_STATUSCHANGER_CHANGESTATUS)) {
+	//	FTrayManager->contextMenu()->removeAction(action); }
 }
 
 void StatusChanger::onNotificationActivated(int ANotifyId)

@@ -15,8 +15,10 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/optionvalues.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersearch.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
@@ -93,6 +95,8 @@ protected:
 	QRegExp searchRegExp(const QString &APattern) const;
 	int findAcceptableField(const QModelIndex &AIndex) const;
 	QString findFieldMatchedValue(const IRosterIndex *AIndex, int AField) const;
+	QVariant prepareFieldValue(int AField, const QVariant &AValue) const;
+	QVariant preparedItemJidValue(const Jid &AItemJid, const IGateServiceDescriptor &ADescriptor) const;
 protected:
 	void createSearchLinks();
 	void destroySearchLinks();
@@ -105,8 +109,12 @@ protected slots:
 	void onSearchTextChanged(const QString &text);
 	void onRosterIndexActivated(const QModelIndex &AIndex);
 	void onRosterLabelClicked(IRosterIndex *AIndex, int ALabelId);
+	void onRosterIndexDestroyed(IRosterIndex *AIndex);
+	void onRosterStreamRemoved(const Jid &AStreamJid);
+	void onStreamServicesChanged(const Jid &AStreamJid);
 	void onOptionsChanged(const OptionsNode &ANode);
 private:
+	IGateways *FGateways;
 	IMainWindow *FMainWindow;
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
@@ -123,6 +131,7 @@ private:
 	SearchEdit *FSearchEdit;
 	Menu *FSearchFieldsMenu;
 	QMap<int, SearchField> FSearchFields;
+	QMap<Jid, IGateServiceDescriptor> FStreamServices;
 };
 
 #endif // ROSTERSEARCH_H

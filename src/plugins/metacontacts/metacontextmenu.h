@@ -1,14 +1,10 @@
 #ifndef METACONTEXTMENU_H
 #define METACONTEXTMENU_H
 
-#include <definitions/rosterindextyperole.h>
-#include <definitions/rosterlabelorders.h>
+#include <interfaces/igateways.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
-#include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
-#include <interfaces/ivcard.h>
-#include <interfaces/irosterchanger.h>
 #include <utils/menu.h>
 
 class MetaContextMenu :
@@ -18,6 +14,8 @@ class MetaContextMenu :
 public:
 	MetaContextMenu(IRostersModel *AModel, IMetaContacts *AMetaContacts, IMetaTabWindow *AWindow);
 	~MetaContextMenu();
+signals:
+	void updated(MetaContextMenu *AMenu);
 protected:
 	bool isAcceptedIndex(IRosterIndex *AIndex);
 	void updateMenu();
@@ -33,6 +31,8 @@ private:
 	IRostersModel *FRostersModel;
 	IMetaTabWindow *FMetaTabWindow;
 	IMetaContacts *FMetaContacts;
+private:
+	Action *FRenameAction;
 };
 
 #endif // METACONTEXTMENU_H

@@ -2,13 +2,13 @@
 <window-border-style>
  <left-border>
    <width>28</width>
-   <resize-width>5</resize-width>
+   <resize-width>0</resize-width>
    <resize-margin>28</resize-margin>
    <image src="customborder/leftShadow" />
  </left-border>
  <top-border>
    <width>28</width>
-   <resize-width>5</resize-width>
+   <resize-width>0</resize-width>
    <resize-margin>28</resize-margin>
    <image src="customborder/topShadow" />
  </top-border>
@@ -29,33 +29,33 @@
    <height>59</height>
    <radius>4</radius>
    <resize-left>28</resize-left>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-top>28</resize-top>
-   <resize-height>10</resize-height>
-   <image src="customborder/topLeftShadowSquare" />
-   <mask src="customborder/topLeftMaskSquare" />
+   <resize-height>0</resize-height>
+   <image src="customborder/topLeftShadow" />
+   <mask src="customborder/topLeftMask" />
  </top-left-corner>
  <top-right-corner>
    <width>57</width>
    <height>61</height>
    <radius>4</radius>
    <resize-right>28</resize-right>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-top>28</resize-top>
-   <resize-height>10</resize-height>
-   <image src="customborder/topRightShadowSquare" />
-   <mask src="customborder/topRightMaskSquare" />
+   <resize-height>0</resize-height>
+   <image src="customborder/topRightShadow" />
+   <mask src="customborder/topRightMask" />
  </top-right-corner>
  <bottom-left-corner>
    <width>55</width>
    <height>49</height>
    <radius>4</radius>
    <resize-left>28</resize-left>
-   <resize-width>10</resize-width>
+   <resize-width>0</resize-width>
    <resize-bottom>28</resize-bottom>
-   <resize-height>10</resize-height>
-   <image src="customborder/bottomLeftShadowSquare" />
-   <mask src="customborder/bottomLeftMaskSquare" />
+   <resize-height>0</resize-height>
+   <image src="customborder/bottomLeftShadow" />
+   <mask src="customborder/bottomLeftMask" />
  </bottom-left-corner>
  <bottom-right-corner>
    <width>57</width>
@@ -65,8 +65,8 @@
    <resize-width>10</resize-width>
    <resize-bottom>28</resize-bottom>
    <resize-height>10</resize-height>
-   <image src="customborder/bottomRightShadowSquare" />
-   <mask src="customborder/bottomRightMaskSquare" />
+   <image src="customborder/bottomRightShadow" />
+   <mask src="customborder/bottomRightMask" />
  </bottom-right-corner>
  <header>
    <spacing>5</spacing>

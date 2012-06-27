@@ -22,10 +22,11 @@ public:
 	explicit SearchEdit(QWidget *parent = 0);
 	void processKeyPressEvent(QKeyEvent * event);
 protected:
-	void resizeEvent(QResizeEvent *);
-	void mouseMoveEvent(QMouseEvent *);
-	void mousePressEvent(QMouseEvent *);
-	void leaveEvent(QEvent *);
+	virtual void resizeEvent(QResizeEvent *);
+	virtual void mouseMoveEvent(QMouseEvent *);
+	virtual void mousePressEvent(QMouseEvent *);
+	virtual void leaveEvent(QEvent *);
+	virtual void keyPressEvent(QKeyEvent *);
 public slots:
 	void onTextChanged(const QString & newText);
 	void updateIcon(IconState iconState);

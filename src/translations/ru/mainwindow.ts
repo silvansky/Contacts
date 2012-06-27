@@ -47,8 +47,16 @@
         <translation>Меню</translation>
     </message>
     <message>
-        <source>Minimize to tray instead of taskbar</source>
-        <translation type="unfinished"></translation>
+        <source>Show application icon in tray</source>
+        <translation>Показывать иконку приложения в трее</translation>
+    </message>
+    <message>
+        <source>Feel like hiding the icon?</source>
+        <translation>Хотите спрятать иконку?</translation>
+    </message>
+    <message>
+        <source>You can move the Contacts icon to the notification area using &lt;u&gt;Settings&lt;/u&gt;.</source>
+        <translation>В &lt;u&gt;настройках&lt;/u&gt; вы можете убрать иконку «Контактов» внизу экрана в область уведомлений.</translation>
     </message>
 </context>
 </TS>

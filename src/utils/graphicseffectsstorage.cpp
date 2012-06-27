@@ -58,7 +58,8 @@ protected:
 				painter->setClipRect(indicatorWidth, 0, w->width() - indicatorWidth, w->height());
 			}
 		}
-		QGraphicsDropShadowEffect::draw(painter);
+		if (painter->isActive())
+			QGraphicsDropShadowEffect::draw(painter);
 	}
 };
 
@@ -161,7 +162,13 @@ QList<QGraphicsEffect*> GraphicsEffectsStorage::getEffects(const QString & key)
 QGraphicsEffect * GraphicsEffectsStorage::getFirstEffect(const QString & key)
 {
 	QList<QGraphicsEffect*> effects = getEffects(key);
-	return effects.isEmpty() ? NULL : effects.first();
+	QGraphicsEffect * effect = effects.isEmpty() ? NULL : effects.first();
+	if (effect)
+	{
+		effects.removeFirst();
+		qDeleteAll(effects);
+	}
+	return effect;
 }
 
 GraphicsEffectsStorage * GraphicsEffectsStorage::staticStorage(const QString & storage)
@@ -280,9 +287,17 @@ QGraphicsEffect * GraphicsEffectsStorage::copyEffect(const QGraphicsEffect * eff
 
 QGraphicsEffect * GraphicsEffectsStorage::effectForMask(const GraphicsEffectsStorage::EffectMask & mask, QObject * parent) const
 {
+	// NOTE: graphics effects work bad on Qt 4.8.0 (Mac OS X only)
+	// see https://bugreports.qt.nokia.com/browse/QTBUG-23205
+#if (QT_VERSION >= 0x040800) && defined(Q_WS_MAC)
+	Q_UNUSED(mask)
+	Q_UNUSED(parent)
+	return NULL;
+#else
 	QGraphicsEffect * effect = copyEffect(effectCache.value(mask, NULL));
 	effect->setParent(parent);
 	return effect;
+#endif
 }
 
 bool GraphicsEffectsStorage::widetMatchesTheMask(QWidget* widget, const GraphicsEffectsStorage::EffectMask & mask) const

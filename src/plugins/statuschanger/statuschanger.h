@@ -128,6 +128,7 @@ protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onProfileOpened(const QString &AProfile);
+	void onShutdownStarted();
 	void onReconnectTimer();
 	void onCustomStatusAction(bool);
 	void onClearCustomStatusAction(bool);
@@ -135,6 +136,7 @@ protected slots:
 	void onTrayContextMenuAboutToHide();
 	void onNotificationActivated(int ANotifyId);
 private:
+	IPluginManager *FPluginManager;
 	IPresencePlugin *FPresencePlugin;
 	IRosterPlugin *FRosterPlugin;
 	IMainWindowPlugin *FMainWindowPlugin;
@@ -151,6 +153,7 @@ private:
 	Menu *FStatusMenu;
 	StatusWidget *FStatusWidget;
 	IPresence *FChangingPresence;
+	QList<IPresence *> FShutdownList;
 	QMap<int, StatusItem> FStatusItems;
 	QSet<IPresence *> FMainStatusStreams;
 	QMap<IPresence *, int> FLastOnlineStatus;
@@ -158,6 +161,7 @@ private:
 	QMap<IPresence *, int> FConnectStatus;
 	QMap<IPresence *, int> FTempStatus;
 	QMap<IPresence *, int> FConnectNotifyId;
+	QMap<IPresence *, int> FReconnectStep;
 	QMap<IPresence *, QPair<QDateTime,int> > FPendingReconnect;
 	QPointer<CustomStatusDialog> FCustomStatusDialog;
 };

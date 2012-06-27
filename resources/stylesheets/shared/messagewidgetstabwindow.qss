@@ -84,7 +84,7 @@ QStackedWidget, ChatWindow, ToolBarWidget, TabBar, CloseButton, SelectIconWidget
 #twtTabs, #centralWidget, #emoticonsContainer, #toolBarChanger,
 #wdtBottomWidgets, #wdtEdit, #wdtInfo, #wdtNotice, #wdtToolBar,
 #wdtTopWidgets, #wdtView, #infoWidget, #viewWidget, #noticeWidget,
-#editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget,
+#editWidget, #menuBarWidget, #toolBarWidget, #statusBarWidget, #wdtBorderCaption,
 ToolBarWidget > .QWidget, QToolBar > .QWidget
 {
 	background-color: transparent;

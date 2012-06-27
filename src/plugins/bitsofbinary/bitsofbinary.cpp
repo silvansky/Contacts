@@ -174,8 +174,7 @@ bool BitsOfBinary::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza 
 		QString cid = dataElem.attribute("cid");
 		if (!cid.isEmpty() && loadBinary(cid,type,data,maxAge))
 		{
-			Stanza result("iq");
-			result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
+			Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 			dataElem = result.addElement("data",NS_BITS_OF_BINARY);
 			dataElem.setAttribute("cid",cid);
 			dataElem.setAttribute("type",type);
@@ -185,7 +184,7 @@ bool BitsOfBinary::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza 
 		}
 		else
 		{
-			Stanza error = AStanza.replyError("item-not-found",EHN_DEFAULT);
+			Stanza error = FStanzaProcessor->makeReplyError(AStanza,ErrorHandler("item-not-found"));
 			FStanzaProcessor->sendStanzaOut(AStreamJid,error);
 		}
 	}
@@ -224,18 +223,6 @@ void BitsOfBinary::stanzaRequestResult(const Jid &AStreamJid, const Stanza &ASta
 	}
 }
 
-void BitsOfBinary::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-	if (FLoadRequests.contains(AStanzaId))
-	{
-		QString cid = FLoadRequests.take(AStanzaId);
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		LogError(QString("[BitsOfBinary] Failed to load data cid='%1': %2").arg(cid, err.message()));
-		emit binaryError(cid,err.message());
-	}
-}
-
 QString BitsOfBinary::contentIdentifier(const QByteArray &AData) const
 {
 	return "sha1+"+QCryptographicHash::hash(AData,QCryptographicHash::Sha1).toHex()+"@bob.xmpp.org";
@@ -256,12 +243,12 @@ bool BitsOfBinary::loadBinary(const QString &AContentId, const Jid &AStreamJid, 
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setTo(AContactJid.eFull()).setId(FStanzaProcessor->newId()).setType("get");
+		request.setTo(AContactJid.full()).setId(FStanzaProcessor->newId()).setType("get");
 		QDomElement dataElem = request.addElement("data",NS_BITS_OF_BINARY);
 		dataElem.setAttribute("cid",AContentId);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,LOAD_TIMEOUT))
 		{
-			LogDetaile(QString("[BitsOfBinary] Loading data from '%1', cid='%2'").arg(AContactJid.full(), AContentId));
+			LogDetail(QString("[BitsOfBinary] Loading data from '%1', cid='%2'").arg(AContactJid.full(), AContentId));
 			FLoadRequests.insert(request.id(),AContentId);
 			return true;
 		}
@@ -301,7 +288,7 @@ bool BitsOfBinary::saveBinary(const QString &AContentId, const QString &AType, c
 			dataElem.appendChild(doc.createTextNode(AData.toBase64()));
 			if (file.write(doc.toByteArray()) > 0)
 			{
-				LogDetaile(QString("[BitsOfBinary] Data saved on disk cid='%1'").arg(AContentId));
+				LogDetail(QString("[BitsOfBinary] Data saved on disk cid='%1'").arg(AContentId));
 				emit binaryCached(AContentId,AType,AData,AMaxAge);
 				return true;
 			}

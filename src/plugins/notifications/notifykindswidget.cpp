@@ -31,13 +31,13 @@ NotifyKindsWidget::~NotifyKindsWidget()
 
 void NotifyKindsWidget::apply()
 {
-	FNotifications->setNotificationKinds(FTypeId,changedKinds(FKindDefs));
+	FNotifications->setTypeNotificationKinds(FTypeId,changedKinds(FKindDefs));
 	emit childApply();
 }
 
 void NotifyKindsWidget::reset()
 {
-	ushort kinds = FNotifications->notificationKinds(FTypeId);
+	ushort kinds = FNotifications->typeNotificationKinds(FTypeId);
 	ui.chbPopup->setChecked(kinds & INotification::PopupWindow);
 	ui.chbSound->setChecked(kinds & INotification::SoundPlay);
 	emit childReset();

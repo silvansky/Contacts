@@ -12,6 +12,7 @@
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iservicediscovery.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <utils/log.h>
 #include <utils/stanza.h>
 #include <utils/datetime.h>
@@ -47,7 +48,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//IRamblerHistory
 	virtual bool isReady(const Jid &AStreamJid) const;
 	virtual bool isSupported(const Jid &AStreamJid) const;
@@ -75,6 +75,7 @@ protected slots:
 	void onRosterRemoved(IRoster *ARoster);
 	void onViewHistoryWindowDestroyed();
 private:
+	IGateways *FGateways;
 	IXmppStreams *FXmppStreams;
 	IRosterPlugin *FRosterPlugin;
 	IServiceDiscovery *FDiscovery;

@@ -17,8 +17,8 @@ class ChatNoticeWidget :
 	public QWidget,
 	public IChatNoticeWidget
 {
-	Q_OBJECT;
-	Q_INTERFACES(IChatNoticeWidget);
+	Q_OBJECT
+	Q_INTERFACES(IChatNoticeWidget)
 public:
 	ChatNoticeWidget(IMessageWidgets *AMessageWidgets, const Jid &AStreamJid, const Jid &AContactJid);
 	~ChatNoticeWidget();

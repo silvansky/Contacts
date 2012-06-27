@@ -1,0 +1,15 @@
+
+[Desktop Entry]
+Encoding=UTF-8
+Name=Rambler Contacts
+GenericName=Jabber Client
+GenericName[ru]=Jabber клиент
+Comment=Communicate over the Jabber network
+Comment[ru]=Общение в сети Jabber
+Exec=ramblercontacts
+Icon=ramblercontacts
+StartupNotify=true
+Type=Application
+Terminal=false
+Categories=Network;InstantMessaging;Qt;
+Name[ru_RU]=Контакты

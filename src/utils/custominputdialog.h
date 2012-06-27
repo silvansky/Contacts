@@ -22,7 +22,6 @@ public:
 	};
 	CustomInputDialog(InputType inputType, QWidget *AParent = NULL);
 	~CustomInputDialog();
-	CustomBorderContainer * windowBorder();
 	void show();
 	QString defaultText() const;
 	void setDefaultText(const QString &text);
@@ -44,8 +43,10 @@ protected slots:
 	void onTextChanged(const QString &);
 private:
 	void initLayout();
+protected:
+	bool eventFilter(QObject * obj, QEvent * evt);
+	void showEvent(QShowEvent * evt);
 private:
-	CustomBorderContainer * border;
 	InputType inputType;
 	QLineEdit * valueEdit;
 	CustomLabel * captionLabel;
@@ -54,6 +55,7 @@ private:
 	CustomLabel * descrLabel;
 	QPushButton * acceptButton;
 	QPushButton * rejectButton;
+	CustomBorderContainer * border;
 };
 
 #endif // CUSTOMINPUTDIALOG_H

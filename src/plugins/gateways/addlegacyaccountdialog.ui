@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
-    <height>229</height>
+    <width>357</width>
+    <height>248</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>250</width>
+    <width>280</width>
     <height>184</height>
    </size>
   </property>
@@ -59,10 +59,13 @@
      <property name="wordWrap">
       <bool>true</bool>
      </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QHBoxLayout" name="loginLayout" stretch="0,0,0">
      <property name="spacing">
       <number>3</number>
      </property>
@@ -73,13 +76,14 @@
       <widget class="QLineEdit" name="lneLogin"/>
      </item>
      <item>
-      <widget class="QComboBox" name="cmbDomains"/>
+      <widget class="QLabel" name="lblDomain">
+       <property name="text">
+        <string notr="true">lblDomain</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="tlbDomains">
-       <property name="text">
-        <string notr="true">...</string>
-       </property>
        <property name="autoDefault">
         <bool>false</bool>
        </property>
@@ -151,7 +155,7 @@
     </spacer>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <layout class="QHBoxLayout" name="buttonsLayout">
      <property name="topMargin">
       <number>2</number>
      </property>
@@ -208,7 +212,6 @@
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
   <tabstop>lneLogin</tabstop>
-  <tabstop>cmbDomains</tabstop>
   <tabstop>lnePassword</tabstop>
   <tabstop>chbShowPassword</tabstop>
  </tabstops>

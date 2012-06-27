@@ -92,6 +92,7 @@ public:
 	virtual QList<ITabPageHandler *> tabPageHandlers() const;
 	virtual void insertTabPageHandler(ITabPageHandler *AHandler);
 	virtual void removeTabPageHandler(ITabPageHandler *AHandler);
+	virtual QList<Action *> createLastTabPagesActions(QObject *AParent) const;
 signals:
 	void infoWidgetCreated(IInfoWidget *AInfoWidget);
 	void viewWidgetCreated(IViewWidget *AViewWidget);
@@ -120,7 +121,6 @@ signals:
 protected:
 	void deleteWindows();
 	void deleteStreamWindows(const Jid &AStreamJid);
-	QList<Action *> createLastTabPagesActions(QObject *AParent) const;
 protected slots:
 	void onViewWidgetUrlClicked(const QUrl &AUrl);
 	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
@@ -136,6 +136,7 @@ protected slots:
 	void onStreamJidAboutToBeChanged(IXmppStream *AXmppStream, const Jid &AAfter);
 	void onStreamRemoved(IXmppStream *AXmppStream);
 	void onTrayContextMenuAboutToShow();
+	void onTrayContextMenuAboutToHide();
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onOptionsOpened();
 	void onOptionsClosed();

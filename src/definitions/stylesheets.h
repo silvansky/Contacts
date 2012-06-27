@@ -45,6 +45,7 @@
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
 #define STS_OPTIONS_CONNECTION_SETTINGS                                 "optionsConnectionSettings"
+#define STS_OPTIONS_LOCALE_OPTIONS_WIDGET                               "optionsLocaleOptionsWidget"
 
 //RamblerMailNotify
 #define STS_RAMBLERMAILNOTIFY_MAILNOTIFYPAGE                            "ramblermailnotifyMailNotifyPage"
@@ -59,6 +60,7 @@
 #define STS_RCHANGER_ADDMETACONTACTDIALOG                               "rchangerAddMetaContactDialog"
 #define STS_RCHANGER_TABBARITEM_SUBSCRIPTION                            "rchangerTabBarItemSubscription"
 #define STS_RCHANGER_NOTIFYWIDGET_SUBSCRIPTION                          "rchangerNotifyWidgetSubscription"
+#define STS_RCHANGER_WELCOMESCREEN                                      "rchangerWelcomeScreen"
 
 //RosterSearch
 #define STS_ROSTERSEARCH_SEARCHFRAME                                    "rostersearchSearchFrame"
@@ -69,8 +71,8 @@
 
 //SipPhone
 #define STS_SIPPHONE_DIALWIDGET                                         "sipphoneDialWidget"
-#define STS_SIPPHONE_TABBARITEM_CALL                                    "sipphoneTabBarItemCall"
-#define STS_SIPPHONE_NOTIFYWIDGET_CALL                                  "sipphoneNotifyWidgetCall"
+#define STS_SIPPHONE_VIDEOCALLWINDOW                                    "sipphoneVideoCallWindow"
+#define STS_SIPPHONE_CALLCONTROLWIDGET                                  "sipphoneCallControlWidget"
 
 //StatusChanger
 #define STS_SCHANGER_STATUSWIDGET                                       "schangerStatusWidget"
@@ -87,11 +89,8 @@
 //VCard
 #define STS_VCARDSIMPLEVCARDDIALOG                                      "vcardSimpleVCardDialog"
 
-//SipPhone
-#define STS_SIPPHONE                                                    "sipphone"
-#define STS_SIPPHONE_CALL_NOTIFYER                                      "sipCallNotifyer"
-
 //Gateways
+#define STS_GATEWAYS_OAUTHLOGINDIALOG                                   "gatewaysOAuthLoginDialog"
 #define STS_GATEWAYS_ADDLEGACYACCOUNTDIALOG                             "gatewaysAddLegacyAccountDialog"
 #define STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG                           "gatewaysAddFacebookAccountDialog"
 #define STS_GATEWAYS_LEGACYACCOUNTOPTIONSWIDGET                         "gatewaysLegacyAccountOptionsWidget"

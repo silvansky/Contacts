@@ -74,6 +74,7 @@ signals:
 protected:
 	void startStream();
 	void processFeatures();
+	void clearActiveFeatures();
 	bool startFeature(const QString &AFeatureNS, const QDomElement &AFeatureElem);
 	bool processDataHandlers(QByteArray &AData, bool ADataOut);
 	bool processStanzaHandlers(Stanza &AStanza, bool AStanzaOut);

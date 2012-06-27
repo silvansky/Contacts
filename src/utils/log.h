@@ -3,8 +3,10 @@
 
 #include "utilsexport.h"
 
+#include <QMap>
 #include <QMutex>
 #include <QString>
+#include <QDomDocument>
 
 class UTILS_EXPORT Log
 {
@@ -31,19 +33,27 @@ public:
 	static int maxLogSize();
 	static void setMaxLogSize(int AKBytes);
 	static void writeMessage(uint AType, const QString &AMessage);
+public:
+	static QString generateBacktrace();
+	static void setStaticReportParam(const QString &AKey, const QString &AValue);
+	static QDomDocument generateReport(QMap<QString, QString> &AParams, bool AIncludeLog = true);
+	static bool sendReport(QDomDocument AReport);
 private:
+	static QMutex FMutex;
+	static uint FLogTypes;
+	static uint FMaxLogSize;
 	static QString FLogFile;
 	static QString FLogPath;
-	static uint FLogTypes;
 	static LogFormat FLogFormat;
-	static uint FMaxLogSize;
-	static QMutex FMutex;
+	static QMap<QString,QString> FReportParams;
 };
 
 void UTILS_EXPORT LogError(const QString &AMessage);
 void UTILS_EXPORT LogWarning(const QString &AMessage);
-void UTILS_EXPORT LogDetaile(const QString &AMessage);
+void UTILS_EXPORT LogDetail(const QString &AMessage);
 void UTILS_EXPORT LogStanza(const QString &AMessage);
 void UTILS_EXPORT LogDebug(const QString &AMessage);
+
+void UTILS_EXPORT ReportError(const QString &ACode, const QString &ADescr, bool AIncludeLog = true);
 
 #endif // LOG_H

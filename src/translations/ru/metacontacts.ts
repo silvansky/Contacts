@@ -134,10 +134,6 @@
         <translation>GTalk</translation>
     </message>
     <message>
-        <source>Y.Online</source>
-        <translation>Я.Онлайн</translation>
-    </message>
-    <message>
         <source>QIP</source>
         <translation>QIP</translation>
     </message>
@@ -261,6 +257,14 @@
         <source>Remove contacts</source>
         <translation>Удалить контакты</translation>
     </message>
+    <message>
+        <source>Ya.Online</source>
+        <translation>Я.Онлайн</translation>
+    </message>
+    <message>
+        <source>Odnoklassniki</source>
+        <translation>Одноклассники</translation>
+    </message>
 </context>
 <context>
     <name>MetaContextMenu</name>
@@ -341,6 +345,10 @@
     <message>
         <source>Close</source>
         <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Information</source>
+        <translation>Информация</translation>
     </message>
 </context>
 <context>

@@ -8,10 +8,15 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylesheets.h>
 #include <definitions/optionvalues.h>
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
 #include <interfaces/ioptionsmanager.h>
 #include <utils/options.h>
-#include <utils/stylestorage.h>
 #include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/widgetmanager.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 #include "ui_optionsdialog.h"
 
 class SortFilterProxyModel :
@@ -41,13 +46,14 @@ protected:
 	QWidget *createNodeWidget(const QString &ANodeId);
 	QStandardItem *createNodeItem(const QString &ANodeId);
 	bool canExpandVertically(const QWidget *AWidget) const;
-	void correctAdjustSize();
+protected:
+	bool event(QEvent *AEvent);
 protected slots:
+	void onAdjustDialogSize();
 	void onOptionsDialogNodeInserted(const IOptionsDialogNode &ANode);
 	void onOptionsDialogNodeRemoved(const IOptionsDialogNode &ANode);
 	void onCurrentItemChanged(const QModelIndex &ACurrent, const QModelIndex &APrevious);
 	void onOptionsWidgetModified();
-	void onOptionsWidgetUpdated();
 	void onDialogButtonClicked(QAbstractButton *AButton);
 private:
 	Ui::OptionsDialogClass ui;

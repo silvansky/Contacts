@@ -7,6 +7,7 @@ const QList<int> GroupsWithCounter = QList<int>() << RIT_GROUP << RIT_GROUP_BLAN
 
 RostersViewPlugin::RostersViewPlugin()
 {
+	FGateways = NULL;
 	FRostersModel = NULL;
 	FMainWindowPlugin = NULL;
 	FOptionsManager = NULL;
@@ -18,6 +19,8 @@ RostersViewPlugin::RostersViewPlugin()
 
 	FSortFilterProxyModel = NULL;
 	FLastModel = NULL;
+
+	FExpandedMode = false;
 	FStartRestoreExpandState = false;
 
 	FViewSavedState.sliderPos = 0;
@@ -91,6 +94,12 @@ bool RostersViewPlugin::initConnections(IPluginManager *APluginManager, int &/*A
 		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
 	}
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+	{
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
+
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -129,6 +138,7 @@ bool RostersViewPlugin::initObjects()
 		//FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FGroupContactsAction,AG_MMENU_ROSTERSVIEW_GROUPCONTACTS,true);
 
 		FMainWindowPlugin->mainWindow()->rostersWidget()->addWidget(FRostersView);
+		FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FRostersView);
 	}
 
 	if (FRostersModel)
@@ -153,10 +163,11 @@ bool RostersViewPlugin::initSettings()
 		FOptionsManager->insertServerOption(OPV_ROSTER_SHOWSTATUSTEXT);
 		FOptionsManager->insertServerOption(OPV_ROSTER_SORTBYSTATUS);
 		FOptionsManager->insertServerOption(OPV_ROSTER_GROUPCONTACTS);
-
+#ifndef Q_WS_MAC
 		IOptionsDialogNode dnode = { ONO_ROSTER, OPN_ROSTER, tr("Contact List"),MNI_ROSTERVIEW_OPTIONS };
 		FOptionsManager->insertOptionsDialogNode(dnode);
 		FOptionsManager->insertOptionsHolder(this);
+#endif
 	}
 	return true;
 }
@@ -266,10 +277,17 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 		{
 		case Qt::DisplayRole:
 			{
-				Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
 				QString display = AIndex->data(RDR_NAME).toString();
 				if (display.isEmpty())
-					display = indexJid.bare();
+				{
+					Jid contactJid = AIndex->data(RDR_FULL_JID).toString();
+					if (FGateways)
+					{
+						Jid streamJid = AIndex->data(RDR_STREAM_JID).toString();
+						contactJid = FGateways->legacyIdFromUserJid(streamJid,contactJid);
+					}
+					display = contactJid.uBare();
+				}
 				return display;
 			}
 		}
@@ -284,7 +302,7 @@ QVariant RostersViewPlugin::rosterData(const IRosterIndex *AIndex, int ARole) co
 				if (display.isEmpty())
 				{
 					Jid indexJid = AIndex->data(RDR_FULL_JID).toString();
-					display = indexJid.bare();
+					display = indexJid.uBare();
 				}
 				return display;
 			}
@@ -316,6 +334,30 @@ bool RostersViewPlugin::setRosterData(IRosterIndex *AIndex, int ARole, const QVa
 IRostersView *RostersViewPlugin::rostersView()
 {
 	return FRostersView;
+}
+
+bool RostersViewPlugin::isExpandedMode() const
+{
+	return FExpandedMode;
+}
+
+void RostersViewPlugin::setExpandedMode(bool AEnabled)
+{
+	if (FExpandedMode != AEnabled)
+	{
+		FExpandedMode = AEnabled;
+		if (AEnabled)
+		{
+			FRostersView->expandAll();
+			FRostersView->setItemsExpandable(false);
+		}
+		else
+		{
+			restoreExpandState();
+			FRostersView->setItemsExpandable(true);
+		}
+		emit expandedModeChanged(FExpandedMode);
+	}
 }
 
 void RostersViewPlugin::startRestoreExpandState()
@@ -359,7 +401,7 @@ void RostersViewPlugin::loadExpandState(const QModelIndex &AIndex)
 	if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
 	{
 		Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
-		bool isExpanded = FExpandState.value(streamJid).value(groupName,true);
+		bool isExpanded = FExpandedMode || FExpandState.value(streamJid).value(groupName,true);
 		if (isExpanded && !FRostersView->isExpanded(AIndex))
 			FRostersView->expand(AIndex);
 		else if (!isExpanded && FRostersView->isExpanded(AIndex))
@@ -369,14 +411,17 @@ void RostersViewPlugin::loadExpandState(const QModelIndex &AIndex)
 
 void RostersViewPlugin::saveExpandState(const QModelIndex &AIndex)
 {
-	QString groupName = indexGroupName(AIndex);
-	if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
+	if (!FExpandedMode)
 	{
-		Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
-		if (!FRostersView->isExpanded(AIndex))
-			FExpandState[streamJid][groupName] = false;
-		else
-			FExpandState[streamJid].remove(groupName);
+		QString groupName = indexGroupName(AIndex);
+		if (!groupName.isEmpty() || AIndex.data(RDR_TYPE).toInt()==RIT_STREAM_ROOT)
+		{
+			Jid streamJid = AIndex.data(RDR_STREAM_JID).toString();
+			if (!FRostersView->isExpanded(AIndex))
+				FExpandState[streamJid][groupName] = false;
+			else
+				FExpandState[streamJid].remove(groupName);
+		}
 	}
 }
 
@@ -618,5 +663,7 @@ void RostersViewPlugin::onGroupContactsAction(bool AChecked)
 {
 	Options::node(OPV_ROSTER_GROUPCONTACTS).setValue(AChecked);
 }
+
+
 
 Q_EXPORT_PLUGIN2(plg_rostersview, RostersViewPlugin)

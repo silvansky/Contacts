@@ -15,16 +15,17 @@
 TabWindow::TabWindow(IMessageWidgets *AMessageWidgets, const QUuid &AWindowId)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,false);
 	setMinimumSize(500, 400);
+	setAttribute(Qt::WA_DeleteOnClose,false);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_MESSAGEWIDGETS_TABWINDOW);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
 
 	FWindowId = AWindowId;
 	FMessageWidgets = AMessageWidgets;
 
-	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_MESSAGEWINDOW);
+	ui.wdtBorderCaption->setVisible(FBorder!=NULL);
 	loadWindowStateAndGeometry();
 
 	FWindowMenu = new Menu(this);
@@ -48,11 +49,7 @@ TabWindow::~TabWindow()
 
 void TabWindow::showWindow()
 {
-//#ifdef Q_WS_MAC
-//	(FBorder ? (QWidget *)FBorder : (QWidget *)this)->show();
-//#else
-	WidgetManager::showActivateRaiseWindow(FBorder ? (QWidget *)FBorder : (QWidget *)this);
-//#endif
+	WidgetManager::showActivateRaiseWindow(window());
 }
 
 void TabWindow::showMinimizedWindow()
@@ -152,19 +149,41 @@ void TabWindow::removeTabPage(ITabPage *APage)
 	}
 }
 
+void TabWindow::nextTab()
+{
+	ui.twtTabs->showNextTab();
+}
+
+void TabWindow::previousTab()
+{
+	ui.twtTabs->showPrevTab();
+}
+
+void TabWindow::closeCurrentTab()
+{
+	removeTabPage(currentTabPage());
+}
+
+void TabWindow::closeAllTabs()
+{
+	clearTabs();
+	close();
+}
+
 void TabWindow::createActions()
 {
+#ifndef Q_WS_MAC
 	FNextTab = new Action(FWindowMenu);
 	FNextTab->setText(tr("Next Tab"));
 	FNextTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Tab") << tr("Ctrl+PgDown"));
 	FWindowMenu->addAction(FNextTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FNextTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showNextTab()));
+	connect(FNextTab, SIGNAL(triggered()), SLOT(nextTab()));
 
 	FPrevTab = new Action(FWindowMenu);
 	FPrevTab->setText(tr("Prev. Tab"));
 	FPrevTab->setShortcuts(QList<QKeySequence>() << tr("Ctrl+Shift+Tab") << tr("Ctrl+PgUp"));
 	FWindowMenu->addAction(FPrevTab,AG_MWTW_MWIDGETS_TAB_ACTIONS);
-	connect(FPrevTab,SIGNAL(triggered()),ui.twtTabs,SLOT(showPrevTab()));
+	connect(FPrevTab, SIGNAL(triggered()), SLOT(previousTab()));
 
 	FCloseTab = new Action(FWindowMenu);
 	FCloseTab->setText(tr("Close Tab"));
@@ -183,6 +202,7 @@ void TabWindow::createActions()
 	FCloseWindow->setShortcuts(QList<QKeySequence>() << tr("Esc") << tr("Alt+F4"));
 	FWindowMenu->addAction(FCloseWindow,AG_MWTW_MWIDGETS_TABWINDOW_OPTIONS);
 	connect(FCloseWindow,SIGNAL(triggered(bool)),SLOT(onWindowMenuActionTriggered(bool)));
+#endif
 }
 
 void TabWindow::saveWindowStateAndGeometry()
@@ -195,7 +215,8 @@ void TabWindow::saveWindowStateAndGeometry()
 			Options::setFileValue(FBorder ? FBorder->isMaximized() : isMaximized(),"messages.tabwindows.window.state-maximized",FWindowId.toString());
 			if (FBorder && FBorder->isMaximized())
 				FBorder->maximizeWidget();
-			Options::setFileValue(widget->saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString());
+			QString ns = FBorder ? QString::null : QString("system-border");
+			Options::setFileValue(widget->saveGeometry(),"messages.tabwindows.window.geometry",FWindowId.toString()+ns);
 		}
 	}
 }
@@ -207,7 +228,8 @@ void TabWindow::loadWindowStateAndGeometry()
 		QWidget *widget = FBorder!=NULL ? (QWidget *)FBorder : (QWidget *)this;
 		if (widget->isWindow())
 		{
-			if (!widget->restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()).toByteArray()))
+			QString ns = FBorder ? QString::null : QString("system-border");
+			if (!widget->restoreGeometry(Options::fileValue("messages.tabwindows.window.geometry",FWindowId.toString()+ns).toByteArray()))
 				widget->setGeometry(WidgetManager::alignGeometry(QSize(640,480),this));
 			if (Options::fileValue("messages.tabwindows.window.state-maximized",FWindowId.toString()).toBool())
 				FBorder ? FBorder->maximizeWidget() : widget->setWindowState(widget->windowState() | Qt::WindowMaximized);
@@ -234,12 +256,16 @@ void TabWindow::updateWindow()
 	{
 		if (qobject_cast<CustomBorderContainer *>(parentWidget())!=NULL)
 		{
+#ifndef Q_WS_MAC
 			parentWidget()->setWindowIcon(widget->windowIcon());
+#endif
 			parentWidget()->setWindowTitle(widget->windowTitle());
 		}
 		else
 		{
+#ifndef Q_WS_MAC
 			setWindowIcon(widget->windowIcon());
+#endif
 			setWindowTitle(widget->windowTitle());
 		}
 		ui.lblStatusIcon->setPixmap(widget->windowIcon().pixmap(16, 16));
@@ -292,7 +318,7 @@ void TabWindow::onTabMenuRequested(int AIndex)
 	{
 		Action *action = new Action(tabMenu);
 		action->setText(tr("Close Window"));
-		connect(action,SIGNAL(triggered()),SLOT(close()));
+		connect(action,SIGNAL(triggered()),window(), SLOT(close()));
 		tabMenu->addAction(action,AG_DEFAULT+1);
 	}
 
@@ -416,18 +442,14 @@ void TabWindow::onWindowMenuActionTriggered(bool)
 	Action *action = qobject_cast<Action *>(sender());
 	if (action == FCloseTab)
 	{
-		removeTabPage(currentTabPage());
+		closeCurrentTab();
 	}
 	else if (action == FCloseAllTabs)
 	{
-		clearTabs();
-		close();
+		closeAllTabs();
 	}
 	else if (action == FCloseWindow)
 	{
-		if (parentWidget())
-			parentWidget()->close();
-		else
-			close();
+		window()->close();
 	}
 }

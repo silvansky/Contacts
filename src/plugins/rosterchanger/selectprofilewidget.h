@@ -3,6 +3,7 @@
 
 #include <QRadioButton>
 #include <definitions/optionnodes.h>
+#include <definitions/gateserviceidentifiers.h>
 #include <interfaces/iroster.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ioptionsmanager.h>
@@ -19,6 +20,8 @@ public:
 	QList<Jid> profiles() const;
 	Jid selectedProfile() const;
 	void setSelectedProfile(const Jid &AServiceJid);
+	bool autoSelectProfile() const;
+	void setAutoSelectProfile(bool AAuto);
 signals:
 	void profilesChanged();
 	void selectedProfileChanged();
@@ -45,6 +48,8 @@ private:
 	QMap<QString, Jid> FLoginRequests;
 private:
 	bool FVisible;
+	bool FAutoSelect;
+	QList<Jid> FUpdateLogins;
 	IGateServiceDescriptor FDescriptor;
 	QMap<Jid, QString> FProfileLogins;
 	QMap<Jid, QLabel *> FProfileLabels;

@@ -18,11 +18,11 @@ void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, c
 			shadowType = TF_LIGHTSHADOW;
 		if (shadowType != TF_NOSHADOW)
 		{
-			QGraphicsDropShadowEffect * shadow;
+			QGraphicsDropShadowEffect *shadow;
 			if (shadowType == TF_DARKSHADOW)
-				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
+				shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_TEXTSHADOWS));
 			else
-				shadow = qobject_cast<QGraphicsDropShadowEffect*>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_NOTICEWIDGET));
+				shadow = qobject_cast<QGraphicsDropShadowEffect *>(GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->getFirstEffect(GFX_NOTICEWIDGET));
 			if (shadow)
 			{
 				QRect shadowRect(rect);
@@ -30,6 +30,7 @@ void ProxyStyle::drawItemText(QPainter *painter, const QRect &rect, int flags, c
 				QPalette shadowPal(pal);
 				shadowPal.setColor(QPalette::Text, shadow->color());
 				QProxyStyle::drawItemText(painter, shadowRect, flags, shadowPal, enabled, text, QPalette::Text);
+				shadow->deleteLater();
 			}
 		}
 	}
@@ -41,4 +42,15 @@ int ProxyStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWid
 	if (hint == QStyle::SH_EtchDisabledText || hint == QStyle::SH_DitherDisabledText)
 		return 0;
 	return QProxyStyle::styleHint(hint, option, widget, returnData);
+}
+
+void ProxyStyle::drawPrimitive(QStyle::PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+	switch (element)
+	{
+	case PE_FrameFocusRect:
+		break;
+	default:
+		QProxyStyle::drawPrimitive(element,option,painter,widget);
+	}
 }

@@ -1047,7 +1047,7 @@ void RostersView::paintEvent(QPaintEvent *AEvent)
 	{
 		QPainter painter(viewport());
 		QImage highlight = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_HIGHLIGHTED_ITEM, 1);
-		qreal border = 10.0; // yao border - magic! =)
+		static const qreal border = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleReal(SV_RV_DRAG_BORDER_WIDTH);
 		painter.translate(FDropIndicatorRect.topLeft());
 		ImageManager::drawNinePartImage(highlight, FDropIndicatorRect, border, &painter);
 	}
@@ -1209,14 +1209,14 @@ void RostersView::mouseMoveEvent(QMouseEvent *AEvent)
 				option.state &= ~QStyle::State_Selected;
 				option.state &= ~QStyle::State_MouseOver;
 				option.rect = QRect(QPoint(0,0),option.rect.size());
-				const int border = 5; // yao magic border width
+				static const int border = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_RV_DRAG_IMAGE_BORDER_WIDTH);
 				QRect pixmapRect = option.rect.adjusted(-border, -border, border, border);
 				QImage shadow = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_ROSTERVIEW_DRAG_SHADOW);
 				QPixmap pixmap(pixmapRect.size());
 				pixmap.fill(QColor(0, 0, 0, 0)); // that fixes transparency problem
 				QPainter painter(&pixmap);
 				ImageManager::drawNinePartImage(shadow, pixmapRect, border, &painter);
-				painter.setOpacity(0.9);
+				painter.setOpacity(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleReal(SV_RV_DRAG_IMAGE_OPACITY));
 				painter.translate(border, border);
 				itemDeletage->paint(&painter,option,FPressedIndex);
 				drag->setPixmap(pixmap);
@@ -1513,7 +1513,7 @@ void RostersView::onUpdateIndexNotifyTimeout()
 	{
 		int curNotify = activeNotify(index);
 		QList<int> queque = notifyQueue(index);
-		int newNotify = !queque.isEmpty() ? queque.last() : -1;
+		int newNotify = !queque.isEmpty() ? queque.first() : -1;
 		if (curNotify != newNotify)
 		{
 			if (newNotify > 0)

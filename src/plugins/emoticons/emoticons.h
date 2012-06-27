@@ -16,6 +16,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/ioptionsmanager.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/iconstorage.h>
 #include <utils/options.h>
 #include <utils/menu.h>
@@ -69,6 +70,10 @@ protected:
 	SelectIconMenu *createSelectIconMenu(const QString &ASubStorage, QWidget *AParent);
 	void insertSelectIconMenu(const QString &ASubStorage);
 	void removeSelectIconMenu(const QString &ASubStorage);
+protected:
+	virtual bool eventFilter(QObject * obj, QEvent * evt);
+protected slots:
+	void onEmoticonAction();
 protected slots:
 	void onEditWidgetCreated(IEditWidget *AEditWidget);
 	void onEditWidgetContentsChanged(int APosition, int ARemoved, int AAdded);
@@ -81,6 +86,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	IOptionsManager *FOptionsManager;
+	ISystemIntegration * FSystemIntegration;
 private:
 	EmoticonTreeItem FRootTreeItem;
 	QHash<QString, QUrl> FUrlByKey;
@@ -88,6 +94,9 @@ private:
 	QMap<QString, IconStorage *> FStorages;
 	QList<EmoticonsContainer *> FContainers;
 	QMap<SelectIconMenu *, EmoticonsContainer *> FContainerByMenu;
+	QList<Action*> emoticonsActions;
+	Menu * emoticonsMenu;
+	IEditWidget * currentEditWidget;
 };
 
 #endif // EMOTICONS_H

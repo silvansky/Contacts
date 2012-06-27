@@ -42,5 +42,9 @@
         <source>Invalid or incomplete deflate data</source>
         <translation>Неправильные или неполные данные для сжатия</translation>
     </message>
+    <message>
+        <source>Unknown Zlib error, %1</source>
+        <translation>Неизвестная ошибка Zlib, %1</translation>
+    </message>
 </context>
 </TS>

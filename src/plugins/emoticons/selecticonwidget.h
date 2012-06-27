@@ -13,7 +13,7 @@
 class SelectIconWidget :
 			public QWidget
 {
-	Q_OBJECT;
+	Q_OBJECT
 public:
 	SelectIconWidget(IconStorage *AStorage, QWidget *AParent = NULL);
 	~SelectIconWidget();

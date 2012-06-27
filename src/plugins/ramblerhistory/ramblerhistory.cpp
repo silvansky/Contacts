@@ -5,6 +5,7 @@
 
 RamblerHistory::RamblerHistory()
 {
+	FGateways = NULL;
 	FDiscovery = NULL;
 	FXmppStreams = NULL;
 	FRosterPlugin = NULL;
@@ -70,6 +71,10 @@ bool RamblerHistory::initConnections(IPluginManager *APluginManager, int &AInitO
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
+	if (plugin)
+		FGateways = qobject_cast<IGateways *>(plugin->instance());
+
 	return FStanzaProcessor!=NULL;
 }
 
@@ -107,15 +112,14 @@ QMultiMap<int, IOptionsWidget *> RamblerHistory::optionsWidgets(const QString &A
 
 bool RamblerHistory::stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept)
 {
-	if (FSHIPrefsUpdate.value(AStreamJid)==AHandlerId && AStreamJid==AStanza.from())
+	if (FSHIPrefsUpdate.value(AStreamJid)==AHandlerId && AStanza.isFromServer())
 	{
 		QDomElement prefElem = AStanza.firstElement("pref",NS_RAMBLER_ARCHIVE);
 		applyArchivePrefs(AStreamJid,prefElem);
 
 		AAccept = true;
-		Stanza reply("iq");
-		reply.setTo(AStanza.from()).setType("result").setId(AStanza.id());
-		FStanzaProcessor->sendStanzaOut(AStreamJid,reply);
+		Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
+		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 	}
 	return false;
 }
@@ -139,13 +143,13 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 					Message message;
 					if (elem.tagName() == "to")
 					{
-						message.setTo(result.with.eFull());
+						message.setTo(result.with.full());
 						message.setFrom(AStreamJid.pBare());
 					}
 					else
 					{
 						message.setTo(AStreamJid.pBare());
-						message.setFrom(result.with.eFull());
+						message.setFrom(result.with.full());
 					}
 
 					message.setType(Message::Chat);
@@ -163,7 +167,7 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 			result.beforeId = elem.firstChildElement("id").text();
 			result.beforeTime = DateTime(elem.firstChildElement("ctime").text()).toLocal();
 
-			LogDetaile(QString("[RamblerHistory] Loaded %1 history messages with '%2', id='%3'").arg(result.messages.count()).arg(result.with.full(),AStanza.id()));
+			LogDetail(QString("[RamblerHistory] Loaded %1 history messages with '%2', id='%3'").arg(result.messages.count()).arg(result.with.full(),AStanza.id()));
 			emit serverMessagesLoaded(AStanza.id(), result);
 		}
 		FRetrieveRequests.remove(AStanza.id());
@@ -184,7 +188,7 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 
 	if (AStanza.type() == "result")
 	{
-		LogDetaile(QString("[RamblerHistory] Request id='%1' to '%2' precessed successfully").arg(AStanza.id(),AStreamJid.full()));
+		LogDetail(QString("[RamblerHistory] Request id='%1' to '%2' precessed successfully").arg(AStanza.id(),AStreamJid.full()));
 		emit requestCompleted(AStanza.id());
 	}
 	else
@@ -193,28 +197,6 @@ void RamblerHistory::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 		LogError(QString("[RamblerHistory] Failed to process request id='%1' to '%2': %3").arg(AStanza.id(),AStreamJid.full(),err.message()));
 		emit requestFailed(AStanza.id(),ErrorHandler(AStanza.element()).message());
 	}
-}
-
-void RamblerHistory::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	Q_UNUSED(AStreamJid);
-
-	ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-	if (FRetrieveRequests.contains(AStanzaId))
-	{
-		FRetrieveRequests.remove(AStanzaId);
-	}
-	else if (FPrefsLoadRequests.contains(AStanzaId))
-	{
-		FPrefsLoadRequests.remove(AStanzaId);
-	}
-	else if (FPrefsSaveRequests.contains(AStanzaId))
-	{
-		FPrefsSaveRequests.remove(AStanzaId);
-	}
-
-	LogError(QString("[RamblerHistory] Failed to process request id='%1' to '%2': %3").arg(AStanzaId,AStreamJid.full(),err.message()));
-	emit requestFailed(AStanzaId, err.message());
 }
 
 bool RamblerHistory::isReady(const Jid &AStreamJid) const
@@ -308,13 +290,13 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 				if (!newItemPrefs.save.isEmpty())
 				{
 					QDomElement itemElem = prefElem.appendChild(save.createElement("item")).toElement();
-					itemElem.setAttribute("jid",itemJid.eFull());
+					itemElem.setAttribute("jid",itemJid.full());
 					itemElem.setAttribute("save",newItemPrefs.save);
 				}
 				else
 				{
 					QDomElement itemElem = prefElem.appendChild(save.createElement("itemremove")).toElement();
-					itemElem.setAttribute("jid",itemJid.eFull());
+					itemElem.setAttribute("jid",itemJid.full());
 				}
 			}
 			itemsChanged |= itemChanged;
@@ -325,7 +307,7 @@ QString RamblerHistory::setHistoryPrefs(const Jid &AStreamJid, const IHistoryStr
 			if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,save,ARCHIVE_TIMEOUT))
 			{
 				FPrefsSaveRequests.insert(save.id(),AStreamJid);
-				LogDetaile(QString("[RamblerHistory] Save history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),save.id()));
+				LogDetail(QString("[RamblerHistory] Save history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),save.id()));
 				return save.id();
 			}
 			else
@@ -344,7 +326,7 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 		Stanza retrieve("iq");
 		retrieve.setType("get").setId(FStanzaProcessor->newId());
 		QDomElement retrieveElem = retrieve.addElement("retrieve",NS_RAMBLER_ARCHIVE);
-		retrieveElem.setAttribute("with",ARetrieve.with.eFull());
+		retrieveElem.setAttribute("with",ARetrieve.with.full());
 		retrieveElem.setAttribute("last",ARetrieve.count);
 		if (!ARetrieve.beforeId.isEmpty() || !ARetrieve.beforeTime.isNull())
 		{
@@ -356,7 +338,7 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 		}
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,retrieve,ARCHIVE_TIMEOUT))
 		{
-			LogDetaile(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%3'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
+			LogDetail(QString("[RamblerHistory] Load history with '%1' request sent to '%2', id='%3'").arg(ARetrieve.with.full(),AStreamJid.full(),retrieve.id()));
 			FRetrieveRequests.insert(retrieve.id(),ARetrieve.with);
 			return retrieve.id();
 		}
@@ -370,23 +352,24 @@ QString RamblerHistory::loadServerMessages(const Jid &AStreamJid, const IHistory
 
 QWidget *RamblerHistory::showViewHistoryWindow(const Jid &AStreamJid, const Jid &AContactJid)
 {
-	ViewHistoryWindow *window = NULL;
+	ViewHistoryWindow *viewWindow = NULL;
 	if (isSupported(AStreamJid))
 	{
 		IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(AStreamJid) : NULL;
 		if (roster)
 		{
-			window = findViewWindow(roster,AContactJid);
-			if (!window)
+			viewWindow = findViewWindow(roster,AContactJid);
+			if (!viewWindow)
 			{
-				window = new ViewHistoryWindow(roster,AContactJid);
-				connect(window,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
-				FViewWindows.insertMulti(roster,window);
+				viewWindow = new ViewHistoryWindow(roster,FGateways,AContactJid);
+				connect(viewWindow,SIGNAL(windowDestroyed()),SLOT(onViewHistoryWindowDestroyed()));
+				FViewWindows.insertMulti(roster,viewWindow);
 			}
-			WidgetManager::showActivateRaiseWindow(window->parentWidget()!=NULL ? window->parentWidget() : window);
+			WidgetManager::showActivateRaiseWindow(viewWindow->window());
+			WidgetManager::alignWindow(viewWindow->window(),Qt::AlignCenter);
 		}
 	}
-	return window;
+	return viewWindow;
 }
 
 QString RamblerHistory::loadServerPrefs(const Jid &AStreamJid)
@@ -397,7 +380,7 @@ QString RamblerHistory::loadServerPrefs(const Jid &AStreamJid)
 	if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,load,ARCHIVE_TIMEOUT))
 	{
 		FPrefsLoadRequests.insert(load.id(),AStreamJid);
-		LogDetaile(QString("[RamblerHistory] Load history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),load.id()));
+		LogDetail(QString("[RamblerHistory] Load history preferences request sent to '%1', id='%2'").arg(AStreamJid.full(),load.id()));
 		return load.id();
 	}
 	else

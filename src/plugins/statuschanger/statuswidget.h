@@ -15,6 +15,7 @@
 #include <utils/message.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 #include "ui_statuswidget.h"
 #include "selectavatarwidget.h"
 
@@ -36,7 +37,6 @@ protected:
 	void setMoodText(const QString &AMood);
 	QString fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const;
 protected:
-	void resizeEvent(QResizeEvent *);
 	void paintEvent(QPaintEvent *);
 	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
@@ -47,6 +47,7 @@ protected slots:
 	void onProfileMenuAboutToShow();
 	void onVCardReceived(const Jid &AContactJid);
 	void onStatusChanged(const Jid &AStreamJid, int AStatusId);
+	void onMoodChanged();
 private:
 	Ui::StatusWidgetClass ui;
 private:

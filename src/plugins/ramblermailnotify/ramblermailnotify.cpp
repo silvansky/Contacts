@@ -175,7 +175,7 @@ bool RamblerMailNotify::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		if (FGateways && FGateways->streamServices(AStreamJid).contains(AStanza.from()))
 		{
 			AAccept = true;
-			LogDetaile(QString("[RamblerMailNotify] Rambler mail notify received from '%1'").arg(AStanza.from()));
+			LogDetail(QString("[RamblerMailNotify] Rambler mail notify received from '%1'").arg(AStanza.from()));
 			insertMailNotify(AStreamJid,AStanza);
 		}
 		else if (FGateways)
@@ -332,7 +332,7 @@ void RamblerMailNotify::insertMailNotify(const Jid &AStreamJid, const Stanza &AS
 			}
 
 			INotification notify;
-			notify.kinds = FNotifications!=NULL ? FNotifications->notificationKinds(NNT_MAIL_NOTIFY)|INotification::RosterNotify : 0;
+			notify.kinds = FNotifications!=NULL ? FNotifications->enabledTypeNotificationKinds(NNT_MAIL_NOTIFY)|INotification::RosterNotify : 0;
 			if ((notify.kinds & (INotification::PopupWindow|INotification::SoundPlay))>0)
 			{
 				notify.typeId = NNT_MAIL_NOTIFY;

@@ -4,6 +4,7 @@
 #include <QCursor>
 #include <QApplication>
 #include <QDesktopWidget>
+#include "customborderstorage.h"
 
 #ifdef Q_WS_X11
 #include <QX11Info>
@@ -15,10 +16,6 @@
 #define MESSAGE_SOURCE_APPLICATION    1
 #define MESSAGE_SOURCE_PAGER          2
 #endif //Q_WS_X11
-
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
 
 namespace WidgetManagerData
 {
@@ -166,10 +163,6 @@ void WidgetManager::showActivateRaiseWindow(QWidget *AWindow)
 {
 	if (AWindow)
 	{
-#ifdef DEBUG_ENABLED
-		qDebug() << "WidgetManager::showActivateRaiseWindow" << AWindow->objectName() << AWindow->metaObject()->className();
-#endif
-
 		if (AWindow->isVisible())
 		{
 			if (AWindow->isMinimized())
@@ -208,9 +201,6 @@ void WidgetManager::alertWidget(QWidget *AWidget)
 {
 	if (AWidget!=NULL && isWidgetAlertEnabled())
 	{
-#ifdef DEBUG_ENABLED
-		qDebug() << "WidgetManager::alertWidget" << AWidget->objectName() << AWidget->metaObject()->className();
-#endif
 		QApplication::alert(AWidget->window());
 	}
 }
@@ -245,25 +235,85 @@ Qt::Alignment WidgetManager::windowAlignment(const QWidget *AWindow)
 	return align;
 }
 
-void WidgetManager::alignWindow(QWidget *AWindow, Qt::Alignment AAlign)
+bool WidgetManager::alignWindow(QWidget *AWindow, Qt::Alignment AAlign)
 {
-#ifndef Q_WS_X11
 	if (AAlign > 0)
 	{
 		QRect frameRect = AWindow->frameGeometry();
 		QRect windowRect = AWindow->geometry();
-		QRect rect = alignGeometry(frameRect.size(),AWindow,AAlign);
-		rect.adjust(windowRect.left()-frameRect.left(),windowRect.top()-frameRect.top(),windowRect.right()-frameRect.right(),windowRect.bottom()-frameRect.bottom());
-		AWindow->setGeometry(rect);
+		if (!frameRect.isEmpty() && !windowRect.isEmpty() && frameRect.contains(windowRect))
+		{
+			QRect availRect = AWindow!=NULL ? QApplication::desktop()->availableGeometry(AWindow) : QApplication::desktop()->availableGeometry();
+			QRect rect = alignRect(frameRect,availRect,AAlign);
+			rect.adjust(windowRect.left()-frameRect.left(),windowRect.top()-frameRect.top(),windowRect.right()-frameRect.right(),windowRect.bottom()-frameRect.bottom());
+			AWindow->setGeometry(rect);
+			return true;
+		}
 	}
-#else
-	Q_UNUSED(AWindow);
-	Q_UNUSED(AAlign);
-#endif
+	return false;
+}
+
+QRect WidgetManager::alignRect(const QRect &ARect, const QRect &ABoundary, Qt::Alignment AAlign)
+{
+	QRect rect = ARect;
+	if (AAlign>0 && !ARect.isEmpty() && !ABoundary.isEmpty())
+	{
+		if ((AAlign & Qt::AlignLeft) == Qt::AlignLeft)
+			rect.moveLeft(ABoundary.left());
+		else if ((AAlign & Qt::AlignRight) == Qt::AlignRight)
+			rect.moveRight(ABoundary.right());
+		else if ((AAlign & Qt::AlignHCenter) == Qt::AlignHCenter)
+			rect.moveLeft((ABoundary.width()-ARect.width())/2);
+
+		if ((AAlign & Qt::AlignTop) == Qt::AlignTop)
+			rect.moveTop(ABoundary.top());
+		else if ((AAlign & Qt::AlignBottom) == Qt::AlignBottom)
+			rect.moveBottom(ABoundary.bottom());
+		else if ((AAlign & Qt::AlignVCenter) == Qt::AlignVCenter)
+			rect.moveTop((ABoundary.height() - ARect.height())/2);
+	}
+	return rect;
 }
 
 QRect WidgetManager::alignGeometry(const QSize &ASize, const QWidget *AWidget, Qt::Alignment AAlign)
 {
 	QRect availRect = AWidget!=NULL ? QApplication::desktop()->availableGeometry(AWidget) : QApplication::desktop()->availableGeometry();
 	return QStyle::alignedRect(Qt::LeftToRight,AAlign,ASize.boundedTo(availRect.size()),availRect);
+}
+
+QRect WidgetManager::correctWindowGeometry(const QRect &AGeometry, QWidget *AWindow)
+{
+	QRect newGeometry = AGeometry;
+	QRect screenRect = qApp->desktop()->availableGeometry(qApp->desktop()->screenNumber(AGeometry.topLeft()));
+
+	CustomBorderContainer *border = AWindow!=NULL ? CustomBorderStorage::widgetBorder(AWindow) : NULL;
+	if (border)
+	{
+		newGeometry.setLeft(newGeometry.left() + border->leftBorderWidth());
+		newGeometry.setRight(newGeometry.right() - border->rightBorderWidth());
+		newGeometry.setTop(newGeometry.top() + border->topBorderWidth());
+		newGeometry.setBottom(newGeometry.bottom() - border->bottomBorderWidth());
+	}
+
+	if (!screenRect.isEmpty() && !screenRect.contains(newGeometry))
+	{
+		if (newGeometry.left() < screenRect.left())
+			newGeometry.moveLeft(screenRect.left());
+		else if (newGeometry.right() > screenRect.right())
+			newGeometry.moveRight(screenRect.right());
+		if (newGeometry.top() < screenRect.top())
+			newGeometry.moveTop(screenRect.top());
+		else if (newGeometry.bottom() > screenRect.bottom())
+			newGeometry.moveBottom(screenRect.bottom());
+	}
+
+	if (border)
+	{
+		newGeometry.setLeft(newGeometry.left() - border->leftBorderWidth());
+		newGeometry.setRight(newGeometry.right() + border->rightBorderWidth());
+		newGeometry.setTop(newGeometry.top() - border->topBorderWidth());
+		newGeometry.setBottom(newGeometry.bottom() + border->bottomBorderWidth());
+	}
+
+	return newGeometry;
 }

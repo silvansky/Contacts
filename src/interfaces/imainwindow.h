@@ -13,6 +13,18 @@
 
 struct IInternalNotice
 {
+	enum ActionType
+	{
+		ButtonAction,
+		ImageAction,
+		LinkAction
+	};
+	enum ActionRoles
+	{
+		TypeRole = Action::DR_UserDefined + 100,
+		ImageRole = Action::DR_UserDefined + 101
+	};
+
 	IInternalNotice() {
 		priority = -1;
 	}
@@ -63,8 +75,10 @@ class IMainWindowPlugin
 public:
 	virtual QObject *instance() = 0;
 	virtual IMainWindow *mainWindow() const = 0;
-	virtual CustomBorderContainer * mainWindowBorder() const = 0;
+	virtual QWidget *mainWindowTopWidget() const = 0;
+	virtual bool isMinimizeToTray() const =0;
 	virtual void showMainWindow() const =0;
+	virtual void hideMainWindow() const =0;
 };
 
 Q_DECLARE_INTERFACE(IInternalNoticeWidget,"Virtus.Plugin.IInternalNoticeWidget/1.0")

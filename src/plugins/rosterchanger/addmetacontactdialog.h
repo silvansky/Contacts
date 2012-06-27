@@ -24,6 +24,7 @@
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/imagemanager.h>
+#include <utils/errorhandler.h>
 #include "addmetaitemwidget.h"
 #include "ui_addmetacontactdialog.h"
 
@@ -50,6 +51,7 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	virtual QString parentMetaContactId() const;
 	virtual void setParentMetaContactId(const QString &AMetaId);
+	virtual void executeRequiredContactChecks();
 signals:
 	void dialogDestroyed();
 protected:

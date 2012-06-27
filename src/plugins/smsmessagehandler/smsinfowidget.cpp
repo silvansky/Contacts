@@ -12,7 +12,7 @@ SmsInfoWidget::SmsInfoWidget(ISmsMessageHandler *ASmsHandler, IChatWindow *AWind
 	FSendKey = FChatWindow->editWidget()->sendKey();
 	FErrorMessage = Qt::escape(tr("SMS service is unavailable, please try later."));
 
-	ui.lblPhoneNumber->setText(AWindow->contactJid().node());
+	ui.lblPhoneNumber->setText(AWindow->contactJid().uNode());
 	ui.lblSupplement->setText(QString("<a href='%1'>%2</a>").arg("http://id.rambler.ru").arg(tr("Supplement")));
 	connect(ui.lblSupplement,SIGNAL(linkActivated(const QString &)),SLOT(onSupplementLinkActivated()));
 	connect(FChatWindow->editWidget()->textEdit(),SIGNAL(textChanged()),SLOT(onEditWidgetTextChanged()));
@@ -127,7 +127,8 @@ void SmsInfoWidget::onSmsBalanceChanged(const Jid &AStreamJid, const Jid &AServi
 
 			FChatWindow->editWidget()->textEdit()->setHtml(html
 				.arg(Qt::escape(tr("You have run out of SMS. Please, %1."))
-				.arg(QString("<a href='supplement'><span style='color:#acacac;'>%1</span></a>")
+				.arg(QString("<a href='supplement'><span style='color:%1;'>%2</span></a>")
+				.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name())
 				.arg(Qt::escape(tr("supplement the balance")))))
 				.arg(FSupplementMessage));
 

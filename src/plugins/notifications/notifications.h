@@ -1,7 +1,7 @@
 #ifndef NOTIFICATIONS_H
 #define NOTIFICATIONS_H
 
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 #	include <Phonon/Phonon>
 #else
 #	include <QSound>
@@ -23,6 +23,7 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/iroster.h>
 #include <interfaces/iavatars.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/ipresence.h>
@@ -31,9 +32,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imessageprocessor.h>
-#ifdef Q_WS_MAC
-# include <interfaces/imacintegration.h>
-#endif
+#include <interfaces/isystemintegration.h>
 #include <utils/options.h>
 #include <utils/systemmanager.h>
 #include "notifywidget.h"
@@ -85,9 +84,12 @@ public:
 	virtual void registerNotificationType(const QString &ATypeId, const INotificationType &AType);
 	virtual QList<QString> notificationTypes() const;
 	virtual INotificationType notificationType(const QString &ATypeId) const;
-	virtual ushort notificationKinds(const QString &ATypeId) const;
-	virtual void setNotificationKinds(const QString &ATypeId, ushort AKinds);
 	virtual void removeNotificationType(const QString &ATypeId);
+	virtual ushort enabledNotificationKinds() const;
+	virtual void setEnabledNotificationKinds(ushort AKinds);
+	virtual ushort enabledTypeNotificationKinds(const QString &ATypeId) const;
+	virtual ushort typeNotificationKinds(const QString &ATypeId) const;
+	virtual void setTypeNotificationKinds(const QString &ATypeId, ushort AKinds);
 	//Notification Utilities
 	virtual QImage contactAvatar(const Jid &AStreamJid, const Jid &AContactJid) const;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const;
@@ -102,7 +104,7 @@ protected:
 	int notifyIdByRosterId(int ARosterId) const;
 	int notifyIdByTrayId(int ATrayId) const;
 	int notifyIdByWidget(NotifyWidget *AWidget) const;
-	void activateAllNotifications();
+	void activateLastNotification(uint kinds = INotification::TabPageNotify);
 	void removeAllNotifications();
 	void removeInvisibleNotification(int ANotifyId);
 protected slots:
@@ -119,11 +121,13 @@ protected slots:
 	void onWindowNotifyOptions();
 	void onWindowNotifyDestroyed();
 	void onTestNotificationTimerTimedOut();
-#ifdef Q_WS_MAC
-	void onGrowlNotifyClicked(int ANotifyId);
-#endif
+	void onSystemNotifyClicked(int ANotifyId);
+	void onShowSystemNotificationsSettings();
+	void onNotifyCountChanged();
+	void onDockClicked();
 private:
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
 	IStatusIcons *FStatusIcons;
@@ -132,11 +136,10 @@ private:
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
 	IOptionsManager *FOptionsManager;
-#ifdef Q_WS_MAC
-	IMacIntegration * FMacIntegration;
-#endif
+	ISystemIntegration * FSystemIntegration;
+	IMainWindowPlugin * FMainWindow;
 private:
-#ifdef QT_PHONON_LIB
+#ifdef USE_PHONON
 	Phonon::MediaObject *FMediaObject;
 	Phonon::AudioOutput *FAudioOutput;
 #else

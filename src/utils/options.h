@@ -63,6 +63,11 @@ public:
 	static QVariant decrypt(const QByteArray &AData, const QByteArray &AKey = cryptKey());
 	static void exportNode(const QString &APath, QDomElement &AToElem);
 	static void importNode(const QString &APath, const QDomElement &AFromElem);
+	// global settings (using QSettings)
+	static void setGlobalValue(const QString &key, const QVariant &value);
+	static QVariant globalValue(const QString &key, const QVariant &defaultValue = QVariant());
+	static bool hasGlobalValue(const QString &key);
+	static void removeGlobalValue(const QString &key);
 signals:
 	void optionsOpened();
 	void optionsClosed();

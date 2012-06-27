@@ -19,13 +19,14 @@ struct INotification
 		AlertWidget           = 0x0010,
 		ShowMinimized         = 0x0020,
 		TabPageNotify         = 0x0040,
+		DockBadge             = 0x0080,
 		AutoActivate          = 0x8000
 	};
 	enum NotifyFlags {
 		RemoveInvisible       = 0x0001,
 		TestNotify            = 0x8000
 	};
-	INotification() { 
+	INotification() {
 		kinds = 0;
 		flags = RemoveInvisible;
 	}
@@ -43,10 +44,10 @@ struct INotificationType
 		kindMask = 0;
 		kindDefs = 0;
 	}
-	int order;
-	QString title;
-	ushort kindMask;
-	ushort kindDefs;
+    int order;
+    QString title;
+    ushort kindMask;
+    ushort kindDefs;
 };
 
 class INotifications
@@ -61,9 +62,12 @@ public:
 	virtual void registerNotificationType(const QString &ATypeId, const INotificationType &AType) =0;
 	virtual QList<QString> notificationTypes() const =0;
 	virtual INotificationType notificationType(const QString &ATypeId) const =0;
-	virtual ushort notificationKinds(const QString &ATypeId) const =0;
-	virtual void setNotificationKinds(const QString &ATypeId, ushort AKinds) =0;
 	virtual void removeNotificationType(const QString &ATypeId) =0;
+	virtual ushort enabledNotificationKinds() const =0;
+	virtual void setEnabledNotificationKinds(ushort AKinds) =0;
+	virtual ushort enabledTypeNotificationKinds(const QString &ATypeId) const =0;
+	virtual ushort typeNotificationKinds(const QString &ATypeId) const =0;
+	virtual void setTypeNotificationKinds(const QString &ATypeId, ushort AKinds) =0;
 	virtual QImage contactAvatar(const Jid &AStreamJid,const Jid &AContactJid) const =0;
 	virtual QIcon contactIcon(const Jid &AStreamJid, const Jid &AContactJid) const =0;
 	virtual QString contactName(const Jid &AStreamJId, const Jid &AContactJid) const =0;

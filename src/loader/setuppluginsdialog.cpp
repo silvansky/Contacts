@@ -5,9 +5,6 @@
 #include <QHeaderView>
 #include <QTextDocument>
 #include <QDesktopServices>
-#include <utils/stylestorage.h>
-#include <definitions/resources.h>
-#include <definitions/stylesheets.h>
 
 enum TableColumns
 {
@@ -18,11 +15,21 @@ enum TableColumns
 SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocument APluginsSetup, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_PLUGINMANAGER_SETUP,0,0,"windowIcon");
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_SETUPPLUGINSDIALOG);
 
-	setAttribute(Qt::WA_DeleteOnClose, true);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(this,MNI_PLUGINMANAGER_SETUP,0,0,"windowIcon");
+	CustomBorderContainer *border = NULL; //CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(closeWidget()));
+		connect(this, SIGNAL(rejected()), border, SLOT(closeWidget()));
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
 	FPluginManager = APluginManager;
 	FPluginsSetup = APluginsSetup;
@@ -41,12 +48,14 @@ SetupPluginsDialog::SetupPluginsDialog(IPluginManager *APluginManager, QDomDocum
 	ui.cmbCountry->setView(new QListView);
 	ui.cmbLanguage->setView(new QListView);
 
-	restoreGeometry(Options::fileValue("misc.setup-plugins-dialog.geometry").toByteArray());
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	window()->restoreGeometry(Options::fileValue("misc.setup-plugins-dialog.geometry",ns).toByteArray());
 }
 
 SetupPluginsDialog::~SetupPluginsDialog()
 {
-	Options::setFileValue(saveGeometry(),"misc.setup-plugins-dialog.geometry");
+	QString ns = CustomBorderStorage::isBordered(this) ? QString::null : QString("system-border");
+	Options::setFileValue(window()->saveGeometry(),"misc.setup-plugins-dialog.geometry",ns);
 }
 
 void SetupPluginsDialog::updateLanguage()

@@ -20,7 +20,28 @@
 StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, IVCardPlugin *AVCardPlugin, IMainWindowPlugin* AMainWindowPlugin, QWidget *AParent) : QWidget(AParent)
 {
 	ui.setupUi(this);
+
+	if (!CustomBorderStorage::isBordered(this))
+	{
+		ui.lblName->setVisible(false);
+		QLayoutItem * spacer = ui.avatarLt->itemAt(0);
+		ui.avatarLt->removeItem(spacer);
+		ui.avatarLt->addItem(spacer);
+		ui.mainLt->removeItem(ui.avatarLt);
+		ui.mainLt->removeItem(ui.nameMoodLt);
+		ui.mainLt->removeItem(ui.statusLt);
+		ui.mainLt->insertLayout(0, ui.avatarLt);
+		ui.mainLt->insertLayout(1, ui.nameMoodLt);
+		ui.mainLt->insertLayout(2, ui.statusLt);
+		layout()->setContentsMargins(2, 0, 2, 0);
+		ui.avatarLt->setContentsMargins(0, 4, 0, 0);
+		ui.statusLt->setContentsMargins(0, 6, 0, 0);
+		ui.nameMoodLt->setContentsMargins(0, -10, 0, 0);
+	}
+
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SCHANGER_STATUSWIDGET);
+
+	connect(ui.tedMood, SIGNAL(textChanged()), SLOT(onMoodChanged()));
 
 	FAvatars = AAvatars;
 	FVCardPlugin = AVCardPlugin;
@@ -35,8 +56,8 @@ StatusWidget::StatusWidget(IStatusChanger *AStatusChanger, IAvatars *AAvatars, I
 
 	ui.lblMood->setMultilineElideEnabled(true);
 
-	ui.lblAvatar->setProperty("ignoreFilter", true);
-	ui.lblMood->setProperty("ignoreFilter", true);
+	ui.lblAvatar->setProperty(CBC_IGNORE_FILTER, true);
+	ui.lblMood->setProperty(CBC_IGNORE_FILTER, true);
 
 	ui.tlbStatus->installEventFilter(this);
 	ui.lblAvatar->installEventFilter(this);
@@ -133,26 +154,16 @@ void StatusWidget::setUserName(const QString &AName)
 {
 	FUserName = AName;
 	//ui.tlbStatus->setText(fitCaptionToWidth(FUserName, ui.tlbStatus->defaultAction()->text(), ui.tlbStatus->width() - ui.tlbStatus->iconSize().width() - 12));
-	ui.lblName->setText(AName);
+	if (CustomBorderStorage::isBordered(this))
+		ui.lblName->setText(AName);
+	else
+		window()->setWindowTitle(AName);
 }
 
 void StatusWidget::setMoodText(const QString &AMood)
 {
 	FUserMood = AMood;
 	ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
-//	const int maxMoodLength = 40;
-//	if (AMood.length() <= maxMoodLength)
-//		ui.lblMood->setText(AMood.isEmpty() ? tr("Tell your friends about your mood") : AMood);
-//	else if (AMood.count('\n') > 1)
-//	{
-//		QStringList lst = AMood.split('\n');
-//		QString newMood = (QStringList() << lst.at(0) << lst.at(1) + "...").join("\n");
-//		ui.lblMood->setText(newMood);
-//	}
-//	else
-//	{
-//		ui.lblMood->setText(AMood.left(maxMoodLength) + "...");
-//	}
 }
 
 QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &AStatus, const int AWidth) const
@@ -167,18 +178,6 @@ QString StatusWidget::fitCaptionToWidth(const QString &AName, const QString &ASt
 		doc.setHtml(f1 + newName  + "..." + f2 + AStatus + f3);
 	}
 	return getHtmlBody(doc.toHtml());
-}
-
-void StatusWidget::resizeEvent(QResizeEvent * event)
-{
-	if (FMainWindowPlugin && FMainWindowPlugin->mainWindowBorder())
-	{
-		QPoint p = ui.tlbStatus->geometry().topRight();
-		p = mapToGlobal(p);
-		p = FMainWindowPlugin->mainWindowBorder()->widget()->mapFromGlobal(p);
-		//FMainWindowPlugin->mainWindowBorder()->setHeaderMoveLeft(p.x() + 1);
-	}
-	QWidget::resizeEvent(event);
 }
 
 void StatusWidget::paintEvent(QPaintEvent * pe)
@@ -211,40 +210,6 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		switch ((int)AEvent->type())
 		{
-		/*case QEvent::HoverEnter:
-			FAvatarHovered = true;
-			break;
-		case QEvent::HoverLeave:
-			FAvatarHovered = false;
-			break;
-		case QEvent::Paint:
-			if (FAvatarHovered || FProfileMenu->isVisible())
-			{
-				QPaintEvent *paintEvent = (QPaintEvent*)AEvent;
-				QPainter painter(ui.lblAvatar);
-				QIcon * icon = 0;
-				if (ui.lblAvatar->pixmap())
-				{
-					icon = new QIcon((*(ui.lblAvatar->pixmap())));
-					icon->paint(&painter, paintEvent->rect(), Qt::AlignCenter, QIcon::Selected, QIcon::On);
-					delete icon;
-				}
-				painter.setPen(QColor::fromRgb(0, 0, 255, 50));
-				QRect rect = paintEvent->rect();
-				rect.setWidth(rect.width() - 1);
-				rect.setHeight(rect.height() - 1);
-				painter.drawRect(rect);
-				QPolygon triangle;
-				triangle.append(QPoint(0, 0));
-				triangle.append(QPoint(6, 0));
-				triangle.append(QPoint(3, 3));
-				painter.translate(QPoint(paintEvent->rect().width() / 2 - 3, paintEvent->rect().height() - 5));
-				painter.setPen(Qt::white);
-				painter.setBrush(QBrush(Qt::black, Qt::SolidPattern));
-				painter.drawPolygon(triangle, Qt::OddEvenFill);
-				return true;
-			}
-			break;*/
 		case QEvent::MouseButtonRelease:
 			{
 				QPoint point = ui.lblAvatar->mapToGlobal(QPoint(0, 0));
@@ -286,7 +251,8 @@ bool StatusWidget::eventFilter(QObject *AObject, QEvent *AEvent)
 				return true;
 			default:
 				QChar keyChar(keyEvent->key());
-				if (keyChar.isPrint() && ui.tedMood->toPlainText().length()>=MAX_CHARACTERS)
+				bool ctrlModifyer = keyEvent->modifiers() & Qt::ControlModifier;
+				if (keyChar.isPrint() && (!ctrlModifyer) && ui.tedMood->toPlainText().length()>=MAX_CHARACTERS)
 					return true;
 				break;
 			}
@@ -356,7 +322,7 @@ void StatusWidget::onVCardReceived(const Jid &AContactJid)
 			if (name.isEmpty())
 				name = vcard->value(VVN_GIVEN_NAME);
 			if (name.isEmpty())
-				name = vcard->contactJid().node();
+				name = vcard->contactJid().uNode();
 			setUserName(name);
 			vcard->unlock();
 		}
@@ -372,3 +338,15 @@ void StatusWidget::onStatusChanged(const Jid &AStreamJid, int AStatusId)
 			FAvatars->insertAutoAvatar(ui.lblAvatar, FStreamJid, QSize(24, 24), "pixmap");
 	}
 }
+
+void StatusWidget::onMoodChanged()
+{
+	if (ui.tedMood->toPlainText().length() > MAX_CHARACTERS)
+	{
+		ui.tedMood->setPlainText(ui.tedMood->toPlainText().left(MAX_CHARACTERS));
+		QTextCursor c(ui.tedMood->document());
+		c.setPosition(MAX_CHARACTERS);
+		ui.tedMood->setTextCursor(c);
+	}
+}
+

@@ -1,28 +1,32 @@
 #include "custominputdialog.h"
 
-#include "customborderstorage.h"
-#include <definitions/customborder.h>
-#include <definitions/resources.h>
-#include "stylestorage.h"
-#include <definitions/stylesheets.h>
-#include "graphicseffectsstorage.h"
-#include <definitions/graphicseffects.h>
-
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QKeyEvent>
 
+#include <definitions/customborder.h>
+#include <definitions/resources.h>
+#include <definitions/stylesheets.h>
+#include <definitions/graphicseffects.h>
+
+#ifdef Q_WS_MAC
+# include "macutils.h"
+#endif
+#include "stylestorage.h"
+#include "widgetmanager.h"
+#include "customborderstorage.h"
+#include "graphicseffectsstorage.h"
+
 CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget *AParent) :
 	QDialog(AParent),
 	inputType(type)
 {
-	initLayout();
-
-	setAttribute(Qt::WA_DeleteOnClose, false);
+	setMinimumWidth(250);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
+	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
-	setMinimumWidth(250);
 	if (border)
 	{
 		border->setParent(AParent);
@@ -34,19 +38,22 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
-	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose, false);
+	}
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
+
+	initLayout();
 }
 
 CustomInputDialog::~CustomInputDialog()
 {
 	if (border)
 		border->deleteLater();
-}
-
-CustomBorderContainer * CustomInputDialog::windowBorder()
-{
-	return border;
 }
 
 void CustomInputDialog::show()
@@ -63,7 +70,10 @@ void CustomInputDialog::show()
 		border->adjustSize();
 	}
 	else
+	{
 		QDialog::show();
+	}
+	WidgetManager::alignWindow(window(),Qt::AlignCenter);
 }
 
 QString CustomInputDialog::defaultText() const
@@ -79,9 +89,12 @@ void CustomInputDialog::setDefaultText(const QString &text)
 
 void CustomInputDialog::setCaptionText(const QString &text)
 {
-	captionLabel->setText(text);
 	setWindowTitle(text);
-	captionLabel->setVisible(!text.isEmpty());
+	if (captionLabel)
+	{
+		captionLabel->setText(text);
+		captionLabel->setVisible(!text.isEmpty());
+	}
 }
 
 void CustomInputDialog::setInfoText(const QString &text)
@@ -128,12 +141,12 @@ void CustomInputDialog::setAcceptIsDefault(bool accept)
 
 bool CustomInputDialog::deleteOnClose() const
 {
-	return (border ? (QWidget*)border : (QWidget*)this)->testAttribute(Qt::WA_DeleteOnClose);
+	return window()->testAttribute(Qt::WA_DeleteOnClose);
 }
 
 void CustomInputDialog::setDeleteOnClose(bool on)
 {
-	(border ? (QWidget*)border : (QWidget*)this)->setAttribute(Qt::WA_DeleteOnClose, on);
+	window()->setAttribute(Qt::WA_DeleteOnClose, on);
 }
 
 void CustomInputDialog::onAcceptButtonClicked()
@@ -141,10 +154,7 @@ void CustomInputDialog::onAcceptButtonClicked()
 	if (inputType == String)
 	{
 		emit stringAccepted(valueEdit->text());
-		if (border)
-			border->close();
-		else
-			close();
+		window()->close();
 	}
 	else
 		accept();
@@ -171,10 +181,19 @@ void CustomInputDialog::initLayout()
 	iconLabel->setMinimumSize(0, 0);
 	iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
 	iconLabel->setVisible(false);
-	captionLayout->addWidget(captionLabel = new CustomLabel);
-	captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-	mainLayout->addLayout(captionLayout);
-	mainLayout->addWidget(infoLabel = new CustomLabel);
+	if (border == NULL)
+	{
+		captionLayout->addWidget(infoLabel = new CustomLabel);
+		mainLayout->addLayout(captionLayout);
+		captionLabel = NULL;
+	}
+	else
+	{
+		captionLayout->addWidget(captionLabel = new CustomLabel);
+		captionLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		mainLayout->addLayout(captionLayout);
+		mainLayout->addWidget(infoLabel = new CustomLabel);
+	}
 	infoLabel->setVisible(false);
 	mainLayout->addWidget(valueEdit = new QLineEdit);
 	connect(valueEdit, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
@@ -183,8 +202,10 @@ void CustomInputDialog::initLayout()
 	QHBoxLayout * buttonsLayout = new QHBoxLayout;
 	buttonsLayout->addStretch();
 	acceptButton = new QPushButton;
+	acceptButton->installEventFilter(this);
 	acceptButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	rejectButton = new QPushButton;
+	rejectButton->installEventFilter(this);
 #ifdef Q_WS_MAC
 	buttonsLayout->addWidget(rejectButton);
 	buttonsLayout->addWidget(acceptButton);
@@ -200,7 +221,8 @@ void CustomInputDialog::initLayout()
 	myLayout->addWidget(container);
 	setLayout(myLayout);
 	iconLabel->setObjectName("iconLabel");
-	captionLabel->setObjectName("captionLabel");
+	if (captionLabel)
+		captionLabel->setObjectName("captionLabel");
 	infoLabel->setObjectName("infoLabel");
 	descrLabel->setObjectName("descrLabel");
 	valueEdit->setObjectName("valueEdit");
@@ -210,8 +232,8 @@ void CustomInputDialog::initLayout()
 	descrLabel->setWordWrap(true);
 	valueEdit->selectAll();
 	valueEdit->setVisible(inputType == String);
-	connect(infoLabel, SIGNAL(linkActivated(QString)), SIGNAL(linkActivated(QString)));
-	connect(descrLabel, SIGNAL(linkActivated(QString)), SIGNAL(linkActivated(QString)));
+	connect(infoLabel, SIGNAL(linkActivated(const QString &)), SIGNAL(linkActivated(const QString &)));
+	connect(descrLabel, SIGNAL(linkActivated(const QString &)), SIGNAL(linkActivated(const QString &)));
 	connect(acceptButton, SIGNAL(clicked()), SLOT(onAcceptButtonClicked()));
 	connect(rejectButton, SIGNAL(clicked()), SLOT(onRejectButtonClicked()));
 	acceptButton->setDefault(true);
@@ -219,10 +241,31 @@ void CustomInputDialog::initLayout()
 	rejectButton->setAutoDefault(false);
 	container->installEventFilter(this);
 	valueEdit->installEventFilter(this);
+#ifdef Q_WS_MAC
+	valueEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
+#endif
 	// default strings
-	captionLabel->setText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
-	acceptButton->setText(inputType == String ? tr("OK") : tr("Yes"));
-	rejectButton->setText(inputType == String ? tr("Cancel") : tr("No"));
+	setCaptionText(inputType == String ? tr("Enter string value") : tr("Yes or no?"));
+	setAcceptButtonText(inputType == String ? tr("OK") : tr("Yes"));
+	setRejectButtonText(inputType == String ? tr("Cancel") : tr("No"));
 	rejectButton->setVisible(inputType != Info);
 	acceptButton->setEnabled(inputType != String);
+}
+
+bool CustomInputDialog::eventFilter(QObject * obj, QEvent * evt)
+{
+	if (evt->type() == QEvent::FocusIn)
+	{
+		bool accept = (obj == acceptButton);
+		acceptButton->setDefault(accept);
+		rejectButton->setDefault(!accept);
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->updateStyle(this);
+	}
+	return QDialog::eventFilter(obj, evt);
+}
+
+void CustomInputDialog::showEvent(QShowEvent * evt)
+{
+	(rejectButton->isDefault() ? rejectButton : acceptButton)->setFocus();
+	QDialog::showEvent(evt);
 }

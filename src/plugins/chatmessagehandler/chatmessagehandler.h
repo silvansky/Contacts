@@ -35,6 +35,7 @@
 #include <interfaces/iavatars.h>
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
+#include <interfaces/igateways.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/ixmppuriqueries.h>
 #include <interfaces/imetacontacts.h>
@@ -73,6 +74,7 @@ struct StyleExtension
 	int action;
 	int extensions;
 	QString contentId;
+	QString notice;
 };
 
 enum HisloryLoadState {
@@ -124,7 +126,8 @@ signals:
 	void tabPageDestroyed(ITabPage *ATabPage);
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
+	IChatWindow *findSubstituteWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AOfflineOnly) const;
 	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
 	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);
@@ -177,6 +180,7 @@ private:
 	IRostersView *FRostersView;
 	IRostersModel *FRostersModel;
 	IAvatars *FAvatars;
+	IGateways *FGateways;
 	IStatusIcons *FStatusIcons;
 	IStatusChanger *FStatusChanger;
 	IXmppUriQueries *FXmppUriQueries;

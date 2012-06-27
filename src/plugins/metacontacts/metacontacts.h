@@ -112,7 +112,7 @@ public:
 	virtual QList<IMetaItemDescriptor> metaDescriptors() const;
 	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const;
 	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const;
-	virtual QString itemHint(const Jid &AItemJid) const;
+	virtual QString itemFormattedLogin(const Jid &AItemJid) const;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const;
 	virtual QString metaContactName(const IMetaContact &AContact) const;
 	virtual IMetaRoster *getMetaRoster(IRoster *ARoster);
@@ -122,7 +122,8 @@ public:
 	virtual QList<IMetaTabWindow *> metaTabWindows() const;
 	virtual IMetaTabWindow *getMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId);
 	virtual IMetaTabWindow *findMetaTabWindow(const Jid &AStreamJid, const QString &AMetaId) const;
-	virtual QString deleteContactWithNotify(IMetaRoster *ARoster, const QString &AMetaId, const Jid &ItemJid = Jid::null);
+	virtual quint32 editMetaContactRestrictions(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null) const;
+	virtual QString deleteContactWithNotify(const Jid &AStreamJid, const QString &AMetaId, const Jid &AItemJid = Jid::null);
 	virtual QDialog *showMetaProfileDialog(const Jid &AStreamJid, const QString &AMetaId);
 	virtual QDialog *showRenameContactDialog(const Jid &AStreamJid, const QString &AMetaId);
 signals:
@@ -173,7 +174,7 @@ protected slots:
 	void onMetaTabWindowDestroyed();
 protected slots:
 	void onRenameContact(bool);
-	void onNewNameSelected(const QString & newName);
+	void onRenameContactDialogAccepted(const QString &ANewName);
 	void onDeleteContact(bool);
 	void onDeleteContactDialogAccepted();
 	void onMergeContacts(bool);
@@ -202,7 +203,8 @@ protected slots:
 	void onOptionsOpened();
 	void onOptionsClosed();
 protected slots:
-	void onAvatalLabelDestroyed(QObject *);
+	void onAvatarLabelMenuUpdated(MetaContextMenu *AMenu);
+	void onAvatarLabelDestroyed(QObject *);
 private:
 	IPluginManager *FPluginManager;
 	IRosterPlugin *FRosterPlugin;

@@ -15,6 +15,7 @@
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/iroster.h>
+#include <interfaces/igateways.h>
 #include <interfaces/imainwindow.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/iaccountmanager.h>
@@ -56,9 +57,12 @@ public:
 	virtual bool setRosterData(IRosterIndex *AIndex, int ARole, const QVariant &AValue);
 	//IRostersViewPlugin
 	virtual IRostersView *rostersView();
+	virtual bool isExpandedMode() const;
+	virtual void setExpandedMode(bool AEnabled);
 	virtual void startRestoreExpandState();
 	virtual void restoreExpandState(const QModelIndex &AParent = QModelIndex());
 signals:
+	void expandedModeChanged(bool AEnabled);
 	//IRosterDataHolder
 	void rosterDataChanged(IRosterIndex *AIndex = NULL, int ARole = RDR_ANY_ROLE);
 protected:
@@ -90,6 +94,7 @@ protected slots:
 	void onShowOfflinesAction(bool AChecked);
 	void onGroupContactsAction(bool AChecked);
 private:
+	IGateways *FGateways;
 	IRosterPlugin *FRosterPlugin;
 	IRostersModel *FRostersModel;
 	IMainWindowPlugin *FMainWindowPlugin;
@@ -99,6 +104,7 @@ private:
 	Action *FShowOfflineAction;
 	Action *FGroupContactsAction;
 private:
+	bool FExpandedMode;
 	bool FStartRestoreExpandState;
 	int FGroupCounterLabel;
 	RostersView *FRostersView;

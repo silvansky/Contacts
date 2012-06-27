@@ -1,23 +1,11 @@
 #include "imagemanager.h"
+#include "log.h"
 
 #include <QPainter>
 #include <QBitmap>
 
-QImage ImageManager::grayscaled(const QImage & image)
+QImage ImageManager::grayscaled(const QImage &image)
 {
-	// TODO: test speed of both methods
-	/*static QVector<QRgb> monoTable;
-	if (monoTable.isEmpty())
-	{
-		for (int i = 0; i <= 255; i++)
-			monoTable.append(qRgb(i, i, i));
-	}
-	QImage gray(image.size(), QImage::Format_ARGB32);
-	QPainter p(&gray);
-	p.drawImage(0, 0, image.convertToFormat(QImage::Format_Indexed8, monoTable));
-	p.end();
-	return gray;*/
-
 	QImage img = image;
 	if (!image.isNull())
 	{
@@ -25,7 +13,8 @@ QImage ImageManager::grayscaled(const QImage & image)
 		if (pixels*(int)sizeof(QRgb) <= img.byteCount())
 		{
 			QRgb *data = (QRgb *)img.bits();
-			for (int i = 0; i < pixels; ++i) {
+			for (int i = 0; i < pixels; i++)
+			{
 				int val = qGray(data[i]);
 				data[i] = qRgba(val, val, val, qAlpha(data[i]));
 			}
@@ -34,7 +23,7 @@ QImage ImageManager::grayscaled(const QImage & image)
 	return img;
 }
 
-QImage ImageManager::squared(const QImage & image, int size)
+QImage ImageManager::squared(const QImage &image, int size)
 {
 	if (!image.isNull())
 	{
@@ -44,47 +33,48 @@ QImage ImageManager::squared(const QImage & image, int size)
 		squaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		int w = image.width(), h = image.height();
 		QPainter p(&squaredImage);
-		QPoint offset;
-		QImage copy = (w > h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
+		QPoint offset(0,0);
+		QImage copy = (w < h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
 		w = copy.width();
 		h = copy.height();
-		offset.setX((w > h) ? (size - w) / 2 : 0);
-		offset.setY((w > h) ? 0 : (size - h) / 2);
+		if (w > h)
+			offset.setY((size - h) / 2);
+		else if (h > w)
+			offset.setX((size - w) / 2);
 		p.drawImage(offset, copy);
 		p.end();
 		return squaredImage;
 	}
-	return image;
+	return QImage();
 }
 
-QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
+QImage ImageManager::roundSquared(const QImage &image, int size, int radius)
 {
 	if (!image.isNull())
 	{
-		QBitmap shape(size, size);
-		QPainter bp(&shape);
-		bp.fillRect(0, 0, size, size, Qt::color0);
-		bp.setPen(QPen(Qt::color1));
-		bp.setBrush(QBrush(Qt::color1));
-#ifndef Q_WS_MAC
-		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
-#else
-		bp.drawRoundedRect(QRect(0, 0, size - 1, size - 1), radius, radius);
-#endif
-		bp.end();
-		QImage roundSquaredImage(size, size, QImage::Format_ARGB32);
+		QImage shapeImg(QSize(size, size), QImage::Format_ARGB32_Premultiplied);
+		shapeImg.fill(QColor(0, 0, 0, 0).rgba());
+		QPainter sp(&shapeImg);
+		sp.setRenderHint(QPainter::Antialiasing);
+		sp.fillRect(0, 0, size, size, Qt::transparent);
+		sp.setPen(QPen(Qt::color1));
+		sp.setBrush(QBrush(Qt::color1));
+		sp.drawRoundedRect(QRect(0, 0, size, size), radius + 1, radius + 1);
+		sp.end();
+		QImage roundSquaredImage(size, size, QImage::Format_ARGB32_Premultiplied);
 		roundSquaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		QPainter p(&roundSquaredImage);
 		p.fillRect(0, 0, size, size, Qt::transparent);
-		p.setClipRegion(QRegion(shape));
+		p.drawImage(0, 0, shapeImg);
+		p.setCompositionMode(QPainter::CompositionMode_SourceIn);
 		p.drawImage(0, 0, squared(image, size));
 		p.end();
 		return roundSquaredImage;
 	}
-	return image;
+	return QImage();
 }
 
-QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset, bool canResize)
+QImage ImageManager::addShadow(const QImage &image, QColor color, QPoint offset, bool canResize)
 {
 	Q_UNUSED(canResize)
 	if (!image.isNull())
@@ -104,14 +94,15 @@ QImage ImageManager::addShadow(const QImage & image, QColor color, QPoint offset
 
 		p.drawImage(0, 0, tmp);
 
-		p.drawPixmap(0, 0, QPixmap::fromImage(image));
+		p.drawImage(0, 0, image);
+		//p.drawPixmap(0, 0, QPixmap::fromImage(image));
 		p.end();
 		return shadowed;
 	}
-	return image;
+	return QImage();
 }
 
-QImage ImageManager::colorized(const QImage & image, QColor color)
+QImage ImageManager::colorized(const QImage &image, QColor color)
 {
 	if (!image.isNull())
 	{
@@ -124,10 +115,10 @@ QImage ImageManager::colorized(const QImage & image, QColor color)
 		resultImage.setAlphaChannel(image.alphaChannel());
 		return resultImage;
 	}
-	return image;
+	return QImage();
 }
 
-QImage ImageManager::opacitized(const QImage & image, double opacity)
+QImage ImageManager::opacitized(const QImage &image, double opacity)
 {
 	if (!image.isNull())
 	{
@@ -140,10 +131,45 @@ QImage ImageManager::opacitized(const QImage & image, double opacity)
 		resultImage.setAlphaChannel(image.alphaChannel());
 		return resultImage;
 	}
-	return image;
+	return QImage();
 }
 
-void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter * painter)
+QImage ImageManager::addSpace(const QImage &image, int left, int top, int right, int bottom)
+{
+    if (!image.isNull())
+    {
+        QImage resultImage(image.size() + QSize(left + right, top + bottom), QImage::Format_ARGB32);
+        resultImage.fill(QColor::fromRgb(0, 0, 0, 0).rgba());
+        QPainter painter(&resultImage);
+        painter.drawImage(left, top, image);
+        painter.end();
+        resultImage.setAlphaChannel(image.alphaChannel());
+        return resultImage;
+    }
+	return QImage();
+}
+
+QImage ImageManager::rotatedImage(const QImage &image, qreal angle)
+{
+	if (!image.isNull())
+	{
+		QImage rotated(image.size(), QImage::Format_ARGB32_Premultiplied);
+		rotated.fill(Qt::transparent);
+		QPainter p(&rotated);
+		p.setRenderHint(QPainter::Antialiasing);
+		p.setRenderHint(QPainter::SmoothPixmapTransform);
+		qreal dx = image.size().width() / 2.0, dy = image.size().height() / 2.0;
+		p.translate(dx, dy);
+		p.rotate(angle);
+		p.translate(-dx, -dy);
+		p.drawImage(0, 0, image);
+		p.end();
+		return rotated;
+	}
+	return QImage();
+}
+
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal borderLeft, qreal borderRight, qreal borderTop, qreal borderBottom, QPainter *painter)
 {
 	if (!image.isNull())
 	{
@@ -210,7 +236,33 @@ void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qrea
 	}
 }
 
-void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter * painter)
+void ImageManager::drawNinePartImage(const QImage &image, QRectF paintRect, qreal border, QPainter *painter)
 {
 	drawNinePartImage(image, paintRect, border, border, border, border, painter);
+}
+
+QColor ImageManager::resolveColor(const QString &name)
+{
+	QColor color;
+	if (QColor::isValidColor(name))
+		color.setNamedColor(name);
+	else
+	{
+		// trying to parse "#RRGGBBAA" color
+		if (name.length() == 9)
+		{
+			QString solidColor = name.left(7);
+			if (QColor::isValidColor(solidColor))
+			{
+				color.setNamedColor(solidColor);
+				int alpha = name.right(2).toInt(0, 16);
+				color.setAlpha(alpha);
+			}
+		}
+	}
+
+	if (!color.isValid())
+		LogError(QString("[ImageManager::resolveColor] Can\'t parse color: %1").arg(name));
+
+	return color;
 }

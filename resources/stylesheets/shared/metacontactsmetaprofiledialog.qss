@@ -14,9 +14,9 @@ QLabel#lblStatusName
 	font-size: 13px;
 }
 
-QScrollArea#scaContacts,
-QScrollArea#scaContacts QWidget,
-QFrame#frmContents
+QFrame#frmContents,
+QWidget#wdtMetaItems,
+QWidget#wdtMetaItems QWidget
 {
 	background-color: transparent;
 }

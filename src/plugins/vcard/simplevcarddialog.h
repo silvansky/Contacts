@@ -2,9 +2,11 @@
 #define SIMPLEVCARDDIALOG_H
 
 #include <QDialog>
-#include <definitions/vcardvaluenames.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
+#include <definitions/vcardvaluenames.h>
 #include <interfaces/ivcard.h>
 #include <utils/iconstorage.h>
 #include <interfaces/iavatars.h>
@@ -13,6 +15,9 @@
 #include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/irosterchanger.h>
+#include <utils/stylestorage.h>
+#include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 
 namespace Ui
 {

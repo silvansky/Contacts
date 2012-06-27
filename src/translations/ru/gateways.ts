@@ -78,10 +78,6 @@
         <translation>Пожалуйста, укажите ваш логин и пароль.</translation>
     </message>
     <message>
-        <source>Your account is not connected.</source>
-        <translation>Ваша учётная запись ещё не подключена.</translation>
-    </message>
-    <message>
         <source>Add %1 account</source>
         <translation>Добавить учетную запись %1</translation>
     </message>
@@ -105,6 +101,14 @@
         <source>Failed to add account, check your login and password</source>
         <translation>Не удалось добавить учётную запись, проверьте ваш логин и пароль</translation>
     </message>
+    <message>
+        <source>Please, enter your ID and password. You can find your ID on the &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;Odnoklassniki settings page&lt;/a&gt;.</source>
+        <translation>Пожалуйста, укажите ваш ID и пароль. Свой ID можно найти внизу &lt;a href=&apos;http://www.odnoklassniki.ru/settings&apos;&gt;страницы настроек Одноклассников&lt;/a&gt;.</translation>
+    </message>
+    <message>
+        <source>Waiting for authorization in %1...</source>
+        <translation>Ожидание авторизации в %1...</translation>
+    </message>
 </context>
 <context>
     <name>AddLegacyAccountDialogClass</name>
@@ -123,10 +127,6 @@
 </context>
 <context>
     <name>AddLegacyAccountOptions</name>
-    <message>
-        <source>You can link multiple accounts and communicate with your friends on other services</source>
-        <translation>Вы можете подключить несколько учётных записей и общаться со своими друзьями с других сервисов</translation>
-    </message>
     <message>
         <source>All available accounts are already linked</source>
         <translation>Все возможные учётные записи уже подключены</translation>
@@ -171,10 +171,6 @@
         <translation>GTalk</translation>
     </message>
     <message>
-        <source>Y.Online</source>
-        <translation>Я.Онлайн</translation>
-    </message>
-    <message>
         <source>Jabber</source>
         <translation>Jabber</translation>
     </message>
@@ -189,14 +185,6 @@
     <message>
         <source>Rambler</source>
         <translation>Рамблер</translation>
-    </message>
-    <message>
-        <source>Add your accounts</source>
-        <translation>Добавьте ваши учётные записи</translation>
-    </message>
-    <message>
-        <source>Add your accounts and send messages to your friends on these services</source>
-        <translation>Подключайте учётные записи и отправляйте сообщения вашим друзьям на этих сервисах</translation>
     </message>
     <message>
         <source>Add my accounts...</source>
@@ -259,10 +247,6 @@
         <translation>Учетная запись отключена</translation>
     </message>
     <message>
-        <source>Disconnected</source>
-        <translation>Отключен</translation>
-    </message>
-    <message>
         <source>Enable</source>
         <translation>Включить</translation>
     </message>
@@ -297,6 +281,54 @@
     <message>
         <source>Failed to remove service from roster</source>
         <translation>Не удалось удалить сервис из списка-контактов</translation>
+    </message>
+    <message>
+        <source>disconnected</source>
+        <translation>отключен</translation>
+    </message>
+    <message>
+        <source>Ya.Online</source>
+        <translation>Я.Онлайн</translation>
+    </message>
+    <message>
+        <source>Odnoklassniki</source>
+        <translation>Одноклассники</translation>
+    </message>
+    <message>
+        <source>Connect with other services to see all your friends in one place</source>
+        <translation>Подключите другие сервисы и общайтесь со всеми друзьями в одной программе</translation>
+    </message>
+    <message>
+        <source>Adding contacts is prohibited</source>
+        <translation>Добавление контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Deleting contacts is prohibited</source>
+        <translation>Удаление контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Renaming contacts is prohibited</source>
+        <translation>Переименование контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Changing contacts groups is prohibited</source>
+        <translation>Изменение групп контактов запрещено</translation>
+    </message>
+    <message>
+        <source>Adding contacts through this gateway is prohibited</source>
+        <translation>Добавление контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Deleting contacts through this gateway is prohibited</source>
+        <translation>Удаление контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Renaming contacts through this gateway is prohibited</source>
+        <translation>Переименование контактов через этот транспорт запрещено</translation>
+    </message>
+    <message>
+        <source>Changing contacts groups through this gateway is prohibited</source>
+        <translation>Изменение групп контактов через этот транспорт запрещено</translation>
     </message>
 </context>
 <context>
@@ -337,6 +369,10 @@
         <source>Ok</source>
         <translation>Ок</translation>
     </message>
+    <message>
+        <source>The password is not suited to login</source>
+        <translation>Пароль не подходит к логину</translation>
+    </message>
 </context>
 <context>
     <name>LegacyAccountOptionsClass</name>
@@ -350,6 +386,21 @@
     <message>
         <source>You have no linked accounts</source>
         <translation>У вас нет подключенных учётных записей</translation>
+    </message>
+</context>
+<context>
+    <name>OAuthLoginDialog</name>
+    <message>
+        <source>Loading...</source>
+        <translation>Загрузка...</translation>
+    </message>
+    <message>
+        <source>Authorization in %1</source>
+        <translation>Авторизация в %1</translation>
+    </message>
+    <message>
+        <source>Failed to load authorization web page</source>
+        <translation>Не удалось загрузить страницу авторизации</translation>
     </message>
 </context>
 </TS>

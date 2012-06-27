@@ -154,7 +154,11 @@ void XmppStreams::removeXmppStream(IXmppStream *AXmppStream)
 {
 	if (FActiveStreams.contains(AXmppStream))
 	{
-		AXmppStream->close();
+		if (AXmppStream->isOpen() &&AXmppStream->connection()!=NULL)
+		{
+			AXmppStream->close();
+			AXmppStream->connection()->disconnectFromHost();
+		}
 		AXmppStream->instance()->disconnect(this);
 		connect(AXmppStream->instance(), SIGNAL(streamDestroyed()),SLOT(onStreamDestroyed()));
 		FActiveStreams.removeAt(FActiveStreams.indexOf(AXmppStream));

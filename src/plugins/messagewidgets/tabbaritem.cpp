@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <utils/graphicseffectsstorage.h>
+#include <utils/custombordercontainer.h>
 #include <definitions/resources.h>
 #include <definitions/graphicseffects.h>
 
@@ -18,7 +19,7 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FIconSize = QSize(16,16);
 	FLeft = FRight = FTop = FBottom = false;
 
-	setProperty("ignoreFilter", true);
+	setProperty(CBC_IGNORE_FILTER, true);
 
 	setMouseTracking(true);
 
@@ -56,9 +57,9 @@ TabBarItem::TabBarItem(QWidget *AParent) : QFrame(AParent)
 	FUpdateTimer.setSingleShot(true);
 	connect(&FUpdateTimer,SIGNAL(timeout()),SLOT(onUpdateTimerTimeout()));
 
-	FIconLabel->setProperty("ignoreFilter", true);
-	FTextLabel->setProperty("ignoreFilter", true);
-	FCloseButton->setProperty("ignoreFilter", true);
+	FIconLabel->setProperty(CBC_IGNORE_FILTER, true);
+	FTextLabel->setProperty(CBC_IGNORE_FILTER, true);
+	FCloseButton->setProperty(CBC_IGNORE_FILTER, true);
 
 	setActive(false);
 	setDraging(false);

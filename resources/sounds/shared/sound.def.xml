@@ -14,26 +14,14 @@
 
   <file>
     <key>chatmessagehandlerMessage</key>
-    <key>normalmessagehandlerMessage</key>
-    <key>sipphoneCall</key>
     <key>ramblermailnotifyNotify</key>
     <object mime='sound/wav'>message.wav</object>
   </file>
 
-  <file>
-    <key>sipphoneCallWait</key>
-    <object mime='sound/wav'>wait.wav</object>
-  </file>
-  <file>
-    <key>sipphoneCallBusy</key>
-    <object mime='sound/wav'>busy.wav</object>
-  </file>
-  <file>
-    <key>sipphoneCallRinging</key>
-    <object mime='sound/wav'>ring.wav</object>
-  </file>
 
   <file>
+    <key>gatewaysConflict</key>
+    <key>metacontactsDeleteFail</key>
     <key>schangerConnectionError</key>
     <object mime='sound/wav'>error.wav</object>
   </file>

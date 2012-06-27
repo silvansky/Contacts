@@ -43,6 +43,10 @@
         <source>Disable all popup windows when watching fullscreen movies or games</source>
         <translation>Скрывать все уведомления при просмотре полноэкранных фильмов или игр</translation>
     </message>
+    <message>
+        <source>%1 Notifications</source>
+        <translation>Уведомления %1</translation>
+    </message>
 </context>
 <context>
     <name>NotifyKindsWidgetClass</name>
@@ -61,6 +65,13 @@
     <message>
         <source>Sound</source>
         <translation>Звук</translation>
+    </message>
+</context>
+<context>
+    <name>SystemNotifyPreferences</name>
+    <message>
+        <source>Configure Notifications...</source>
+        <translation>Настроить уведомления...</translation>
     </message>
 </context>
 </TS>

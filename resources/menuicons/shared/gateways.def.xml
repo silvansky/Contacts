@@ -69,4 +69,8 @@
     <object mime="image/png">gatewaysaccountsoptions.png</object>
     <object mime="image/png">gatewaysaccountsoptions_click.png</object>
   </icon>
+  <icon>
+    <key>gatewaysAllServices</key>
+    <object mime="image/png">gatewaysallservices.png</object>
+  </icon>
 </icondef>

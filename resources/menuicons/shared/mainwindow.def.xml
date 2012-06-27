@@ -33,6 +33,10 @@
     <object mime="image/png">mainwindowlogo256.png</object>
   </icon>
   <icon>
+    <key>mainwindowLogo512</key>
+    <object mime="image/png">mainwindowlogo512.png</object>
+  </icon>
+  <icon>
     <key>mainwindowMenu</key>
     <object mime="image/png">mainwindowmenu.png</object>
     <object mime="image/png">mainwindowmenu_click.png</object>

@@ -1,18 +1,29 @@
 #include "simplevcarddialog.h"
 #include "ui_simplevcarddialog.h"
+
 #include <QUrl>
 #include <QDesktopServices>
-#include <utils/custominputdialog.h>
 
-SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,
-				     IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
-				     IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin,
-				     IRosterChanger *ARosterChanger,
-				     const Jid &AStreamJid, const Jid &AContactJid) :
-		ui(new Ui::SimpleVCardDialog)
+SimpleVCardDialog::SimpleVCardDialog(IVCardPlugin *AVCardPlugin, IAvatars *AAvatars,IStatusIcons *AStatusIcons, IStatusChanger * AStatusChanger,
+                                     IRosterPlugin *ARosterPlugin, IPresencePlugin *APresencePlugin, IRosterChanger *ARosterChanger,
+                                     const Jid &AStreamJid, const Jid &AContactJid) : ui(new Ui::SimpleVCardDialog)
 {
 	ui->setupUi(this);
+	ui->name->setProperty(CBC_IGNORE_FILTER, true);
+	ui->mood->setProperty(CBC_IGNORE_FILTER, true);
 	setAttribute(Qt::WA_DeleteOnClose,true);
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_VCARDSIMPLEVCARDDIALOG);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+	}
 
 	FContactJid = AContactJid;
 	FStreamJid = AStreamJid;
@@ -65,7 +76,7 @@ void SimpleVCardDialog::updateDialog()
 	if (FRosterItem.isValid)
 		ui->name->setText(FRosterItem.name);
 	else
-		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.bare() : FVCard->value(VVN_FULL_NAME));
+		ui->name->setText(FVCard->value(VVN_FULL_NAME).isEmpty() ? FContactJid.uBare() : FVCard->value(VVN_FULL_NAME));
 	setWindowTitle(tr("Profile: %1").arg(ui->name->text()));
 
 	if (FAvatars)
@@ -102,7 +113,7 @@ void SimpleVCardDialog::updateDialog()
 
 	static const QStringList phoneTagList = QStringList() << "HOME" << "WORK" << "CELL" << "MODEM";
 	QStringList phoneList = FVCard->values(VVN_TELEPHONE, phoneTagList).keys();
-	ui->phoneLabel->setText(phoneList.isEmpty() ? "<font color=grey>" + tr("not assigned") + "</font>" : phoneList.join("<br>"));
+	ui->phoneLabel->setText(phoneList.isEmpty() ? "<font color=#acacac>" + tr("not assigned") + "</font>" : phoneList.join("<br>"));
 }
 
 void SimpleVCardDialog::onVCardUpdated()

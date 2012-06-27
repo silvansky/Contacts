@@ -3,7 +3,9 @@ AddMetaItemPage
 	background-color: white;
 }
 
-AddMetaItemPage QWidget
+AddMetaItemPage QLineEdit,
+AddMetaItemPage QLabel,
+AddMetaItemPage QWidget#wdtAddMetaItem
 {
 	background-color: transparent;
 }

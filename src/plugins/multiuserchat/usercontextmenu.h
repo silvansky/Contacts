@@ -11,7 +11,7 @@ class UserContextMenu :
 {
 	Q_OBJECT;
 public:
-	UserContextMenu(IMultiUserChatWindow *AMUCWindow, IChatWindow *AChatWindow);
+	UserContextMenu(IMultiUserChatWindow *AMUCWindow, IChatWindow *AChatWindow, QWidget *AParent=NULL);
 	~UserContextMenu();
 protected slots:
 	void onAboutToShow();

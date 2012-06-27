@@ -10,6 +10,11 @@ body {
     float: right;
 }
 
+.errorReceipt {
+    position:absolute;
+    right:14px;
+}
+
 .status {
     color: rgba(177, 177, 177, 1);
 }
@@ -22,14 +27,22 @@ body {
 .contentText {
     clear: both;
     padding-right: 2em;
+    padding-left: 14px;
     display: inline-block;
+    width: 92%;
+    word-wrap: break-word;
+}
+
+.errorReceiptText {
+
+    color: rgba(177, 177, 177, 1);
 }
 
 .content {
     clear: both;
 }
 
-.status, .userName, .contentText, .date {
+.status, .userName, .date {
     padding-left: 14px;
     line-height: 2em;
 }
@@ -39,10 +52,6 @@ body {
     float: right;
 }
 
-.contentText {
-    margin-top:-5px
-}
-
 .message1 .userName {
     color: rgba(53, 143, 206, 1);
 }
@@ -50,6 +59,17 @@ body {
 .message1, .message2 {
     font-weight: normal !important;
     border-top: 1px rgba(195, 196, 198, 1) dotted;
+}
+
+.error {
+    padding-top: 10px;
+    padding-left: 14px;
+    color: rgba(177, 177, 177, 1);
+    border-top: 1px rgba(195, 196, 198, 1) dotted;
+}
+
+.error .notice {
+    color: darkred;
 }
 
 .v-chat-header {

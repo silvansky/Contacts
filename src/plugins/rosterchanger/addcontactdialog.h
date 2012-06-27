@@ -8,6 +8,7 @@
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
 #include <definitions/optionvalues.h>
+#include <definitions/customborder.h>
 #include <definitions/stylesheets.h>
 #include <definitions/vcardvaluenames.h>
 #include <definitions/rosterindextyperole.h>
@@ -24,9 +25,11 @@
 #include <interfaces/imessageprocessor.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
+#include <utils/errorhandler.h>
 #include <utils/stylestorage.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 #include "selectprofilewidget.h"
 #include "ui_addcontactdialog.h"
 
@@ -54,13 +57,16 @@ public:
 	virtual void setGatewayJid(const Jid &AGatewayJid);
 	virtual QString parentMetaContactId() const;
 	virtual void setParentMetaContactId(const QString &AMetaId);
+	virtual void executeRequiredContactChecks();
 signals:
 	void dialogDestroyed();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void initGroups();
 protected:
-	void selectRosterIndex();
+	void selectRosterIndex() const;
+	void showChatDialogAndAccept();
+	bool isContactPresentInRoster() const;
 	QString defaultContactNick(const Jid &AContactJid) const;
 	QString confirmDescriptorText(const IGateServiceDescriptor &ADescriptor);
 	bool acceptDescriptor(const IGateServiceDescriptor &ADescriptor);
@@ -79,16 +85,13 @@ protected:
 	void resolveContactJid();
 	void resolveContactName();
 	void resolveLinkedContactsJid();
+	void resolveReady();
 protected:
-	void showEvent(QShowEvent *AEvent);
-	void mousePressEvent(QMouseEvent *AEvent);
-	void moveEvent(QMoveEvent *AEvent);
 	bool event(QEvent *AEvent);
-	bool eventFilter(QObject *AObject, QEvent *AEvent);
 protected slots:
 	void onBackButtonclicked();
-	void onContinueButtonclicked();
-	void onCancelButtonclicked();
+	void onContinueButtonClicked();
+	void onCancelButtonClicked();
 	void onAdjustDialogSize();
 	void onContactTextEdited(const QString &AText);
 	void onContactNickEdited(const QString &AText);
@@ -100,7 +103,6 @@ protected slots:
 	void onGatewayErrorReceived(const QString &AId, const QString &AError);
 	void onRosterItemReceived(const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onMetaActionResult(const QString &AActionId, const QString &AErrCond, const QString &AErrMessage);
-	void onHideErrorBalloon();
 private:
 	Ui::AddContactDialogClass ui;
 private:
@@ -116,14 +118,15 @@ private:
 private:
 	QString FContactJidRequest;
 	QString FContactCreateRequest;
+	QString FContactMergeRequest;
 	QMap<QString, Jid> FLinkedJidRequests;
 private:
-	bool FShown;
 	Jid FContactJid;
+	Jid FGatewayJid;
 	int FDialogState;
 	bool FResolveNick;
-	bool FServiceFailed;
 	QString FParentMetaId;
+	QString FContactMetaId;
 	QList<Jid> FLinkedContacts;
 	IGateServiceDescriptor FDescriptor;
 	SelectProfileWidget *FSelectProfileWidget;

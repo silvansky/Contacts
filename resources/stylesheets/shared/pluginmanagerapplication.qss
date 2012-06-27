@@ -7,6 +7,8 @@
 QWidget
 {
 	background-color: rgba(65, 70, 77, 250);
+	font-family: "Segoe UI";
+	font-size: 12px;
 }
 
 /*************
@@ -467,6 +469,12 @@ QMenu::item:selected
 	padding-top: -1px;
 }
 
+QMenu::right-arrow
+{
+	image: url(%IMAGES_PATH%/menusub.png);
+	padding-right: 7px;
+}
+
 /*************
  * QComboBox *
  *************/
@@ -596,6 +604,7 @@ QLabel
 	background-color: transparent;
 	color: white;
 	font-size: 12px;
+	font-family: "Segoe UI";
 }
 
 QLabel[error="true"]

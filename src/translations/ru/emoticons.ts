@@ -19,6 +19,10 @@
         <source>Automatically convert text smiles to graphical</source>
         <translation>Автоматически превращать текстовые смайлы в графические</translation>
     </message>
+    <message>
+        <source>Insert Emoticon</source>
+        <translation>Вставить смайл</translation>
+    </message>
 </context>
 <context>
     <name>EmoticonsContainer</name>

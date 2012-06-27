@@ -35,8 +35,9 @@ struct IMessageContentOptions
 		Notification    = 0x10
 	};
 	enum ContentStatus {
-		DateSeparator,
-		HistoryShow
+		DateSeparator   = 1,
+		HistoryShow,
+		ErrorMessage
 	};
 	enum ContentDirection {
 		DirectionIn,
@@ -49,8 +50,10 @@ struct IMessageContentOptions
 		Remove
 	};
 	enum ContentExtension {
-		Unread          = 0x01,
-		Offline         = 0x02
+		Unread          = 0x0001,
+		Offline         = 0x0002,
+		Error           = 0x0004,
+		ErrorReceipt    = 0x0008,
 	};
 	IMessageContentOptions() {
 		kind            = Message;
@@ -70,6 +73,7 @@ struct IMessageContentOptions
 	bool noScroll;
 	QUuid contentId;
 	QDateTime time;
+	QString notice;
 	QString timeFormat;
 	QString senderId;
 	QString senderName;
@@ -77,7 +81,6 @@ struct IMessageContentOptions
 	QString senderColor;
 	QString senderIcon;
 	QString textBGColor;
-	QString notice;
 };
 
 class IMessageStyle

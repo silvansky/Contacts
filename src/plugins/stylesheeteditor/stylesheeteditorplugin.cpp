@@ -33,6 +33,12 @@ bool StyleSheetEditorPlugin::initConnections(IPluginManager *APluginManager, int
 	{
 		mainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 	}
+
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
+	if (plugin)
+	{
+		systemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
+	}
 	return (pluginManager);
 }
 
@@ -46,6 +52,8 @@ bool StyleSheetEditorPlugin::initObjects()
 	connect(showDialog, SIGNAL(triggered()), SLOT(showEditDialog()));
 	if (mainWindowPlugin)
 		mainWindowPlugin->mainWindow()->mainMenu()->addAction(showDialog);
+	if (systemIntegration)
+		systemIntegration->addAction(ISystemIntegration::WindowRole, showDialog, 510);
 	return true;
 }
 

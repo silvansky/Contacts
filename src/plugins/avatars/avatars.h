@@ -22,11 +22,14 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/istanzaprocessor.h>
 #include <interfaces/ivcard.h>
+#include <interfaces/igateways.h>
+#include <interfaces/iroster.h>
 #include <interfaces/ipresence.h>
 #include <interfaces/irostersview.h>
 #include <interfaces/irostersmodel.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/iservicediscovery.h>
 #include <utils/options.h>
 #include <utils/iconstorage.h>
 #include <utils/imagemanager.h>
@@ -76,7 +79,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandlerId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AId);
 	//IRosterDataHolder
 	virtual int rosterDataOrder() const;
 	virtual QList<int> rosterDataRoles() const;
@@ -113,19 +115,24 @@ protected slots:
 	void onVCardChanged(const Jid &AContactJid);
 	void onRosterIndexInserted(IRosterIndex *AIndex);
 	void onRosterLabelToolTips(IRosterIndex *AIndex, int ALabelId, QMultiMap<int,QString> &AToolTips);
+	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onIconStorageChanged();
 	void onOptionsOpened();
 	void onOptionsClosed();
 	void onOptionsChanged(const OptionsNode &ANode);
 	void onAvatarObjectTimerTimeout();
 	void onAvatarObjectDestroyed(QObject *AObject);
-	void onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline);
+	void onLoadAvatarQueueTimerTimeout();
 	void onStreamStateChanged(const Jid & AStreamJid, bool AStateOnline);
+	void onContactStateChanged(const Jid & AStreamJid, const Jid & AContactJid, bool AStateOnline);
 private:
 	IPluginManager *FPluginManager;
 	IXmppStreams *FXmppStreams;
 	IStanzaProcessor *FStanzaProcessor;
 	IVCardPlugin *FVCardPlugin;
+	IGateways *FGateways;
+	IServiceDiscovery *FDiscovery;
+	IRosterPlugin *FRosterPlugin;
 	IPresencePlugin *FPresencePlugin;
 	IRostersModel *FRostersModel;
 	IRostersViewPlugin *FRostersViewPlugin;
@@ -143,6 +150,9 @@ private:
 	bool FAvatarsVisible;
 	bool FShowEmptyAvatars;
 	QMap<Jid, QString> FCustomPictures;
+private:
+	QTimer FLoadQueueTimer;
+	QMultiMap<Jid, Jid> FLoadAvatarQueue;
 private:
 	int FRosterLabelId;
 	QDir FAvatarsDir;

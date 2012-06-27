@@ -1,32 +1,34 @@
 #include "pluginmanager.h"
 
-#ifdef DEBUG_ENABLED
-# include <QDebug>
-#endif
-
 #include <QTimer>
 #include <QStack>
 #include <QProcess>
 #include <QLibrary>
 #include <QFileInfo>
-#include <QSettings>
 #include <QMessageBox>
 #include <QLibraryInfo>
 #include <QFontDatabase>
+
 #include <definitions/fonts.h>
 #include <definitions/resources.h>
 #include <interfaces/imainwindow.h>
-#include <interfaces/imacintegration.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/log.h>
+#include <utils/options.h>
+#include <utils/statistics.h>
 #include <utils/networking.h>
+#include <utils/systemmanager.h>
+#include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
 
-#define ORGANIZATION_NAME           "Rambler"
-#define APPLICATION_NAME            "Contacts"
+#define DELAYED_QUIT_TIMEOUT        5000
+#define DELAYED_COMMIT_TIMEOUT      2000
 
 #define FILE_PLUGINS_SETTINGS       "plugins.xml"
 
 #define SVN_DATA_PATH               "DataPath"
 #define SVN_LOCALE_NAME             "Locale"
+#define SVN_BORDERS_ENABLED         "BordersEnabled"
 
 #ifdef SVNINFO
 #  include "svninfo.h"
@@ -38,17 +40,18 @@
 
 #define DIR_LOGS                    "logs"
 #define DIR_COOKIES                 "cookies"
+#define FILE_RAMBLER_USAGE          "ramusage.cnt"
 #if defined(Q_WS_WIN)
 #  define ENV_APP_DATA              "APPDATA"
-#  define DIR_APP_DATA              APPLICATION_NAME
-#  define PATH_APP_DATA             ORGANIZATION_NAME"/"DIR_APP_DATA
+#  define DIR_APP_DATA              CLIENT_NAME
+#  define PATH_APP_DATA             CLIENT_ORGANIZATION_NAME"/"DIR_APP_DATA
 #elif defined(Q_WS_X11)
 #  define ENV_APP_DATA              "HOME"
 #  define DIR_APP_DATA              ".ramblercontacts"
 #  define PATH_APP_DATA             DIR_APP_DATA
 #elif defined(Q_WS_MAC)
 #  define ENV_APP_DATA              "HOME"
-#  define DIR_APP_DATA              APPLICATION_NAME
+#  define DIR_APP_DATA              CLIENT_NAME
 #  define PATH_APP_DATA             "Library/Application Support/"DIR_APP_DATA
 #endif
 
@@ -58,13 +61,21 @@
 #  define LIB_PREFIX_SIZE           3
 #endif
 
+#define COUNTER_LOADED_OPTION       "statistics/ramblerusageloaded"
+
 
 PluginManager::PluginManager(QApplication *AParent) : QObject(AParent)
 {
-	FQuitStarted = false;
+	FShutdownKind = SK_START;
+	FShutdownDelayCount = 0;
+
 	FQtTranslator = new QTranslator(this);
 	FUtilsTranslator = new QTranslator(this);
 	FLoaderTranslator = new QTranslator(this);
+
+	FShutdownTimer.setSingleShot(true);
+	connect(&FShutdownTimer,SIGNAL(timeout()),SLOT(onShutdownTimerTimeout()));
+
 	connect(AParent,SIGNAL(aboutToQuit()),SLOT(onApplicationAboutToQuit()));
 	connect(AParent,SIGNAL(commitDataRequest(QSessionManager &)),SLOT(onApplicationCommitDataRequested(QSessionManager &)));
 }
@@ -90,6 +101,11 @@ QDateTime PluginManager::revisionDate() const
 	return QDateTime::fromString(SVN_DATE,"yyyy/MM/dd hh:mm:ss");
 }
 
+bool PluginManager::isShutingDown() const
+{
+	return FShutdownKind != SK_WORK;
+}
+
 QString PluginManager::homePath() const
 {
 	return FDataPath;
@@ -97,17 +113,15 @@ QString PluginManager::homePath() const
 
 void PluginManager::setHomePath(const QString &APath)
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
-	settings.setValue(SVN_DATA_PATH, APath);
+	Options::setGlobalValue(SVN_DATA_PATH, APath);
 }
 
 void PluginManager::setLocale(QLocale::Language ALanguage, QLocale::Country ACountry)
 {
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
 	if (ALanguage != QLocale::C)
-		settings.setValue(SVN_LOCALE_NAME, QLocale(ALanguage, ACountry).name());
+		Options::setGlobalValue(SVN_LOCALE_NAME, QLocale(ALanguage, ACountry).name());
 	else
-		settings.remove(SVN_LOCALE_NAME);
+		Options::removeGlobalValue(SVN_LOCALE_NAME);
 }
 
 IPlugin *PluginManager::pluginInstance(const QUuid &AUuid) const
@@ -117,7 +131,6 @@ IPlugin *PluginManager::pluginInstance(const QUuid &AUuid) const
 
 QList<IPlugin *> PluginManager::pluginInterface(const QString &AInterface) const
 {
-	//QList<IPlugin *> plugins;
 	if (!FPlugins.contains(AInterface))
 	{
 		foreach(PluginItem pluginItem, FPluginItems)
@@ -175,35 +188,49 @@ QList<QUuid> PluginManager::pluginDependencesFor(const QUuid &AUuid) const
 	return plugins;
 }
 
+void PluginManager::showFeedbackDialog()
+{
+	onShowCommentsDialog();
+}
+
 void PluginManager::quit()
 {
-	if (!FQuitStarted)
+	if (FShutdownKind == SK_WORK)
 	{
-		LogDetaile(QString("[PluginManager] Quit started"));
-		FQuitStarted = true;
-		QTimer::singleShot(0,qApp,SLOT(quit()));
-		emit quitStarted();
+		LogDetail(QString("[PluginManager] Quit started"));
+		FShutdownKind = SK_QUIT;
+		startShutdown();
 	}
 }
 
 void PluginManager::restart()
 {
-	FQuitStarted = true;
-	onApplicationAboutToQuit();
-	FQuitStarted = false;
-
-	loadSettings();
-	loadPlugins();
-	if (initPlugins())
+	if (FShutdownKind == SK_START)
 	{
-		saveSettings();
-		createMenuActions();
-		startPlugins();
-		FBlockedPlugins.clear();
+		finishShutdown();
 	}
-	else
+	else if (FShutdownKind == SK_WORK)
 	{
-		QTimer::singleShot(0,this,SLOT(restart()));
+		FShutdownKind = SK_RESTART;
+		startShutdown();
+	}
+}
+
+void PluginManager::delayShutdown()
+{
+	if (FShutdownKind != SK_WORK)
+	{
+		FShutdownDelayCount++;
+	}
+}
+
+void PluginManager::continueShutdown()
+{
+	if (FShutdownKind != SK_WORK)
+	{
+		FShutdownDelayCount--;
+		if (FShutdownDelayCount <= 0)
+			FShutdownTimer.start(0);
 	}
 }
 
@@ -218,10 +245,6 @@ void PluginManager::shutdownRequested()
 		connect(mb, SIGNAL(buttonClicked(QAbstractButton*)), SLOT(onMessageBoxButtonClicked(QAbstractButton*)));
 		WidgetManager::showActivateRaiseWindow(mb);
 	}
-#ifdef DEBUG_ENABLED
-	if (!(i % 100000))
-		qDebug() << "shutdown request #" << i;
-#endif
 }
 
 void PluginManager::showMainWindow()
@@ -240,16 +263,15 @@ void PluginManager::showMainWindow()
 void PluginManager::loadSettings()
 {
 	QStringList args = qApp->arguments();
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope, ORGANIZATION_NAME, APPLICATION_NAME);
 
 	QLocale locale(QLocale::C,  QLocale::AnyCountry);
 	if (args.contains(CLO_LOCALE))
 	{
 		locale = QLocale(args.value(args.indexOf(CLO_LOCALE)+1));
 	}
-	if (locale.language()==QLocale::C && !settings.value(SVN_LOCALE_NAME).toString().isEmpty())
+	if (locale.language()==QLocale::C && !Options::globalValue(SVN_LOCALE_NAME).toString().isEmpty())
 	{
-		locale = QLocale(settings.value(SVN_LOCALE_NAME).toString());
+		locale = QLocale(Options::globalValue(SVN_LOCALE_NAME).toString());
 	}
 	if (locale.language() == QLocale::C)
 	{
@@ -270,9 +292,9 @@ void PluginManager::loadSettings()
 		if (dir.exists(DIR_APP_DATA) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
-	if (FDataPath.isNull() && !settings.value(SVN_DATA_PATH).toString().isEmpty())
+	if (FDataPath.isNull() && !Options::globalValue(SVN_DATA_PATH).toString().isEmpty())
 	{
-		QDir dir(settings.value(SVN_DATA_PATH).toString());
+		QDir dir(Options::globalValue(SVN_DATA_PATH).toString());
 		if (dir.exists() && (dir.exists(DIR_APP_DATA) || dir.mkpath(DIR_APP_DATA)) && dir.cd(DIR_APP_DATA))
 			FDataPath = dir.absolutePath();
 	}
@@ -304,8 +326,17 @@ void PluginManager::loadSettings()
 		Log::setLogTypes(types);
 		Log::setLogFormat(Log::Simple);
 		Log::setLogPath(logDir.absolutePath());
+		LogDetail(QString("[PluginManager] %1 v%2 %3").arg(CLIENT_NAME, CLIENT_VERSION, SystemManager::systemOSVersion()));
 	}
 #endif
+
+	// Borders
+#ifndef Q_WS_MAC
+	CustomBorderStorage::setBordersEnabled(Options::globalValue(SVN_BORDERS_ENABLED,true).toBool());
+#else
+	CustomBorderStorage::setBordersEnabled(Options::globalValue(SVN_BORDERS_ENABLED,false).toBool());
+#endif
+
 	QDir cookiesDir(FDataPath);
 	if (cookiesDir.exists() && (cookiesDir.exists(DIR_COOKIES) || cookiesDir.mkpath(DIR_COOKIES)) && cookiesDir.cd(DIR_COOKIES))
 	{
@@ -313,7 +344,29 @@ void PluginManager::loadSettings()
 	}
 
 	// TNS Counter
-	Networking::httpGetImageAsync(QUrl("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/"), NULL, NULL);
+	Statistics::instance()->addCounter("http://www.tns-counter.ru/V13a****rambler_ru/ru/CP1251/tmsec=rambler_contacts-application/", Statistics::Image, -1); // only once
+	// Rambler Counter
+	if (!Options::globalValue(COUNTER_LOADED_OPTION, false).toBool())
+	{
+		QFile counterFile(qApp->applicationDirPath() + "/"FILE_RAMBLER_USAGE);
+		if (counterFile.exists() && counterFile.open(QFile::ReadOnly))
+		{
+			QStringList counterData = QString::fromUtf8(counterFile.readAll()).split(';');
+			QString id = counterData.value(0, "self");
+			if (id.isEmpty())
+				id = "self";
+
+			bool ok = true;
+			int interval = counterData.value(1, "default").toInt(&ok);
+			if (!ok)
+				interval = 24 * 60 * 60 * 1000; // 24 hours
+
+			Statistics::instance()->addCounter(QString("http://www.rambler.ru/r/p?event=usage&rpid=%1&appid=contact").arg(id), Statistics::Image, interval);
+			Options::setGlobalValue(COUNTER_LOADED_OPTION, true);
+			if (!counterFile.remove())
+				LogError(QString("[PluginManager::loadSettings]: Failed to remove file %1!").arg(counterFile.fileName()));
+		}
+	}
 
 	FPluginsSetup.clear();
 	QDir homeDir(FDataPath);
@@ -332,10 +385,19 @@ void PluginManager::loadSettings()
 		<< (QDir::isAbsolutePath(RESOURCES_DIR) ? RESOURCES_DIR : qApp->applicationDirPath()+"/"+RESOURCES_DIR)
 		<< FDataPath+"/resources");
 
+	QPalette pal = QApplication::palette();
+	pal.setColor(QPalette::Link, StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR));
+	QApplication::setPalette(pal);
+
 #ifdef Q_WS_MAC
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO256));
+	//qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO512));
+#elif defined Q_WS_WIN
+	if (QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7)
+		qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO48));
+	else
+		qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
 #else
-	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO16));
+	qApp->setWindowIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_MAINWINDOW_LOGO64));
 #endif
 
 	FileStorage * fontStorage = FileStorage::staticStorage(RSR_STORAGE_FONTS);
@@ -356,6 +418,8 @@ void PluginManager::loadSettings()
 
 void PluginManager::saveSettings()
 {
+	Options::setGlobalValue(SVN_BORDERS_ENABLED, CustomBorderStorage::isBordersEnabled());
+
 	if (!FPluginsSetup.documentElement().isNull())
 	{
 		QDir homeDir(FDataPath);
@@ -367,6 +431,8 @@ void PluginManager::saveSettings()
 			file.close();
 		}
 	}
+
+	Statistics::release();
 }
 
 void PluginManager::loadPlugins()
@@ -374,7 +440,7 @@ void PluginManager::loadPlugins()
 	QDir pluginsDir(QApplication::applicationDirPath());
 	if (pluginsDir.cd(PLUGINS_DIR))
 	{
-		LogDetaile(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
+		LogDetail(QString("[PluginManager] Loading plugins from '%1'").arg(pluginsDir.absolutePath()));
 
 		QString localeName = QLocale().name();
 		QDir tsDir(QApplication::applicationDirPath());
@@ -464,7 +530,8 @@ void PluginManager::loadPlugins()
 	}
 	else
 	{
-		LogError(QString("[PluginManager] Could not find plugins directory"));
+		LogError(QString("[PluginManager] Could not find plugins directory: '%1'").arg(PLUGINS_DIR));
+		ReportError("NO-PLUGINS-DIR",QString("[PluginManager] Could not find plugins directory: '%1'").arg(PLUGINS_DIR),false);
 		quit();
 	}
 }
@@ -507,6 +574,53 @@ void PluginManager::startPlugins()
 {
 	foreach(PluginItem pluginItem, FPluginItems)
 		pluginItem.plugin->startPlugin();
+}
+
+void PluginManager::startShutdown()
+{
+	FShutdownTimer.start(DELAYED_QUIT_TIMEOUT);
+	delayShutdown();
+	emit shutdownStarted();
+	closeTopLevelWidgets();
+	continueShutdown();
+}
+
+void PluginManager::finishShutdown()
+{
+	FShutdownTimer.stop();
+	switch (FShutdownKind)
+	{
+	case SK_RESTART:
+		onApplicationAboutToQuit();
+	case SK_START:
+		FShutdownKind = SK_WORK;
+		FShutdownDelayCount = 0;
+
+		loadSettings();
+		loadPlugins();
+		if (initPlugins())
+		{
+			createMenuActions();
+			startPlugins();
+			FBlockedPlugins.clear();
+		}
+		else
+		{
+			QTimer::singleShot(0,this,SLOT(restart()));
+		}
+		break;
+	case SK_QUIT:
+		QTimer::singleShot(0,qApp,SLOT(quit()));
+		break;
+	default:
+		break;
+	}
+}
+
+void PluginManager::closeTopLevelWidgets()
+{
+	foreach(QWidget *widget, QApplication::topLevelWidgets())
+		widget->close();
 }
 
 void PluginManager::removePluginItem(const QUuid &AUuid, const QString &AError)
@@ -609,19 +723,19 @@ void PluginManager::loadCoreTranslations(const QDir &ADir, const QString &ALocal
 
 	if (FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName)) || FLoaderTranslator->load("ramblercontacts",ADir.absoluteFilePath(ALocaleName.left(2))))
 	{
-		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontacts.ts");
+		LogDetail("[PluginManager::loadCoreTranslations] loaded ramblercontacts.qm");
 		qApp->installTranslator(FLoaderTranslator);
 	}
 	else
-		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontacts.ts!");
+		LogError("[PluginManager::loadCoreTranslations] failed to load ramblercontacts.qm!");
 
 	if (FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName)) || FUtilsTranslator->load("ramblercontactsutils",ADir.absoluteFilePath(ALocaleName.left(2))))
 	{
-		LogDetaile("[PluginManager::loadCoreTranslations] loaded ramblercontactsutils.ts");
+		LogDetail("[PluginManager::loadCoreTranslations] loaded ramblercontactsutils.qm");
 		qApp->installTranslator(FUtilsTranslator);
 	}
 	else
-		LogError("[PluginManager::loadCoreTranslations] failed to load rablercontactsutils.ts!");
+		LogError("[PluginManager::loadCoreTranslations] failed to load ramblercontactsutils.qm!");
 }
 
 bool PluginManager::isPluginEnabled(const QString &AFile) const
@@ -678,6 +792,7 @@ QDomElement PluginManager::savePluginInfo(const QString &AFile, const IPluginInf
 void PluginManager::savePluginError(const QString &AFile, const QString &AError)
 {
 	LogError(QString("[PluginManager] Failed to load plugin '%1': %2").arg(AFile, AError));
+	ReportError("LOAD-PLUGIN-ERROR",QString("[PluginManager] Failed to load plugin '%1': %2").arg(AFile, AError),false);
 
 	QDomElement pluginElem = FPluginsSetup.documentElement().firstChildElement(AFile);
 	if (pluginElem.isNull())
@@ -740,22 +855,30 @@ void PluginManager::createMenuActions()
 #endif
 	}
 
-	plugin = pluginInterface("IMacIntegration").value(0);
-	IMacIntegration *macIntegrationPligin = plugin ? qobject_cast<IMacIntegration *>(plugin->instance()) : NULL;
+	plugin = pluginInterface("ISystemIntegration").value(0);
+	ISystemIntegration *systemIntegrationPligin = plugin ? qobject_cast<ISystemIntegration *>(plugin->instance()) : NULL;
 
-	if (macIntegrationPligin)
+	if (systemIntegrationPligin)
 	{
 		Action *about = new Action();
 		about->setText("about.*");
 		connect(about,SIGNAL(triggered()),SLOT(onShowAboutBoxDialog()));
-		macIntegrationPligin->fileMenu()->addAction(about);
+		systemIntegrationPligin->addAction(ISystemIntegration::FileRole, about);
+
+#ifdef DEBUG_ENABLED
+		Action *pluginsDialog = new Action;
+		pluginsDialog->setText(tr("Setup plugins"));
+		connect(pluginsDialog,SIGNAL(triggered(bool)),SLOT(onShowSetupPluginsDialog(bool)));
+		systemIntegrationPligin->addAction(ISystemIntegration::WindowRole, pluginsDialog, 510);
+#endif
 	}
 
 }
 
 void PluginManager::onApplicationAboutToQuit()
 {
-	LogDetaile(QString("[PluginManager] Application about to quit"));
+	LogDetail(QString("[PluginManager] Application about to quit"));
+	emit aboutToQuit();
 
 	if (!FPluginsDialog.isNull())
 		FPluginsDialog->reject();
@@ -766,13 +889,10 @@ void PluginManager::onApplicationAboutToQuit()
 	if (!FCommentDialog.isNull())
 		FCommentDialog->reject();
 
-	foreach(QWidget *widget, QApplication::topLevelWidgets())
-		widget->close();
-
-	emit aboutToQuit();
-
 	foreach(QUuid uid, FPluginItems.keys())
 		unloadPlugin(uid);
+
+	saveSettings();
 
 	QCoreApplication::removeTranslator(FQtTranslator);
 	QCoreApplication::removeTranslator(FUtilsTranslator);
@@ -782,7 +902,13 @@ void PluginManager::onApplicationAboutToQuit()
 void PluginManager::onApplicationCommitDataRequested(QSessionManager &AManager)
 {
 	Q_UNUSED(AManager);
-	onApplicationAboutToQuit();
+	FShutdownKind = SK_QUIT;
+	startShutdown();
+	QDateTime stopTime = QDateTime::currentDateTime().addMSecs(DELAYED_COMMIT_TIMEOUT);
+	while (stopTime>QDateTime::currentDateTime() && FShutdownDelayCount>0)
+		QApplication::processEvents();
+	finishShutdown();
+	qApp->quit();
 }
 
 void PluginManager::onShowSetupPluginsDialog(bool)
@@ -792,7 +918,7 @@ void PluginManager::onShowSetupPluginsDialog(bool)
 		FPluginsDialog = new SetupPluginsDialog(this,FPluginsSetup,NULL);
 		connect(FPluginsDialog, SIGNAL(accepted()),SLOT(onSetupPluginsDialogAccepted()));
 	}
-	WidgetManager::showActivateRaiseWindow(FPluginsDialog);
+	WidgetManager::showActivateRaiseWindow(FPluginsDialog->window());
 }
 
 void PluginManager::onSetupPluginsDialogAccepted()
@@ -804,14 +930,32 @@ void PluginManager::onShowAboutBoxDialog()
 {
 	if (FAboutDialog.isNull())
 		FAboutDialog = new AboutBox(this);
-	WidgetManager::showActivateRaiseWindow(FAboutDialog->parentWidget() ? FAboutDialog->parentWidget() : FAboutDialog);
+	WidgetManager::showActivateRaiseWindow(FAboutDialog->window());
+	WidgetManager::alignWindow(FAboutDialog->window(),Qt::AlignCenter);
 }
 
 void PluginManager::onShowCommentsDialog()
 {
 	if (FCommentDialog.isNull())
 		FCommentDialog = new CommentDialog(this);
-	WidgetManager::showActivateRaiseWindow(FCommentDialog->windowBorder() ? (QWidget*)FCommentDialog->windowBorder() : (QWidget*)FCommentDialog);
+	IAccountManager * accManager = qobject_cast<IAccountManager*>(pluginInterface("IAccountManager").value(0)->instance());
+	if (accManager)
+	{
+		if (accManager->accounts().count())
+		{
+			WidgetManager::showActivateRaiseWindow(FCommentDialog->window());
+			WidgetManager::alignWindow(FCommentDialog->window(),Qt::AlignCenter);
+		}
+		else
+		{
+			CustomInputDialog * cid = new CustomInputDialog(CustomInputDialog::Info);
+			cid->setAttribute(Qt::WA_DeleteOnClose, true);
+			cid->setCaptionText(tr("Login first"));
+			cid->setInfoText(tr("To send a feedback you should login first!"));
+			cid->setAcceptButtonText(tr("Ok"));
+			cid->show();
+		}
+	}
 }
 
 void PluginManager::onMessageBoxButtonClicked(QAbstractButton *AButton)
@@ -819,4 +963,10 @@ void PluginManager::onMessageBoxButtonClicked(QAbstractButton *AButton)
 	QMessageBox *mb = qobject_cast<QMessageBox*>(sender());
 	if (mb && (mb->buttonRole(AButton) == QMessageBox::YesRole))
 		quit();
+}
+
+
+void PluginManager::onShutdownTimerTimeout()
+{
+	finishShutdown();
 }

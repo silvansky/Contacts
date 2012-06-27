@@ -4,6 +4,9 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <utils/custominputdialog.h>
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
 
 #define ADR_GATE_DESCRIPTOR_ID      Action::DR_Parametr1
 
@@ -14,6 +17,10 @@ AddMetaContactDialog::AddMetaContactDialog(IMetaRoster *AMetaRoster, IRosterChan
 	ui.setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowTitle(tr("Add Contact"));
+
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	setMinimumWidth(350);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_RCHANGER_ADDMETACONTACTDIALOG);
@@ -149,6 +156,11 @@ void AddMetaContactDialog::setParentMetaContactId(const QString &AMetaId)
 	ui.lneNick->setEnabled(FParentMetaId.isEmpty());
 }
 
+void AddMetaContactDialog::executeRequiredContactChecks()
+{
+
+}
+
 void AddMetaContactDialog::initialize(IPluginManager *APluginManager)
 {
 	IPlugin *plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
@@ -194,7 +206,7 @@ void AddMetaContactDialog::createGatewaysMenu()
 		Menu *menu = new Menu(ui.pbtAddItem);
 		foreach(const IGateServiceDescriptor &descriptor, FGateways->gateDescriptors())
 		{
-			if (!(descriptor.needGate && descriptor.readOnly) && FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
+			if (FGateways->gateDescriptorStatus(streamJid(),descriptor) != IGateways::GDS_UNAVAILABLE)
 			{
 				Action *action = new Action(menu);
 				action->setText(descriptor.name);
@@ -261,7 +273,7 @@ void AddMetaContactDialog::addContactItem(const IGateServiceDescriptor &ADescrip
 
 QString AddMetaContactDialog::defaultContactNick(const Jid &AContactJid) const
 {
-	QString nick = AContactJid.node();
+	QString nick = AContactJid.uNode();
 	nick = nick.isEmpty() ? AContactJid.domain() : nick;
 	if (!nick.isEmpty())
 	{
@@ -302,7 +314,7 @@ void AddMetaContactDialog::updateDialogState()
 					QImage avatar = vcard->photoImage();
 					if (!avatar.isNull())
 					{
-						avatar = ImageManager::roundSquared(avatar, 36, 2);
+						avatar = ImageManager::roundSquared(avatar, 36, 3);
 						FAvatarContacts.append(contactJid);
 						FContactAvatars.insert(contactJid,avatar);
 					}

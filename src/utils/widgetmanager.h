@@ -15,8 +15,10 @@ public:
 	static bool isWidgetAlertEnabled();
 	static void setWidgetAlertEnabled(bool AEnabled);
 	static Qt::Alignment windowAlignment(const QWidget *AWindow);
-	static void alignWindow(QWidget *AWindow, Qt::Alignment AAlign);
+	static bool alignWindow(QWidget *AWindow, Qt::Alignment AAlign);
+	static QRect alignRect(const QRect &ARect, const QRect &ABoundary, Qt::Alignment AAlign=Qt::AlignCenter);
 	static QRect alignGeometry(const QSize &ASize, const QWidget *AWidget=NULL, Qt::Alignment AAlign=Qt::AlignCenter);
+	static QRect correctWindowGeometry(const QRect &AGeometry, QWidget *AWindow=NULL);
 };
 
 #endif //WIDGETMANAGER_H

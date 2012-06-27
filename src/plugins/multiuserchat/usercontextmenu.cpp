@@ -1,6 +1,6 @@
 #include "usercontextmenu.h"
 
-UserContextMenu::UserContextMenu(IMultiUserChatWindow *AMUCWindow, IChatWindow *AChatWindow) : Menu(AChatWindow->menuBarWidget()->menuBarChanger()->menuBar())
+UserContextMenu::UserContextMenu(IMultiUserChatWindow *AMUCWindow, IChatWindow *AChatWindow, QWidget *AParent) : Menu(AParent)
 {
 	FChatWindow = AChatWindow;
 	FMUCWindow = AMUCWindow;

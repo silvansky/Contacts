@@ -42,6 +42,7 @@
 #include <utils/stanza.h>
 #include <utils/action.h>
 #include <utils/options.h>
+#include <utils/widgetmanager.h>
 #include "addlegacyaccountdialog.h"
 #include "addlegacyaccountoptions.h"
 #include "addfacebookaccountdialog.h"
@@ -97,10 +98,12 @@ public:
 	virtual QList<Jid> availRegistrators(const Jid &AStreamJid, bool AFree = true) const;
 	virtual QList<Jid> availServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
 	virtual QList<Jid> streamServices(const Jid &AStreamJid, const IDiscoIdentity &AIdentity = IDiscoIdentity()) const;
+	virtual quint32 gateDescriptorRestrictions(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor) const;
 	virtual QList<Jid> gateDescriptorServices(const Jid &AStreamJid, const IGateServiceDescriptor &ADescriptor, bool AStreamOnly = false) const;
 	virtual QList<Jid> serviceContacts(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IPresenceItem servicePresence(const Jid &AStreamJid, const Jid &AServiceJid) const;
 	virtual IGateServiceDescriptor serviceDescriptor(const Jid &AStreamJid, const Jid &AServiceJid) const;
+	virtual quint32 serviceRestrictions(const Jid &AStreamJid, const Jid &AServiceJid, bool ACheckPresence = true) const;
 	virtual IGateServiceLogin serviceLogin(const Jid &AStreamJid, const Jid &AServiceJid, const IRegisterFields &AFields) const;
 	virtual IRegisterSubmit serviceSubmit(const Jid &AStreamJid, const Jid &AServiceJid, const IGateServiceLogin &ALogin) const;
 	virtual bool isServiceEnabled(const Jid &AStreamJid, const Jid &AServiceJid) const;
@@ -108,6 +111,7 @@ public:
 	virtual bool changeService(const Jid &AStreamJid, const Jid &AServiceFrom, const Jid &AServiceTo, bool ARemove, bool ASubscribe);
 	virtual QString removeService(const Jid &AStreamJid, const Jid &AServiceJid, bool AWithContacts);
 	virtual QString legacyIdFromUserJid(const Jid &AUserJid) const;
+	virtual QString legacyIdFromUserJid(const Jid &AStreamJid, const Jid &AUserJid) const;
 	virtual QString sendLoginRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendPromptRequest(const Jid &AStreamJid, const Jid &AServiceJid);
 	virtual QString sendUserJidRequest(const Jid &AStreamJid, const Jid &AServiceJid, const QString &AContactID);
@@ -125,20 +129,23 @@ signals:
 protected:
 	void registerDiscoFeatures();
 	void startAutoLogin(const Jid &AStreamJid);
+	void saveKeepConnections(const Jid &AStreamJid);
 	IGateServiceDescriptor findGateDescriptor(const IDiscoInfo &AInfo) const;
 	void insertConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid, const QString &ALogin);
 	void removeConflictNotice(const Jid &AStreamJid, const Jid &AServiceJid);
+	void insertInternalServicesNotice();
 protected slots:
 	void onXmppStreamOpened(IXmppStream *AXmppStream);
 	void onXmppStreamClosed(IXmppStream *AXmppStream);
 	void onRosterOpened(IRoster *ARoster);
 	void onRosterItemReceived(IRoster *ARoster, const IRosterItem &AItem, const IRosterItem &ABefore);
 	void onPresenceItemReceived(IPresence *APresence, const IPresenceItem &AItem, const IPresenceItem &ABefore);
-	void onPrivateStorateOpened(const Jid &AStreamJid);
-	void onPrivateStorageLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void onPrivateStorateAboutToClose(const Jid &AStreamJid);
 	void onPrivateStorateClosed(const Jid &AStreamJid);
 	void onKeepTimerTimeout();
+	void onSaveKeepTimerTimeout();
 	void onVCardReceived(const Jid &AContactJid);
 	void onVCardError(const Jid &AContactJid, const QString &AError);
 	void onDiscoInfoChanged(const IDiscoInfo &AInfo);
@@ -147,11 +154,12 @@ protected slots:
 	void onRegisterSuccess(const QString &AId);
 	void onRegisterError(const QString &AId, const QString &ACondition, const QString &AMessage);
 	void onInternalNoticeReady();
-	void onInternalAccountNoticeActionTriggered();
+	void onInternalServicesNoticeActionTriggered();
 	void onInternalConflictNoticeActionTriggered();
 	void onInternalNoticeRemoved(int ANoticeId);
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
+	void onWelcomeScreenVisibleChanged(bool AVisible);
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;
@@ -171,6 +179,8 @@ private:
 	INotifications *FNotifications;
 private:
 	QTimer FKeepTimer;
+	QTimer FSaveKeepTimer;
+	QSet<Jid> FSaveKeepStreams;
 	QMap<Jid, QSet<Jid> > FKeepConnections;
 private:
 	QList<QString> FPromptRequests;
@@ -180,12 +190,12 @@ private:
 	QMap<QString, QPair<Jid,Jid> > FAutoLoginRequests;
 	QMap<QString, RemoveRequestParams > FRemoveRequests;
 private:
-	int FInternalNoticeId;
 	Jid FOptionsStreamJid;
 	QMap<Jid, IDiscoItems> FStreamDiscoItems;
 	QMultiMap<Jid, Jid> FStreamAutoRegServices;
 	QList<IGateServiceDescriptor> FGateDescriptors;
 private:
+	int FInternalServicesNoticeId;
 	QMap<int, Jid> FConflictNotifies;
 	QMap<QString, Jid> FConflictLoginRequests;
 	QMap<Jid, QMap<Jid, int> > FConflictNotices;

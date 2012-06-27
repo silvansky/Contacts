@@ -9,6 +9,9 @@
 class CustomBorderContainerPrivate;
 struct HeaderButton;
 
+// use widget->setProperty(CBC_IGNORE_FILTER, true) to disable event filtering of it's mouse events
+#define CBC_IGNORE_FILTER	"cbc_ignoreMouseEventFilter"
+
 // NOTE: QWidget::isMaximized() will return false even if widget is maximized. I will try to fix it later.
 // and showMaximized() might be REALLY buggy!
 

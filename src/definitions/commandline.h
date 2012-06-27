@@ -10,4 +10,7 @@
 // -logtypes <Log::LogTypes>
 #define CLO_LOG_TYPES               "-logtypes"
 
+// -logtypes <Log::LogTypes>
+#define CLO_CHECK_INSTALL           "-checkinstall"
+
 #endif // DEF_COMMANDLINE_H

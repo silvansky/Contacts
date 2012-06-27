@@ -6,4 +6,10 @@ QFrame#dbbFrame
 {
 	margin-left: 6px;
 	margin-right: 6px;
+} 
+
+#optionsWidgetCheckBox
+{
+	margin-left: 3px;
+	margin-right: 16px;
 }

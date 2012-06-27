@@ -1,0 +1,54 @@
+#WelcomeScreenWidget
+{
+	background-color: white;
+	color: black;
+}
+
+#caption
+{
+	color: black;
+	qproperty-shadow: 0;
+}
+
+#comment
+{
+	color: #888888;
+	qproperty-shadow: 0;
+}
+
+QPushButton#add
+{
+	color: black;
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#add:disabled
+{
+	color: #acacac;
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#add:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#add:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}
+
+QLineEdit#address:enabled
+{
+	border-image: url(%IMAGES_PATH%/editborder_white.png);
+}
+
+QLineEdit#address:focus
+{
+	border-image: url(%IMAGES_PATH%/editborderfocused_white.png);
+}
+
+QLineEdit#address:!enabled
+{
+	border-image: url(%IMAGES_PATH%/editborderdisabled_white.png);
+}

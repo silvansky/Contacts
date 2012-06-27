@@ -93,6 +93,12 @@ QSize AutoSizeTextEdit::minimumSizeHint() const
 	return sh;
 }
 
+void AutoSizeTextEdit::keyPressEvent(QKeyEvent *ev)
+{
+	// ignoring QTextBrowser's implementation
+	QTextEdit::keyPressEvent(ev);
+}
+
 int AutoSizeTextEdit::textHeight(int ALines) const
 {
 	if (ALines > 0)

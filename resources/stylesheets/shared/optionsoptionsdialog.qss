@@ -105,7 +105,7 @@ ProxyOptionsWidget QGroupBox,
 MessengerOptions QGroupBox,
 HistoryOptionsWidget QWidget
 {
-	margin-left: 25px;
+	margin-left: 26px;
 	margin-right: 16px;
 }
 
@@ -226,11 +226,22 @@ QFrame#serviceSeparator
 	margin-right: 16px;
 }
 
-/* proxy port */
+/**************
+ * proxy port *
+ **************/
 
 QLineEdit#lneProxyPort
 {
 	min-width: 34px;
 	max-width: 34px;
 	width: 34px;
+}
+
+/*****************************
+ * system notify preferences *
+ *****************************/
+
+SystemNotifyPreferences QPushButton
+{
+	margin-left: 22px;
 }

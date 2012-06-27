@@ -9,9 +9,14 @@
 TrayManager::TrayManager()
 {
 	FPluginManager = NULL;
+	FMainWindowPlugin = NULL;
 
 	FActiveNotify = -1;
 	FIconHidden = false;
+
+	QPixmap empty(16,16);
+	empty.fill(Qt::transparent);
+	FEmptyIcon.addPixmap(empty);
 
 	FContextMenu = new Menu;
 	FSystemIcon.setContextMenu(FContextMenu);
@@ -29,6 +34,7 @@ TrayManager::TrayManager()
 
 TrayManager::~TrayManager()
 {
+	FSystemIcon.hide();
 	while (FNotifyOrder.count() > 0)
 		removeNotify(FNotifyOrder.first());
 	delete FContextMenu;
@@ -47,7 +53,14 @@ bool TrayManager::initConnections(IPluginManager *APluginManager, int &AInitOrde
 {
 	Q_UNUSED(AInitOrder);
 	FPluginManager = APluginManager;
-	connect(FPluginManager->instance(),SIGNAL(quitStarted()),SLOT(onApplicationQuitStarted()));
+
+	IPlugin *plugin = FPluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+	}
+
+	connect(FPluginManager->instance(),SIGNAL(shutdownStarted()),SLOT(onShutdownStarted()));
 
 	connect(Options::instance(),SIGNAL(optionsOpened()),SLOT(onOptionsOpened()));
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -89,7 +102,7 @@ void TrayManager::setIcon(const QIcon &AIcon)
 {
 	FIcon = AIcon;
 	if (FActiveNotify < 0)
-		FSystemIcon.setIcon(AIcon);
+		FSystemIcon.setIcon(FIcon);
 	else
 		updateTray();
 }
@@ -196,13 +209,10 @@ void TrayManager::updateTray()
 
 void TrayManager::updateTrayVisibility()
 {
-#ifdef Q_WS_WIN
-	if ((QSysInfo::windowsVersion() == QSysInfo::WV_WINDOWS7) && !Options::node(OPV_MAINWINDOW_MINIMIZETOTRAY_W7).value().toBool() && FNotifyItems.isEmpty())
+#ifndef Q_WS_MAC
+	if (FMainWindowPlugin && !FMainWindowPlugin->isMinimizeToTray() && FNotifyItems.isEmpty())
 		FSystemIcon.hide();
 	else if (!FSystemIcon.isVisible())
-		FSystemIcon.show();
-#else
-	if (!FSystemIcon.isVisible())
 		FSystemIcon.show();
 #endif
 }
@@ -230,13 +240,17 @@ void TrayManager::onBlinkTimerTimeout()
 	const ITrayNotify &notify = FNotifyItems.value(FActiveNotify);
 	if (FIconHidden)
 	{
+		if (!notify.iconKey.isEmpty() && !notify.iconStorage.isEmpty())
+			IconStorage::staticStorage(notify.iconStorage)->insertAutoIcon(&FSystemIcon,notify.iconKey);
+		else
+			FSystemIcon.setIcon(notify.icon);
 		FBlinkTimer.start(BLINK_VISIBLE_TIME);
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(&FSystemIcon,notify.iconKey);
 	}
 	else
 	{
+		IconStorage::staticStorage(notify.iconStorage)->removeAutoIcon(&FSystemIcon);
+		FSystemIcon.setIcon(FEmptyIcon);
 		FBlinkTimer.start(BLINK_INVISIBLE_TIME);
-		FSystemIcon.setIcon(QIcon());
 	}
 	FIconHidden = !FIconHidden;
 }
@@ -246,7 +260,7 @@ void TrayManager::onTriggerTimerTimeout()
 	emit notifyActivated(FActiveNotify,QSystemTrayIcon::Trigger);
 }
 
-void TrayManager::onApplicationQuitStarted()
+void TrayManager::onShutdownStarted()
 {
 	FSystemIcon.hide();
 }

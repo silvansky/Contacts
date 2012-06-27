@@ -20,7 +20,7 @@
 #include <interfaces/imainwindow.h>
 #include <interfaces/itraymanager.h>
 #include <interfaces/iprivatestorage.h>
-#include <interfaces/imacintegration.h>
+#include <interfaces/isystemintegration.h>
 #include <utils/log.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
@@ -30,6 +30,7 @@
 #include "optionswidget.h"
 #include "optionsheader.h"
 #include "optionsdialog.h"
+#include "localeoptionswidget.h"
 
 class OptionsManager :
 	public QObject,
@@ -61,6 +62,9 @@ public:
 	virtual QByteArray currentProfileKey() const;
 	virtual bool setCurrentProfile(const QString &AProfile, const QString &APassword);
 	virtual QByteArray profileKey(const QString &AProfile, const QString &APassword) const;
+	virtual QMap<QString, QVariant> profileData(const QString &AProfile) const;
+	virtual bool setProfileData(const QString &AProfile, const QMap<QString, QVariant> &AData);
+	virtual bool setProfileData(const QString &AProfile, const QString &AKey, const QVariant &AValue);
 	virtual bool checkProfilePassword(const QString &AProfile, const QString &APassword) const;
 	virtual bool changeProfilePassword(const QString &AProfile, const QString &AOldPassword, const QString &ANewPassword);
 	virtual bool addProfile(const QString &AProfile, const QString &APassword);
@@ -69,6 +73,7 @@ public:
 	virtual QList<QString> serverOptions() const;
 	virtual void insertServerOption(const QString &APath);
 	virtual void removeServerOption(const QString &APath);
+	virtual bool isLoginDialogVisible() const;
 	virtual QDialog *showLoginDialog(QWidget *AParent = NULL);
 	virtual QList<IOptionsHolder *> optionsHolders() const;
 	virtual void insertOptionsHolder(IOptionsHolder *AHolder);
@@ -104,11 +109,13 @@ protected slots:
 	void onOptionsDialogDestroyed();
 	void onChangeProfileByAction(bool);
 	void onShowOptionsDialogByAction(bool);
-	void onLoginDialogRejected();
 	void onLoginDialogAccepted();
-	void onAutoSaveTimerTimeout();
+	void onLoginDialogRejected();
+	void onAutoSaveOptionsTimerTimeout();
+	void onSaveServerOptionsTimerTimeout();
 	void onPrivateStorageOpened(const Jid &AStreamJid);
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
 private:
@@ -116,7 +123,7 @@ private:
 	ITrayManager *FTrayManager;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IPrivateStorage *FPrivateStorage;
-	IMacIntegration * FMacIntegration;
+	ISystemIntegration * FSystemIntegration;
 private:
 	QDir FProfilesDir;
 	QTimer FAutoSaveTimer;
@@ -126,17 +133,17 @@ private:
 	QDomDocument FProfileOptions;
 	QtLockedFile *FProfileLocker;
 private:
+	Jid FOptionsStreamJid;
+	QTimer FServerOptionsTimer;
 	QList<QString> FServerOptions;
 private:
 	Action *FChangeProfileAction;
 	LoginDialog* FLoginDialog;
-	CustomBorderContainer * FLoginDialogBorder;
 private:
+	OptionsDialog *FOptionsDialog;
 	Action *FShowOptionsDialogAction;
 	QList<IOptionsHolder *> FOptionsHolders;
 	QMap<QString, IOptionsDialogNode> FOptionsDialogNodes;
-	OptionsDialog *FOptionsDialog;
-	CustomBorderContainer *FOptionsDialogBorder;
 };
 
 #endif // OPTIONSMANAGER_H

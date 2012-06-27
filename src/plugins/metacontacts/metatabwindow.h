@@ -9,6 +9,7 @@
 #include <definitions/optionvalues.h>
 #include <interfaces/imessagewidgets.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/igateways.h>
 #include <interfaces/istatusicons.h>
 #include <interfaces/istatuschanger.h>
 #include <interfaces/irosterchanger.h>
@@ -134,7 +135,7 @@ protected slots:
 protected slots:
 	void onDetachItemByAction(bool);
 	void onDeleteItemByAction(bool);
-	void onDeleteItemConfirmed();
+	void onDeleteItemDialogAccepted();
 protected slots:
 	void onCurrentWidgetChanged(int AIndex);
 	void onMetaPresenceChanged(const QString &AMetaId);

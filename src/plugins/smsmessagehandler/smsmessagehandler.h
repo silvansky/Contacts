@@ -102,7 +102,6 @@ public:
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
-	virtual void stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId);
 	//ITabPageHandler
 	virtual bool tabPageAvail(const QString &ATabPageId) const;
 	virtual ITabPage *tabPageFind(const QString &ATabPageId) const;
@@ -135,7 +134,7 @@ protected:
 	IPresenceItem findPresenceItem(IPresence *APresence, const Jid &AContactJid) const;
 protected:
 	IChatWindow *getWindow(const Jid &AStreamJid, const Jid &AContactJid);
-	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch = true) const;
+	IChatWindow *findWindow(const Jid &AStreamJid, const Jid &AContactJid) const;
 	IChatWindow *findNotifiedMessageWindow(int AMessageId) const;
 	void clearWindow(IChatWindow *AWindow);
 	void updateWindow(IChatWindow *AWindow);

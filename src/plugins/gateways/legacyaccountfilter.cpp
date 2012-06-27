@@ -3,9 +3,9 @@
 LegacyAccountFilter::LegacyAccountFilter(IGateways *AGateways, QObject *AParent) : QSortFilterProxyModel(AParent)
 {
 	FGateways = AGateways;
-	connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),
-		SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
-	connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onStreamServicesChanged(const Jid &)));
+	//connect(FGateways->instance(),SIGNAL(serviceEnableChanged(const Jid &, const Jid &, bool)),
+	//	SLOT(onServiceEnableChanged(const Jid &, const Jid &, bool)));
+	//connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onStreamServicesChanged(const Jid &)));
 }
 
 LegacyAccountFilter::~LegacyAccountFilter()
@@ -21,13 +21,11 @@ bool LegacyAccountFilter::filterAcceptsRow(int ASourceRow, const QModelIndex &AS
 		int indexType = index.data(RDR_TYPE).toInt();
 		if (indexType == RIT_CONTACT)
 		{
-			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
-			Jid serviceJid = Jid(index.data(RDR_PREP_BARE_JID).toString()).domain();
-			return !FStreamGates.value(streamJid).contains(serviceJid) || FEnabledGates.value(streamJid).contains(serviceJid);
+			Jid contactJid = index.data(RDR_PREP_BARE_JID).toString();
+			return !contactJid.node().isEmpty();
 		}
 		else if (indexType == RIT_METACONTACT)
 		{
-			Jid streamJid = Jid(index.data(RDR_STREAM_JID).toString()).bare();
 			foreach(Jid itemJid, index.data(RDR_METACONTACT_ITEMS).toStringList())
 				if (!itemJid.node().isEmpty())
 					return true;

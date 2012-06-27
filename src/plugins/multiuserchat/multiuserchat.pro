@@ -1,4 +1,6 @@
 TARGET = multiuserchat
 include(multiuserchat.pri)
 include(../plugins.inc)
-INSTALLS =
+!CONFIG(debug, debug|release) {
+  INSTALLS =
+}

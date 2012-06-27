@@ -17,8 +17,11 @@
 #define SMS_DISCO_TYPE            "sms"
 #define SMS_DISCO_CATEGORY        "gateway"
 
+#define SMS_CONTACT_DOMAIN        "sms.rambler.ru"
+
 #define SHC_SMS_BALANCE           "/iq[@type='set']/query[@xmlns='" NS_RAMBLER_SMS_BALANCE "']"
 #define SHC_MESSAGE_RECEIPTS      "/message/received[@xmlns='" NS_RECEIPTS "']"
+
 
 QDataStream &operator<<(QDataStream &AStream, const TabPageInfo &AInfo)
 {
@@ -203,8 +206,7 @@ bool SmsMessageHandler::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, St
 		AAccept = true;
 		setSmsBalance(AStreamJid,AStanza.from(),smsBalanceFromStanza(AStanza));
 
-		Stanza result("iq");
-		result.setType("result").setId(AStanza.id()).setTo(AStanza.from());
+		Stanza result = FStanzaProcessor->makeReplyResult(AStanza);
 		FStanzaProcessor->sendStanzaOut(AStreamJid,result);
 	}
 	else if (FSHIMessageReceipts.value(AStreamJid) == AHandleId)
@@ -228,7 +230,7 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 		Jid serviceJid = FSmsBalanceRequests.take(AStanza.id());
 		if (AStanza.type() == "result")
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS balance received from '%1' id='%2'").arg(serviceJid.full(),AStanza.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS balance received from '%1' id='%2'").arg(serviceJid.full(),AStanza.id()));
 			setSmsBalance(AStreamJid,serviceJid,smsBalanceFromStanza(AStanza));
 		}
 		else
@@ -248,7 +250,7 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 			int count = query.firstChildElement("count").text().toInt();
 			if (!number.isEmpty() && !code.isEmpty() && count>0)
 			{
-				LogDetaile(QString("[SmsMessageHandler] SMS supplement received from '%1', id='%2', number='%3', code='%4', count='%5'").arg(serviceJid.full(),AStanza.id(),number,code).arg(count));
+				LogDetail(QString("[SmsMessageHandler] SMS supplement received from '%1', id='%2', number='%3', code='%4', count='%5'").arg(serviceJid.full(),AStanza.id(),number,code).arg(count));
 				emit smsSupplementReceived(AStanza.id(),number,code,count);
 			}
 			else
@@ -264,24 +266,6 @@ void SmsMessageHandler::stanzaRequestResult(const Jid &AStreamJid, const Stanza 
 			LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanza.id(),err.message()));
 			emit smsSupplementError(AStanza.id(),err.condition(),err.message());
 		}
-	}
-}
-
-void SmsMessageHandler::stanzaRequestTimeout(const Jid &AStreamJid, const QString &AStanzaId)
-{
-	if (FSmsBalanceRequests.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Jid serviceJid = FSmsBalanceRequests.take(AStanzaId);
-		LogError(QString("[SmsMessageHandler] Failed to request SMS balance from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
-		setSmsBalance(AStreamJid,serviceJid,-1);
-	}
-	else if (FSmsSupplementRequests.contains(AStanzaId))
-	{
-		ErrorHandler err(ErrorHandler::REQUEST_TIMEOUT);
-		Jid serviceJid = FSmsSupplementRequests.take(AStanzaId);
-		LogError(QString("[SmsMessageHandler] Failed to request SMS supplement from '%1', id='%2': %3").arg(serviceJid.full(),AStanzaId,err.message()));
-		emit smsSupplementError(AStanzaId,err.condition(),err.message());
 	}
 }
 
@@ -369,9 +353,7 @@ bool SmsMessageHandler::messageCheck(int AOrder, const Message &AMessage, int AD
 {
 	Q_UNUSED(AOrder);
 	if (!AMessage.body().isEmpty())
-	{
 		return  ADirection==IMessageProcessor::MessageIn ? isSmsContact(AMessage.to(),AMessage.from()) : isSmsContact(AMessage.from(),AMessage.to());
-	}
 	return false;
 }
 
@@ -379,13 +361,8 @@ bool SmsMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 {
 	bool displayed = false;
 
-	IChatWindow *window = NULL;
-	if (ADirection == IMessageProcessor::MessageIn)
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.to(),AMessage.from()) : findWindow(AMessage.to(),AMessage.from());
-	else
-		window = AMessage.type()!=Message::Error ? getWindow(AMessage.from(),AMessage.to()) : findWindow(AMessage.from(),AMessage.to());
-
-	if (window && AMessage.type()!=Message::Error)
+	IChatWindow *window = ADirection==IMessageProcessor::MessageIn ? getWindow(AMessage.to(),AMessage.from()) : getWindow(AMessage.from(),AMessage.to());
+	if (window)
 	{
 		StyleExtension extension;
 		WindowStatus &wstatus = FWindowStatus[window];
@@ -417,17 +394,13 @@ bool SmsMessageHandler::messageDisplay(const Message &AMessage, int ADirection)
 			wstatus.pending.append(AMessage);
 		}
 	}
-	else if (AMessage.type() == Message::Error)
-	{
-		LogError(QString("[SmsMessageHandler] Received error message:\n%1").arg(AMessage.stanza().toString()));
-	}
 	return displayed;
 }
 
 INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, const Message &AMessage, int ADirection)
 {
 	INotification notify;
-	if (ADirection == IMessageProcessor::MessageIn)
+	if (ADirection==IMessageProcessor::MessageIn && AMessage.type()!=Message::Error)
 	{
 		IChatWindow *window = getWindow(AMessage.to(),AMessage.from());
 		if (!window->isActiveTabPage())
@@ -437,7 +410,7 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 			QString name = ANotifications->contactName(AMessage.to(),AMessage.from());
 			QString messages = tr("%n message(s)","",wstatus.notified.count()+1);
 
-			notify.kinds = ANotifications->notificationKinds(NNT_CHAT_MESSAGE);
+			notify.kinds = ANotifications->enabledTypeNotificationKinds(NNT_CHAT_MESSAGE);
 			if (notify.kinds > 0)
 			{
 				notify.typeId = NNT_CHAT_MESSAGE;
@@ -492,11 +465,11 @@ INotification SmsMessageHandler::messageNotify(INotifications *ANotifications, c
 				}
 				notify.data.insert(NDR_TABPAGE_NOTIFYCOUNT,notifyCount);
 
+#ifdef Q_WS_MAC
+				notify.data.insert(NDR_POPUP_TEXT, AMessage.body());
+#else
 				QTextDocument doc;
 				FMessageProcessor->messageToText(&doc,AMessage);
-#ifdef Q_WS_MAC
-				notify.data.insert(NDR_POPUP_TEXT, doc.toPlainText());
-#else
 				notify.data.insert(NDR_POPUP_TEXT,getHtmlBody(doc.toHtml()));
 #endif
 
@@ -548,7 +521,7 @@ bool SmsMessageHandler::isSmsContact(const Jid &AStreamJid, const Jid &AContactJ
 		//	IDiscoIdentity ident = FDiscovery->discoInfo(AStreamJid,AContactJid.domain()).identity.value(0);
 		//	return ident.category==SMS_DISCO_CATEGORY && ident.type==SMS_DISCO_TYPE;
 		//}
-		return AContactJid.pDomain().startsWith("sms.");
+		return AContactJid.pDomain() == SMS_CONTACT_DOMAIN;
 	}
 	return false;
 }
@@ -563,11 +536,11 @@ bool SmsMessageHandler::requestSmsBalance(const Jid &AStreamJid, const Jid &ASer
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.bare());
 		request.addElement("query",NS_RAMBLER_SMS_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS balance request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS balance request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsBalanceRequests.insert(request.id(),AServiceJid);
 			return true;
 		}
@@ -584,11 +557,11 @@ QString SmsMessageHandler::requestSmsSupplement(const Jid &AStreamJid, const Jid
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.eBare());
+		request.setType("get").setId(FStanzaProcessor->newId()).setTo(AServiceJid.bare());
 		request.addElement("query",NS_RAMBLER_SMS_SUPPLEMENT);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,SUPPLEMENT_TIMEOUT))
 		{
-			LogDetaile(QString("[SmsMessageHandler] SMS supplement request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
+			LogDetail(QString("[SmsMessageHandler] SMS supplement request sent to '%1', id='%2'").arg(AServiceJid.full(),request.id()));
 			FSmsSupplementRequests.insert(request.id(),AServiceJid);
 			return request.id();
 		}
@@ -611,7 +584,7 @@ void SmsMessageHandler::setSmsBalance(const Jid &AStreamJid, const Jid &AService
 {
 	if (FSmsBalance.contains(AStreamJid))
 	{
-		LogDetaile(QString("[SmsMessageHandler] SMS balance changed to %1").arg(ABalance));
+		LogDetail(QString("[SmsMessageHandler] SMS balance changed to %1").arg(ABalance));
 		if (ABalance >= 0)
 			FSmsBalance[AStreamJid].insert(AServiceJid,ABalance);
 		else
@@ -650,61 +623,53 @@ IChatWindow *SmsMessageHandler::getWindow(const Jid &AStreamJid, const Jid &ACon
 	IChatWindow *window = NULL;
 	if (AStreamJid.isValid() && AContactJid.isValid())
 	{
-		window = findWindow(AStreamJid,AContactJid,false);
-		if (!window)
+		window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
+		if (window)
 		{
-			window = FMessageWidgets->newChatWindow(AStreamJid,AContactJid);
-			if (window)
-			{
-				window->infoWidget()->autoUpdateFields();
-				window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
+			window->infoWidget()->autoUpdateFields();
+			window->setTabPageNotifier(FMessageWidgets->newTabPageNotifier(window));
 
-				WindowStatus &wstatus = FWindowStatus[window];
-				wstatus.createTime = QDateTime::currentDateTime();
+			WindowStatus &wstatus = FWindowStatus[window];
+			wstatus.createTime = QDateTime::currentDateTime();
 
-				connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
-				connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
-				connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
-				connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
-				connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
+			connect(window->instance(),SIGNAL(messageReady()),SLOT(onMessageReady()));
+			connect(window->viewWidget()->instance(),SIGNAL(urlClicked(const QUrl	&)),SLOT(onUrlClicked(const QUrl	&)));
+			connect(window->instance(),SIGNAL(tabPageClosed()),SLOT(onWindowClosed()));
+			connect(window->instance(),SIGNAL(tabPageActivated()),SLOT(onWindowActivated()));
+			connect(window->instance(),SIGNAL(tabPageDestroyed()),SLOT(onWindowDestroyed()));
 
-				FWindows.append(window);
-				updateWindow(window);
-				setMessageStyle(window);
+			FWindows.append(window);
+			updateWindow(window);
+			setMessageStyle(window);
 
-				SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
-				window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
+			SmsInfoWidget *infoWidget = new SmsInfoWidget(this, window, window->instance());
+			window->insertBottomWidget(CBWO_SMSINFOWIDGET,infoWidget);
 
-				TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
-				pageInfo.page = window;
-				emit tabPageCreated(window);
+			TabPageInfo &pageInfo = FTabPages[window->tabPageId()];
+			pageInfo.page = window;
+			emit tabPageCreated(window);
 
-				requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
+			requestHistoryMessages(window, HISTORY_MESSAGES_COUNT);
 
-				window->instance()->installEventFilter(this);
-			}
+			window->instance()->installEventFilter(this);
+		}
+		else
+		{
+			window = findWindow(AStreamJid,AContactJid);
 		}
 	}
 	return window;
 }
 
-IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid, bool AExactMatch) const
+IChatWindow *SmsMessageHandler::findWindow(const Jid &AStreamJid, const Jid &AContactJid) const
 {
-	IChatWindow *bareWindow = NULL;
-	foreach(IChatWindow *window,FWindows)
-	{
-		if (window->streamJid() == AStreamJid)
-		{
-			if (window->contactJid() == AContactJid)
-				return window;
-			else if (!AExactMatch && !bareWindow && (window->contactJid() && AContactJid))
-				bareWindow = window;
-		}
-	}
-	return bareWindow;
+	foreach(IChatWindow *window, FWindows)
+		if (window->streamJid()==AStreamJid && window->contactJid()==AContactJid)
+			return window;
+	return NULL;
 }
 
-IChatWindow * SmsMessageHandler::findNotifiedMessageWindow(int AMessageId) const
+IChatWindow *SmsMessageHandler::findNotifiedMessageWindow(int AMessageId) const
 {
 	foreach(IChatWindow *window, FWindows)
 		if (FWindowStatus.value(window).notified.contains(AMessageId))
@@ -962,6 +927,11 @@ QUuid SmsMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &
 	options.time = AMessage.dateTime();
 	options.timeFormat = FMessageStyles->timeFormat(options.time);
 
+	options.action = AExtension.action;
+	options.extensions = AExtension.extensions;
+	options.contentId = AExtension.contentId;
+	options.notice = AExtension.notice;
+
 	if (AWindow->streamJid() && AWindow->contactJid() ? AWindow->contactJid() != AMessage.to() : !(AWindow->contactJid() && AMessage.to()))
 		options.direction = IMessageContentOptions::DirectionIn;
 	else
@@ -973,10 +943,13 @@ QUuid SmsMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message &
 		options.type |= IMessageContentOptions::History;
 	}
 
-	options.action = AExtension.action;
-	options.extensions = AExtension.extensions;
-	options.contentId = AExtension.contentId;
-	options.notice = AExtension.notice;
+	if (AMessage.type() == Message::Error)
+	{
+		ErrorHandler err(AMessage.stanza().element());
+		options.extensions = IMessageContentOptions::Error;
+		options.status = IMessageContentOptions::ErrorMessage;
+		options.notice = tr("An error message received: %1").arg(err.message());
+	}
 
 	fillContentOptions(AWindow,options);
 	showDateSeparator(AWindow,AMessage.dateTime().date());
@@ -1000,7 +973,7 @@ void SmsMessageHandler::onMessageReady()
 	if (window)
 	{
 		Message message;
-		message.setTo(window->contactJid().eFull()).setType(Message::Chat).setId(FStanzaProcessor->newId());
+		message.setTo(window->contactJid().full()).setType(Message::Chat).setId(FStanzaProcessor->newId());
 		FMessageProcessor->textToMessage(message,window->editWidget()->document());
 		if (!message.body().trimmed().isEmpty())
 		{

@@ -1,8 +1,8 @@
 #include "addfacebookaccountdialog.h"
 
-#include <QDebug>
 #include <QWebFrame>
 #include <QTextDocument>
+#include <QNetworkRequest>
 #include <QDesktopServices>
 
 #define AUTH_HOST "fb.tx.contacts.rambler.ru"
@@ -10,9 +10,29 @@
 AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose,true);
 	setWindowModality(AParent ? Qt::WindowModal : Qt::NonModal);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_GATEWAYS_ADDFACEBOOKACCOUNTDIALOG);
+
+	setMaximumSize(500,500);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setAttribute(Qt::WA_DeleteOnClose, true);
+		border->setMaximizeButtonVisible(false);
+		border->setMinimizeButtonVisible(false);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+		border->setResizable(false);
+
+	}
+	else
+	{
+		setAttribute(Qt::WA_DeleteOnClose,true);
+		ui.lblCaption->setVisible(false);
+		layout()->setContentsMargins(0, 0, 0, 0);
+	}
 
 	FPresence = APresence;
 	FGateways = AGateways;
@@ -20,8 +40,6 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 
 	FServiceJid = AServiceJid;
 	FAbortMessage = tr("The service is temporarily unavailable, please try to connect later.");
-
-	setMaximumSize(500,500);
 
 	if (FPresence->xmppStream() && FPresence->xmppStream()->connection())
 	{
@@ -43,7 +61,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(FRegistration->instance(),SIGNAL(registerError(const QString &, const QString &, const QString &)),
 		SLOT(onRegisterError(const QString &, const QString &, const QString &)));
 
-	LogDetaile(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
+	LogDetail(QString("[AddLegacyAccountDialog][%1] Sending registration fields request").arg(FServiceJid.full()));
 	FRegisterId = FRegistration->sendRegiterRequest(FPresence->streamJid(),FServiceJid);
 	if (FRegisterId.isEmpty())
 		abort(FAbortMessage);
@@ -73,7 +91,7 @@ void AddFacebookAccountDialog::checkResult()
 			if (submit.serviceJid.isValid())
 			{
 				FGateways->sendLogPresence(FPresence->streamJid(),FServiceJid,false);
-				LogDetaile(QString("[AddFacebookAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
+				LogDetail(QString("[AddFacebookAccountDialog][%1] Sending registration submit").arg(FServiceJid.full()));
 				FRegisterId = FRegistration->sendSubmit(FPresence->streamJid(),submit);
 				if (FRegisterId.isEmpty())
 					abort(FAbortMessage);
@@ -95,7 +113,7 @@ void AddFacebookAccountDialog::checkResult()
 			}
 			else
 			{
-				LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
+				LogDetail(QString("[AddFacebookAccountDialog][%1] Registration canceled by user").arg(FServiceJid.full()));
 				reject();
 			}
 		}
@@ -135,11 +153,9 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		FGateLogin = FGateways->serviceLogin(FPresence->streamJid(),FServiceJid,AFields);
 		if (FGateLogin.isValid)
 		{
-			LogDetaile(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
-			QUrl request;
-			request.setScheme("http");
-			request.setHost(AUTH_HOST);
-			request.setPath("auth");
+			LogDetail(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
+			QNetworkRequest request(QUrl("http://"AUTH_HOST"/auth"));
+			request.setRawHeader("Accept-Encoding","identity");
 			ui.wbvView->load(request);
 		}
 		else
@@ -154,7 +170,7 @@ void AddFacebookAccountDialog::onRegisterSuccess(const QString &AId)
 {
 	if (AId == FRegisterId)
 	{
-		LogDetaile(QString("[AddFacebookAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
+		LogDetail(QString("[AddFacebookAccountDialog][%1] Registration finished successfully, id='%2'").arg(FServiceJid.full(),AId));
 		accept();
 	}
 }

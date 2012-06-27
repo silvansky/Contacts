@@ -598,18 +598,22 @@ QIcon MetaTabWindow::createNotifyBalloon(int ACount) const
 {
 	QPixmap balloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(MNI_METACONTACTS_NOTIFY_BALOON, 0));
 	QPainter painter(&balloon);
-	// TODO: make this customizable through style sheets/properties
 	QFont f = painter.font();
-	f.setPointSize(7);
-	f.setBold(true);
+	f.setPointSize(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_FONT_SIZE));
+	f.setBold(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleBool(SV_MTW_NOTIFY_BALLOON_FONT_BOLD));
 	painter.setFont(f);
 	QPen pen = painter.pen();
-	pen.setColor(QColor::fromRgb(55, 61, 67));
+	pen.setColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_MTW_NOTIFY_BALLOON_COLOR));
 	painter.setPen(pen);
 	QString text = QString::number(ACount);
 	QSize textSize = painter.fontMetrics().size(Qt::TextSingleLine, text);
 	QRect textRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, textSize, balloon.rect());
-	textRect.moveTopLeft(textRect.topLeft() + QPoint(0, -1)); // some magic numbers... may change
+
+	// reading offset from style...
+	static const int xOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_X);
+	static const int yOffset = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_MTW_NOTIFY_BALLOON_TEXT_OFFSET_Y);
+
+	textRect.moveTopLeft(textRect.topLeft() + QPoint(xOffset, yOffset));
 	painter.drawText(textRect,text);
 	QIcon icon;
 	icon.addPixmap(balloon);
@@ -639,7 +643,7 @@ void MetaTabWindow::updateItemPages(const QSet<Jid> &AItems)
 		{
 			QString pageId = insertPage(descriptor.metaOrder,descriptor.combine);
 			setPageIcon(pageId,descriptor.icon);
-			setPageName(pageId,FMetaContacts->itemHint(itemJid));
+			setPageName(pageId,FMetaContacts->itemFormattedLogin(itemJid));
 
 			FItemPages.insert(itemJid,pageId);
 			FItemTypeCount[descriptor.metaOrder]++;
@@ -711,7 +715,7 @@ void MetaTabWindow::createItemContextMenu(const Jid &AItemJid, Menu *AMenu) cons
 		Action *deleteAction = new Action(AMenu);
 		deleteAction->setText(tr("Delete"));
 		deleteAction->setData(ADR_ITEM_JID,AItemJid.pBare());
-		deleteAction->setEnabled(FMetaRoster->isOpen());
+		deleteAction->setEnabled(FMetaRoster->isOpen() && !(FMetaContacts->editMetaContactRestrictions(FMetaRoster->streamJid(),FMetaId,AItemJid) & GSR_DELETE_CONTACT));
 		connect(deleteAction,SIGNAL(triggered(bool)),SLOT(onDeleteItemByAction(bool)));
 		AMenu->addAction(deleteAction,AG_MCICM_ITEM_ACTIONS);
 	}
@@ -855,47 +859,58 @@ bool MetaTabWindow::eventFilter(QObject *AObject, QEvent *AEvent)
 			QToolButton *button = FPageButtons.value(currentPage());
 			if (button)
 			{
+				ui.tlbToolBar->removeEventFilter(this);
+				QApplication::sendEvent(ui.tlbToolBar, AEvent);
+				ui.tlbToolBar->installEventFilter(this);
+
+				QImage triangle = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE);
+
 				QPainter p(ui.tlbToolBar);
 				QSize sz = ui.tlbToolBar->size();
 				int buttonCenter = button->width() / 2 + button->geometry().left();
-				QImage triangle = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_MESSAGEWIDGETS_TABWINDOW_TRIANGLE);
 				p.drawImage(buttonCenter - triangle.width() / 2, sz.height() - triangle.height(), triangle);
-				QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
+
 				QRect sourceRect(0, 0, 1, triangle.height());
+				QRect targetRect(0, sz.height() - triangle.height(), buttonCenter - triangle.width() / 2, triangle.height());
 				p.drawImage(targetRect, triangle, sourceRect);
-				targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
+
 				sourceRect = QRect(triangle.width() - 1, 0, 1, triangle.height());
+				targetRect = QRect(buttonCenter + triangle.width() / 2, sz.height() - triangle.height(), sz.width() - buttonCenter - triangle.width() / 2, triangle.height());
 				p.drawImage(targetRect, triangle, sourceRect);
+
 				p.end();
+				return true;
 			}
 		}
-
-		QToolButton *button = qobject_cast<QToolButton *>(AObject);
-		if (button)
+		else
 		{
-			button->removeEventFilter(this);
-			QApplication::sendEvent(button, AEvent);
-			button->installEventFilter(this);
-
-			QIcon notifyBalloon = button->property("notifyBalloon").value<QIcon>();
-			QPainter p(button);
-			if (!notifyBalloon.isNull())
+			QToolButton *button = qobject_cast<QToolButton *>(AObject);
+			if (button)
 			{
-				QSize notifySize = notifyBalloon.availableSizes().at(0);
-				QRect notifyRect = QRect(button->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
-				p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
-			}
+				button->removeEventFilter(this);
+				QApplication::sendEvent(button, AEvent);
+				button->installEventFilter(this);
 
-			QImage statusIcon = button->property("statusIcon").value<QImage>();
-			if (!statusIcon.isNull())
-			{
-				QSize iconSize = statusIcon.size();
-				QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
-				p.drawImage(iconRect, statusIcon);
-			}
+				QIcon notifyBalloon = button->property("notifyBalloon").value<QIcon>();
+				QPainter p(button);
+				if (!notifyBalloon.isNull())
+				{
+					QSize notifySize = notifyBalloon.availableSizes().at(0);
+					QRect notifyRect = QRect(button->width() - notifySize.width(), 0, notifySize.width(), notifySize.height());
+					p.drawPixmap(notifyRect, notifyBalloon.pixmap(notifySize));
+				}
 
-			p.end();
-			return true;
+				QImage statusIcon = button->property("statusIcon").value<QImage>();
+				if (!statusIcon.isNull())
+				{
+					QSize iconSize = statusIcon.size();
+					QRect iconRect = QRect(button->width() - iconSize.width(), button->height() - iconSize.height(), iconSize.width(), iconSize.height());
+					p.drawImage(iconRect, statusIcon);
+				}
+
+				p.end();
+				return true;
+			}
 		}
 	}
 	return QMainWindow::eventFilter(AObject, AEvent);
@@ -1026,7 +1041,7 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 	if (action)
 	{
 		Jid itemJid = action->data(ADR_ITEM_JID).toString();
-		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemHint(itemJid)));
+		QString title = tr("Remove contact '%1'").arg(Qt::escape(FMetaContacts->itemFormattedLogin(itemJid)));
 		QString message = tr("All contacts and communication history with that person will be removed. Operation can not be undone.");
 
 		CustomInputDialog *dialog = new CustomInputDialog(CustomInputDialog::None);
@@ -1036,17 +1051,17 @@ void MetaTabWindow::onDeleteItemByAction(bool)
 		dialog->setAcceptButtonText(tr("Remove"));
 		dialog->setRejectButtonText(tr("Cancel"));
 		dialog->setProperty("itemJid", itemJid.bare());
-		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemConfirmed()));
+		connect(dialog, SIGNAL(accepted()), SLOT(onDeleteItemDialogAccepted()));
 		dialog->show();
 	}
 }
 
-void MetaTabWindow::onDeleteItemConfirmed()
+void MetaTabWindow::onDeleteItemDialogAccepted()
 {
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog*>(sender());
 	if (dialog)
 	{
-		FMetaContacts->deleteContactWithNotify(FMetaRoster, FMetaId, dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster->streamJid(), FMetaId, dialog->property("itemJid").toString());
 		dialog->deleteLater();
 	}
 }

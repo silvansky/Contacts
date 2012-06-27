@@ -5,8 +5,12 @@
 #include <QVBoxLayout>
 #include <QDesktopServices>
 #include <utils/graphicseffectsstorage.h>
+#include <utils/custombordercontainer.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/menuicons.h>
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
 
 #define BIRTHDAY_META_ORDER     -10
 #define MAX_STATUS_TEXT_SIZE    60
@@ -14,18 +18,12 @@
 MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContacts *AMetaContacts, IMetaRoster *AMetaRoster, const QString &AMetaId, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	setMinimumWidth(400);
+	ui.lblName->setProperty(CBC_IGNORE_FILTER, true);
+	ui.lblStatusText->setProperty(CBC_IGNORE_FILTER, true);
+	ui.lblName->setElideMode(Qt::ElideRight);
+	ui.lblStatusText->setElideMode(Qt::ElideRight);
+	ui.lblStatusText->setMultilineElideEnabled(true);
 	setWindowIconText(tr("Contact Profile"));
-
-	FGateways = NULL;
-	FStatusIcons = NULL;
-	FStatusChanger = NULL;
-	FRosterChanger = NULL;
-	FVCardPlugin = NULL;
-
-	FMetaId = AMetaId;
-	FMetaRoster = AMetaRoster;
-	FMetaContacts = AMetaContacts;
 
 	FBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (FBorder)
@@ -41,11 +39,23 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	}
 	else
+	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
 
-	ui.sawContents->setLayout(new QVBoxLayout);
-	ui.sawContents->layout()->setSpacing(10);
-	ui.sawContents->layout()->setContentsMargins(0,10,0,0);
+	FGateways = NULL;
+	FStatusIcons = NULL;
+	FStatusChanger = NULL;
+	FRosterChanger = NULL;
+	FVCardPlugin = NULL;
+
+	FMetaId = AMetaId;
+	FMetaRoster = AMetaRoster;
+	FMetaContacts = AMetaContacts;
+
+	ui.wdtMetaItems->setLayout(new QVBoxLayout);
+	ui.wdtMetaItems->layout()->setSpacing(10);
+	ui.wdtMetaItems->layout()->setContentsMargins(0,10,0,0);
 
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_METACONTACTS_METAPROFILEDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
@@ -58,7 +68,8 @@ MetaProfileDialog::MetaProfileDialog(IPluginManager *APluginManager, IMetaContac
 
 #ifdef Q_WS_MAC
 	ui.buttonsLayout->setSpacing(16);
-	ui.buttonsLayout->addWidget(ui.pbtAddContact);
+	//ui.buttonsLayout->addWidget(ui.pbtAddContact);
+	setWindowGrowButtonEnabled(this->window(), false);
 #endif
 
 	ui.pbtClose->setFocus();
@@ -146,10 +157,10 @@ void MetaProfileDialog::updateBirthday()
 	if (birthday.isValid())
 	{
 		MetaContainer &container = FMetaContainers[BIRTHDAY_META_ORDER];
-		container.metaWidget = new QWidget(ui.sawContents);
+		container.metaWidget = new QWidget(ui.wdtMetaItems);
 		container.metaWidget->setLayout(new QHBoxLayout);
 		container.metaWidget->layout()->setMargin(0);
-		ui.sawContents->layout()->addWidget(container.metaWidget);
+		ui.wdtMetaItems->layout()->addWidget(container.metaWidget);
 
 		container.metaLabel = new QLabel(tr("Birthday:"),container.metaWidget);
 		container.metaWidget->layout()->addWidget(container.metaLabel);
@@ -173,9 +184,10 @@ void MetaProfileDialog::updateStatusText()
 	else
 		status = FMetaRoster->metaPresenceItem(FMetaId).status;
 
-	QString text = status.left(MAX_STATUS_TEXT_SIZE);
-	text += text.size() < status.size() ? "..." : "";
-	ui.lblStatusText->setText(text);
+	//QString text = status.left(MAX_STATUS_TEXT_SIZE);
+	//text += text.size() < status.size() ? "..." : "";
+	//ui.lblStatusText->setText(text);
+	ui.lblStatusText->setText(status);
 }
 
 void MetaProfileDialog::updateLeftLabelsSizes()
@@ -200,15 +212,18 @@ QString MetaProfileDialog::metaLabelText(const IMetaItemDescriptor &ADescriptor)
 
 QString MetaProfileDialog::metaItemLink(const Jid &AItemJid, const IMetaItemDescriptor &ADescriptor) const
 {
-	if (ADescriptor.metaOrder == MIO_VKONTAKTE)
+	if (FGateways)
 	{
-		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
-		return QString("http://vk.com/%1").arg(userId);
-	}
-	else if (ADescriptor.metaOrder == MIO_FACEBOOK)
-	{
-		QString userId = Jid(FMetaContacts->itemHint(AItemJid)).node();
-		return QString("http://www.facebook.com/profile.php?id=%1").arg(userId.right(userId.size()-1));
+		if (ADescriptor.metaOrder == MIO_VKONTAKTE)
+		{
+			QString userId = Jid(FGateways->legacyIdFromUserJid(streamJid(),AItemJid)).node();
+			return QString("http://vk.com/%1").arg(userId);
+		}
+		else if (ADescriptor.metaOrder == MIO_FACEBOOK)
+		{
+			QString userId = Jid(FGateways->legacyIdFromUserJid(streamJid(),AItemJid)).node();
+			return QString("http://www.facebook.com/profile.php?id=%1").arg(userId.right(userId.size()-1));
+		}
 	}
 	return QString::null;
 }
@@ -219,7 +234,7 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 	{
 		CloseButton *cbtDelete = AObject->findChild<CloseButton *>();
 		if (cbtDelete)
-			cbtDelete->setVisible(AEvent->type()==QEvent::Enter);
+			cbtDelete->setVisible(AEvent->type()==QEvent::Enter && cbtDelete->property("canDelete").toBool());
 	}
 	return QDialog::eventFilter(AObject,AEvent);
 }
@@ -227,7 +242,6 @@ bool MetaProfileDialog::eventFilter(QObject *AObject, QEvent *AEvent)
 void MetaProfileDialog::onAdjustDialogSize()
 {
 	updateLeftLabelsSizes();
-	ui.scaContacts->setFixedHeight(qMin(ui.sawContents->sizeHint().height(),350));
 	QTimer::singleShot(0,this,SLOT(onAdjustBorderSize()));
 }
 
@@ -287,7 +301,7 @@ void MetaProfileDialog::onDeleteContactDialogAccepted()
 	CustomInputDialog *dialog = qobject_cast<CustomInputDialog *>(sender());
 	if (dialog)
 	{
-		FMetaContacts->deleteContactWithNotify(FMetaRoster,FMetaId,dialog->property("itemJid").toString());
+		FMetaContacts->deleteContactWithNotify(FMetaRoster->streamJid(),FMetaId,dialog->property("itemJid").toString());
 	}
 }
 
@@ -300,7 +314,7 @@ void MetaProfileDialog::onMetaAvatarChanged(const QString &AMetaId)
 {
 	if (AMetaId == FMetaId)
 	{
-		QImage avatar = ImageManager::roundSquared(FMetaRoster->metaAvatarImage(FMetaId, true, false),48,2);
+		QImage avatar = ImageManager::roundSquared(FMetaRoster->metaAvatarImage(FMetaId, true, false), 48, 3);
 		if (avatar.isNull())
 			avatar = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_AVATAR_EMPTY_FEMALE, 1);
 		ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));
@@ -338,11 +352,11 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				MetaContainer &container = FMetaContainers[descriptor.metaOrder];
 				if (!container.metaWidget)
 				{
-					container.metaWidget = new QWidget(ui.sawContents);
-					container.metaWidget->setObjectName("metaWidget");
+					container.metaWidget = new QWidget(ui.wdtMetaItems);
+					container.metaWidget->setObjectName("wdtMetaWidget");
 					container.metaWidget->setLayout(new QHBoxLayout);
 					container.metaWidget->layout()->setMargin(0);
-					ui.sawContents->layout()->addWidget(container.metaWidget);
+					ui.wdtMetaItems->layout()->addWidget(container.metaWidget);
 
 					container.metaLabel = new QLabel(metaLabelText(descriptor)+":",container.metaWidget);
 					container.metaLabel->setObjectName("lblMetaLabel");
@@ -366,7 +380,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				container.itemsWidget->layout()->addWidget(wdtItem);
 				container.itemWidgets.insert(itemIt.value(),wdtItem);
 
-				QString itemName = FMetaContacts->itemHint(itemIt.value());
+				QString itemName = FMetaContacts->itemFormattedLogin(itemIt.value());
 				QString itemLink = metaItemLink(itemIt.value(),descriptor);
 				QLabel *lblItemName = new QLabel(wdtItem);
 				lblItemName->setTextFormat(Qt::RichText);
@@ -380,6 +394,8 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 				cbtDelete->setVisible(false);
 				cbtDelete->setProperty("itemJid",itemIt->bare());
 				cbtDelete->setProperty("itemName",itemName);
+				cbtDelete->setProperty("canDelete",(FMetaContacts->editMetaContactRestrictions(FMetaRoster->streamJid(),FMetaId,itemIt->bare()) & GSR_DELETE_CONTACT)==0);
+
 				connect(cbtDelete,SIGNAL(clicked()),SLOT(onDeleteContactButtonClicked()));
 				wdtItem->layout()->addWidget(cbtDelete);
 				wdtItem->layout()->setAlignment(cbtDelete,Qt::AlignCenter);
@@ -398,7 +414,7 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 
 				if (container.itemWidgets.isEmpty())
 				{
-					ui.sawContents->layout()->removeWidget(container.metaWidget);
+					ui.wdtMetaItems->layout()->removeWidget(container.metaWidget);
 					delete container.metaWidget;
 					FMetaContainers.remove(descriptor.metaOrder);
 				}
@@ -408,4 +424,3 @@ void MetaProfileDialog::onMetaContactReceived(const IMetaContact &AContact, cons
 		}
 	}
 }
-

@@ -13,7 +13,7 @@ LegacyAccountOptions::LegacyAccountOptions(IGateways *AGateways, const Jid &AStr
 	FServiceJid = AServiceJid;
 
 	FGateLabel = FGateways->serviceDescriptor(FStreamJid,FServiceJid);
-	ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.full());
+	ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.uFull());
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblIcon,FGateLabel.iconKey,0,0,"pixmap");
 
@@ -52,7 +52,10 @@ void LegacyAccountOptions::updateState(const IPresenceItem &APresenceItem, bool 
 	else if (APresenceItem.show == IPresence::Error)
 	{
 		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.lblInfo);
-		ui.lblInfo->setText(tr("Failed to connect"));
+		if (APresenceItem.errCondition == "not-authorized")
+			ui.lblInfo->setText(tr("The password is not suited to login"));
+		else
+			ui.lblInfo->setText(tr("Failed to connect"));
 		ui.lblInfo->setProperty("state",QString("error"));
 	}
 	else if (APresenceItem.show == IPresence::Offline)
@@ -115,13 +118,12 @@ void LegacyAccountOptions::onChangeButtonClicked(bool)
 {
 	QDialog *dialog = FGateways->showAddLegacyAccountDialog(FStreamJid,FServiceJid);
 	if (dialog)
-	{
 		connect(dialog,SIGNAL(accepted()),SLOT(onChangeDialogAccepted()));
-	}
 }
 
 void LegacyAccountOptions::onChangeDialogAccepted()
 {
+	FGateways->sendLogPresence(FStreamJid,FServiceJid,true);
 	FLoginRequest = FGateways->sendLoginRequest(FStreamJid,FServiceJid);
 }
 
@@ -151,7 +153,7 @@ void LegacyAccountOptions::onServiceLoginReceived(const QString &AId, const QStr
 		if (!ALogin.isEmpty())
 			ui.lblLogin->setText(ALogin);
 		else
-			ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.full());
+			ui.lblLogin->setText(!FGateLabel.id.isEmpty() ? FGateLabel.name : FServiceJid.uFull());
 	}
 }
 

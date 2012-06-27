@@ -1,16 +1,23 @@
 #include "optionsmanager.h"
 
-#include <QSettings>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QApplication>
 #include <QCryptographicHash>
 #include <definitions/customborder.h>
 
+#ifdef Q_WS_WIN
+# include <QSettings>
+#endif
+
 #define DIR_PROFILES                    "profiles"
 #define DIR_BINARY                      "binary"
 #define FILE_PROFILE                    "profile.xml"
+#define FILE_PROFILEDATA                "login.xml"
 #define FILE_OPTIONS                    "options.xml"
+#define FILE_OPTIONS_COPY               "options.xml.copy"
+#define FILE_OPTIONS_FAIL               "options.xml.fail"
+
 #define FILE_BLOCKER                    "blocked"
 
 #define PROFILE_VERSION                 "1.0"
@@ -18,7 +25,7 @@
 #define ADR_PROFILE                     Action::DR_Parametr1
 
 #define PST_OPTIONS                     "options"
-#define PSN_OPTIONS                     "ramblercontacts:options"
+#define PSN_OPTIONS                     "rambler:options"
 
 OptionsManager::OptionsManager()
 {
@@ -27,23 +34,24 @@ OptionsManager::OptionsManager()
 	FMainWindowPlugin = NULL;
 	FPrivateStorage = NULL;
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
+	FSystemIntegration = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
-	connect(&FAutoSaveTimer, SIGNAL(timeout()),SLOT(onAutoSaveTimerTimeout()));
+	connect(&FAutoSaveTimer, SIGNAL(timeout()),SLOT(onAutoSaveOptionsTimerTimeout()));
+
+	FServerOptionsTimer.setInterval(1000);
+	FServerOptionsTimer.setSingleShot(true);
+	connect(&FServerOptionsTimer, SIGNAL(timeout()),SLOT(onSaveServerOptionsTimerTimeout()));
 
 	qsrand(QDateTime::currentDateTime().toTime_t());
 }
 
 OptionsManager::~OptionsManager()
 {
-	if (FOptionsDialogBorder)
-		FOptionsDialogBorder->deleteLater();
-	else
-		delete FOptionsDialog;
+	if (FOptionsDialog)
+		FOptionsDialog->window()->deleteLater();
 }
 
 void OptionsManager::pluginInfo(IPluginInfo *APluginInfo)
@@ -83,20 +91,17 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 			connect(FPrivateStorage->instance(),SIGNAL(storageOpened(const Jid &)),SLOT(onPrivateStorageOpened(const Jid &)));
 			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
 				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),
+				SLOT(onPrivateStorageDataChanged(const Jid &, const QString &, const QString &)));
 			connect(FPrivateStorage->instance(),SIGNAL(storageAboutToClose(const Jid &)),SLOT(onPrivateStorageAboutToClose(const Jid &)));
 		}
 	}
-#ifdef Q_WS_MAC
-	plugin = APluginManager->pluginInterface("IMacIntegration").value(0,NULL);
+
+	plugin = APluginManager->pluginInterface("ISystemIntegration").value(0,NULL);
 	if (plugin)
 	{
-		FMacIntegration = qobject_cast<IMacIntegration *>(plugin->instance());
-		if (FMacIntegration)
-		{
-
-		}
+		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
 	}
-#endif
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
 
@@ -122,17 +127,18 @@ bool OptionsManager::initObjects()
 	FShowOptionsDialogAction->setData(Action::DR_SortString,QString("300"));
 	connect(FShowOptionsDialogAction,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 
-#ifdef Q_WS_MAC
-	if (FMacIntegration)
+	if (FSystemIntegration)
 	{
 		Action * menuBarSettings = new Action;
 		menuBarSettings->setText("settings");
 		menuBarSettings->setShortcut(tr("Ctrl+,"));
 		connect(menuBarSettings,SIGNAL(triggered(bool)),SLOT(onShowOptionsDialogByAction(bool)));
 		menuBarSettings->setMenuRole(QAction::PreferencesRole);
-		FMacIntegration->fileMenu()->addAction(menuBarSettings);
+		FSystemIntegration->addAction(ISystemIntegration::FileRole, menuBarSettings);
+
+		FChangeProfileAction->setMenuRole(QAction::ApplicationSpecificRole);
+		FSystemIntegration->addAction(ISystemIntegration::FileRole, FChangeProfileAction);
 	}
-#endif
 
 	if (FMainWindowPlugin)
 	{
@@ -140,10 +146,12 @@ bool OptionsManager::initObjects()
 		FMainWindowPlugin->mainWindow()->mainMenu()->addAction(FChangeProfileAction,AG_MMENU_OPTIONS_CHANGEPROFILE,true);
 	}
 
+#ifndef Q_WS_MAC
 	if (FTrayManager)
 	{
 		FTrayManager->contextMenu()->addAction(FShowOptionsDialogAction,AG_TMTM_OPTIONS_DIALOG,true);
 	}
+#endif
 
 	return true;
 }
@@ -152,9 +160,19 @@ bool OptionsManager::initSettings()
 {
 	Options::setDefaultValue(OPV_MISC_AUTOSTART, false);
 	Options::setDefaultValue(OPV_MISC_OPTIONS_SAVE_ON_SERVER, true);
-	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
+	Options::setDefaultValue(OPV_MISC_CUSTOMBORDERSENABLED, CustomBorderStorage::isBordersEnabled());
 
+#ifdef Q_WS_MAC
+	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_GATEWAYS));
+#else
+	Options::setDefaultValue(OPV_MISC_OPTIONS_DIALOG_LASTNODE, QString(OPN_COMMON));
+#endif
+
+#ifdef Q_WS_MAC
+	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Synchronization"), MNI_OPTIONS_DIALOG };
+#else
 	IOptionsDialogNode dnode = { ONO_COMMON, OPN_COMMON, tr("Common Settings"), MNI_OPTIONS_DIALOG };
+#endif
 	insertOptionsDialogNode(dnode);
 	insertOptionsHolder(this);
 
@@ -177,11 +195,25 @@ QMultiMap<int, IOptionsWidget *> OptionsManager::optionsWidgets(const QString &A
 	QMultiMap<int, IOptionsWidget *> widgets;
 	if (ANodeId == OPN_COMMON)
 	{
-		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+#ifndef Q_WS_MAC
+		widgets.insertMulti(OWO_COMMON, optionsHeaderWidget(QString::null, tr("Common settings"), AParent));
+#endif
+#ifdef Q_WS_WIN
 		widgets.insertMulti(OWO_COMMON_AUTOSTART, optionsNodeWidget(Options::node(OPV_MISC_AUTOSTART), tr("Launch application on system start up"), AParent));
+#endif
 
+#if defined(Q_WS_X11) || defined(DEBUG_ENABLED)
+		if (CustomBorderStorage::isBordersAvail())
+			widgets.insertMulti(OWO_COMMON_BORDERSENABLE, optionsNodeWidget(Options::node(OPV_MISC_CUSTOMBORDERSENABLED), tr("Enable windows customization (restart required)"), AParent));
+#endif
+
+#ifndef Q_WS_MAC
 		widgets.insertMulti(OWO_COMMON_SINC, optionsHeaderWidget(QString::null, tr("Backing store your chat history and preferences"), AParent));
+#endif
 		widgets.insertMulti(OWO_COMMON_SINC_OPTIONS, optionsNodeWidget(Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER), tr("Sync preferences on my several computers"), AParent));
+
+		widgets.insertMulti(OWO_COMMON_LOCALE, optionsHeaderWidget(QString::null, tr("Interface language"), AParent));
+		widgets.insertMulti(OWO_COMMON_LOCALE_SELECT, new LocaleOptionsWidget(AParent));
 	}
 	return widgets;
 }
@@ -246,7 +278,7 @@ bool OptionsManager::setCurrentProfile(const QString &AProfile, const QString &A
 	}
 	else if (checkProfilePassword(AProfile, APassword))
 	{
-		LogDetaile(QString("[OptionsManager] Changing current profile to '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Changing current profile to '%1'").arg(AProfile));
 
 		closeProfile();
 		FProfileLocker = new QtLockedFile(QDir(profilePath(AProfile)).absoluteFilePath(FILE_BLOCKER));
@@ -256,11 +288,27 @@ bool OptionsManager::setCurrentProfile(const QString &AProfile, const QString &A
 			if (!profileDir.exists(DIR_BINARY))
 				profileDir.mkdir(DIR_BINARY);
 
+			// Loading options from file
 			QFile optionsFile(profileDir.filePath(FILE_OPTIONS));
 			if (!optionsFile.open(QFile::ReadOnly) || !FProfileOptions.setContent(optionsFile.readAll(),true))
 			{
-				FProfileOptions.clear();
-				FProfileOptions.appendChild(FProfileOptions.createElement("options")).toElement();
+				// Trying to open valid copy of options
+				optionsFile.close();
+				optionsFile.setFileName(profileDir.filePath(FILE_OPTIONS_COPY));
+				if (!optionsFile.open(QFile::ReadOnly) || !FProfileOptions.setContent(optionsFile.readAll(),true))
+				{
+					FProfileOptions.clear();
+					FProfileOptions.appendChild(FProfileOptions.createElement("options")).toElement();
+				}
+				// Renaming invalid options file
+				QFile::remove(profileDir.filePath(FILE_OPTIONS_FAIL));
+				QFile::rename(profileDir.filePath(FILE_OPTIONS),profileDir.filePath(FILE_OPTIONS_FAIL));
+			}
+			else
+			{
+				// Saving the copy of valid options
+				QFile::remove(profileDir.filePath(FILE_OPTIONS_COPY));
+				QFile::copy(profileDir.filePath(FILE_OPTIONS),profileDir.filePath(FILE_OPTIONS_COPY));
 			}
 			optionsFile.close();
 
@@ -296,6 +344,58 @@ QByteArray OptionsManager::profileKey(const QString &AProfile, const QString &AP
 		return Options::decrypt(keyValue, QCryptographicHash::hash(APassword.toUtf8(),QCryptographicHash::Md5)).toByteArray();
 	}
 	return QByteArray();
+}
+
+QMap<QString, QVariant> OptionsManager::profileData(const QString &AProfile) const
+{
+	QMap<QString,QVariant> data;
+	if (profiles().contains(AProfile))
+	{
+		QDomDocument doc;
+		QFile login(QDir(profilePath(AProfile)).absoluteFilePath(FILE_PROFILEDATA));
+		if (login.open(QFile::ReadOnly) && doc.setContent(&login))
+		{
+			QDomElement elem = doc.documentElement().firstChildElement();
+			while(!elem.isNull())
+			{
+				data.insert(elem.tagName(),elem.text());
+				elem = elem.nextSiblingElement();
+			}
+		}
+		login.close();
+	}
+	return data;
+}
+
+bool OptionsManager::setProfileData(const QString &AProfile, const QMap<QString, QVariant> &AData)
+{
+	if (profiles().contains(AProfile))
+	{
+		QFile login(QDir(profilePath(AProfile)).absoluteFilePath(FILE_PROFILEDATA));
+		if (login.open(QFile::WriteOnly|QFile::Truncate))
+		{
+			QDomDocument doc;
+			doc.appendChild(doc.createElement("profile-data"));
+
+			for(QMap<QString, QVariant>::const_iterator it=AData.constBegin(); it!=AData.constEnd(); it++)
+				doc.documentElement().appendChild(doc.createElement(it.key())).appendChild(doc.createTextNode(it->toString()));
+
+			login.write(doc.toByteArray());
+			login.close();
+			return true;
+		}
+	}
+	return false;
+}
+
+bool OptionsManager::setProfileData(const QString &AProfile, const QString &AKey, const QVariant &AValue)
+{
+	QMap<QString, QVariant> data = profileData(AProfile);
+	if (AValue.isValid())
+		data.insert(AKey,AValue);
+	else
+		data.remove(AKey);
+	return setProfileData(AProfile,data);
 }
 
 bool OptionsManager::checkProfilePassword(const QString &AProfile, const QString &APassword) const
@@ -360,7 +460,7 @@ bool OptionsManager::addProfile(const QString &AProfile, const QString &APasswor
 {
 	if (!profiles().contains(AProfile))
 	{
-		LogDetaile(QString("[OptionsManager] Creating new profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Creating new profile '%1'").arg(AProfile));
 		if (FProfilesDir.exists(AProfile) || FProfilesDir.mkdir(AProfile))
 		{
 			QDomDocument profileDoc;
@@ -388,6 +488,7 @@ bool OptionsManager::addProfile(const QString &AProfile, const QString &APasswor
 		else
 		{
 			LogError(QString("[OptionsManager] Failed to create profile directory '%1'").arg(FProfilesDir.absoluteFilePath(AProfile)));
+			ReportError("FAILED-CREATE-PROFILE-DIR",QString("[OptionsManager] Failed to create profile directory '%1'").arg(FProfilesDir.absoluteFilePath(AProfile)),false);
 		}
 	}
 	return false;
@@ -408,7 +509,7 @@ bool OptionsManager::removeProfile(const QString &AProfile)
 	QDir profileDir(profilePath(AProfile));
 	if (profileDir.exists())
 	{
-		LogDetaile(QString("[OptionsManager] Removing profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Removing profile '%1'").arg(AProfile));
 
 		if (AProfile == currentProfile())
 			closeProfile();
@@ -442,31 +543,19 @@ void OptionsManager::removeServerOption(const QString &APath)
 	FServerOptions.removeAll(APath);
 }
 
+bool OptionsManager::isLoginDialogVisible() const
+{
+	return FLoginDialog!=NULL && FLoginDialog->isVisible();
+}
+
 QDialog *OptionsManager::showLoginDialog(QWidget *AParent)
 {
 	if (!FLoginDialog)
 	{
 		FLoginDialog = new LoginDialog(FPluginManager,AParent);
-		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
 		connect(FLoginDialog,SIGNAL(accepted()),SLOT(onLoginDialogAccepted()));
-		if (FLoginDialogBorder)
-			FLoginDialogBorder->deleteLater();
-		FLoginDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FLoginDialog, CBS_DIALOG);
-		if (FLoginDialogBorder)
-		{
-			FLoginDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
-			FLoginDialogBorder->setResizable(false);
-			FLoginDialogBorder->setMinimizeButtonVisible(false);
-			FLoginDialogBorder->setMaximizeButtonVisible(false);
-			connect(FLoginDialogBorder, SIGNAL(closeClicked()), FLoginDialog, SLOT(reject()));
-			connect(FLoginDialog, SIGNAL(accepted()), FLoginDialogBorder, SLOT(close()));
-			connect(FLoginDialog, SIGNAL(rejected()), FLoginDialogBorder, SLOT(close()));
-		}
-		WidgetManager::showActivateRaiseWindow(FLoginDialogBorder ? (QWidget*)FLoginDialogBorder: (QWidget*)FLoginDialog);
-		if (FLoginDialogBorder)
-			FLoginDialogBorder->adjustSize();
-		else
-			FLoginDialog->adjustSize();
+		connect(FLoginDialog,SIGNAL(rejected()),SLOT(onLoginDialogRejected()));
+		WidgetManager::showActivateRaiseWindow(FLoginDialog->window());
 	}
 	return FLoginDialog;
 }
@@ -530,29 +619,11 @@ QWidget *OptionsManager::showOptionsDialog(const QString &ANodeId, QWidget *APar
 			FOptionsDialog = new OptionsDialog(this,AParent);
 			connect(FOptionsDialog, SIGNAL(applied()), SLOT(onOptionsDialogApplied()));
 			connect(FOptionsDialog, SIGNAL(dialogDestroyed()), SLOT(onOptionsDialogDestroyed()));
-			FOptionsDialogBorder = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(FOptionsDialog, CBS_OPTIONSDIALOG);
-			if (FOptionsDialogBorder)
-			{
-				FOptionsDialogBorder->setAttribute(Qt::WA_DeleteOnClose, true);
-				FOptionsDialogBorder->setMaximizeButtonVisible(false);
-				FOptionsDialogBorder->setResizable(false);
-				FOptionsDialogBorder->setMinimumSize(FOptionsDialog->minimumSize() + QSize(FOptionsDialogBorder->leftBorderWidth() + FOptionsDialogBorder->rightBorderWidth(), FOptionsDialogBorder->topBorderWidth() + FOptionsDialogBorder->bottomBorderWidth()));
-				connect(FOptionsDialog, SIGNAL(accepted()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialog, SIGNAL(rejected()), FOptionsDialogBorder, SLOT(closeWidget()));
-				connect(FOptionsDialogBorder, SIGNAL(closeClicked()), FOptionsDialog, SLOT(reject()));
-			}
 		}
 		FOptionsDialog->showNode(ANodeId.isNull() ? Options::node(OPV_MISC_OPTIONS_DIALOG_LASTNODE).value().toString() : ANodeId);
-		WidgetManager::showActivateRaiseWindow(FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog);
-		FOptionsDialog->adjustSize();
-		FOptionsDialog->layout()->update();
-		if (FOptionsDialogBorder)
-		{
-			FOptionsDialogBorder->layout()->update();
-			FOptionsDialogBorder->adjustSize();
-		}
+		WidgetManager::showActivateRaiseWindow(FOptionsDialog->window());
 	}
-	return FOptionsDialogBorder ? (QWidget*)FOptionsDialogBorder : (QWidget*)FOptionsDialog;
+	return FOptionsDialog->window();
 }
 
 IOptionsWidget *OptionsManager::optionsHeaderWidget(const QString &AIconKey, const QString &ACaption, QWidget *AParent) const
@@ -569,12 +640,13 @@ void OptionsManager::openProfile(const QString &AProfile, const QString &APasswo
 {
 	if (!isOpened())
 	{
-		LogDetaile(QString("[OptionsManager] Opening profile '%1'").arg(AProfile));
+		LogDetail(QString("[OptionsManager] Opening profile '%1'").arg(AProfile));
 		FProfile = AProfile;
 		FProfileKey = profileKey(AProfile, APassword);
 		Options::setOptions(FProfileOptions, profilePath(AProfile) + "/" DIR_BINARY, FProfileKey);
+		Options::node(OPV_MISC_CUSTOMBORDERSENABLED).setValue(CustomBorderStorage::isBordersEnabled());
 		FShowOptionsDialogAction->setVisible(true);
-		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).node()));
+		FChangeProfileAction->setText(tr("Change User (%1)").arg(Jid(Jid::decode(AProfile)).uNode()));
 		emit profileOpened(AProfile);
 	}
 }
@@ -599,13 +671,13 @@ void OptionsManager::closeProfile()
 {
 	if (isOpened())
 	{
-		LogDetaile(QString("[OptionsManager] Closing profile '%1'").arg(currentProfile()));
+		LogDetail(QString("[OptionsManager] Closing profile '%1'").arg(currentProfile()));
 		emit profileClosed(currentProfile());
 		FAutoSaveTimer.stop();
 		if (FOptionsDialog)
 		{
-			if (FOptionsDialogBorder)
-				FOptionsDialogBorder->closeWidget();
+			if (CustomBorderStorage::isBordered(FOptionsDialog))
+				CustomBorderStorage::widgetBorder(FOptionsDialog)->closeWidget();
 			else
 				FOptionsDialog->close();
 		}
@@ -628,7 +700,7 @@ bool OptionsManager::saveOptions() const
 	if (isOpened())
 	{
 		QFile file(QDir(profilePath(currentProfile())).filePath(FILE_OPTIONS));
-		LogDetaile(QString("[OptionsManager] Saving options to file '%1'").arg(file.fileName()));
+		LogDetail(QString("[OptionsManager] Saving options to file '%1'").arg(file.fileName()));
 		if (file.open(QIODevice::WriteOnly|QIODevice::Truncate))
 		{
 			file.write(FProfileOptions.toString(2).toUtf8());
@@ -638,6 +710,7 @@ bool OptionsManager::saveOptions() const
 		else
 		{
 			LogError(QString("[OptionsManager] Failed to save options to file '%1'").arg(file.fileName()));
+			ReportError("FAILED-SAVE-OPTIONS",QString("[OptionsManager] Failed to save options to file '%1'").arg(file.fileName()),false);
 		}
 	}
 	return false;
@@ -645,16 +718,21 @@ bool OptionsManager::saveOptions() const
 
 bool OptionsManager::loadServerOptions(const Jid &AStreamJid)
 {
-	if (FPrivateStorage && AStreamJid.isValid())
+	if (FPrivateStorage && AStreamJid.isValid() && Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
 	{
-		return !FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).isEmpty();
+		LogDetail(QString("[OptionsManager] Loading options from server"));
+		if (FPrivateStorage->loadData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).isEmpty())
+			LogError(QString("[OptionsManager] Failed to load options from server"));
+		else
+			return true;
 	}
 	return false;
 }
 
 bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 {
-	if (FPrivateStorage && AStreamJid.isValid())
+	FServerOptionsTimer.stop();
+	if (FPrivateStorage && AStreamJid.isValid() && Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
 	{
 		QDomDocument doc;
 		doc.appendChild(doc.createElement("options"));
@@ -668,7 +746,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 		foreach(QString path, FServerOptions)
 			Options::exportNode(path,root);
 
-		LogDetaile(QString("[OptionsManager] Saving server options"));
+		LogDetail(QString("[OptionsManager] Saving server options"));
 		if (FPrivateStorage->saveData(AStreamJid,root).isEmpty())
 			LogError(QString("[OptionsManager] Failed to save server options"));
 		else
@@ -699,8 +777,32 @@ void OptionsManager::onOptionsChanged(const OptionsNode &ANode)
 			reg.setValue(CLIENT_NAME, QDir::toNativeSeparators(QApplication::applicationFilePath()));
 		else
 			reg.remove(CLIENT_NAME);
+		setProfileData(currentProfile(),"auto-run",ANode.value().toBool());
 #endif
 	}
+	else if (ANode.path() == OPV_MISC_CUSTOMBORDERSENABLED)
+	{
+		if (ANode.value().toBool() != CustomBorderStorage::isBordersEnabled())
+		{
+			CustomBorderStorage::setBordersEnabled(ANode.value().toBool());
+			QTimer::singleShot(0, FPluginManager->instance(), SLOT(restart()));
+		}
+	}
+	else if (ANode.path() == OPV_MISC_OPTIONS_SAVE_ON_SERVER)
+	{
+		if (ANode.value().toBool())
+			loadServerOptions(FOptionsStreamJid);
+	}
+
+	foreach(QString path, FServerOptions)
+	{
+		if(Options::node(path).isChildNode(ANode))
+		{
+			FServerOptionsTimer.start();
+			break;
+		}
+	}
+
 	FAutoSaveTimer.start();
 }
 
@@ -712,7 +814,6 @@ void OptionsManager::onOptionsDialogApplied()
 void OptionsManager::onOptionsDialogDestroyed()
 {
 	FOptionsDialog = NULL;
-	FOptionsDialogBorder = NULL;
 }
 
 void OptionsManager::onChangeProfileByAction(bool)
@@ -725,51 +826,65 @@ void OptionsManager::onShowOptionsDialogByAction(bool)
 	showOptionsDialog();
 }
 
+void OptionsManager::onLoginDialogAccepted()
+{
+	FLoginDialog = NULL;
+}
+
 void OptionsManager::onLoginDialogRejected()
 {
 	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
 	if (!isOpened())
 		FPluginManager->quit();
 }
 
-void OptionsManager::onLoginDialogAccepted()
-{
-	FLoginDialog = NULL;
-	FLoginDialogBorder = NULL;
-}
-
-void OptionsManager::onAutoSaveTimerTimeout()
+void OptionsManager::onAutoSaveOptionsTimerTimeout()
 {
 	saveOptions();
 }
 
+void OptionsManager::onSaveServerOptionsTimerTimeout()
+{
+	if (FOptionsDialog == NULL)
+		saveServerOptions(FOptionsStreamJid);
+	else
+		FServerOptionsTimer.start();
+}
+
 void OptionsManager::onPrivateStorageOpened(const Jid &AStreamJid)
 {
-	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
+	if (FOptionsStreamJid.isEmpty())
 	{
-		if (loadServerOptions(AStreamJid))
-			LogDetaile(QString("[OptionsManager] Loading options from server"));
-		else
-			LogError(QString("[OptionsManager] Failed to load options from server"));
+		FOptionsStreamJid = AStreamJid;
+		loadServerOptions(FOptionsStreamJid);
 	}
 }
 
 void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
-	Q_UNUSED(AId); Q_UNUSED(AStreamJid);
-	if (AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
+	Q_UNUSED(AId);
+	if (FOptionsStreamJid==AStreamJid && AElement.tagName()==PST_OPTIONS && AElement.namespaceURI()==PSN_OPTIONS)
 	{
-		LogDetaile(QString("[OptionsManager] Importing options from server"));
+		LogDetail(QString("[OptionsManager] Importing options from server"));
 		foreach(QString path, FServerOptions)
 			Options::importNode(path,AElement);
 	}
 }
 
+void OptionsManager::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
+{
+	if (FOptionsStreamJid==AStreamJid && ATagName==PST_OPTIONS && ANamespace==PSN_OPTIONS)
+		loadServerOptions(FOptionsStreamJid);
+}
+
 void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 {
-	if (Options::node(OPV_MISC_OPTIONS_SAVE_ON_SERVER).value().toBool())
-		saveServerOptions(AStreamJid);
+	if (FOptionsStreamJid == AStreamJid)
+	{
+		if (FServerOptionsTimer.isActive())
+			saveServerOptions(FOptionsStreamJid);
+		FOptionsStreamJid = Jid::null;
+	}
 }
 
 void OptionsManager::onAboutToQuit()

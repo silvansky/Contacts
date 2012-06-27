@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>863</width>
-    <height>633</height>
+    <width>769</width>
+    <height>547</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -112,38 +112,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QScrollArea" name="scaScroll">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>712</width>
-           <height>277</height>
-          </rect>
-         </property>
-        </widget>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="buttonsLayout">
         <property name="leftMargin">
          <number>6</number>
@@ -159,6 +127,9 @@
            </property>
            <item>
             <widget class="QDialogButtonBox" name="dbbButtons">
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
              <property name="standardButtons">
               <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
              </property>

@@ -5,6 +5,7 @@
 #include <interfaces/imainwindow.h>
 #include <utils/action.h>
 #include "stylesheeteditor.h"
+#include <interfaces/isystemintegration.h>
 
 #define STYLESHEETEDITOR_UUID		"{dcdd7857-af0e-4ccd-bfb4-fb1b7cbbb955}"
 
@@ -30,6 +31,7 @@ protected slots:
 private:
 	IPluginManager * pluginManager;
 	IMainWindowPlugin * mainWindowPlugin;
+	ISystemIntegration * systemIntegration;
 	StyleSheetEditorDialog * editor;
 	Action * showDialog;
 protected slots:

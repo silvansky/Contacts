@@ -15,13 +15,16 @@
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
 #include <definitions/stylesheets.h>
+#ifdef Q_WS_MAC
+# include <utils/macutils.h>
+#endif
 
-AboutQtDialog::AboutQtDialog() :
-	QWidget(NULL)
+AboutQtDialog::AboutQtDialog() : QWidget(NULL)
 {
-	// window border
+	setWindowTitle(tr("About Qt"));
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUT_QT);
 
-	CustomBorderContainer * border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
 	if (border)
 	{
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
@@ -35,10 +38,11 @@ AboutQtDialog::AboutQtDialog() :
 		setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 	}
 
-	setWindowTitle(tr("About Qt"));
+#ifdef Q_WS_MAC
+	setWindowGrowButtonEnabled(this->window(), false);
+#endif
 
 	// creating layouts and items
-
 	// main layout
 	setLayout(new QVBoxLayout(this));
 
@@ -101,9 +105,6 @@ AboutQtDialog::AboutQtDialog() :
 
 	layout()->addItem(textLayout);
 	layout()->addItem(buttonLayout);
-
-	// style
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_PLUGINMANAGER_ABOUT_QT);
 }
 
 void AboutQtDialog::paintEvent(QPaintEvent * pe)
@@ -124,7 +125,7 @@ void AboutQtDialog::keyPressEvent(QKeyEvent * ke)
 void AboutQtDialog::aboutQt()
 {
 	AboutQtDialog * dialog = new AboutQtDialog;
-	WidgetManager::showActivateRaiseWindow(dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog);
-	(dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog)->adjustSize();
-	WidgetManager::alignWindow((dialog->parentWidget() ? dialog->parentWidget() : (QWidget*)dialog), Qt::AlignCenter);
+	WidgetManager::showActivateRaiseWindow(dialog->window());
+	dialog->window()->adjustSize();
+	WidgetManager::alignWindow(dialog->window(), Qt::AlignCenter);
 }

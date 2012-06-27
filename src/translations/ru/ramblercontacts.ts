@@ -8,14 +8,6 @@
         <translation>Условия использования</translation>
     </message>
     <message>
-        <source>Version %1.%2 %3</source>
-        <translation>Версия %1.%2 %3</translation>
-    </message>
-    <message>
-        <source>Official site: %1</source>
-        <translation>Официальный сайт: %1</translation>
-    </message>
-    <message>
         <source>The program is developed with %1.</source>
         <translation>Программа разработана с помощью %1.</translation>
     </message>
@@ -26,6 +18,14 @@
     <message>
         <source>© 2011, &quot;Rambler Internet Holding LLC&quot;.&lt;br&gt;%1</source>
         <translation>© 2011 ООО &quot;Рамблер Интернет Холдинг&quot;. &lt;br&gt;%1</translation>
+    </message>
+    <message>
+        <source>Version: %1.%2 %3</source>
+        <translation>Версия: %1.%2.%3</translation>
+    </message>
+    <message>
+        <source>Site: %1</source>
+        <translation>Сайт: %1</translation>
     </message>
 </context>
 <context>
@@ -108,10 +108,6 @@
 <context>
     <name>CommentDialogClass</name>
     <message>
-        <source>Your comments</source>
-        <translation>Отзыв о программе</translation>
-    </message>
-    <message>
         <source>Enter your comment:</source>
         <translation>Ваш отзыв или замечание:</translation>
     </message>
@@ -140,8 +136,12 @@
         <translation>Отмена</translation>
     </message>
     <message>
-        <source>Leave your feedback about program.</source>
-        <translation>Оставьте ваш отзыв о программе.</translation>
+        <source>Leave Feedback</source>
+        <translation>Оставьте Ваш отзыв</translation>
+    </message>
+    <message>
+        <source>Leave your feedback about program</source>
+        <translation>Оставьте Ваш отзыв о программе</translation>
     </message>
 </context>
 <context>
@@ -185,6 +185,18 @@
     <message>
         <source>Updates are ready. Do you want to restart Rambler.Contacts now?</source>
         <translation>Обновление выполнено. Хотите перезапустить Рамблер.Контакты?</translation>
+    </message>
+    <message>
+        <source>Login first</source>
+        <translation>Требуется вход</translation>
+    </message>
+    <message>
+        <source>To send a feedback you should login first!</source>
+        <translation>Вы должны войти чтобы оставить отзыв!</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>Ок</translation>
     </message>
 </context>
 <context>

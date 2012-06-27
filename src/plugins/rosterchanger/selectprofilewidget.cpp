@@ -6,6 +6,7 @@ SelectProfileWidget::SelectProfileWidget(IRoster *ARoster, IGateways *AGateways,
 	ui.setupUi(this);
 
 	FVisible = true;
+	FAutoSelect = true;
 	FRoster = ARoster;
 	FGateways = AGateways;
 	FOptionsManager = AOptionsManager;
@@ -49,7 +50,7 @@ QList<Jid> SelectProfileWidget::profiles() const
 Jid SelectProfileWidget::selectedProfile() const
 {
 	for (QMap<Jid, QRadioButton *>::const_iterator it = FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
-		if (it.value()->isChecked())
+		if (it.value()->isChecked() && it.value()->isEnabled())
 			return it.key();
 	return Jid::null;
 }
@@ -66,20 +67,44 @@ void SelectProfileWidget::setSelectedProfile(const Jid &AServiceJid)
 	}
 }
 
+bool SelectProfileWidget::autoSelectProfile() const
+{
+	return FAutoSelect;
+}
+
+void SelectProfileWidget::setAutoSelectProfile(bool AAuto)
+{
+	if (FAutoSelect != AAuto)
+	{
+		FAutoSelect = AAuto;
+		updateProfiles();
+	}
+}
+
 void SelectProfileWidget::updateProfiles()
 {
 	IDiscoIdentity identity;
 	identity.category = "gateway";
 	identity.type = FDescriptor.type;
 
+	QList<Jid> nativeGates;
+	if (FDescriptor.id == GSID_RAMBLER)
+		nativeGates.append(streamJid());
+
 	QList<Jid> gates = FGateways->gateDescriptorServices(streamJid(),FDescriptor,FDescriptor.needLogin);
 	for (QList<Jid>::iterator it=gates.begin(); it!=gates.end(); )
 	{
-		IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
-		if (descriptor.readOnly)
-			it = gates.erase(it);
-		else
+		if (!(FGateways->serviceRestrictions(streamJid(),*it) & GSR_ADD_CONTACT))
+		{
+			IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(streamJid(),*it);
+			if (FDescriptor.id == descriptor.id)
+				nativeGates.append(*it);
 			it++;
+		}
+		else
+		{
+			it = gates.erase(it);
+		}
 	}
 
 	Jid oldSelected = selectedProfile();
@@ -107,6 +132,7 @@ void SelectProfileWidget::updateProfiles()
 
 		QHBoxLayout *layout = new QHBoxLayout();
 		layout->setMargin(0);
+		layout->setSpacing(0);
 		layout->addWidget(button);
 		layout->addWidget(label);
 		layout->addStretch();
@@ -122,6 +148,7 @@ void SelectProfileWidget::updateProfiles()
 
 	QList<Jid> enabledProfiles;
 	bool hasDisabledProfiles = false;
+	bool hasChangedProfiles = false;
 	for (QMap<Jid,QRadioButton *>::const_iterator it=FProfiles.constBegin(); it!=FProfiles.constEnd(); it++)
 	{
 		Jid serviceJid = it.key();
@@ -132,12 +159,13 @@ void SelectProfileWidget::updateProfiles()
 
 		if (streamJid() != serviceJid)
 		{
-			if (!FProfileLogins.contains(serviceJid) && !FLoginRequests.values().contains(serviceJid))
+			if (!FLoginRequests.values().contains(serviceJid) && (FUpdateLogins.contains(serviceJid) || !FProfileLogins.contains(serviceJid)))
 			{
 				QString requestId = FGateways->sendLoginRequest(streamJid(),serviceJid);
 				if (!requestId.isEmpty())
 					FLoginRequests.insert(requestId,serviceJid);
 			}
+			FUpdateLogins.removeAll(serviceJid);
 
 			QString labelText;
 			QLabel *label = FProfileLabels.value(serviceJid);
@@ -151,6 +179,9 @@ void SelectProfileWidget::updateProfiles()
 				else if (pitem.show == IPresence::Offline)
 					labelText = " - " + tr("connecting...");
 			}
+
+			if (labelText != label->text())
+				hasChangedProfiles = true;
 
 			if (!labelText.isEmpty())
 			{
@@ -169,6 +200,13 @@ void SelectProfileWidget::updateProfiles()
 		}
 	}
 
+	bool autoSelected = false;
+	if (FAutoSelect && nativeGates.count()==1)
+	{
+		setSelectedProfile(nativeGates.first());
+		autoSelected = selectedProfile()==nativeGates.first();
+	}
+
 	Jid newSelected = selectedProfile();
 	if (newSelected.isEmpty())
 	{
@@ -180,17 +218,23 @@ void SelectProfileWidget::updateProfiles()
 			emit selectedProfileChanged();
 	}
 
-	bool newVisible = hasDisabledProfiles || FProfiles.count()>1;
+	bool adjustSize = hasChangedProfiles;
+	bool newVisible = !autoSelected && (hasDisabledProfiles || FProfiles.count()>1);
 	if (FVisible != newVisible)
 	{
+		adjustSize = true;
 		FVisible = newVisible;
 		setVisible(FVisible);
-		emit adjustSizeRequested();
 	}
 
 	if (!newProfiles.isEmpty() || !oldProfiles.isEmpty())
 	{
+		adjustSize = true;
 		emit profilesChanged();
+	}
+	
+	if (adjustSize)
+	{
 		emit adjustSizeRequested();
 	}
 }
@@ -266,7 +310,7 @@ void SelectProfileWidget::onServiceEnableChanged(const Jid &AStreamJid, const Ji
 	Q_UNUSED(AServiceJid); 
 	if (streamJid() == AStreamJid)
 	{
-		FProfileLogins.remove(AServiceJid);
+		FUpdateLogins.append(AServiceJid);
 		updateProfiles();
 	}
 }
