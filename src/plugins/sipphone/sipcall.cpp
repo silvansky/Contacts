@@ -1028,8 +1028,10 @@ void SipCall::updateDeviceStates()
 				}
 				else if (ci.media[media_index].type == PJMEDIA_TYPE_VIDEO)
 				{
-					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
-						newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+					if(pjsua_vid_dev_capture_count() > 0)
+						if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
+							newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+
 					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
 						newStates.insert(ISipDevice::DT_REMOTE_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 				}
