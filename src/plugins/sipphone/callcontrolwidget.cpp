@@ -109,6 +109,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
 
 	onAnimateNoticeTimeout();
+	updateDevicesStateAndProperties();
 	onCallStateChanged(FSipCall->state());
 }
 
