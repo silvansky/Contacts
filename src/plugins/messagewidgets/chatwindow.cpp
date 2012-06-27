@@ -1,8 +1,10 @@
 #include "chatwindow.h"
 
 #include <QKeyEvent>
-#include <QCoreApplication>
 #include <QScrollBar>
+#include <QCoreApplication>
+
+#define ADR_SELECTED_TEXT    Action::DR_Parametr1
 
 ChatWindow::ChatWindow(IMessageWidgets *AMessageWidgets, const Jid& AStreamJid, const Jid &AContactJid)
 {
@@ -373,13 +375,14 @@ void ChatWindow::onOptionsChanged(const OptionsNode &ANode)
 	}
 }
 
-void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu)
 {
 	Q_UNUSED(APosition);
-	if (!ASelection.toPlainText().trimmed().isEmpty())
+	if (!AText.toPlainText().trimmed().isEmpty())
 	{
 		Action *action = new Action(AMenu);
 		action->setText(tr("Quote"));
+		action->setData(ADR_SELECTED_TEXT, AText.toHtml());
 		connect(action,SIGNAL(triggered(bool)),SLOT(onViewContextQuoteActionTriggered(bool)));
 		AMenu->addAction(action,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
 	}
@@ -387,18 +390,22 @@ void ChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDoc
 
 void ChatWindow::onViewContextQuoteActionTriggered(bool)
 {
-	QTextDocumentFragment fragment = viewWidget()->messageStyle()->selection(viewWidget()->styleWidget());
-	if (!fragment.toPlainText().trimmed().isEmpty())
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
 	{
-		QTextEdit *editor = editWidget()->textEdit();
-		editor->textCursor().beginEditBlock();
-		if (!editor->textCursor().atBlockStart())
+		QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(action->data(ADR_SELECTED_TEXT).toString());
+		if (!fragment.toPlainText().trimmed().isEmpty())
+		{
+			QTextEdit *editor = editWidget()->textEdit();
+			editor->textCursor().beginEditBlock();
+			if (!editor->textCursor().atBlockStart())
+				editor->textCursor().insertText("\n");
+			editor->textCursor().insertText("> ");
+			editor->textCursor().insertFragment(fragment);
 			editor->textCursor().insertText("\n");
-		editor->textCursor().insertText("> ");
-		editor->textCursor().insertFragment(fragment);
-		editor->textCursor().insertText("\n");
-		editor->textCursor().endEditBlock();
-		editor->setFocus();
+			editor->textCursor().endEditBlock();
+			editor->setFocus();
+		}
 	}
 }
 

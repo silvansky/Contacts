@@ -93,6 +93,7 @@ public:
 	virtual QWidget *createWidget(const IMessageStyleOptions &AOptions, QWidget *AParent) =0;
 	virtual QString senderColor(const QString &ASenderId) const =0;
 	virtual QTextDocumentFragment selection(QWidget *AWidget) const =0;
+	virtual QTextDocumentFragment textUnderPosition(const QPoint &APosition, QWidget *AWidget) const =0;
 	virtual bool changeOptions(QWidget *AWidget, const IMessageStyleOptions &AOptions, bool AClean = true) =0;
 	virtual QUuid changeContent(QWidget *AWidget, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 protected:

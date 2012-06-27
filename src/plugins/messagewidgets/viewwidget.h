@@ -37,7 +37,7 @@ signals:
 	void contactJidChanged(const Jid &ABefour);
 	void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions);
 	void contentChanged(const QUuid &AContentId, const QString &AMessage, const IMessageContentOptions &AOptions);
-	void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu);
 	void urlClicked(const QUrl &AUrl) const;
 protected:
 	void initialize();

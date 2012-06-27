@@ -66,13 +66,13 @@ public:
 	virtual QUuid changeContentHtml(const QString &AHtml, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentText(const QString &AText, const IMessageContentOptions &AOptions) =0;
 	virtual QUuid changeContentMessage(const Message &AMessage, const IMessageContentOptions &AOptions) =0;
-	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
+	virtual void contextMenuForView(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu) =0;
 protected:
 	virtual void streamJidChanged(const Jid &ABefour) =0;
 	virtual void contactJidChanged(const Jid &ABefour) =0;
 	virtual void messageStyleChanged(IMessageStyle *ABefour, const IMessageStyleOptions &AOptions) =0;
 	virtual void contentChanged(const QUuid &AContentId, const QString &AHtml, const IMessageContentOptions &AOptions) =0;
-	virtual void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu) =0;
+	virtual void viewContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu) =0;
 	virtual void urlClicked(const QUrl &AUrl) const =0;
 };
 
