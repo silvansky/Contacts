@@ -214,7 +214,7 @@ void CallControlWidget::playSound(const QString &ASoundKey, int ALoops)
 
 QSize CallControlWidget::sizeHint() const
 {
-	QSize hint = QWidget::sizeHint();
+	QSize hint = QWidget::minimumSizeHint();
 	hint.rwidth() += 100;
 	return hint;
 }
@@ -247,12 +247,6 @@ void CallControlWidget::updateDevicesStateAndProperties()
 	
 	ui.vlcRemoteMicrophome->setVolume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_VOLUME).toFloat());
 	ui.vlcRemoteMicrophome->setMaximumValume(FSipCall->deviceProperty(ISipDevice::DT_REMOTE_MICROPHONE,ISipDevice::RMP_MAX_VOLUME).toFloat());
-}
-
-void CallControlWidget::showEvent(QShowEvent *AEvent)
-{
-	setMaximumHeight(minimumSizeHint().height());
-	QWidget::showEvent(AEvent);
 }
 
 void CallControlWidget::resizeEvent(QResizeEvent *AEvent)

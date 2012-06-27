@@ -369,8 +369,8 @@ void VideoCallWindow::showEvent(QShowEvent *AEvent)
 {
 	if (FIsFirstShow)
 	{
-		window()->adjustSize();
 		setWindowResizeEnabled(false);
+		window()->adjustSize();
 	}
 	FIsFirstShow = false;
 	QWidget::showEvent(AEvent);

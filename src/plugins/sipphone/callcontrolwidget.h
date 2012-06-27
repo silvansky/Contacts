@@ -42,7 +42,6 @@ protected:
 	void initialize(IPluginManager *APluginManager);
 	void updateDevicesStateAndProperties();
 protected:
-	void showEvent(QShowEvent *AEvent);
 	void resizeEvent(QResizeEvent *AEvent);
 	void mousePressEvent(QMouseEvent *AEvent);
 	void mouseReleaseEvent(QMouseEvent *AEvent);
