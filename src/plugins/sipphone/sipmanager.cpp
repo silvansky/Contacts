@@ -1011,7 +1011,7 @@ void SipManager::onCallStateChanged(int AState)
 		if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
 		{
 			if (call->role() == ISipCall::CR_INITIATOR)
-				showNotifyInRoster(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to..."));
+				showNotifyInRoster(call,MNI_SIPPHONE_CALL_OUT,tr("Calling..."));
 			else if (call->role() == ISipCall::CR_RESPONDER)
 				showNotifyInRoster(call,MNI_SIPPHONE_CALL_IN,tr("Calling you..."));
 		}
@@ -1030,18 +1030,18 @@ void SipManager::onCallStateChanged(int AState)
 		{
 			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Calling."));
 			}
 			else if (AState == ISipCall::CS_TALKING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call in progress."));
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
 				if (call->callTime() > 0)
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call finished (duration: %1).").arg(call->callTimeString()));
 				else
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 canceled.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call canceled."));
 			}
 			else if (AState == ISipCall::CS_ERROR)
 			{
@@ -1050,18 +1050,14 @@ void SipManager::onCallStateChanged(int AState)
 				case ISipCall::EC_BUSY:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 is now talking. Call later.").arg(userNick));
 					break;
-				case ISipCall::EC_NOTAVAIL:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 could not accept the call.").arg(userNick));
-					break;
 				case ISipCall::EC_NOANSWER:
-				case ISipCall::EC_REJECTED:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call not accepted."));
 					break;
-				case ISipCall::EC_CONNECTIONERR:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
+				case ISipCall::EC_REJECTED:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call rejected."));
 					break;
 				default:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed. Technical info: %1.").arg(call->errorString()));
 				}
 			}
 		}
@@ -1069,21 +1065,21 @@ void SipManager::onCallStateChanged(int AState)
 		{
 			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("%1 calling you.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("%1 calling you."));
 			}
 			else if (AState == ISipCall::CS_TALKING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call in progress."));
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
 				if (call->callTime() > 0)
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call finished (duration: %1).").arg(call->callTimeString()));
 				}
 				else if (call->rejectCode() == ISipCall::RC_EMPTY)
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 accepted.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call accepted."));
 				}
 				else if (call->rejectCode() == ISipCall::RC_BUSY)
 				{
@@ -1092,7 +1088,7 @@ void SipManager::onCallStateChanged(int AState)
 				}
 				else
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 canceled.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call canceled.").arg(userNick));
 				}
 			}
 			else if (AState == ISipCall::CS_ERROR)
@@ -1104,11 +1100,8 @@ void SipManager::onCallStateChanged(int AState)
 					showMissedCallNotify(call);
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_MISSED,tr("Missed call."),true);
 					break;
-				case ISipCall::EC_CONNECTIONERR:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
-					break;
 				default:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call failed. Technical info: %1.").arg(call->errorString()));
 				}
 			}
 		}

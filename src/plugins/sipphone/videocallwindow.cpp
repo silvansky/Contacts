@@ -83,7 +83,6 @@ VideoCallWindow::VideoCallWindow(IPluginManager *APluginManager, ISipCall *ASipC
 
 	FFSButton = new QToolButton(videoButtons);
 	FFSButton->setObjectName("tlbFullScreen");
-	FFSButton->setToolTip(tr("Toggle Full Screen"));
 	FFSButton->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_FULLSCREEN));
 	connect(FFSButton,SIGNAL(clicked()),SLOT(onFullScreenButtonClicked()));
 	videoButtons->layout()->addWidget(FFSButton);
@@ -351,6 +350,8 @@ void VideoCallWindow::setControlsFullScreenMode(bool AEnabled)
 		FCtrlWidget->setParent(ui.wdtVideo);
 		FVideoLayout->setControlsWidget(FCtrlWidget);
 		FCtrlWidget->setVisible(true);
+
+		FFSButton->setToolTip(tr("Enter Full Screen"));
 	}
 	else
 	{
@@ -362,6 +363,8 @@ void VideoCallWindow::setControlsFullScreenMode(bool AEnabled)
 		FCtrlWidget->setParent(ui.wdtControls);
 		ui.wdtControls->layout()->addWidget(FCtrlWidget);
 		FCtrlWidget->setVisible(true);
+
+		FFSButton->setToolTip(tr("Exit Full Screen"));
 	}
 }
 

@@ -101,7 +101,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	ui.lblName->setElideMode(Qt::ElideRight);
 
 	if (FSipCall->role() == ISipCall::CR_INITIATOR)
-		setWindowTitle(tr("Call to %1").arg(ui.lblName->text()));
+		setWindowTitle(tr("Calling %1").arg(ui.lblName->text()));
 	else
 		setWindowTitle(tr("Call from %1").arg(ui.lblName->text()));
 
@@ -291,7 +291,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbReject->setVisible(false);
 		ui.tlbSilent->setVisible(false);
 		ui.wdtDeviceControls->setVisible(false);
-		ui.lblNotice->setText(tr("Initializing..."));
+		ui.lblNotice->setText(tr("Calling..."));
 		break;
 	case ISipCall::CS_CALLING:
 		ui.pbtAccept->setVisible(FSipCall->role()==ISipCall::CR_RESPONDER);

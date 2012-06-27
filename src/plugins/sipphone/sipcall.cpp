@@ -238,17 +238,13 @@ QString SipCall::errorString() const
 	case EC_EMPTY:
 		return QString::null;
 	case EC_BUSY:
-		return tr("The called user is now talking");
-	case EC_NOTAVAIL:
-		return tr("The called user could not accept the call");
+		return tr("The line is busy");
 	case EC_NOANSWER:
-		return tr("The called user did not accept the call");
+		return tr("Call not accepted");
 	case EC_REJECTED:
-		return tr("The called user rejected the call");
-	case EC_CONNECTIONERR:
-		return tr("Connection error");
+		return tr("Call rejected");
 	default:
-		return tr("Undefined error");
+		return tr("Error");
 	}
 }
 
@@ -267,7 +263,7 @@ quint32 SipCall::callTime() const
 QString SipCall::callTimeString() const
 {
 	QTime time = QTime(0, 0, 0, 0).addMSecs(callTime());
-	return time.toString(time.hour()>0 ? "hh:mm:ss" : "mm:ss");
+	return time.toString(time.hour()>0 ? "h:mm:ss" : "m:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)
