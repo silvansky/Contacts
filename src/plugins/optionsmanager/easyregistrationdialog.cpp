@@ -76,7 +76,10 @@ void EasyRegistrationDialog::closeEvent(QCloseEvent *ce)
 		emit registered(userJid);
 	}
 
-	QDialog::closeEvent(ce);
+	if (parentWidget())
+		parentWidget()->close();
+	else
+		QDialog::closeEvent(ce);
 }
 
 void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
@@ -119,8 +122,10 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 					userJid.setDomain(url.queryItemValue("domain"));
 				}
 			}
-			else if (url.hasQueryItem("close") && url.queryItemValue("close").toInt() == 1)
-				window()->close();
+			if ((url.hasQueryItem("close") && (url.queryItemValue("close").toInt() == 1)) || url.hasQueryItem("error"))
+			{
+				close();
+			}
 		}
 	}
 }
