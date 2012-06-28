@@ -21,6 +21,7 @@ signals:
 protected:
 	virtual void showEvent(QShowEvent *se);
 	virtual void closeEvent(QCloseEvent *ce);
+	virtual void keyPressEvent(QKeyEvent *ke);
 protected:
 	void startLoading();
 protected slots:

@@ -976,7 +976,7 @@ void LoginDialog::showEasyRegDialog()
 	EasyRegistrationDialog *dlg = new EasyRegistrationDialog;
 	connect(dlg, SIGNAL(aborted()), SLOT(onEasyRegDialogAborted()));
 	connect(dlg, SIGNAL(registered(const Jid &)), SLOT(onEasyRegDialogRegistered(const Jid &)));
-	setEnabled(false);
+	//setEnabled(false);
 	WidgetManager::showActivateRaiseWindow(dlg->window());
 	WidgetManager::alignWindow(dlg->window(), Qt::AlignCenter);
 }
@@ -1320,13 +1320,13 @@ void LoginDialog::onStylePreviewReset()
 
 void LoginDialog::onEasyRegDialogAborted()
 {
-	setEnabled(true);
+	//setEnabled(true);
 	ui.lneNode->setFocus();
 }
 
 void LoginDialog::onEasyRegDialogRegistered(const Jid &user)
 {
-	setEnabled(true);
+	//setEnabled(true);
 	ui.lneNode->setText(user.pNode());
 	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(user.pDomain()));
 	ui.tlbDomain->setText("@" + user.pDomain());

@@ -8,7 +8,9 @@
 #include <utils/stylestorage.h>
 #include <utils/customborderstorage.h>
 
+#include <QKeyEvent>
 #include <QWebFrame>
+#include <QWebHistory>
 #include <QNetworkRequest>
 
 #ifdef DEBUG_ENABLED
@@ -45,7 +47,12 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 		layout()->setContentsMargins(0, 0, 0, 0);
 	}
 
-	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOff);
+	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
+	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+	ui->easyRegWebView->pageAction(QWebPage::Back)->setShortcut(QKeySequence());
+	ui->easyRegWebView->pageAction(QWebPage::Forward)->setVisible(false);
+	ui->easyRegWebView->pageAction(QWebPage::Stop)->setVisible(false);
+	ui->easyRegWebView->pageAction(QWebPage::Reload)->setVisible(false);
 	connect(ui->easyRegWebView, SIGNAL(loadFinished(bool)), SLOT(onLoaded(bool)));
 
 	window()->setWindowModality(Qt::ApplicationModal);
@@ -67,6 +74,15 @@ void EasyRegistrationDialog::closeEvent(QCloseEvent *ce)
 	QWidget::closeEvent(ce);
 }
 
+void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
+{
+	if (ke->key() == Qt::Key_Escape)
+	{
+		close();
+	}
+	QWidget::keyPressEvent(ke);
+}
+
 void EasyRegistrationDialog::startLoading()
 {
 	QNetworkRequest request(QUrl(EASY_REG_URL));
@@ -76,6 +92,7 @@ void EasyRegistrationDialog::startLoading()
 
 void EasyRegistrationDialog::onLoaded(bool ok)
 {
+	ui->easyRegWebView->history()->clear();
 	if (!ok)
 	{
 		// set error
