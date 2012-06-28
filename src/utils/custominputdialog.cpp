@@ -61,6 +61,7 @@ void CustomInputDialog::show()
 	if (border)
 	{
 		border->setWindowModality(windowModality());
+		border->setAttribute(Qt::WA_DeleteOnClose, testAttribute(Qt::WA_DeleteOnClose));
 		// TODO: determine what of these are really needed
 		border->layout()->update();
 		layout()->update();

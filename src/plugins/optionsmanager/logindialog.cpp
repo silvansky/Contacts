@@ -1,4 +1,15 @@
 #include "logindialog.h"
+#include "easyregistrationdialog.h"
+
+#include <definitions/customborder.h>
+#include <definitions/graphicseffects.h>
+
+#include <utils/log.h>
+#include <utils/iconstorage.h>
+#include <utils/customlistview.h>
+#include <utils/custominputdialog.h>
+#include <utils/customborderstorage.h>
+#include <utils/graphicseffectsstorage.h>
 
 #include <QDir>
 #include <QFile>
@@ -15,27 +26,19 @@
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
 #include <QAbstractTextDocumentLayout>
-#include <definitions/customborder.h>
-#include <definitions/graphicseffects.h>
-#include <utils/log.h>
-#include <utils/iconstorage.h>
-#include <utils/customlistview.h>
-#include <utils/custominputdialog.h>
-#include <utils/customborderstorage.h>
-#include <utils/graphicseffectsstorage.h>
 
 #ifdef Q_WS_MAC
-# include <utils/macwidgets.h>
 # include <Carbon/Carbon.h>
+# include <utils/macwidgets.h>
 #endif
 
-#ifdef Q_WS_WIN32
-#	include <windows.h>
-#elif defined Q_WS_X11
-#	include <X11/XKBlib.h>
-#	undef KeyPress
-#	undef FocusIn
-#	undef FocusOut
+#if defined(Q_WS_WIN32)
+# include <windows.h>
+#elif defined(Q_WS_X11)
+# include <X11/XKBlib.h>
+# undef KeyPress
+# undef FocusIn
+# undef FocusOut
 #endif
 
 #define FILE_LOGIN            "login.xml"
@@ -245,7 +248,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
 
 	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
-		.arg("<a href='http://id.rambler.ru/script/newuser.cgi'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
+		.arg("<a href='rambler.easy.registration'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
 		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
 		.arg(tr("register")));
@@ -450,6 +453,16 @@ void LoginDialog::showEvent(QShowEvent *AEvent)
 		FMainWindowPlugin->mainWindowTopWidget()->close();
 	}
 	WidgetManager::alignWindow(window(),Qt::AlignCenter);
+#ifndef DEBUG_ENABLED
+	if (!Options::globalValue("firstRunCheck").toBool())
+	{
+		LogDetail("[LoginDialog::showEvent]: First launch!");
+		Options::setGlobalValue("firstRunCheck", true);
+		askUserIfHeHasAccount();
+	}
+#else
+	askUserIfHeHasAccount();
+#endif
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
@@ -944,6 +957,30 @@ bool LoginDialog::readyToConnect() const
 	return ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty();
 }
 
+void LoginDialog::askUserIfHeHasAccount()
+{
+	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None);
+	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+	connect(dlg, SIGNAL(accepted()), SLOT(showEasyRegDialog()));
+	dlg->setCaptionText(tr("Register?"));
+	dlg->setDescriptionText(tr("Do you have Rambler login?"));
+	dlg->setRejectButtonText(tr("Yes"));
+	dlg->setAcceptButtonText(tr("Register one"));
+	dlg->setWindowModality(Qt::ApplicationModal);
+	dlg->show();
+}
+
+void LoginDialog::showEasyRegDialog()
+{
+	LogDetail("[LoginDialog::showEasyRegDialog]: Showing Easy Registration dialog");
+	EasyRegistrationDialog *dlg = new EasyRegistrationDialog;
+	connect(dlg, SIGNAL(aborted()), SLOT(onEasyRegDialogAborted()));
+	connect(dlg, SIGNAL(registered(const Jid &)), SLOT(onEasyRegDialogRegistered(const Jid &)));
+	setEnabled(false);
+	WidgetManager::showActivateRaiseWindow(dlg->window());
+	WidgetManager::alignWindow(dlg->window(), Qt::AlignCenter);
+}
+
 void LoginDialog::onConnectClicked()
 {
 	if (!ui.pbtConnect->property("connecting").toBool())
@@ -1211,6 +1248,8 @@ void LoginDialog::onLabelLinkActivated(const QString &ALink)
 {
 	if (ALink == "ramblercontacts.connection.settings")
 		showConnectionSettings();
+	else if (ALink == "rambler.easy.registration")
+		showEasyRegDialog();
 	else
 		QDesktopServices::openUrl(ALink);
 }
@@ -1277,6 +1316,22 @@ void LoginDialog::onStylePreviewReset()
 {
 	if (ui.lneNode->completer())
 		ui.lneNode->completer()->popup()->setStyleSheet(styleSheet());
+}
+
+void LoginDialog::onEasyRegDialogAborted()
+{
+	setEnabled(true);
+	ui.lneNode->setFocus();
+}
+
+void LoginDialog::onEasyRegDialogRegistered(const Jid &user)
+{
+	setEnabled(true);
+	ui.lneNode->setText(user.pNode());
+	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(user.pDomain()));
+	ui.tlbDomain->setText("@" + user.pDomain());
+	ui.tlbDomain->setProperty("domain", user.pDomain());
+	loadCurrentProfileSettings();
 }
 
 #include "logindialog.moc"

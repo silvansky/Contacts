@@ -69,6 +69,8 @@ protected:
 	void loadCurrentProfileSettings();
 	bool readyToConnect() const;
 protected slots:
+	void askUserIfHeHasAccount();
+	void showEasyRegDialog();
 	void onConnectClicked();
 	void onAbortTimerTimeout();
 	void onXmppStreamOpened();
@@ -78,7 +80,7 @@ protected slots:
 	void onCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onDomainActionTriggered();
-	void onNewDomainSelected(const QString & newDomain);
+	void onNewDomainSelected(const QString &newDomain);
 	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
@@ -89,6 +91,8 @@ protected slots:
 	void onTrayNotifyActivated(int ANotifyId, QSystemTrayIcon::ActivationReason AReason);
 	void onShowPasswordToggled(int state);
 	void onStylePreviewReset();
+	void onEasyRegDialogAborted();
+	void onEasyRegDialogRegistered(const Jid &user);
 private:
 	Ui::LoginDialogClass ui;
 private:
