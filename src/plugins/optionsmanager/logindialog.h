@@ -58,6 +58,7 @@ protected:
 	void hideErrorBallon();
 	void closeCurrentProfile();
 	bool tryNextConnectionSettings();
+	void setControlsEnabled(bool AEnabled);
 	void setConnectEnabled(bool AEnabled);
 	void stopReconnection();
 	void showConnectionSettings();
@@ -71,6 +72,7 @@ protected:
 protected slots:
 	void askUserIfHeHasAccount();
 	void showEasyRegDialog();
+	void onAskDialogRejected();
 	void onConnectClicked();
 	void onAbortTimerTimeout();
 	void onXmppStreamOpened();

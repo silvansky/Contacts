@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>EasyRegistrationDialog</class>
- <widget class="QWidget" name="EasyRegistrationDialog">
+ <widget class="QDialog" name="EasyRegistrationDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>695</width>
-    <height>472</height>
+    <width>769</width>
+    <height>448</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Easy registration</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

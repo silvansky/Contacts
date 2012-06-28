@@ -20,7 +20,7 @@
 #define EASY_REG_URL "http://reg.tx.xmpp.rambler.ru/"
 
 EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
-	QWidget(parent),
+	QDialog(parent),
 	ui(new Ui::EasyRegistrationDialog)
 {
 	ui->setupUi(this);
@@ -71,7 +71,7 @@ void EasyRegistrationDialog::closeEvent(QCloseEvent *ce)
 	{
 		emit aborted();
 	}
-	QWidget::closeEvent(ce);
+	QDialog::closeEvent(ce);
 }
 
 void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
@@ -80,7 +80,7 @@ void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
 	{
 		close();
 	}
-	QWidget::keyPressEvent(ke);
+	QDialog::keyPressEvent(ke);
 }
 
 void EasyRegistrationDialog::startLoading()
@@ -119,5 +119,5 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 
 void EasyRegistrationDialog::showEvent(QShowEvent *se)
 {
-	QWidget::showEvent(se);
+	QDialog::showEvent(se);
 }

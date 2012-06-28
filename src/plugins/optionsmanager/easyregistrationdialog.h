@@ -1,14 +1,14 @@
 #ifndef EASYREGISTRATIONDIALOG_H
 #define EASYREGISTRATIONDIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 #include <utils/jid.h>
 
 namespace Ui {
 class EasyRegistrationDialog;
 }
 
-class EasyRegistrationDialog : public QWidget
+class EasyRegistrationDialog : public QDialog
 {
 	Q_OBJECT
 	

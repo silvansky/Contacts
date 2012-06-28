@@ -407,6 +407,19 @@ void LoginDialog::connectIfReady()
 {
 	if (readyToConnect())
 		onConnectClicked();
+#ifndef DEBUG_ENABLED
+	else if (FOptionsManager->profiles().isEmpty())
+	{
+		if (!Options::globalValue("firstRunCheck").toBool())
+		{
+			LogDetail("[LoginDialog::showEvent]: First launch!");
+			Options::setGlobalValue("firstRunCheck", true);
+			QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
+		}
+	}
+#else
+		QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
+#endif
 }
 
 Jid LoginDialog::currentStreamJid() const
@@ -453,16 +466,6 @@ void LoginDialog::showEvent(QShowEvent *AEvent)
 		FMainWindowPlugin->mainWindowTopWidget()->close();
 	}
 	WidgetManager::alignWindow(window(),Qt::AlignCenter);
-#ifndef DEBUG_ENABLED
-	if (!Options::globalValue("firstRunCheck").toBool())
-	{
-		LogDetail("[LoginDialog::showEvent]: First launch!");
-		Options::setGlobalValue("firstRunCheck", true);
-		askUserIfHeHasAccount();
-	}
-#else
-	askUserIfHeHasAccount();
-#endif
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
@@ -744,6 +747,16 @@ bool LoginDialog::tryNextConnectionSettings()
 	return false;
 }
 
+void LoginDialog::setControlsEnabled(bool AEnabled)
+{
+	ui.lneNode->setEnabled(AEnabled);
+	ui.cmbDomain->setEnabled(AEnabled);
+	ui.tlbDomain->setEnabled(AEnabled);
+	ui.lnePassword->setEnabled(AEnabled);
+	ui.chbSavePassword->setEnabled(AEnabled);
+	ui.chbAutoRun->setEnabled(AEnabled);
+}
+
 void LoginDialog::setConnectEnabled(bool AEnabled)
 {
 	if (!AEnabled)
@@ -760,12 +773,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 		ui.pbtConnect->setIcon(QIcon());
 	}
 
-	ui.lneNode->setEnabled(AEnabled);
-	ui.cmbDomain->setEnabled(AEnabled);
-	ui.tlbDomain->setEnabled(AEnabled);
-	ui.lnePassword->setEnabled(AEnabled);
-	ui.chbSavePassword->setEnabled(AEnabled);
-	ui.chbAutoRun->setEnabled(AEnabled);
+	setControlsEnabled(AEnabled);
 
 	ui.pbtConnect->setEnabled(AEnabled);
 	ui.pbtConnect->setProperty("connecting", !AEnabled);
@@ -959,15 +967,18 @@ bool LoginDialog::readyToConnect() const
 
 void LoginDialog::askUserIfHeHasAccount()
 {
-	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None);
+	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None, this);
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dlg, SIGNAL(accepted()), SLOT(showEasyRegDialog()));
+	connect(dlg, SIGNAL(rejected()), SLOT(onAskDialogRejected()));
 	dlg->setCaptionText(tr("Register?"));
 	dlg->setDescriptionText(tr("Do you have Rambler login?"));
 	dlg->setRejectButtonText(tr("Yes"));
 	dlg->setAcceptButtonText(tr("Register one"));
-	dlg->setWindowModality(Qt::ApplicationModal);
+	setControlsEnabled(false);
+	dlg->setModal(true);
 	dlg->show();
+	WidgetManager::showActivateRaiseWindow(dlg->window());
 }
 
 void LoginDialog::showEasyRegDialog()
@@ -976,9 +987,14 @@ void LoginDialog::showEasyRegDialog()
 	EasyRegistrationDialog *dlg = new EasyRegistrationDialog;
 	connect(dlg, SIGNAL(aborted()), SLOT(onEasyRegDialogAborted()));
 	connect(dlg, SIGNAL(registered(const Jid &)), SLOT(onEasyRegDialogRegistered(const Jid &)));
-	//setEnabled(false);
-	WidgetManager::showActivateRaiseWindow(dlg->window());
+	setControlsEnabled(false);
+	dlg->window()->show();
 	WidgetManager::alignWindow(dlg->window(), Qt::AlignCenter);
+}
+
+void LoginDialog::onAskDialogRejected()
+{
+	setControlsEnabled(true);
 }
 
 void LoginDialog::onConnectClicked()
@@ -1320,13 +1336,13 @@ void LoginDialog::onStylePreviewReset()
 
 void LoginDialog::onEasyRegDialogAborted()
 {
-	//setEnabled(true);
+	setControlsEnabled(true);
 	ui.lneNode->setFocus();
 }
 
 void LoginDialog::onEasyRegDialogRegistered(const Jid &user)
 {
-	//setEnabled(true);
+	setControlsEnabled(true);
 	ui.lneNode->setText(user.pNode());
 	ui.cmbDomain->setCurrentIndex(ui.cmbDomain->findData(user.pDomain()));
 	ui.tlbDomain->setText("@" + user.pDomain());
