@@ -1,6 +1,7 @@
 #include "addfacebookaccountdialog.h"
 
 #include <QWebFrame>
+#include <QWebHistory>
 #include <QTextDocument>
 #include <QNetworkRequest>
 #include <QDesktopServices>
@@ -194,6 +195,7 @@ void AddFacebookAccountDialog::onWebViewLoadStarted()
 
 void AddFacebookAccountDialog::onWebViewLoadFinished(bool AOk)
 {
+	ui.wbvView->history()->clear();
 	if (!AOk)
 	{
 		LogError(QString("[AddFacebookAccountDialog][%1] Failed to load web page").arg(FServiceJid.full()));
