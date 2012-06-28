@@ -86,9 +86,9 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 #ifdef DEBUG_ENABLED
 		qDebug() << "web view loaded! url:" << url;
 #endif
-		if (url.hasQueryItem("login") && url.hasQueryItem("domain") && url.hasQueryItem("registered"))
+		if (url.hasQueryItem("login") && url.hasQueryItem("domain") && url.hasQueryItem("success"))
 		{
-			bool registrationOk = url.queryItemValue("registered").toInt() == 1;
+			bool registrationOk = url.queryItemValue("success").toInt() == 1;
 			if (registrationOk)
 			{
 				userJid.setNode(url.queryItemValue("login"));
