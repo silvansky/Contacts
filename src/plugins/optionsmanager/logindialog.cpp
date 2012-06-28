@@ -969,12 +969,13 @@ void LoginDialog::askUserIfHeHasAccount()
 {
 	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None);
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-	connect(dlg, SIGNAL(accepted()), SLOT(showEasyRegDialog()));
-	connect(dlg, SIGNAL(rejected()), SLOT(onAskDialogRejected()));
-	dlg->setCaptionText(tr("Register?"));
-	dlg->setDescriptionText(tr("Do you have Rambler login?"));
-	dlg->setRejectButtonText(tr("Yes"));
-	dlg->setAcceptButtonText(tr("Register one"));
+	connect(dlg, SIGNAL(rejected()), SLOT(showEasyRegDialog()));
+	connect(dlg, SIGNAL(accepted()), SLOT(onAskDialogRejected()));
+	dlg->setCaptionText(tr("Welcome!"));
+	dlg->setDescriptionText(tr("Do you have Rambler account?"));
+	dlg->setRejectButtonText(tr("No"));
+	dlg->setAcceptButtonText(tr("Yes"));
+	dlg->setAcceptIsDefault(false);
 	setControlsEnabled(false);
 	dlg->setModal(true);
 	dlg->show();

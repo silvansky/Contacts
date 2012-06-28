@@ -1,5 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <stylevalues>
+	<stylevalue key="globalLinkColor" type="color" value="#ffffff" />
+	<stylevalue key="globalDarkLinkColor" type="color" value="#acacac" />
+	<stylevalue key="globalBackgroundColor" type="color" value="#41464d" />
+	<stylevalue key="globalTextColor" type="color" value="white" />
+	<stylevalue key="globalFontFace" type="string" value="SegoeUI" />
 	<stylevalue key="metaTabWindowNotifyBalloonColor" type="color" value="#373d43" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontSize" type="int" value="7" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontBold" type="bool" value="true" />
@@ -15,8 +20,7 @@
 	<stylevalue key="loginDialogCompleterHOffset" type="int" value="6" />
 	<stylevalue key="loginDialogCompleterVOffset" type="int" value="0" />
 	<stylevalue key="loginDialogCompleterMinRowHeight" type="int" value="27" />
-	<stylevalue key="globalLinkColor" type="color" value="#ffffff" />
-	<stylevalue key="globalDarkLinkColor" type="color" value="#acacac" />
+	<stylevalue key="easyRegisterDialogErrorFontSize" type="int" value="18" />
 	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
 	<stylevalue key="rostersViewDelegateMarginV" type="int" value="2" />
 	<stylevalue key="rostersViewDelegateMarginDrawH" type="int" value="7" />

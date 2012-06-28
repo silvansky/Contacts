@@ -3,8 +3,11 @@
 
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
+#include <definitions/menuicons.h>
 #include <definitions/customborder.h>
+
 #include <utils/log.h>
+#include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/customborderstorage.h>
 
@@ -12,18 +15,24 @@
 #include <QWebFrame>
 #include <QWebHistory>
 #include <QNetworkRequest>
+#include <QDesktopServices>
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
 #endif
 
-#define EASY_REG_URL "reg.tx.xmpp.rambler.ru"
+#define EASY_REG_URL         "reg.tx.xmpp.rambler.ru"
+#define ERROR_HTML           "<html><body bgcolor=\"%1\" link=\"%2\" vlink=\"%3\" alink=\"%4\"><span style=\"font-family: \'%5\'; color: %6; font-size: %7px;\">%8</span></body></html>"
+#define FULL_REGISTER_URL    "http://id.rambler.ru/profile/create/"
 
 EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::EasyRegistrationDialog)
 {
 	ui->setupUi(this);
+
+	// logo
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui->caption, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
 
 	// style
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_OPTIONS_EASYREGISTRATIONDIALOG);
@@ -43,17 +52,14 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	else
 	{
 		setAttribute(Qt::WA_DeleteOnClose,true);
-		ui->caption->setVisible(false);
+		//ui->caption->setVisible(false);
 		layout()->setContentsMargins(0, 0, 0, 0);
 	}
 
 	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-	ui->easyRegWebView->pageAction(QWebPage::Back)->setShortcut(QKeySequence());
-	ui->easyRegWebView->pageAction(QWebPage::Forward)->setVisible(false);
-	ui->easyRegWebView->pageAction(QWebPage::Stop)->setVisible(false);
-	ui->easyRegWebView->pageAction(QWebPage::Reload)->setVisible(false);
 	connect(ui->easyRegWebView, SIGNAL(loadFinished(bool)), SLOT(onLoaded(bool)));
+	connect(ui->easyRegWebView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
 
 	window()->setWindowModality(Qt::ApplicationModal);
 
@@ -101,13 +107,43 @@ void EasyRegistrationDialog::startLoading()
 void EasyRegistrationDialog::onLoaded(bool ok)
 {
 	ui->easyRegWebView->history()->clear();
+	QUrl url = ui->easyRegWebView->url();
 	if (!ok)
 	{
 		// set error
+#ifdef DEBUG_ENABLED
+		qDebug() << "web view failed to load!";
+#endif
+		if (url.host() == EASY_REG_URL)
+		{
+			// we have some data loaded
+			// TODO: show some error
+		}
+		else
+		{
+			// no data loaded
+			ui->easyRegWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+			// style
+			QString bgcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalBackgroundColor").name();
+			QString linkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalLinkColor").name();
+			QString vlinkcolor = linkcolor;
+			QString alinkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalDarkLinkColor").name();
+			QString fontface = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleValue("globalFontFace").toString();
+			QString fontcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalTextColor").name();
+			QString fontsize = QString::number(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt("easyRegisterDialogErrorFontSize"));
+			// link
+			QString link = QString("<a href=\"%1\" target=_blank>http://rambler.ru</a>").arg(FULL_REGISTER_URL);
+			// error html
+			QString errorText = tr("Registration is tempoprarily unavailable. Please, register online at %1").arg(link);
+			QString errorHtml = QString(ERROR_HTML).arg(bgcolor, linkcolor, vlinkcolor, alinkcolor, fontface, fontcolor, fontsize, errorText);
+#ifdef DEBUG_ENABLED
+			qDebug() << errorHtml;
+#endif
+			ui->easyRegWebView->setHtml(errorHtml);
+		}
 	}
 	else
 	{
-		QUrl url = ui->easyRegWebView->url();
 #ifdef DEBUG_ENABLED
 		qDebug() << "web view loaded! url:" << url;
 #endif
@@ -128,6 +164,12 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 			}
 		}
 	}
+}
+
+void EasyRegistrationDialog::onWebPageLinkClicked(const QUrl &url)
+{
+	QDesktopServices::openUrl(url);
+	close();
 }
 
 void EasyRegistrationDialog::showEvent(QShowEvent *se)

@@ -26,6 +26,7 @@ protected:
 	void startLoading();
 protected slots:
 	void onLoaded(bool ok);
+	void onWebPageLinkClicked(const QUrl &url);
 private:
 	Ui::EasyRegistrationDialog *ui;
 private:
