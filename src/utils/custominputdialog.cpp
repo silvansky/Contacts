@@ -23,6 +23,7 @@ CustomInputDialog::CustomInputDialog(CustomInputDialog::InputType type, QWidget 
 	inputType(type)
 {
 	setMinimumWidth(250);
+	setMinimumHeight(50);
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_UTILS_CUSTOMINPUTDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
@@ -74,7 +75,7 @@ void CustomInputDialog::show()
 	{
 		QDialog::show();
 	}
-	WidgetManager::alignWindow(window(),Qt::AlignCenter);
+	WidgetManager::alignWindow(window(), Qt::AlignCenter);
 }
 
 QString CustomInputDialog::defaultText() const

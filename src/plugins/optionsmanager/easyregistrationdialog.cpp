@@ -17,7 +17,7 @@
 # include <QDebug>
 #endif
 
-#define EASY_REG_URL "http://reg.tx.xmpp.rambler.ru/"
+#define EASY_REG_URL "reg.tx.xmpp.rambler.ru"
 
 EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	QDialog(parent),
@@ -71,6 +71,11 @@ void EasyRegistrationDialog::closeEvent(QCloseEvent *ce)
 	{
 		emit aborted();
 	}
+	else
+	{
+		emit registered(userJid);
+	}
+
 	QDialog::closeEvent(ce);
 }
 
@@ -85,7 +90,7 @@ void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
 
 void EasyRegistrationDialog::startLoading()
 {
-	QNetworkRequest request(QUrl(EASY_REG_URL));
+	QNetworkRequest request(QUrl("http://"EASY_REG_URL"/"));
 	request.setRawHeader("Accept-Encoding","identity");
 	ui->easyRegWebView->load(request);
 }
@@ -103,16 +108,19 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 #ifdef DEBUG_ENABLED
 		qDebug() << "web view loaded! url:" << url;
 #endif
-		if (url.hasQueryItem("login") && url.hasQueryItem("domain") && url.hasQueryItem("success"))
+		if (url.host() == EASY_REG_URL)
 		{
-			bool registrationOk = url.queryItemValue("success").toInt() == 1;
-			if (registrationOk)
+			if (url.hasQueryItem("login") && url.hasQueryItem("domain") && url.hasQueryItem("success"))
 			{
-				userJid.setNode(url.queryItemValue("login"));
-				userJid.setDomain(url.queryItemValue("domain"));
-				emit registered(userJid);
-				close();
+				bool registrationOk = url.queryItemValue("success").toInt() == 1;
+				if (registrationOk)
+				{
+					userJid.setNode(url.queryItemValue("login"));
+					userJid.setDomain(url.queryItemValue("domain"));
+				}
 			}
+			else if (url.hasQueryItem("close") && url.queryItemValue("close").toInt() == 1)
+				window()->close();
 		}
 	}
 }

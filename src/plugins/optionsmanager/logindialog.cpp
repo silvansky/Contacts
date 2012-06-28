@@ -967,7 +967,7 @@ bool LoginDialog::readyToConnect() const
 
 void LoginDialog::askUserIfHeHasAccount()
 {
-	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None, this);
+	CustomInputDialog *dlg = new CustomInputDialog(CustomInputDialog::None);
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dlg, SIGNAL(accepted()), SLOT(showEasyRegDialog()));
 	connect(dlg, SIGNAL(rejected()), SLOT(onAskDialogRejected()));
@@ -978,7 +978,8 @@ void LoginDialog::askUserIfHeHasAccount()
 	setControlsEnabled(false);
 	dlg->setModal(true);
 	dlg->show();
-	WidgetManager::showActivateRaiseWindow(dlg->window());
+	//WidgetManager::showActivateRaiseWindow(dlg->window());
+	//WidgetManager::alignWindow(dlg->window(), Qt::AlignCenter);
 }
 
 void LoginDialog::showEasyRegDialog()
