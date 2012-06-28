@@ -29,6 +29,7 @@ SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QStri
 	FDirectCall = true;
 	FRole = CR_INITIATOR;
 	FContactJid = Jid(APhoneNumber,"vsip.rambler.ru",QString::null);
+	FSipPeer = FContactJid.bare();
 	init(ASipManager, NULL, AXmppStream, ASessionId);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR FOR DIRECT CALL, sid='%1'").arg(sessionId()));
