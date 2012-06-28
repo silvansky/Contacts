@@ -145,10 +145,6 @@
         <translation>%1 сейчас разговаривает. Перезвоните позднее.</translation>
     </message>
     <message>
-        <source>Call failed. Technical info: %1.</source>
-        <translation>Звонок не удался. Техническая информация: %1.</translation>
-    </message>
-    <message>
         <source>%1 calling you.</source>
         <translation>%1 звонит Вам.</translation>
     </message>
@@ -187,6 +183,10 @@
     <message>
         <source>Call rejected.</source>
         <translation>Звонок отклонен.</translation>
+    </message>
+    <message>
+        <source>Call failed. Try to call later.</source>
+        <translation>Звонок не удался. Попробуйте перезвонить позднее.</translation>
     </message>
 </context>
 <context>

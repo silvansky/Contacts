@@ -24,9 +24,8 @@
 struct CallNotifyParams
 {
 	int rosterNotifyId;
-	QUuid contentId;
-	IViewWidget *view;
 	QDateTime contentTime;
+	QMap<IViewWidget *, QUuid> contentId;
 };
 
 class SipManager :
