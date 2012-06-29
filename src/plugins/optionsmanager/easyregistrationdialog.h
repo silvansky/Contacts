@@ -2,6 +2,7 @@
 #define EASYREGISTRATIONDIALOG_H
 
 #include <QDialog>
+
 #include <utils/jid.h>
 
 namespace Ui {
@@ -24,13 +25,19 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *ke);
 protected:
 	void startLoading();
+	void setError(bool on);
+	void parseSize(const QString &sizeString);
+	void updateWindowSize();
 protected slots:
+	void onWindowAnimationComplete();
 	void onLoaded(bool ok);
 	void onWebPageLinkClicked(const QUrl &url);
 private:
 	Ui::EasyRegistrationDialog *ui;
 private:
 	Jid userJid;
+	QSize recommendedWebViewSize;
+	bool errorSet;
 };
 
 #endif // EASYREGISTRATIONDIALOG_H

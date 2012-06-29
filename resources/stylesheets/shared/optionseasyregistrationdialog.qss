@@ -2,3 +2,10 @@ EasyRegistrationDialog
 {
 	background-color: rgba(65, 70, 77, 250);
 }
+
+QWidget#errWidget
+{
+	background-color: rgba(0, 0, 0, 150);
+	border-radius: 5px;
+}
+

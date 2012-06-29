@@ -16,6 +16,7 @@
 #include <QWebHistory>
 #include <QNetworkRequest>
 #include <QDesktopServices>
+#include <QPropertyAnimation>
 
 #ifdef DEBUG_ENABLED
 # include <QDebug>
@@ -30,9 +31,14 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	ui(new Ui::EasyRegistrationDialog)
 {
 	ui->setupUi(this);
+	ui->errWidget->setVisible(false);
+	errorSet = false;
 
 	// logo
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui->caption, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
+
+	// error
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui->errIcon, MNI_OPTIONS_ERROR_ALERT, 0, 0, "pixmap");
 
 	// style
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this, STS_OPTIONS_EASYREGISTRATIONDIALOG);
@@ -44,10 +50,11 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 		border->setAttribute(Qt::WA_DeleteOnClose, true);
 		border->setMaximizeButtonVisible(false);
 		border->setMinimizeButtonVisible(false);
-		connect(border, SIGNAL(closeClicked()), SIGNAL(aborted()));
+		connect(border, SIGNAL(closeClicked()), SLOT(close()));
 		connect(this, SIGNAL(aborted()), border, SLOT(close()));
 		connect(this, SIGNAL(registered(const QString &login)), border, SLOT(close()));
 		border->setResizable(false);
+		border->setMaximumSize(size() + QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth()));
 	}
 	else
 	{
@@ -61,7 +68,10 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	connect(ui->easyRegWebView, SIGNAL(loadFinished(bool)), SLOT(onLoaded(bool)));
 	connect(ui->easyRegWebView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
 
+	window()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	window()->setWindowModality(Qt::ApplicationModal);
+
+	recommendedWebViewSize = QSize(400, 500);
 
 	startLoading();
 }
@@ -104,6 +114,94 @@ void EasyRegistrationDialog::startLoading()
 	ui->easyRegWebView->load(request);
 }
 
+void EasyRegistrationDialog::setError(bool on)
+{
+	if (errorSet != on)
+	{
+		errorSet = on;
+		updateWindowSize();
+	}
+}
+
+void EasyRegistrationDialog::parseSize(const QString &sizeString)
+{
+	QStringList params = sizeString.split('=');
+	if ((params.count() > 1) && (params.at(0) == "size"))
+	{
+		params = params.at(1).split('x');
+		if (params.count() == 2)
+		{
+			bool ok = true;
+			int rWidth = params.at(0).toInt(&ok);
+			if (ok)
+			{
+				int rHeight = params.at(1).toInt(&ok);
+				if (ok)
+				{
+					QSize parsedSize = QSize(rWidth, rHeight);
+					if (recommendedWebViewSize != parsedSize)
+					{
+						recommendedWebViewSize = parsedSize;
+						updateWindowSize();
+					}
+				}
+			}
+		}
+	}
+}
+
+void EasyRegistrationDialog::updateWindowSize()
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << "*** recommendedWebViewSize: " << recommendedWebViewSize;
+	qDebug() << "*** size hint: " << window()->sizeHint();
+	qDebug() << "*** error: " << errorSet;
+#endif
+	ui->easyRegWebView->setFixedSize(recommendedWebViewSize);
+	if (errorSet && !ui->errWidget->isVisible())
+	{
+		ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+	}
+	QSize neededSize = sizeHint();
+	CustomBorderContainer *border = CustomBorderStorage::widgetBorder(this);
+	if (border)
+	{
+		neededSize += QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth());
+	}
+	if (errorSet && !ui->errWidget->isVisible())
+	{
+		neededSize += QSize(0, 65);
+		ui->errWidget->setVisible(true);
+	}
+	window()->setMaximumSize(neededSize);
+	QRect neededGeom = window()->geometry();
+	neededGeom.setSize(neededSize);
+	//ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
+	//ui->errWidget->setMinimumSize(0, 0);
+	if (neededGeom != window()->geometry())
+	{
+		QPropertyAnimation *animation = new QPropertyAnimation(window(), "geometry");
+		animation->setStartValue(window()->geometry());
+		animation->setEndValue(neededGeom);
+		animation->setDuration(3000);
+		connect(animation, SIGNAL(finished()), SLOT(onWindowAnimationComplete()));
+		animation->start(QAbstractAnimation::DeleteWhenStopped);
+	}
+	else
+		onWindowAnimationComplete();
+}
+
+void EasyRegistrationDialog::onWindowAnimationComplete()
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << "*** animation complete! error: " << errorSet;
+#endif
+	if (errorSet)
+		ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	else
+		ui->errWidget->setVisible(false);
+}
+
 void EasyRegistrationDialog::onLoaded(bool ok)
 {
 	ui->easyRegWebView->history()->clear();
@@ -117,7 +215,7 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 		if (url.host() == EASY_REG_URL)
 		{
 			// we have some data loaded
-			// TODO: show some error
+			setError(true);
 		}
 		else
 		{
@@ -149,6 +247,7 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 #endif
 		if (url.host() == EASY_REG_URL)
 		{
+			setError(false);
 			if (url.hasQueryItem("login") && url.hasQueryItem("domain") && url.hasQueryItem("success"))
 			{
 				bool registrationOk = url.queryItemValue("success").toInt() == 1;
@@ -162,6 +261,8 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 			{
 				close();
 			}
+			if (url.hasFragment())
+				parseSize(url.fragment());
 		}
 	}
 }
@@ -175,4 +276,5 @@ void EasyRegistrationDialog::onWebPageLinkClicked(const QUrl &url)
 void EasyRegistrationDialog::showEvent(QShowEvent *se)
 {
 	QDialog::showEvent(se);
+	updateWindowSize();
 }
