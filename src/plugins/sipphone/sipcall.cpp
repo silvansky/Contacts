@@ -24,12 +24,12 @@
 
 QList<SipCall *> SipCall::FCallInstances;
 
-SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId)
+SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const Jid &APhoneJid, const QString &ASessionId)
 {
 	FDirectCall = true;
 	FRole = CR_INITIATOR;
-	FContactJid = Jid(APhoneNumber,"vsip.rambler.ru",QString::null);
-	FSipPeer = FContactJid.bare();
+	FContactJid = APhoneJid;
+	FSipPeer = APhoneJid.node()+"@"SIP_DOMAIN;
 	init(ASipManager, NULL, AXmppStream, ASessionId);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR FOR DIRECT CALL, sid='%1'").arg(sessionId()));
@@ -72,7 +72,7 @@ QObject *SipCall::instance()
 	return this;
 }
 
-bool SipCall::isDirectCall() const
+bool SipCall::isPhoneCall() const
 {
 	return FDirectCall;
 }
@@ -101,7 +101,7 @@ void SipCall::startCall()
 {
 	if ((role() == CR_INITIATOR) && (state() == CS_INIT))
 	{
-		if (isDirectCall())
+		if (isPhoneCall())
 		{
 			setCallState(CS_CONNECTING);
 		}
@@ -767,7 +767,7 @@ void SipCall::init(ISipManager *AManager, IStanzaProcessor *AStanzaProcessor, IX
 
 void SipCall::sendLocalDeviceStates() const
 {
-	if (FStanzaProcessor && !isDirectCall())
+	if (FStanzaProcessor)
 	{
 		Stanza update("message");
 		update.setTo(contactJid().full());
@@ -836,7 +836,7 @@ void SipCall::setCallState(CallState AState)
 		}
 		else if (AState == CS_CONNECTING)
 		{
-			if (isDirectCall())
+			if (isPhoneCall())
 				FRingTimer.start(RING_TIMEOUT);
 
 			if (pjsua_set_ec(PJSUA_DEFAULT_EC_TAIL_LEN, 0) != PJ_SUCCESS)
@@ -892,7 +892,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 	{
 		if (ARegistered)
 		{
-			if (FStanzaProcessor && !isDirectCall())
+			if (FStanzaProcessor && !isPhoneCall())
 			{
 				notifyActiveDestinations("accepted");
 				Stanza result = FStanzaProcessor->makeReplyResult(FAcceptStanza);
@@ -902,7 +902,7 @@ void SipCall::continueAfterRegistration(bool ARegistered)
 		}
 		else
 		{
-			if (FStanzaProcessor && !isDirectCall())
+			if (FStanzaProcessor && !isPhoneCall())
 			{
 				notifyActiveDestinations("caller_error");
 				ErrorHandler err(ErrorHandler::RECIPIENT_UNAVAILABLE);
@@ -973,7 +973,7 @@ void SipCall::sipCallTo(const QString &APeer)
 		pjsua_call_setting call_setting;
 		pjsua_call_setting_default(&call_setting);
 
-		if (FContactJid.domain() == SIP_DOMAIN)
+		if (isPhoneCall())
 		{
 			call_setting.vid_cnt = 0;
 		}
@@ -1038,8 +1038,12 @@ void SipCall::updateDeviceStates()
 				}
 			}
 
+			QList<ISipDevice::Type> updateDivicesList = QList<ISipDevice::Type>() << ISipDevice::DT_LOCAL_CAMERA << ISipDevice::DT_LOCAL_MICROPHONE;
+			if (isPhoneCall())
+				updateDivicesList << ISipDevice::DT_REMOTE_CAMERA << ISipDevice::DT_REMOTE_MICROPHONE;
+
 			bool hasUpdates = false;
-			foreach(ISipDevice::Type type, QList<ISipDevice::Type>()<<ISipDevice::DT_LOCAL_CAMERA<<ISipDevice::DT_LOCAL_MICROPHONE)
+			foreach(ISipDevice::Type type, updateDivicesList)
 			{
 				ISipDevice::State newState = newStates.value(type,ISipDevice::DS_UNAVAIL);
 				if (deviceState(type) != newState)
@@ -1049,7 +1053,7 @@ void SipCall::updateDeviceStates()
 				}
 			}
 
-			if (hasUpdates)
+			if (hasUpdates && !isPhoneCall())
 				sendLocalDeviceStates();
 		}
 		else
@@ -1079,12 +1083,12 @@ void SipCall::onRingTimerTimeout()
 		LogDetail(QString("[SipCall] Ring timer timed out, sid='%1'").arg(sessionId()));
 		if (role() == CR_INITIATOR)
 		{
-			if (isDirectCall())
+			if (isPhoneCall())
 				setCallError(EC_NOANSWER);
 		}
 		else if (role() == CR_RESPONDER)
 		{
-			if (FStanzaProcessor && !isDirectCall())
+			if (FStanzaProcessor && !isPhoneCall())
 			{
 				Stanza timeout("iq");
 				timeout.setTo(contactJid().full()).setType("set").setId(FStanzaProcessor->newId());

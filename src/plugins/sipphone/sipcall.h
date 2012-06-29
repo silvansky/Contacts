@@ -16,13 +16,13 @@ class SipCall :
 	Q_OBJECT;
 	Q_INTERFACES(ISipCall IStanzaHandler IStanzaRequestOwner);
 public:
-	SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QString &APhoneNumber, const QString &ASessionId);
+	SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const Jid &APhoneJid, const QString &ASessionId);
 	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const Jid &AContactJid, const QString &ASessionId);
 	SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const QList<Jid> &ADestinations, const QString &ASessionId);
 	virtual ~SipCall();
 	virtual QObject *instance();
 	// ISipCall
-	virtual bool isDirectCall() const;
+	virtual bool isPhoneCall() const;
 	virtual Jid streamJid() const;
 	virtual Jid contactJid() const;
 	virtual QString sessionId() const;

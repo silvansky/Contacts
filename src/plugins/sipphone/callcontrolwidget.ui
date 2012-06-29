@@ -89,6 +89,15 @@
            <property name="text">
             <string notr="true">DR</string>
            </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -105,9 +114,6 @@
            <property name="checkable">
             <bool>true</bool>
            </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
           </widget>
          </item>
          <item>
@@ -123,9 +129,6 @@
            </property>
            <property name="checkable">
             <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
            </property>
           </widget>
          </item>

@@ -42,6 +42,14 @@
     <object mime="image/png">sipphonecallresize.png</object>
   </icon>
   <icon>
+    <key>sipDialerShown</key>
+    <object mime="image/png">sipphonecalldialershown.png</object>
+  </icon>
+  <icon>
+    <key>sipDialerHidden</key>
+    <object mime="image/png">sipphonecalldialerhidden.png</object>
+  </icon>
+  <icon>
     <key>sipVideoWait</key>
     <object mime="image/gif">sipphonevideowait.gif</object>
   </icon>

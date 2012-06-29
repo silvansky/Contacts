@@ -115,7 +115,7 @@ public:
 	};
 
 	virtual QObject *instance() = 0;
-	virtual bool isDirectCall() const =0;
+	virtual bool isPhoneCall() const =0;
 	virtual Jid streamJid() const = 0;
 	virtual Jid contactJid() const = 0;
 	virtual QString sessionId() const = 0;
@@ -158,6 +158,7 @@ public:
 	virtual bool isCallsAvailable() const =0;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const = 0;
 	// calls
+	virtual ISipCall *newCall(const Jid &AStreamJid, const Jid &APhoneJid) =0;
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations) = 0;
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// SIP registration

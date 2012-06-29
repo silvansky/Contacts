@@ -82,16 +82,17 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 		ui.lblAvatar->setPixmap(QPixmap::fromImage(avatar));
 	}
 
-	if (!FMetaId.isEmpty())
+	if (sipCall()->isPhoneCall())
+	{
+		ui.lblName->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),contactJid().uNode()) : contactJid().uNode());
+	}
+	else if (!FMetaId.isEmpty())
 	{
 		ui.lblName->setText(FMetaContacts->metaContactName(FMetaRoster->metaContact(FMetaId)));
 	}
 	else if (FGateways)
 	{
-		if (sipCall()->isDirectCall())
-			ui.lblName->setText(FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),contactJid().uNode()));
-		else
-			ui.lblName->setText(FGateways->legacyIdFromUserJid(streamJid(),contactJid()));
+		ui.lblName->setText(FGateways->legacyIdFromUserJid(streamJid(),contactJid()));
 	}
 	else
 	{
@@ -104,9 +105,9 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	else
 		setWindowTitle(tr("Call from %1").arg(ui.lblName->text()));
 
-
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbReject,MNI_SIPPHONE_CALL_REJECT);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbDialer,MNI_SIPPHONE_DIALER_HIDDEN);
 
 	onAnimateNoticeTimeout();
 	updateDevicesStateAndProperties();
@@ -316,15 +317,15 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.tlbLocalCamera->setVisible(false);
 		ui.tlbLocalMicrophone->setVisible(false);
 		ui.vlcRemoteMicrophome->setVisible(false);
-		ui.lblNotice->setText(sipCall()->isDirectCall() ? tr("Calling...") : tr("Connecting..."));
+		ui.lblNotice->setText(sipCall()->isPhoneCall() ? tr("Calling...") : tr("Connecting..."));
 		break;
 	case ISipCall::CS_TALKING:
 		ui.pbtAccept->setVisible(false);
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(true);
 		ui.tlbSilent->setVisible(false);
-		ui.tlbDialer->setVisible(sipCall()->isDirectCall());
-		ui.tlbLocalCamera->setVisible(!sipCall()->isDirectCall());
+		ui.tlbDialer->setVisible(sipCall()->isPhoneCall());
+		ui.tlbLocalCamera->setVisible(!sipCall()->isPhoneCall());
 		ui.tlbLocalMicrophone->setVisible(true);
 		ui.vlcRemoteMicrophome->setVisible(true);
 		updateDevicesStateAndProperties();
@@ -359,7 +360,7 @@ void CallControlWidget::onCallStateChanged(int AState)
 	else
 		FCallTimer.stop();
 
-	if (AState==ISipCall::CS_CALLING || (FSipCall->isDirectCall() && AState==ISipCall::CS_CONNECTING))
+	if (AState==ISipCall::CS_CALLING || (FSipCall->isPhoneCall() && AState==ISipCall::CS_CONNECTING))
 		playSound(FSipCall->role()==ISipCall::CR_INITIATOR ? SDF_SIPPHONE_CALL_WAIT : SDF_SIPPHONE_CALL_RINGING, 50);
 	else if (AState == ISipCall::CS_TALKING)
 		playSound(SDF_SIPPHONE_CALL_START);

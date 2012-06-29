@@ -41,7 +41,7 @@
 #define ADR_STREAM_JID           Action::DR_StreamJid
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
-#define ADR_PHONE_NUMBER         Action::DR_Parametr3
+#define ADR_PHONE_JID         Action::DR_Parametr3
 #define ADR_AUTO_START_VIDEO     Action::DR_Parametr4
 #define ADR_STATUS_ICON          Action::DR_Parametr1
 
@@ -257,7 +257,7 @@ bool SipManager::startPlugin()
 
 bool SipManager::isCallsAvailable() const
 {
-	return FSipStackCreated /*&& isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE) && isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE)*/;
+	return FSipStackCreated && isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE) && isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE);
 }
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -265,12 +265,12 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
 }
 
-ISipCall *SipManager::newCall(const Jid &AStreamJid, const QString &APhoneNumber)
+ISipCall *SipManager::newCall(const Jid &AStreamJid, const Jid &APhoneJid)
 {
 	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (xmppStream)
 	{
-		SipCall *call = new SipCall(this, xmppStream, APhoneNumber, QUuid::createUuid().toString());
+		SipCall *call = new SipCall(this, xmppStream, APhoneJid, QUuid::createUuid().toString());
 		emit sipCallCreated(call);
 		return call;
 	}
@@ -1010,7 +1010,7 @@ bool SipManager::eventFilter(QObject *AObject, QEvent *AEvent)
 void SipManager::onCallStateChanged(int AState)
 {
 	ISipCall *call = qobject_cast<ISipCall *>(sender());
-	if (call && !call->isDirectCall())
+	if (call && !call->isPhoneCall())
 	{
 		// Notify in roster
 		if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
@@ -1155,9 +1155,9 @@ void SipManager::onStartPhoneCall()
 	if (action)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		QString number = action->data(ADR_PHONE_NUMBER).toString();
+		Jid phoneJid = action->data(ADR_PHONE_JID).toString();
 
-		ISipCall *call = newCall(streamJid,number);
+		ISipCall *call = newCall(streamJid,phoneJid);
 		if (call)
 		{
 			PhoneCallWindow *window = new PhoneCallWindow(FPluginManager,call);
@@ -1216,7 +1216,7 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
-		QStringList phoneNumbers;
+		QList<Jid> phoneNumbers;
 		QStringList destinations;
 		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
 		foreach(Jid itemJid, contact.items)
@@ -1228,21 +1228,18 @@ void SipManager::onCallMenuAboutToShow()
 			}
 
 			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
-			if (descriptor.gateId == GSID_SMS)
-			{
-				QString number = FGateways!=NULL ? FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_SMS),itemJid.uNode()) : itemJid.node();
-				phoneNumbers.append(number);
-			}
+			if (descriptor.gateId==GSID_PHONE || descriptor.gateId==GSID_SMS)
+				phoneNumbers.append(itemJid);
 		}
 
 		bool phoneCallEnabled = isCallsAvailable() && SipCall::findCalls().isEmpty();
-		foreach(QString number, phoneNumbers)
+		foreach(Jid phoneJid, phoneNumbers)
 		{
 			Action *phoneCallAction = new Action(menu);
 			phoneCallAction->setEnabled(phoneCallEnabled);
-			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),number) : number);
+			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),phoneJid.uNode()) : phoneJid.uNode());
 			phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-			phoneCallAction->setData(ADR_PHONE_NUMBER,number);
+			phoneCallAction->setData(ADR_PHONE_JID,phoneJid.full());
 			connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
 			menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
 		}

@@ -52,7 +52,7 @@ public:
 	virtual bool isCallsAvailable() const;
 	virtual bool isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const;
 	// calls
-	virtual ISipCall *newCall(const Jid &AStreamJid, const QString &APhoneNumber);
+	virtual ISipCall *newCall(const Jid &AStreamJid, const Jid &APhoneJid);
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// SIP registration
