@@ -59,8 +59,8 @@ protected slots:
 private:
 	Ui::VideoCallWindowClass ui;
 private:
+	bool FFirstShow;
 	bool FVideoShown;
-	bool FIsFirstShow;
 	bool FVideoVisible;
 	bool FFirstRestore;
 	int FBlockVideoChange;

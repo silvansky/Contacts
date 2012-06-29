@@ -1,5 +1,6 @@
 FORMS = \
 		videocallwindow.ui \
+		phonecallwindow.ui \
 		callcontrolwidget.ui
 
 HEADERS = \ 
@@ -10,6 +11,7 @@ HEADERS = \
 		pjsipdefines.h \
 		pjsipcallbacks.h \
 		videocallwindow.h \
+		phonecallwindow.h \
 		videolayout.h \
 		videoframe.h \
 		volumecontrol.h \
@@ -21,6 +23,7 @@ SOURCES = \
 		frameconverter.cpp \
 		pjsipcallbacks.cpp \
 		videocallwindow.cpp \
+		phonecallwindow.cpp \
 		videolayout.cpp \
 		videoframe.cpp \
 		volumecontrol.cpp \

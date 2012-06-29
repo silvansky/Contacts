@@ -4,24 +4,20 @@
 <context>
     <name>CallControlWidget</name>
     <message>
-        <source>Call to %1</source>
-        <translation>Звонок к %1</translation>
+        <source>Calling %1</source>
+        <translation>Звонок — %1</translation>
     </message>
     <message>
         <source>Call from %1</source>
-        <translation>Звонок от %1</translation>
-    </message>
-    <message>
-        <source>Initializing...</source>
-        <translation>Инициализация...</translation>
+        <translation>Звонок — %1</translation>
     </message>
     <message>
         <source>Calling...</source>
-        <translation>Вызов...</translation>
+        <translation>Звоним...</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation>Подключение...</translation>
+        <translation>Соединяем...</translation>
     </message>
     <message>
         <source>Call finished</source>
@@ -68,34 +64,26 @@
     </message>
     <message>
         <source>Mute and hide</source>
-        <translation>Отключить звук и спрятать</translation>
+        <translation>Отключить звонок и спрятать</translation>
     </message>
 </context>
 <context>
     <name>SipCall</name>
     <message>
-        <source>Connection error</source>
-        <translation>Ошибка подключения</translation>
+        <source>Error</source>
+        <translation>Ошибка</translation>
     </message>
     <message>
-        <source>Undefined error</source>
-        <translation>Неопределенная ошибка</translation>
+        <source>Call not accepted</source>
+        <translation>Звонок не принят</translation>
     </message>
     <message>
-        <source>The called user could not accept the call</source>
-        <translation>Вызываемый абонент не может принять звонок</translation>
+        <source>Call rejected</source>
+        <translation>Звонок отклонен</translation>
     </message>
     <message>
-        <source>The called user did not accept the call</source>
-        <translation>Вызываемый абонент не принял звонок</translation>
-    </message>
-    <message>
-        <source>The called user rejected the call</source>
-        <translation>Вызываемый абонент отклонил звонок</translation>
-    </message>
-    <message>
-        <source>The called user is now talking</source>
-        <translation>Вызываемый абонент сейчас разговаривает</translation>
+        <source>The line is busy</source>
+        <translation>Линия занята</translation>
     </message>
 </context>
 <context>
@@ -125,7 +113,7 @@
         </translation>
     </message>
     <message>
-        <source>Calling to...</source>
+        <source>Calling...</source>
         <translation>Звоним...</translation>
     </message>
     <message>
@@ -137,68 +125,36 @@
         <translation>Идет разговор...</translation>
     </message>
     <message>
-        <source>Calling to %1.</source>
-        <translation>Вызываем %1.</translation>
+        <source>Calling.</source>
+        <translation>Звоним.</translation>
     </message>
     <message>
-        <source>Call to %1.</source>
-        <translation>Звонок к %1.</translation>
+        <source>Call in progress.</source>
+        <translation>Идет разговор.</translation>
     </message>
     <message>
-        <source>Call to %1 finished, duration %2.</source>
-        <translation>Звонок к %1 завершен, продолжительность %2.</translation>
+        <source>Call finished (duration: %1).</source>
+        <translation>Звонок завершен (длительность: %1).</translation>
     </message>
     <message>
-        <source>Call to %1 canceled.</source>
-        <translation>Звонок к %1 отменен.</translation>
+        <source>Call canceled.</source>
+        <translation>Звонок отменен.</translation>
     </message>
     <message>
         <source>%1 is now talking. Call later.</source>
         <translation>%1 сейчас разговаривает. Перезвоните позднее.</translation>
     </message>
     <message>
-        <source>%1 could not accept the call.</source>
-        <translation>%1 не смог принять звонок.</translation>
-    </message>
-    <message>
-        <source>%1 did not accept the call.</source>
-        <translation>%1 не принял звонок.</translation>
-    </message>
-    <message>
-        <source>Call failed, unable to establish connection with %1.</source>
-        <translation>Звонок не удался, невозможно установить подключение с %1.</translation>
-    </message>
-    <message>
-        <source>Call to %1 has failed. Reason: %2.</source>
-        <translation>Звонок к %1 не удался. Причина: %2.</translation>
-    </message>
-    <message>
         <source>%1 calling you.</source>
         <translation>%1 звонит Вам.</translation>
     </message>
     <message>
-        <source>Call from %1.</source>
-        <translation>Звонок от %1.</translation>
-    </message>
-    <message>
-        <source>Call from %1 finished, duration %2.</source>
-        <translation>Звонок от %1 завершен, продолжительность %2.</translation>
-    </message>
-    <message>
-        <source>Call from %1 accepted.</source>
-        <translation>Звонок от %1 принят.</translation>
+        <source>Call accepted.</source>
+        <translation>Звонок принят.</translation>
     </message>
     <message>
         <source>Missed call.</source>
         <translation>Пропущенный звонок.</translation>
-    </message>
-    <message>
-        <source>Call from %1 canceled.</source>
-        <translation>Звонок от %1 отменен.</translation>
-    </message>
-    <message>
-        <source>Call from %1 has failed. Reason: %2.</source>
-        <translation>Звонок от %1 не удался. Причина: %2.</translation>
     </message>
     <message>
         <source>Audio Call</source>
@@ -220,6 +176,18 @@
         <source>SIP Phone</source>
         <translation>SIP телефон</translation>
     </message>
+    <message>
+        <source>Call not accepted.</source>
+        <translation>Звонок не принят.</translation>
+    </message>
+    <message>
+        <source>Call rejected.</source>
+        <translation>Звонок отклонен.</translation>
+    </message>
+    <message>
+        <source>Call failed. Try to call later.</source>
+        <translation>Звонок не удался. Попробуйте перезвонить позднее.</translation>
+    </message>
 </context>
 <context>
     <name>VideoCallWindow</name>
@@ -228,8 +196,12 @@
         <translation>Свернуть</translation>
     </message>
     <message>
-        <source>Toggle Full Screen</source>
-        <translation>Переключить полноэкранный режим</translation>
+        <source>Enter Full Screen</source>
+        <translation>Перейти в полноэкранный режим</translation>
+    </message>
+    <message>
+        <source>Exit Full Screen</source>
+        <translation>Выйти из полноэкранного режима</translation>
     </message>
 </context>
 <context>

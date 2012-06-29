@@ -937,7 +937,6 @@ void MetaContacts::initMetaItemDescriptors()
 {
 	FDefaultItemDescriptor.name = tr("Jabber");
 	FDefaultItemDescriptor.icon = MNI_METACONTACTS_ITEM_JABBER;
-	FDefaultItemDescriptor.hidden = false;
 	FDefaultItemDescriptor.metaOrder = MIO_JABBER;
 	FDefaultItemDescriptor.gateId = GSID_JABBER;
 
@@ -947,7 +946,6 @@ void MetaContacts::initMetaItemDescriptors()
 	sms.detach = false;
 	sms.service = true;
 	sms.persistent = true;
-	sms.hidden = false;
 	sms.metaOrder = MIO_SMS;
 	sms.gateId = GSID_SMS;
 	sms.gatePrefix = "sms";
@@ -959,7 +957,6 @@ void MetaContacts::initMetaItemDescriptors()
 	mail.detach = false;
 	mail.service = true;
 	mail.persistent = true;
-	mail.hidden = false;
 	mail.metaOrder = MIO_MAIL;
 	mail.gateId = GSID_MAIL;
 	mail.gatePrefix = "mail";
@@ -967,11 +964,9 @@ void MetaContacts::initMetaItemDescriptors()
 
 	IMetaItemDescriptor phone;
 	phone.name = tr("Phone");
-	phone.icon = MNI_METACONTACTS_ITEM_MAIL;
-	phone.combine = true;
+	phone.icon = MNI_METACONTACTS_ITEM_PHONE;
 	phone.detach = false;
 	phone.service = true;
-	phone.persistent = false;
 	phone.hidden = true;
 	phone.metaOrder = MIO_PHONE;
 	phone.gateId = GSID_PHONE;
@@ -981,7 +976,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor icq;
 	icq.name = tr("ICQ");
 	icq.icon = MNI_METACONTACTS_ITEM_ICQ;
-	icq.hidden = false;
 	icq.metaOrder = MIO_ICQ;
 	icq.gateId = GSID_ICQ;
 	icq.gatePrefix = "icq";
@@ -990,7 +984,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor magent;
 	magent.name = tr("Agent@Mail.ru");
 	magent.icon = MNI_METACONTACTS_ITEM_MAGENT;
-	magent.hidden = false;
 	magent.metaOrder = MIO_MAGENT;
 	magent.gateId = GSID_MAGENT;
 	magent.gatePrefix = "mrim";
@@ -999,7 +992,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor twitter;
 	twitter.name = tr("Twitter");
 	twitter.icon = MNI_METACONTACTS_ITEM_TWITTER;
-	twitter.hidden = false;
 	twitter.metaOrder = MIO_TWITTER;
 	twitter.gateId = GSID_TWITTER;
 	twitter.gatePrefix = "tw";
@@ -1008,7 +1000,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor fring;
 	fring.name = tr("Fring");
 	fring.icon = MNI_METACONTACTS_ITEM_FRING;
-	fring.hidden = false;
 	fring.metaOrder = MIO_FRING;
 	fring.gateId = GSID_TWITTER;
 	fring.gatePrefix = "fring";
@@ -1017,7 +1008,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor gtalk;
 	gtalk.name = tr("GTalk");
 	gtalk.icon = MNI_METACONTACTS_ITEM_GTALK;
-	gtalk.hidden = false;
 	gtalk.metaOrder = MIO_GTALK;
 	gtalk.gateId = GSID_GTALK;
 	gtalk.gatePrefix = "gmail";
@@ -1027,7 +1017,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor yonline;
 	yonline.name = tr("Ya.Online");
 	yonline.icon = MNI_METACONTACTS_ITEM_YONLINE;
-	yonline.hidden = false;
 	yonline.metaOrder = MIO_YONLINE;
 	yonline.gateId = GSID_YONLINE;
 	yonline.gatePrefix = "yandex";
@@ -1038,7 +1027,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor qip;
 	qip.name = tr("QIP");
 	qip.icon = MNI_METACONTACTS_ITEM_QIP;
-	qip.hidden = false;
 	qip.metaOrder = MIO_QIP;
 	qip.gateId = GSID_QIP;
 	qip.gatePrefix = "qip";
@@ -1051,7 +1039,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor vkontakte;
 	vkontakte.name = tr("VKontakte");
 	vkontakte.icon = MNI_METACONTACTS_ITEM_VKONTAKTE;
-	vkontakte.hidden = false;
 	vkontakte.metaOrder = MIO_VKONTAKTE;
 	vkontakte.gateId = GSID_VKONTAKTE;
 	vkontakte.gatePrefix = "vk";
@@ -1070,7 +1057,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor facebook;
 	facebook.name = tr("Facebook");
 	facebook.icon = MNI_METACONTACTS_ITEM_FACEBOOK;
-	facebook.hidden = false;
 	facebook.metaOrder = MIO_FACEBOOK;
 	facebook.gateId = GSID_FACEBOOK;
 	facebook.gatePrefix = "fb";
@@ -1080,7 +1066,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor livejournal;
 	livejournal.name = tr("LiveJournal");
 	livejournal.icon = MNI_METACONTACTS_ITEM_LIVEJOURNAL;
-	livejournal.hidden = false;
 	livejournal.metaOrder = MIO_LIVEJOURNAL;
 	livejournal.gateId = GSID_LIVEJOURNAL;
 	livejournal.gatePrefix = "livejournal";
@@ -1090,7 +1075,6 @@ void MetaContacts::initMetaItemDescriptors()
 	IMetaItemDescriptor rambler;
 	rambler.name = tr("Rambler");
 	rambler.icon = MNI_METACONTACTS_ITEM_RAMBLER;
-	rambler.hidden = false;
 	rambler.metaOrder = MIO_RAMBLER;
 	rambler.gateId = GSID_RAMBLER;
 	rambler.gatePrefix = "rambler";

@@ -9,6 +9,10 @@
     <object mime='text/css'>sipphonevideocallwindow.qss</object>
   </file>
   <file>
+    <key>sipphonePhoneCallWindow</key>
+    <object mime='text/css'>sipphonephonecallwindow.qss</object>
+  </file>
+  <file>
     <key>sipphoneDialWidget</key>
     <object mime='text/css'>sipphonedialwidget.qss</object>
   </file>

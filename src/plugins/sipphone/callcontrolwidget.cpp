@@ -30,7 +30,6 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	ui.lblAvatar->setProperty(CBC_IGNORE_FILTER,true);
 	ui.wdtControlls->setProperty(CBC_IGNORE_FILTER,true);
 	ui.frmBackground->setProperty(CBC_IGNORE_FILTER,true);
-	ui.wdtDeviceControls->setProperty(CBC_IGNORE_FILTER,true);
 
 	FAvatars = NULL;
 	FGateways = NULL;
@@ -101,9 +100,10 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	ui.lblName->setElideMode(Qt::ElideRight);
 
 	if (FSipCall->role() == ISipCall::CR_INITIATOR)
-		setWindowTitle(tr("Call to %1").arg(ui.lblName->text()));
+		setWindowTitle(tr("Calling %1").arg(ui.lblName->text()));
 	else
 		setWindowTitle(tr("Call from %1").arg(ui.lblName->text()));
+
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbReject,MNI_SIPPHONE_CALL_REJECT);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
@@ -290,15 +290,21 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(false);
 		ui.tlbSilent->setVisible(false);
-		ui.wdtDeviceControls->setVisible(false);
-		ui.lblNotice->setText(tr("Initializing..."));
+		ui.tlbDialer->setVisible(false);
+		ui.tlbLocalCamera->setVisible(false);
+		ui.tlbLocalMicrophone->setVisible(false);
+		ui.vlcRemoteMicrophome->setVisible(false);
+		ui.lblNotice->setText(tr("Calling..."));
 		break;
 	case ISipCall::CS_CALLING:
 		ui.pbtAccept->setVisible(FSipCall->role()==ISipCall::CR_RESPONDER);
 		ui.pbtReject->setVisible(FSipCall->role()==ISipCall::CR_RESPONDER);
 		ui.tlbReject->setVisible(FSipCall->role()==ISipCall::CR_INITIATOR);
 		ui.tlbSilent->setVisible(FSipCall->role()==ISipCall::CR_RESPONDER);
-		ui.wdtDeviceControls->setVisible(false);
+		ui.tlbDialer->setVisible(false);
+		ui.tlbLocalCamera->setVisible(false);
+		ui.tlbLocalMicrophone->setVisible(false);
+		ui.vlcRemoteMicrophome->setVisible(false);
 		ui.lblNotice->setText(tr("Calling..."));
 		break;
 	case ISipCall::CS_CONNECTING:
@@ -306,15 +312,21 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(true);
 		ui.tlbSilent->setVisible(false);
-		ui.wdtDeviceControls->setVisible(false);
-		ui.lblNotice->setText(tr("Connecting..."));
+		ui.tlbDialer->setVisible(false);
+		ui.tlbLocalCamera->setVisible(false);
+		ui.tlbLocalMicrophone->setVisible(false);
+		ui.vlcRemoteMicrophome->setVisible(false);
+		ui.lblNotice->setText(sipCall()->isDirectCall() ? tr("Calling...") : tr("Connecting..."));
 		break;
 	case ISipCall::CS_TALKING:
 		ui.pbtAccept->setVisible(false);
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(true);
 		ui.tlbSilent->setVisible(false);
-		ui.wdtDeviceControls->setVisible(true);
+		ui.tlbDialer->setVisible(sipCall()->isDirectCall());
+		ui.tlbLocalCamera->setVisible(!sipCall()->isDirectCall());
+		ui.tlbLocalMicrophone->setVisible(true);
+		ui.vlcRemoteMicrophome->setVisible(true);
 		updateDevicesStateAndProperties();
 		onCallTimerTimeout();
 		break;
@@ -323,7 +335,10 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(false);
 		ui.tlbSilent->setVisible(false);
-		ui.wdtDeviceControls->setVisible(false);
+		ui.tlbDialer->setVisible(false);
+		ui.tlbLocalCamera->setVisible(false);
+		ui.tlbLocalMicrophone->setVisible(false);
+		ui.vlcRemoteMicrophome->setVisible(false);
 		ui.lblNotice->setText(tr("Call finished"));
 		break;
 	case ISipCall::CS_ERROR:
@@ -331,7 +346,10 @@ void CallControlWidget::onCallStateChanged(int AState)
 		ui.pbtReject->setVisible(false);
 		ui.tlbReject->setVisible(false);
 		ui.tlbSilent->setVisible(false);
-		ui.wdtDeviceControls->setVisible(false);
+		ui.tlbDialer->setVisible(false);
+		ui.tlbLocalCamera->setVisible(false);
+		ui.tlbLocalMicrophone->setVisible(false);
+		ui.vlcRemoteMicrophome->setVisible(false);
 		ui.lblNotice->setText(FSipCall->errorString());
 		break;
 	}

@@ -180,7 +180,7 @@ protected slots:
 	void onMessageAboutToBeSend();
 	void onEditWidgetKeyEvent(QKeyEvent *AKeyEvent, bool &AHooked);
 	void onViewContextQuoteActionTriggered(bool);
-	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu);
 	void onWindowActivated();
 	void onChatMessageReady();
 	void onChatWindowActivated();

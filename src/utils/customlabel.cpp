@@ -57,23 +57,24 @@ void CustomLabel::setMultilineElideEnabled(bool on)
 
 QSize CustomLabel::sizeHint() const
 {
+#ifdef DEBUG_CUSTOMLABEL
 	QSize sh = QLabel::sizeHint();
 	//sh.setWidth(sh.width() + 1);
 	//sh.setHeight(sh.height() + 4);
-#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "for text:" << text();
 	qDebug() << "  size hint:" << sh;
-#endif
+
 	QTextDocument *doc = textDocument();
 	sh = doc->documentLayout()->documentSize().toSize();
-#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "  doc size:" << sh;
-#endif
+
 	sh += QSize(doc->documentMargin(), doc->documentMargin());
-#ifdef DEBUG_CUSTOMLABEL
 	qDebug() << "  doc size with margin:" << sh;
-#endif
+
 	return sh;
+#else
+	return QLabel::sizeHint();
+#endif
 }
 
 void CustomLabel::paintEvent(QPaintEvent *pe)

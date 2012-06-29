@@ -29,6 +29,7 @@ struct IMetaItemDescriptor
 {
 	IMetaItemDescriptor() {
 		detach = true;
+		hidden = false;
 		combine = false;
 		service = false;
 		persistent = false;
@@ -37,10 +38,10 @@ struct IMetaItemDescriptor
 	QString name;
 	QString icon;
 	bool detach;
+	bool hidden;
 	bool combine;
 	bool service;
 	bool persistent;
-	bool hidden;
 	int metaOrder;
 	QString gateId;
 	QString gatePrefix;

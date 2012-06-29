@@ -30,6 +30,7 @@
 #include "pjsipcallbacks.h"
 
 #include "videocallwindow.h"
+#include "phonecallwindow.h"
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
@@ -256,7 +257,7 @@ bool SipManager::startPlugin()
 
 bool SipManager::isCallsAvailable() const
 {
-	return FSipStackCreated && isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE) && isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE);
+	return FSipStackCreated /*&& isDevicePresent(ISipDevice::DT_LOCAL_MICROPHONE) && isDevicePresent(ISipDevice::DT_REMOTE_MICROPHONE)*/;
 }
 
 bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) const
@@ -897,35 +898,39 @@ void SipManager::showNotifyInChatWindow(ISipCall *ACall,const QString &AIconId, 
 	if (FMessageProcessor && FMessageWidgets)
 	{
 		CallNotifyParams &params = FCallNotifyParams[ACall];
-		if (FMessageProcessor->createMessageWindow(ACall->streamJid(),ACall->contactJid(),Message::Chat,AOpen ? IMessageHandler::SM_MINIMIZED : IMessageHandler::SM_ASSIGN))
+		QList<Jid> destinations = !ACall->callDestinations().isEmpty() ? ACall->callDestinations() : QList<Jid>()<<ACall->contactJid();
+		foreach(Jid contactJid, destinations)
 		{
-			IChatWindow *window = FMessageWidgets->findChatWindow(ACall->streamJid(),ACall->contactJid());
-			if (window)
+			if (FMessageProcessor->createMessageWindow(ACall->streamJid(),contactJid,Message::Chat,AOpen ? IMessageHandler::SM_MINIMIZED : IMessageHandler::SM_ASSIGN))
 			{
-				if (!params.contentId.isNull())
+				IChatWindow *window = FMessageWidgets->findChatWindow(ACall->streamJid(),contactJid);
+				if (window)
 				{
+					IViewWidget *view = window->viewWidget();
+					if (!params.contentId.value(view).isNull())
+					{
+						IMessageContentOptions options;
+						options.action = IMessageContentOptions::Remove;
+						options.contentId = params.contentId.value(view);
+						view->changeContentHtml(QString::null,options);
+					}
+
 					IMessageContentOptions options;
-					options.action = IMessageContentOptions::Remove;
-					options.contentId = params.contentId;
-					window->viewWidget()->changeContentHtml(QString::null,options);
+					options.kind = IMessageContentOptions::Status;
+					options.type |= IMessageContentOptions::Notification;
+					options.direction = IMessageContentOptions::DirectionIn;
+					options.time = QDateTime::currentDateTime();
+					options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
+
+					QUrl iconFile = QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(AIconId));
+					QString html = QString("<img src='%1'/> <b>%2</b>").arg(iconFile.toString()).arg(Qt::escape(ANotify));
+
+					params.contentTime = options.time;
+					params.contentId[view] = view->changeContentHtml(html,options);
+
+					connect(view->instance(),SIGNAL(contentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),
+						SLOT(onViewWidgetContentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),Qt::UniqueConnection);
 				}
-
-				IMessageContentOptions options;
-				options.kind = IMessageContentOptions::Status;
-				options.type |= IMessageContentOptions::Notification;
-				options.direction = IMessageContentOptions::DirectionIn;
-				options.time = QDateTime::currentDateTime();
-				options.timeFormat = FMessageStyles!=NULL ? FMessageStyles->timeFormat(options.time) : QString::null;
-
-				QUrl iconFile = QUrl::fromLocalFile(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->fileFullName(AIconId));
-				QString html = QString("<img src='%1'/> <b>%2</b>").arg(iconFile.toString()).arg(Qt::escape(ANotify));
-
-				params.contentId = window->viewWidget()->changeContentHtml(html,options);
-				params.view = window->viewWidget();
-				params.contentTime = options.time;
-
-				connect(window->viewWidget()->instance(),SIGNAL(contentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),
-					SLOT(onViewWidgetContentChanged(const QUuid &, const QString &, const IMessageContentOptions &)),Qt::UniqueConnection);
 			}
 		}
 	}
@@ -1011,7 +1016,7 @@ void SipManager::onCallStateChanged(int AState)
 		if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
 		{
 			if (call->role() == ISipCall::CR_INITIATOR)
-				showNotifyInRoster(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to..."));
+				showNotifyInRoster(call,MNI_SIPPHONE_CALL_OUT,tr("Calling..."));
 			else if (call->role() == ISipCall::CR_RESPONDER)
 				showNotifyInRoster(call,MNI_SIPPHONE_CALL_IN,tr("Calling you..."));
 		}
@@ -1030,18 +1035,18 @@ void SipManager::onCallStateChanged(int AState)
 		{
 			if (AState==ISipCall::CS_CALLING || AState==ISipCall::CS_CONNECTING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Calling to %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Calling."));
 			}
 			else if (AState == ISipCall::CS_TALKING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call in progress."));
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
 				if (call->callTime() > 0)
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call finished (duration: %1).").arg(call->callTimeString()));
 				else
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 canceled.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call canceled."));
 			}
 			else if (AState == ISipCall::CS_ERROR)
 			{
@@ -1050,18 +1055,14 @@ void SipManager::onCallStateChanged(int AState)
 				case ISipCall::EC_BUSY:
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 is now talking. Call later.").arg(userNick));
 					break;
-				case ISipCall::EC_NOTAVAIL:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 could not accept the call.").arg(userNick));
-					break;
 				case ISipCall::EC_NOANSWER:
-				case ISipCall::EC_REJECTED:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("%1 did not accept the call.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call not accepted."));
 					break;
-				case ISipCall::EC_CONNECTIONERR:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
+				case ISipCall::EC_REJECTED:
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call rejected."));
 					break;
 				default:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call to %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed. Try to call later."));
 				}
 			}
 		}
@@ -1073,17 +1074,17 @@ void SipManager::onCallStateChanged(int AState)
 			}
 			else if (AState == ISipCall::CS_TALKING)
 			{
-				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1.").arg(userNick));
+				showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call in progress."));
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
 				if (call->callTime() > 0)
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 finished, duration %2.").arg(userNick,call->callTimeString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call finished (duration: %1).").arg(call->callTimeString()));
 				}
 				else if (call->rejectCode() == ISipCall::RC_EMPTY)
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 accepted.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call accepted."));
 				}
 				else if (call->rejectCode() == ISipCall::RC_BUSY)
 				{
@@ -1092,7 +1093,7 @@ void SipManager::onCallStateChanged(int AState)
 				}
 				else
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 canceled.").arg(userNick));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call canceled."));
 				}
 			}
 			else if (AState == ISipCall::CS_ERROR)
@@ -1104,11 +1105,8 @@ void SipManager::onCallStateChanged(int AState)
 					showMissedCallNotify(call);
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_MISSED,tr("Missed call."),true);
 					break;
-				case ISipCall::EC_CONNECTIONERR:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call failed, unable to establish connection with %1.").arg(userNick));
-					break;
 				default:
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call from %1 has failed. Reason: %2.").arg(userNick).arg(call->errorString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call failed. Try to call later."));
 				}
 			}
 		}
@@ -1162,7 +1160,7 @@ void SipManager::onStartPhoneCall()
 		ISipCall *call = newCall(streamJid,number);
 		if (call)
 		{
-			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
+			PhoneCallWindow *window = new PhoneCallWindow(FPluginManager,call);
 			window->sipCall()->startCall();
 			WidgetManager::showActivateRaiseWindow(window->window());
 			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
@@ -1378,12 +1376,12 @@ void SipManager::onViewWidgetContentChanged(const QUuid &AContentId, const QStri
 	Q_UNUSED(AMessage);
 	if (AOptions.action==IMessageContentOptions::InsertAfter && AOptions.contentId.isNull())
 	{
-		IViewWidget *widget = qobject_cast<IViewWidget *>(sender());
+		IViewWidget *view = qobject_cast<IViewWidget *>(sender());
 		for (QMap<ISipCall *, CallNotifyParams>::iterator it = FCallNotifyParams.begin(); it!=FCallNotifyParams.end(); it++)
 		{
-			if (it->view==widget && it->contentTime<=AOptions.time)
+			if (it->contentId.contains(view) && it->contentTime<=AOptions.time)
 			{
-				it->contentId = QUuid();
+				it->contentId.remove(view);
 				break;
 			}
 		}

@@ -29,6 +29,7 @@ SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const QStri
 	FDirectCall = true;
 	FRole = CR_INITIATOR;
 	FContactJid = Jid(APhoneNumber,"vsip.rambler.ru",QString::null);
+	FSipPeer = FContactJid.bare();
 	init(ASipManager, NULL, AXmppStream, ASessionId);
 
 	LogDetail(QString("[SipCall] Call created as INITIATOR FOR DIRECT CALL, sid='%1'").arg(sessionId()));
@@ -238,17 +239,13 @@ QString SipCall::errorString() const
 	case EC_EMPTY:
 		return QString::null;
 	case EC_BUSY:
-		return tr("The called user is now talking");
-	case EC_NOTAVAIL:
-		return tr("The called user could not accept the call");
+		return tr("The line is busy");
 	case EC_NOANSWER:
-		return tr("The called user did not accept the call");
+		return tr("Call not accepted");
 	case EC_REJECTED:
-		return tr("The called user rejected the call");
-	case EC_CONNECTIONERR:
-		return tr("Connection error");
+		return tr("Call rejected");
 	default:
-		return tr("Undefined error");
+		return tr("Error");
 	}
 }
 
@@ -267,7 +264,7 @@ quint32 SipCall::callTime() const
 QString SipCall::callTimeString() const
 {
 	QTime time = QTime(0, 0, 0, 0).addMSecs(callTime());
-	return time.toString(time.hour()>0 ? "hh:mm:ss" : "mm:ss");
+	return time.toString(time.hour()>0 ? "h:mm:ss" : "m:ss");
 }
 
 bool SipCall::sendDTMFSignal(QChar ASignal)
@@ -1032,8 +1029,10 @@ void SipCall::updateDeviceStates()
 				}
 				else if (ci.media[media_index].type == PJMEDIA_TYPE_VIDEO)
 				{
-					if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
-						newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+					if(pjsua_vid_dev_capture_count() > 0)
+						if (ci.media[media_index].dir & PJMEDIA_DIR_ENCODING)
+							newStates.insert(ISipDevice::DT_LOCAL_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_ENCODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
+
 					if (ci.media[media_index].dir & PJMEDIA_DIR_DECODING)
 						newStates.insert(ISipDevice::DT_REMOTE_CAMERA,pjsua_call_vid_stream_is_running(FCallId,media_index,PJMEDIA_DIR_DECODING) ? ISipDevice::DS_ENABLED : ISipDevice::DS_DISABLED);
 				}

@@ -14,6 +14,7 @@
 #define ADR_USER_JID                Action::DR_Parametr2
 #define ADR_USER_REAL_JID           Action::DR_Parametr3
 #define ADR_USER_NICK               Action::DR_Parametr4
+#define ADR_SELECTED_TEXT           Action::DR_Parametr1
 
 #define NICK_MENU_KEY               Qt::Key_Tab
 
@@ -1985,23 +1986,35 @@ void MultiUserChatWindow::onEditWidgetKeyEvent(QKeyEvent *AKeyEvent, bool &AHook
 
 void MultiUserChatWindow::onViewContextQuoteActionTriggered(bool)
 {
-//	QTextDocumentFragment fragment = viewWidget()->messageStyle()->selection(viewWidget()->styleWidget());
-//	TextManager::insertQuotedFragment(editWidget()->textEdit()->textCursor(),fragment);
-//	editWidget()->textEdit()->setFocus();
+	//Action *action = qobject_cast<Action *>(sender());
+	//if (action)
+	//{
+	//	QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(action->data(ADR_SELECTED_TEXT).toString());
+	//	QTextEdit *editor = editWidget()->textEdit();
+	//	editor->textCursor().beginEditBlock();
+	//	if (!editor->textCursor().atBlockStart())
+	//		editor->textCursor().insertText("\n");
+	//	editor->textCursor().insertText("> ");
+	//	editor->textCursor().insertFragment(fragment);
+	//	editor->textCursor().insertText("\n");
+	//	editor->textCursor().endEditBlock();
+	//	editor->setFocus();
+	//}
 }
 
-void MultiUserChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu)
+void MultiUserChatWindow::onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu)
 {
-	Q_UNUSED(APosition); Q_UNUSED(ASelection); Q_UNUSED(AMenu);
-//	if (!ASelection.toPlainText().trimmed().isEmpty())
-//	{
-//		Action *quoteAction = new Action(AMenu);
-//		quoteAction->setText(tr("Quote selected text"));
-//		quoteAction->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
-//		quoteAction->setShortcutId(SCT_MESSAGEWINDOWS_QUOTE);
-//		connect(quoteAction,SIGNAL(triggered(bool)),SLOT(onViewContextQuoteActionTriggered(bool)));
-//		AMenu->addAction(quoteAction,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
-//	}
+	Q_UNUSED(APosition); Q_UNUSED(AText); Q_UNUSED(AMenu);
+	//if (!AText.toPlainText().trimmed().isEmpty())
+	//{
+	//	Action *quoteAction = new Action(AMenu);
+	//	quoteAction->setText(tr("Quote selected text"));
+	//	quoteAction->setData(ADR_SELECTED_TEXT, AText.toHtml());
+	//	quoteAction->setIcon(RSR_STORAGE_MENUICONS, MNI_MESSAGEWIDGETS_QUOTE);
+	//	quoteAction->setShortcutId(SCT_MESSAGEWINDOWS_QUOTE);
+	//	connect(quoteAction,SIGNAL(triggered(bool)),SLOT(onViewContextQuoteActionTriggered(bool)));
+	//	AMenu->addAction(quoteAction,AG_VWCM_MESSAGEWIDGETS_QUOTE,true);
+	//}
 }
 
 void MultiUserChatWindow::onWindowActivated()

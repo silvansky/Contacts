@@ -1,0 +1,9 @@
+QWidget 
+{
+	background-color: transparent;
+}
+
+QWidget#wdtBackground
+{
+	background-color: rgba(22, 22, 22, 240);
+}

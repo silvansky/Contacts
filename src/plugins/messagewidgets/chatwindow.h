@@ -85,7 +85,7 @@ protected slots:
 	void onMessageReady();
 	void onStreamJidChanged(const Jid &ABefour);
 	void onOptionsChanged(const OptionsNode &ANode);
-	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &ASelection, Menu *AMenu);
+	void onViewWidgetContextMenu(const QPoint &APosition, const QTextDocumentFragment &AText, Menu *AMenu);
 	void onViewContextQuoteActionTriggered(bool);
 	void onNoticeActivated(int ANoticeId);
 	void onTopOrBottomWidgetDestroyed(QObject *QObject);
