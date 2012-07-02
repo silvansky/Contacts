@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icondef>
   <icon>
+    <key>sipDialer</key>
+    <object mime="image/png">sipphonedialer.png</object>
+  </icon>
+  <icon>
+    <key>sipDialerCall</key>
+    <object mime="image/png">sipphonedialercall.png</object>
+  </icon>
+  <icon>
     <key>sipCallButton</key>
     <object mime="image/png">sipphonebutton.png</object>
     <object mime="image/png">sipphonebutton_click.png</object>
@@ -42,11 +50,11 @@
     <object mime="image/png">sipphonecallresize.png</object>
   </icon>
   <icon>
-    <key>sipDialerShown</key>
+    <key>sipCallDialerShown</key>
     <object mime="image/png">sipphonecalldialershown.png</object>
   </icon>
   <icon>
-    <key>sipDialerHidden</key>
+    <key>sipCallDialerHidden</key>
     <object mime="image/png">sipphonecalldialerhidden.png</object>
   </icon>
   <icon>

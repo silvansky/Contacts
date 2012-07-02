@@ -1,0 +1,68 @@
+QWidget#wdtDialer
+{
+	background-color: transparent;
+}
+
+QWidget#wdtHistory
+{
+	background-color: white;
+}
+
+
+QLineEdit
+{
+	font-size: 18px;
+}
+
+QPushButton
+{
+	min-width: 40px;
+}
+
+QPushButton#pbtCall
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
+}
+
+QPushButton#pbtCall:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokhover.png);
+}
+
+QPushButton#pbtCall:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokclick.png);
+}
+
+QLabel#lblCost
+{
+	color: #acacac;
+}
+
+QLabel#lblBalance
+{
+	color: #acacac;
+	text-decoration: underline;
+}
+
+CustomLabel#lblFullHistory 
+{
+	color: black;
+	qproperty-shadow: 0;
+	text-decoration: underline;
+} 
+
+QTableWidget
+{
+	max-width: 190px;
+	color: black;
+	background-color: white;
+	selection-color: white;
+	selection-background-color: #275672;
+}
+
+QTableWidget::item::selected
+{
+	background-color: #275672;
+}
+ 

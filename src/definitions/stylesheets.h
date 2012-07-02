@@ -70,9 +70,9 @@
 #define STS_ROSTERVIEW_TOOLTIP                                          "rosterviewToolTip"
 
 //SipPhone
-#define STS_SIPPHONE_DIALWIDGET                                         "sipphoneDialWidget"
 #define STS_SIPPHONE_VIDEOCALLWINDOW                                    "sipphoneVideoCallWindow"
 #define STS_SIPPHONE_PHONECALLWINDOW                                    "sipphonePhoneCallWindow"
+#define STS_SIPPHONE_PHONEDIALERDIALOG                                  "sipphonePhoneDialerDialog"
 #define STS_SIPPHONE_CALLCONTROLWIDGET                                  "sipphoneCallControlWidget"
 
 //StatusChanger

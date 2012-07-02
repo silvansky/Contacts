@@ -32,6 +32,7 @@
 
 #include "videocallwindow.h"
 #include "phonecallwindow.h"
+#include "phonedialerdialog.h"
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
@@ -92,6 +93,7 @@ SipManager::SipManager() :
 	FMessageWidgets = NULL;
 	FMessageProcessor = NULL;
 	FNotifications = NULL;
+	FMainWindowPlugin = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -203,6 +205,10 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 		}
 	}
 
+	plugin = APluginManager->pluginInterface("IMainWindowPlugin").value(0,NULL);
+	if (plugin)
+		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
+
 	connect(FPluginManager->instance(), SIGNAL(shutdownStarted()), SLOT(onShutDownStarted()));
 
 	return FStanzaProcessor;
@@ -237,6 +243,15 @@ bool SipManager::initObjects()
 		notifyType.kindMask = INotification::RosterNotify|INotification::TrayNotify|INotification::SoundPlay|INotification::AlertWidget|INotification::ShowMinimized|INotification::TabPageNotify|INotification::DockBadge|INotification::AutoActivate;
 		notifyType.kindDefs = notifyType.kindMask & ~(INotification::AutoActivate);
 		FNotifications->registerNotificationType(NNT_SIPPHONE_MISSEDCALL,notifyType);
+	}
+
+	if (FMainWindowPlugin)
+	{
+		Action *dialAction = new Action(FMainWindowPlugin->mainWindow()->topToolBarChanger()->toolBar());
+		dialAction->setIcon(RSR_STORAGE_MENUICONS,MNI_SIPPHONE_DIALER);
+		connect(dialAction,SIGNAL(triggered()),SLOT(onShowPhoneDialerDialog()));
+		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(dialAction,TBG_MWTTB_SIPPHONE_DIAL);
+		button->setObjectName("tlbShowPhoneDialer");
 	}
 
 	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS, this);
@@ -1288,6 +1303,13 @@ void SipManager::onShowAddContactDialog()
 			}
 		}
 	}
+}
+
+void SipManager::onShowPhoneDialerDialog()
+{
+	PhoneDialerDialog *dialog = new PhoneDialerDialog(this);
+	WidgetManager::showActivateRaiseWindow(dialog->window());
+	WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
 }
 
 void SipManager::onCallMenuAboutToShow()

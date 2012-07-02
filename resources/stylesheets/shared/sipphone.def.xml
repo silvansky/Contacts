@@ -13,7 +13,7 @@
     <object mime='text/css'>sipphonephonecallwindow.qss</object>
   </file>
   <file>
-    <key>sipphoneDialWidget</key>
-    <object mime='text/css'>sipphonedialwidget.qss</object>
+    <key>sipphonePhoneDialerDialog</key>
+    <object mime='text/css'>sipphonephonedialerdialog.qss</object>
   </file>
 </styledef>

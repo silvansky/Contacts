@@ -20,6 +20,7 @@
 #include <interfaces/irostersmodel.h>
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/inotifications.h>
+#include <interfaces/imainwindow.h>
 
 struct AccountBalance
 {
@@ -126,6 +127,7 @@ protected slots:
 	void onStartPhoneCall();
 	void onShutDownStarted();
 	void onShowAddContactDialog();
+	void onShowPhoneDialerDialog();
 	void onCallMenuAboutToShow();
 	void onCallMenuAboutToHide();
 	void onChatWindowActivated();
@@ -152,6 +154,7 @@ private:
 	IMessageWidgets *FMessageWidgets;
 	IMessageProcessor *FMessageProcessor;
 	INotifications *FNotifications;
+	IMainWindowPlugin *FMainWindowPlugin;
 private:
 	int FSHISipQuery;
 	QMap<QString, Jid> FCostRequests;

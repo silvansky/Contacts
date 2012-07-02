@@ -164,6 +164,8 @@
 #define MNI_SCHANGER_CONNECTION_RESTORE          "schangerConnectionRestore"
 
 //SipPhone
+#define MNI_SIPPHONE_DIALER                      "sipDialer"
+#define MNI_SIPPHONE_DIALER_CALL                 "sipDialerCall"
 #define MNI_SIPPHONE_CALL_IN                     "sipCallIn"
 #define MNI_SIPPHONE_CALL_OUT                    "sipCallOut"
 #define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"
@@ -174,8 +176,8 @@
 #define MNI_SIPPHONE_CALL_MINIMIZE               "sipCallMinimize"
 #define MNI_SIPPHONE_CALL_FULLSCREEN             "sipCallFullScreen"
 #define MNI_SIPPHONE_CALL_RESIZE                 "sipCallResize"
-#define MNI_SIPPHONE_DIALER_SHOWN                "sipDialerShown"
-#define MNI_SIPPHONE_DIALER_HIDDEN               "sipDialerHidden"
+#define MNI_SIPPHONE_CALL_DIALER_SHOWN           "sipCallDialerShown"
+#define MNI_SIPPHONE_CALL_DIALER_HIDDEN          "sipCallDialerHidden"
 #define MNI_SIPPHONE_VIDEO_WAIT                  "sipVideoWait"
 #define MNI_SIPPHONE_VIDEO_RESIZE                "sipVideoResize"
 #define MNI_SIPPHONE_VIDEO_COLLAPSED             "sipVideoCollapsed"

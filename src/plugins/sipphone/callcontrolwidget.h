@@ -36,6 +36,7 @@ public:
 signals:
 	void chatWindowRequested();
 	void silentButtonClicked();
+	void dialerVisibleChanged(bool AVisible);
 public:
 	QSize sizeHint() const;
 protected:
@@ -53,6 +54,7 @@ protected slots:
 	void onAcceptButtonClicked();
 	void onRejectButtonClicked();
 	void onSilentButtonClicked();
+	void onDialerVisibleButtonClicked(bool AChecked);
 	void onLocalCameraStateButtonClicked(bool AChecked);
 	void onLocalMicrophoneStateButtonClicked(bool AChecked);
 	void onRemoteMicrophoneVolumeChanged(qreal AVolume);

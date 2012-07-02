@@ -1,14 +1,41 @@
-#include "dialwidget.h"
+#include "phonedialerdialog.h"
 
 #include <QClipboard>
 #include <QApplication>
 #include <QRegExpValidator>
+#include <definitions/resources.h>
+#include <definitions/menuicons.h>
+#include <definitions/stylesheets.h>
+#include <definitions/customborder.h>
+#include <utils/iconstorage.h>
+#include <utils/stylestorage.h>
+#include <utils/customborderstorage.h>
 
-DialWidget::DialWidget(ISipPhone *ASipPhone, QWidget *AParent) : QWidget(AParent)
+PhoneDialerDialog::PhoneDialerDialog(ISipManager *ASipManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
-	FSipPhone = ASipPhone;
-	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_DIALWIDGET);
+	FSipManager = ASipManager;
+	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_SIPPHONE_PHONEDIALERDIALOG);
+
+	CustomBorderContainer *border = CustomBorderStorage::staticStorage(RSR_STORAGE_CUSTOMBORDER)->addBorder(this, CBS_DIALOG);
+	if (border)
+	{
+		border->setMovable(true);
+		border->setResizable(false);
+		border->setMinimizeButtonVisible(false);
+		border->setMaximizeButtonVisible(false);
+		border->setAttribute(Qt::WA_DeleteOnClose,true);
+		connect(border, SIGNAL(closeClicked()), SLOT(reject()));
+		connect(this, SIGNAL(rejected()), border, SLOT(close()));
+		connect(this, SIGNAL(accepted()), border, SLOT(close()));
+	}
+	else
+	{
+		ui.lblCaption->setVisible(false);
+		setAttribute(Qt::WA_DeleteOnClose,true);
+	}
+
+	window()->setWindowTitle(tr("Calls"));
 
 	FMapper.setMapping(ui.pbtNumber_1,"1");
 	connect(ui.pbtNumber_1,SIGNAL(clicked()),&FMapper,SLOT(map()));
@@ -39,23 +66,24 @@ DialWidget::DialWidget(ISipPhone *ASipPhone, QWidget *AParent) : QWidget(AParent
 	QRegExp phoneNumber("\\+?[\\d|\\*|\\#]+");
 	ui.lneNumber->setValidator(new QRegExpValidator(phoneNumber,ui.lneNumber));
 
-	ui.lneNumber->setAlignment(Qt::AlignHCenter);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtCall,MNI_SIPPHONE_DIALER_CALL);
+
 	connect(ui.lneNumber,SIGNAL(textChanged(const QString &)),SLOT(onNumberTextChanged(const QString &)));
 	onNumberTextChanged(ui.lneNumber->text());
 }
 
-DialWidget::~DialWidget()
+PhoneDialerDialog::~PhoneDialerDialog()
 {
 
 }
 
-void DialWidget::onButtonMapped(const QString &AText)
+void PhoneDialerDialog::onButtonMapped(const QString &AText)
 {
 	ui.lneNumber->insert(AText);
 	ui.lneNumber->setFocus();
 }
 
-void DialWidget::onNumberTextChanged(const QString &AText)
+void PhoneDialerDialog::onNumberTextChanged(const QString &AText)
 {
 
 }

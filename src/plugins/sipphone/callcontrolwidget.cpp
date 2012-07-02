@@ -51,6 +51,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 	connect(ui.tlbReject,SIGNAL(clicked()),SLOT(onRejectButtonClicked()));
 	connect(ui.tlbSilent,SIGNAL(clicked()),SLOT(onSilentButtonClicked()));
 
+	connect(ui.tlbDialer,SIGNAL(clicked(bool)),SLOT(onDialerVisibleButtonClicked(bool)));
 	connect(ui.tlbLocalCamera,SIGNAL(clicked(bool)),SLOT(onLocalCameraStateButtonClicked(bool)));
 	connect(ui.tlbLocalMicrophone,SIGNAL(clicked(bool)),SLOT(onLocalMicrophoneStateButtonClicked(bool)));
 
@@ -107,7 +108,7 @@ CallControlWidget::CallControlWidget(IPluginManager *APluginManager, ISipCall *A
 
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbReject,MNI_SIPPHONE_CALL_REJECT);
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbSilent,MNI_SIPPHONE_CALL_SILENT);
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbDialer,MNI_SIPPHONE_DIALER_HIDDEN);
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbDialer,MNI_SIPPHONE_CALL_DIALER_HIDDEN);
 
 	onAnimateNoticeTimeout();
 	updateDevicesStateAndProperties();
@@ -434,6 +435,12 @@ void CallControlWidget::onSilentButtonClicked()
 {
 	playSound(QString::null);
 	emit silentButtonClicked();
+}
+
+void CallControlWidget::onDialerVisibleButtonClicked(bool AChecked)
+{
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.tlbDialer,AChecked ? MNI_SIPPHONE_CALL_DIALER_SHOWN : MNI_SIPPHONE_CALL_DIALER_HIDDEN);
+	emit dialerVisibleChanged(AChecked);
 }
 
 void CallControlWidget::onLocalCameraStateButtonClicked(bool AChecked)
