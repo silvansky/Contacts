@@ -2,8 +2,10 @@
 #include "ui_easyregistrationdialog.h"
 
 #include <definitions/resources.h>
-#include <definitions/stylesheets.h>
 #include <definitions/menuicons.h>
+#include <definitions/htmlpages.h>
+#include <definitions/stylesheets.h>
+#include <definitions/stylevalues.h>
 #include <definitions/customborder.h>
 
 #include <utils/log.h>
@@ -22,8 +24,8 @@
 # include <QDebug>
 #endif
 
-#define EASY_REG_URL         "reg.tx.xmpp.rambler.ru"
-#define ERROR_HTML           "<html><body bgcolor=\"%1\" link=\"%2\" vlink=\"%3\" alink=\"%4\"><span style=\"font-family: \'%5\'; color: %6; font-size: %7px;\">%8</span></body></html>"
+#define EASY_REG_URL         "reg.tx.xmpp.rambler.rus"
+#define ERROR_HTML           "<html><body bgcolor=\"%1\" link=\"%2\" vlink=\"%3\" alink=\"%4\"><p align=center><span style=\"font-family: \'%5\'; color: %6; font-size: %7px;\">%8</span></p></body></html>"
 #define FULL_REGISTER_URL    "http://id.rambler.ru/profile/create/"
 
 EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
@@ -33,6 +35,7 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	ui->setupUi(this);
 	ui->errWidget->setVisible(false);
 	errorSet = false;
+	loaderShown = false;
 
 	// logo
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui->caption, MNI_OPTIONS_LOGIN_LOGO, 0, 0, "pixmap");
@@ -52,7 +55,7 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 		border->setMinimizeButtonVisible(false);
 		connect(border, SIGNAL(closeClicked()), SLOT(close()));
 		connect(this, SIGNAL(aborted()), border, SLOT(close()));
-		connect(this, SIGNAL(registered(const QString &login)), border, SLOT(close()));
+		connect(this, SIGNAL(registered(const Jid &user)), border, SLOT(close()));
 		border->setResizable(false);
 		border->setMaximumSize(size() + QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth()));
 	}
@@ -70,6 +73,7 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 
 	window()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	window()->setWindowModality(Qt::ApplicationModal);
+	window()->resize(450, 550);
 
 	recommendedWebViewSize = QSize(400, 500);
 
@@ -109,9 +113,21 @@ void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
 
 void EasyRegistrationDialog::startLoading()
 {
-	QNetworkRequest request(QUrl("http://"EASY_REG_URL"/"));
-	request.setRawHeader("Accept-Encoding","identity");
-	ui->easyRegWebView->load(request);
+	static QString loader;
+	if (loader.isEmpty())
+	{
+		QString fName = FileStorage::staticStorage(RSR_STORAGE_HTML_PAGES)->fileFullName(HTML_OPTIONS_EASYREG_LOADING);
+		QFile f(fName);
+		if (f.open(QFile::ReadOnly))
+		{
+			loader = QString::fromUtf8(f.readAll().data());
+			loader = loader.arg(tr("Connecting..."));
+		}
+		if (loader.isEmpty())
+			loader = QString("<html><body><p align=center><h1><font color=white>%1</font></h1></p></body></html>").arg(tr("Connecting..."));
+	}
+	qDebug() << loader;
+	ui->easyRegWebView->setHtml(loader);
 }
 
 void EasyRegistrationDialog::setError(bool on)
@@ -153,37 +169,47 @@ void EasyRegistrationDialog::parseSize(const QString &sizeString)
 void EasyRegistrationDialog::updateWindowSize()
 {
 #ifdef DEBUG_ENABLED
-	qDebug() << "*** recommendedWebViewSize: " << recommendedWebViewSize;
-	qDebug() << "*** size hint: " << window()->sizeHint();
-	qDebug() << "*** error: " << errorSet;
+	//qDebug() << "*** recommendedWebViewSize: " << recommendedWebViewSize;
+	//qDebug() << "*** size hint: " << window()->sizeHint();
+	qDebug() << "*** updating window size, error: " << errorSet;
 #endif
 	ui->easyRegWebView->setFixedSize(recommendedWebViewSize);
-	if (errorSet && !ui->errWidget->isVisible())
+	//if (errorSet && !ui->errWidget->isVisible())
 	{
 		ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 	}
-	QSize neededSize = sizeHint();
+	int neededWidth = layout()->contentsMargins().left() + layout()->contentsMargins().right() + recommendedWebViewSize.width();
+	int neededHeight = layout()->contentsMargins().top() + layout()->contentsMargins().bottom() + recommendedWebViewSize.height() + ui->caption->sizeHint().height();
+	QSize neededSize(neededWidth, neededHeight);
 	CustomBorderContainer *border = CustomBorderStorage::widgetBorder(this);
 	if (border)
 	{
 		neededSize += QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth());
 	}
-	if (errorSet && !ui->errWidget->isVisible())
+	if (errorSet)
 	{
-		neededSize += QSize(0, 65);
+		int errWidgetHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_WIDGET_HEIGHT);
+		neededSize += QSize(0, errWidgetHeight);
 		ui->errWidget->setVisible(true);
 	}
-	window()->setMaximumSize(neededSize);
+	//window()->setMaximumSize(neededSize);
 	QRect neededGeom = window()->geometry();
 	neededGeom.setSize(neededSize);
 	//ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 	//ui->errWidget->setMinimumSize(0, 0);
 	if (neededGeom != window()->geometry())
 	{
+#ifdef DEBUG_ENABLED
+		qDebug() << "*** old geometry:" << window()->geometry() << "new geometry:" << neededGeom;
+#endif
+		// TODO: move code for window animation to utils' WidgetManager
 		QPropertyAnimation *animation = new QPropertyAnimation(window(), "geometry");
 		animation->setStartValue(window()->geometry());
 		animation->setEndValue(neededGeom);
-		animation->setDuration(3000);
+		int animationDuration = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_GLOBAL_ANIMATION_DURATION);
+		if (animationDuration < 0)
+			animationDuration = 300;
+		animation->setDuration(animationDuration);
 		connect(animation, SIGNAL(finished()), SLOT(onWindowAnimationComplete()));
 		animation->start(QAbstractAnimation::DeleteWhenStopped);
 	}
@@ -200,10 +226,13 @@ void EasyRegistrationDialog::onWindowAnimationComplete()
 		ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 	else
 		ui->errWidget->setVisible(false);
+	window()->adjustSize();
 }
 
 void EasyRegistrationDialog::onLoaded(bool ok)
 {
+	static QString errorHtml;
+
 	ui->easyRegWebView->history()->clear();
 	QUrl url = ui->easyRegWebView->url();
 	if (!ok)
@@ -221,22 +250,38 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 		{
 			// no data loaded
 			ui->easyRegWebView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-			// style
-			QString bgcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalBackgroundColor").name();
-			QString linkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalLinkColor").name();
-			QString vlinkcolor = linkcolor;
-			QString alinkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalDarkLinkColor").name();
-			QString fontface = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleValue("globalFontFace").toString();
-			QString fontcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor("globalTextColor").name();
-			QString fontsize = QString::number(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt("easyRegisterDialogErrorFontSize"));
-			// link
-			QString link = QString("<a href=\"%1\" target=_blank>http://rambler.ru</a>").arg(FULL_REGISTER_URL);
-			// error html
-			QString errorText = tr("Registration is tempoprarily unavailable. Please, register online at %1").arg(link);
-			QString errorHtml = QString(ERROR_HTML).arg(bgcolor, linkcolor, vlinkcolor, alinkcolor, fontface, fontcolor, fontsize, errorText);
+
+			if (errorHtml.isEmpty())
+			{
+
+				QString fName = FileStorage::staticStorage(RSR_STORAGE_HTML_PAGES)->fileFullName(HTML_OPTIONS_EASYREG_ERROR);
+				QFile f(fName);
+				if (f.open(QFile::ReadOnly))
+				{
+					errorHtml = QString::fromUtf8(f.readAll().data());
+					QString errText = tr("Check internet connection and reload page, or register at <a href=\"%1\">website</a>.").arg(FULL_REGISTER_URL);
+					errorHtml = errorHtml.arg(tr("Could not connect")).arg(errText).arg(EASY_REG_URL).arg(tr("Reload"));
+				}
+				if (errorHtml.isEmpty())
+				{
+					// style
+					QString bgcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_BACKGROUND_COLOR).name();
+					QString linkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name();
+					QString vlinkcolor = linkcolor;
+					QString alinkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name();
+					QString fontface = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleValue(SV_GLOBAL_FONT_FACE).toString();
+					QString fontcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_TEXT_COLOR).name();
+					QString fontsize = QString::number(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_FONT_SIZE));
+					// link
+					QString link = QString("<a href=\"%1\" target=_blank>http://rambler.ru</a>").arg(FULL_REGISTER_URL);
+					// error html
+					QString errorText = tr("Registration is tempoprarily unavailable. Please, register online at %1").arg(link);
+					errorHtml = QString(ERROR_HTML).arg(bgcolor, linkcolor, vlinkcolor, alinkcolor, fontface, fontcolor, fontsize, errorText);
 #ifdef DEBUG_ENABLED
-			qDebug() << errorHtml;
+					qDebug() << errorHtml;
 #endif
+				}
+			}
 			ui->easyRegWebView->setHtml(errorHtml);
 		}
 	}
@@ -264,13 +309,28 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 			if (url.hasFragment())
 				parseSize(url.fragment());
 		}
+		else if (!loaderShown)
+		{
+			loaderShown = true;
+			QNetworkRequest request(QUrl("http://"EASY_REG_URL"/"));
+			request.setRawHeader("Accept-Encoding", "identity");
+			ui->easyRegWebView->load(request);
+		}
 	}
 }
 
 void EasyRegistrationDialog::onWebPageLinkClicked(const QUrl &url)
 {
-	QDesktopServices::openUrl(url);
-	close();
+	if (url.toString() == EASY_REG_URL)
+	{
+		loaderShown = false;
+		startLoading();
+	}
+	else
+	{
+		QDesktopServices::openUrl(url);
+		close();
+	}
 }
 
 void EasyRegistrationDialog::showEvent(QShowEvent *se)

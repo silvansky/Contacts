@@ -38,6 +38,7 @@ private:
 	Jid userJid;
 	QSize recommendedWebViewSize;
 	bool errorSet;
+	bool loaderShown;
 };
 
 #endif // EASYREGISTRATIONDIALOG_H

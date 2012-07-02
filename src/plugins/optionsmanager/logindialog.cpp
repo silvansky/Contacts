@@ -979,8 +979,6 @@ void LoginDialog::askUserIfHeHasAccount()
 	setControlsEnabled(false);
 	dlg->setModal(true);
 	dlg->show();
-	//WidgetManager::showActivateRaiseWindow(dlg->window());
-	//WidgetManager::alignWindow(dlg->window(), Qt::AlignCenter);
 }
 
 void LoginDialog::showEasyRegDialog()

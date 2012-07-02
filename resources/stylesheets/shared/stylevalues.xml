@@ -5,6 +5,7 @@
 	<stylevalue key="globalBackgroundColor" type="color" value="#41464d" />
 	<stylevalue key="globalTextColor" type="color" value="white" />
 	<stylevalue key="globalFontFace" type="string" value="SegoeUI" />
+	<stylevalue key="globalAnimationDuration" type="int" value="300" />
 	<stylevalue key="metaTabWindowNotifyBalloonColor" type="color" value="#373d43" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontSize" type="int" value="7" />
 	<stylevalue key="metaTabWindowNotifyBalloonFontBold" type="bool" value="true" />
@@ -20,7 +21,8 @@
 	<stylevalue key="loginDialogCompleterHOffset" type="int" value="6" />
 	<stylevalue key="loginDialogCompleterVOffset" type="int" value="0" />
 	<stylevalue key="loginDialogCompleterMinRowHeight" type="int" value="27" />
-	<stylevalue key="easyRegisterDialogErrorFontSize" type="int" value="18" />
+	<stylevalue key="easyregErrorWidgetHeight" type="int" value="65" />
+	<stylevalue key="easyregErrorFontSize" type="int" value="18" />
 	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
 	<stylevalue key="rostersViewDelegateMarginV" type="int" value="2" />
 	<stylevalue key="rostersViewDelegateMarginDrawH" type="int" value="7" />
@@ -40,13 +42,12 @@
 	<stylevalue key="rosterSearchSearchEditRightMargin_mac" type="int" value="26" />
 	<stylevalue key="rosterSearchSearchEditBottomMargin" type="int" value="16" />
 <!--
+	examples/templates:
+
 	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
-	<stylevalue key="" type="int" value="0" />
+	<stylevalue key="" type="color" value="0" />
+	<stylevalue key="" type="string" value="0" />
+	<stylevalue key="" type="real" value="0" />
+	<stylevalue key="" type="bool" value="0" />
 -->
 </stylevalues>

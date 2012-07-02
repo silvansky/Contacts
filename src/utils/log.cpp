@@ -18,6 +18,8 @@
 
 #define APP_REPORT_VERSION         "1.0"
 #define DIR_HOLDEM_REPORTS         "Rambler/Holdem/Reports"
+#define REPORTS_URL                "rupdate.rambler.ru/log"
+#define REPORTS_USER_AGENT         "Contacts Report System/1.0"
 
 // class Log
 QMutex Log::FMutex;
@@ -279,7 +281,7 @@ bool Log::sendReport(QDomDocument AReport)
 #ifdef Q_OS_UNIX
 				// sending file via cURL
 				QProcess::startDetached(QString("cat \"%1\"").arg(dir.absoluteFilePath(fileName)));
-				QProcess::startDetached(QString("curl --form report_file=@\"%1\" rupdate.rambler.ru/log").arg(dir.absoluteFilePath(fileName)));
+				QProcess::startDetached(QString("curl -A \"%1\" --form report_file=@\"%2\" %3").arg(REPORTS_USER_AGENT).arg(dir.absoluteFilePath(fileName)).arg(REPORTS_URL));
 #endif
 				return true;
 			}

@@ -142,12 +142,18 @@ QColor StyleStorage::getStyleColor(const QString & AKey)
 
 int StyleStorage::getStyleInt(const QString & AKey)
 {
-	return getStyleValue(AKey).toInt();
+	QVariant value = getStyleValue(AKey);
+	bool ok = false;
+	int intValue = value.toInt(&ok);
+	return ok ? intValue : -1;
 }
 
 qreal StyleStorage::getStyleReal(const QString & AKey)
 {
-	return getStyleValue(AKey).toReal();
+	QVariant value = getStyleValue(AKey);
+	bool ok = false;
+	qreal realValue = value.toReal(&ok);
+	return ok ? realValue : -1.0;
 }
 
 bool StyleStorage::getStyleBool(const QString & AKey)
