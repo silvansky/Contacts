@@ -21,6 +21,15 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/inotifications.h>
 
+struct AccountBalance
+{
+	AccountBalance() {
+		balance = -1.0;
+	}
+	float balance;
+	QString currency;
+};
+
 struct CallNotifyParams
 {
 	int rosterNotifyId;
@@ -33,10 +42,11 @@ class SipManager :
 		public IPlugin,
 		public ISipManager,
 		public ISipCallHandler,
-		public IStanzaHandler
+		public IStanzaHandler,
+		public IStanzaRequestOwner
 {
 	Q_OBJECT
-	Q_INTERFACES(IPlugin ISipManager ISipCallHandler IStanzaHandler)
+	Q_INTERFACES(IPlugin ISipManager ISipCallHandler IStanzaHandler IStanzaRequestOwner)
 public:
 	SipManager();
 	virtual ~SipManager();
@@ -58,6 +68,9 @@ public:
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered);
+	// balance
+	virtual bool requestAccountBalance(const Jid &AStreamJid);
+	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration);
 	// devices
 	virtual bool updateAvailDevices();
 	virtual bool isDevicePresent(ISipDevice::Type AType) const;
@@ -76,11 +89,15 @@ signals:
 	void sipAccountRegistrationChanged(int AAccountId, bool ARegistered);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
+	void accountBalanceRecieved(const Jid &AStreamJid, float ABalance, const QString &ACurrency);
+	void callCostRecieved(const QString &AId, const ISipCallCost &ACost, const ErrorHandler &AError);
 public:
 	// ISipCallHandler
 	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
+	// IStanzaRequestOwner
+	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 public:
 	// SipManager internals
 	static SipManager *callbackInstance();
@@ -137,6 +154,8 @@ private:
 	INotifications *FNotifications;
 private:
 	int FSHISipQuery;
+	QMap<QString, Jid> FCostRequests;
+	QMap<QString, Jid> FBalanceRequests;
 private:
 	bool FSipStackCreated;
 	QMap<Jid, int> FSipAccounts;

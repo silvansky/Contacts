@@ -4,8 +4,22 @@
 #include <QUuid>
 #include <QDateTime>
 #include <utils/jid.h>
+#include <utils/errorhandler.h>
 
 #define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
+
+struct ISipCallCost
+{
+	float cost;
+	QString phone;
+	QDateTime start;
+	qint64 duration;
+	QString currency;
+	QString city;
+	QString cityCode;
+	QString country;
+	QString countryCode;
+};
 
 struct ISipDevice
 {
@@ -164,6 +178,9 @@ public:
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const =0;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered) =0;
+	// balance
+	virtual bool requestAccountBalance(const Jid &AStreamJid) =0;
+	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration) =0;
 	// devices
 	virtual bool updateAvailDevices() =0;
 	virtual bool isDevicePresent(ISipDevice::Type AType) const =0;
@@ -182,6 +199,8 @@ protected:
 	virtual void sipAccountRegistrationChanged(int AAccountId, bool ARegistered) =0;
 	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler *AHandler) = 0;
 	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler *AHandler) = 0;
+	virtual void accountBalanceRecieved(const Jid &AStreamJid, float ABalance, const QString &ACurrency) =0;
+	virtual void callCostRecieved(const QString &AId, const ISipCallCost &ACost, const ErrorHandler &AError) =0;
 };
 
 Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")

@@ -19,6 +19,7 @@
 #include <definitions/sipcallhandlerorders.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <utils/log.h>
+#include <utils/datetime.h>
 #include <utils/iconstorage.h>
 #include <utils/errorhandler.h>
 #include <utils/widgetmanager.h>
@@ -41,9 +42,16 @@
 #define ADR_STREAM_JID           Action::DR_StreamJid
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
-#define ADR_PHONE_JID         Action::DR_Parametr3
+#define ADR_PHONE_JID            Action::DR_Parametr3
 #define ADR_AUTO_START_VIDEO     Action::DR_Parametr4
 #define ADR_STATUS_ICON          Action::DR_Parametr1
+
+#define COST_TIMEOUT             10000
+#define BALANCE_TIMEOUT          30000
+#define PHONE_SERVICE_JID        "phone.rambler.ru"
+
+#define SHC_SIP_QUERY            "/iq[@type='set']/query[@type='request'][@xmlns='" NS_RAMBLER_PHONE "']"
+
 
 /* The PJSIP module instance. */
 static pjsip_module mod_default_handler =
@@ -66,9 +74,6 @@ static pjsip_module mod_default_handler =
 /**************
  * SipManager *
  **************/
-
-#define SHC_SIP_QUERY "/iq[@type='set']/query[@type='request'][@xmlns='" NS_RAMBLER_PHONE "']"
-
 SipManager * SipManager::inst = NULL; // callback instance
 
 SipManager::SipManager() :
@@ -382,6 +387,42 @@ bool SipManager::setSipAccountRegistration(const Jid &AStreamJid, bool ARegister
 	return true;
 }
 
+bool SipManager::requestAccountBalance(const Jid &AStreamJid)
+{
+	if (FStanzaProcessor)
+	{
+		Stanza request("iq");
+		request.setType("get").setTo(PHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
+		request.addElement("query",NS_RAMBLER_PHONE_BALANCE);
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
+		{
+			FBalanceRequests.insert(request.id(),AStreamJid);
+			return true;
+		}
+	}
+	return false;
+}
+
+QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration)
+{
+	if (FStanzaProcessor)
+	{
+		Stanza request("iq");
+		request.setType("get").setTo(PHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
+		QDomElement callElem = request.addElement("query",NS_RAMBLER_PHONE_COST).appendChild(request.createElement("call")).toElement();
+		callElem.setAttribute("phone",APhone);
+		callElem.setAttribute("currency",ACurrency);
+		callElem.setAttribute("start",DateTime(AStart).toX85DateTime());
+		callElem.setAttribute("duration",ADuration);
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,COST_TIMEOUT))
+		{
+			FCostRequests.insert(request.id(),AStreamJid);
+			return request.id();
+		}
+	}
+	return QString::null;
+}
+
 bool SipManager::updateAvailDevices()
 {
 	if (FSipStackCreated)
@@ -602,6 +643,47 @@ bool SipManager::stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &A
 		}
 	}
 	return false;
+}
+
+void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza)
+{
+	if (FBalanceRequests.contains(AStanza.id()))
+	{
+		float balance = -1.0;
+		QString currency;
+		if (AStanza.type() == "result")
+		{
+			QDomElement balanceElem = AStanza.firstElement("query",NS_RAMBLER_PHONE_BALANCE).firstChildElement("balance");
+			balance = balanceElem.text().toFloat();
+			currency = balanceElem.attribute("currency");
+		}
+		emit accountBalanceRecieved(AStreamJid,balance,currency);
+		FBalanceRequests.remove(AStanza.id());
+	}
+	else if (FCostRequests.contains(AStanza.id()))
+	{
+		ISipCallCost cost;
+		ErrorHandler err(AStanza.element());
+		if (AStanza.type() == "result")
+		{
+			QDomElement callElem = AStanza.firstElement("query",NS_RAMBLER_PHONE_COST).firstChildElement("call");
+			cost.cost = callElem.attribute("cost","-1.0").toFloat();
+			cost.phone = callElem.attribute("phone");
+			cost.currency = callElem.attribute("currency");
+			cost.start = DateTime::dtFromX85(callElem.attribute("start"));
+			cost.duration = callElem.attribute("duration").toInt();
+			cost.city = callElem.firstChildElement("city").text();
+			cost.cityCode = callElem.firstChildElement("city-code").text();
+			cost.country = callElem.firstChildElement("country").text();
+			cost.countryCode = callElem.firstChildElement("country-code").text();
+		}
+		else
+		{
+			cost.cost = -1.0;
+		}
+		emit callCostRecieved(AStanza.id(),cost,err);
+		FCostRequests.remove(AStanza.id());
+	}
 }
 
 SipManager *SipManager::callbackInstance()
