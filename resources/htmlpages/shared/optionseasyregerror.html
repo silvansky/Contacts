@@ -6,11 +6,12 @@
     </head>
     <body>
         <div class="b-plug"></div>
-        
-        <h3 class="b-h3">%1</h3>
-        <p class="b-p">%2</p>
 
-        <a href="%3" class="b-button">%4</a>
+        <h3 class="b-h3">%1</h3>
+        <p class="b-p">%2</a></p>
+    
+        <span class="b-button" onclick="window.location='%3';"><span class="b-button__inner">%4</span></span>
+
         <style type="text/css">
             * {
                 margin:0px;
@@ -18,11 +19,17 @@
             }
 
             body {
-                background-color:#41464d;
+                background-color:rgba(255, 0, 0, 0);
                 color:#fff;
                 font-family:Segoe, 'Myriad Pro',Arial;
                 text-shadow:0px -1px rgba(0,0,0,0.4);
                 text-align:center;
+                line-height:1.4;
+                -webkit-user-select:none;
+            }
+
+            .b-link {
+                color:#fff;
             }
 
             .b-plug {
@@ -35,7 +42,7 @@
 
             .b-h3 {
                 font-size:16px;
-                margin-bottom:7px;
+                margin-bottom:10px;
             }
 
             .b-p {
@@ -44,28 +51,39 @@
             }
 
             .b-button {
+                border-radius: 3px;
+                border:1px solid #0e0f10;
+                display:inline-block;
+                margin-top:18px;
+                overflow:hidden;
+                -webkit-box-shadow: 0px 1px 0px #555a60;
+                cursor:pointer;
+            }
+
+            .b-button__inner {
                 position:relative;
                 text-shadow:0px -1px #1b3a4c;
-
-                border:1px solid #0e0f10;
                 height:32px;
                 line-height:32px;
                 width:137px;
-                -webkit-box-shadow: 0px 1px 0px #555a60, 0px 1px #5187a5 inset;
-            
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
+                -webkit-box-shadow: 0px 1px #5187a5 inset;
                 cursor:pointer;
                 background-image: -webkit-linear-gradient(top, #387598 0%, #15384c);
                 color:#fff;
                 font-size:14px;
-                margin-top:18px;
                 display:inline-block;
                 font-size:16px;
                 text-decoration:none;
+                outline:none;
+                z-index:-1;
+                position:relative;
             }
-            
-            .b-button:active {
+
+            .b-button:active  {
+                -webkit-box-shadow:none;
+            }
+
+            .b-button:active .b-button__inner{
                 background-image: -webkit-linear-gradient(top, #15374b 0%, #387598);
                 -webkit-box-shadow: 0px 1px 0px #555a60;
             }

@@ -73,9 +73,9 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 
 	window()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	window()->setWindowModality(Qt::ApplicationModal);
-	window()->resize(450, 550);
+	window()->resize(450, 450);
 
-	recommendedWebViewSize = QSize(400, 500);
+	recommendedWebViewSize = QSize(400, 400);
 
 	startLoading();
 }
@@ -259,8 +259,8 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 				if (f.open(QFile::ReadOnly))
 				{
 					errorHtml = QString::fromUtf8(f.readAll().data());
-					QString errText = tr("Check internet connection and reload page, or register at <a href=\"%1\">website</a>.").arg(FULL_REGISTER_URL);
-					errorHtml = errorHtml.arg(tr("Could not connect")).arg(errText).arg(EASY_REG_URL).arg(tr("Reload"));
+					QString errText = tr("Check internet connection and reload page, or register at <a href=\"%1\" class=\"b-link\">website</a>.").arg(FULL_REGISTER_URL);
+					errorHtml = errorHtml.arg(tr("Could not connect")).arg(errText).arg("http://"EASY_REG_URL"/").arg(tr("Reload"));
 				}
 				if (errorHtml.isEmpty())
 				{
@@ -277,11 +277,11 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 					// error html
 					QString errorText = tr("Registration is tempoprarily unavailable. Please, register online at %1").arg(link);
 					errorHtml = QString(ERROR_HTML).arg(bgcolor, linkcolor, vlinkcolor, alinkcolor, fontface, fontcolor, fontsize, errorText);
-#ifdef DEBUG_ENABLED
-					qDebug() << errorHtml;
-#endif
 				}
 			}
+#ifdef DEBUG_ENABLED
+			qDebug() << errorHtml;
+#endif
 			ui->easyRegWebView->setHtml(errorHtml);
 		}
 	}

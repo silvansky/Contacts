@@ -971,8 +971,8 @@ void LoginDialog::askUserIfHeHasAccount()
 	dlg->setAttribute(Qt::WA_DeleteOnClose, true);
 	connect(dlg, SIGNAL(rejected()), SLOT(showEasyRegDialog()));
 	connect(dlg, SIGNAL(accepted()), SLOT(onAskDialogRejected()));
-	dlg->setCaptionText(tr("Welcome!"));
-	dlg->setDescriptionText(tr("Do you have Rambler account?"));
+	dlg->setCaptionText(tr("Log in"));
+	dlg->setDescriptionText(tr("Do you have a Rambler account?"));
 	dlg->setRejectButtonText(tr("No"));
 	dlg->setAcceptButtonText(tr("Yes"));
 	dlg->setAcceptIsDefault(false);
