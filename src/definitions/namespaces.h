@@ -64,7 +64,6 @@
 #define NS_RAMBLER_PHONE                                     "rambler:phone"
 #define NS_RAMBLER_PHONE_COST                                "rambler:phone:cost"
 #define NS_RAMBLER_PHONE_BALANCE                             "rambler:phone:balance"
-#define NS_RAMBLER_PHONE_DEVICESTATES                        "rambler:phone:device-states"
 #define NS_RAMBLER_SMS_BALANCE                               "rambler:sms:balance"
 #define NS_RAMBLER_SMS_SUPPLEMENT                            "rambler:sms:supplement"
 #define NS_RAMBLER_MAIL_NOTIFY                               "rambler:mail:notify"
