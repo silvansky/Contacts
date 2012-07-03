@@ -115,7 +115,6 @@ private:
 	QDateTime FStopCallTime;
 private:
 	int FSHICallAccept;
-	int FSHIDeviceStates;
 	QTimer FRingTimer;
 	Stanza FAcceptStanza;
 	QList<Jid> FActiveDestinations;
