@@ -28,7 +28,7 @@
 # include <QDebug>
 #endif
 
-#define EASY_REG_URL         "reg.tx.xmpp.rambler.rus"
+#define EASY_REG_URL         "reg.tx.xmpp.rambler.ru"
 #define ERROR_HTML           "<html><body bgcolor=\"%1\" link=\"%2\" vlink=\"%3\" alink=\"%4\"><p align=center><span style=\"font-family: \'%5\'; color: %6; font-size: %7px;\">%8</span></p></body></html>"
 #define FULL_REGISTER_URL    "http://id.rambler.ru/profile/create/"
 

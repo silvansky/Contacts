@@ -407,7 +407,6 @@ void LoginDialog::connectIfReady()
 {
 	if (readyToConnect())
 		onConnectClicked();
-#ifndef DEBUG_ENABLED
 	else if (FOptionsManager->profiles().isEmpty())
 	{
 		if (!Options::globalValue("firstRunCheck").toBool())
@@ -417,9 +416,6 @@ void LoginDialog::connectIfReady()
 			QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
 		}
 	}
-#else
-		QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
-#endif
 }
 
 Jid LoginDialog::currentStreamJid() const
