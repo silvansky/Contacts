@@ -2,6 +2,41 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
+    <name>EasyRegistrationDialog</name>
+    <message>
+        <source>Easy registration</source>
+        <translation>Быстрая регистрация</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Failed to connect&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Не удалось подключиться&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Check internet connection</source>
+        <translation>Проверьте интернет-соединение</translation>
+    </message>
+    <message>
+        <source>Connecting...</source>
+        <translation>Идёт подключение...</translation>
+    </message>
+    <message>
+        <source>Check internet connection and reload page, or register at &lt;a href=&quot;%1&quot; class=&quot;b-link&quot;&gt;website&lt;/a&gt;.</source>
+        <translation>Проверьте интернет-соединение и обновите страницу или &lt;a href=&quot;%1&quot; class=&quot;b-link&quot;&gt;зарегистрируйтесь на сайте&lt;/a&gt;. </translation>
+    </message>
+    <message>
+        <source>Could not connect</source>
+        <translation>Не удалось подключиться</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Обновить</translation>
+    </message>
+    <message>
+        <source>Registration is tempoprarily unavailable. Please, register online at %1</source>
+        <translation>Регистрация временно недоступна. Пожалуйста, зарегистируйтесь на сайте %1</translation>
+    </message>
+</context>
+<context>
     <name>LoginDialog</name>
     <message>
         <source>Caps Lock is ON</source>
@@ -131,6 +166,22 @@ which is linked to Rambler</source>
     <message>
         <source>Enter your Rambler login and password or %1.</source>
         <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
+    </message>
+    <message>
+        <source>Log in</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <source>Do you have a Rambler account?</source>
+        <translation>У Вас есть логин на Рамблере?</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
     </message>
 </context>
 <context>

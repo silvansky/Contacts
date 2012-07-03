@@ -41,13 +41,6 @@
     </message>
 </context>
 <context>
-    <name>AddFacebookAccountDialogClass</name>
-    <message>
-        <source>about:blank</source>
-        <translation>about:blank</translation>
-    </message>
-</context>
-<context>
     <name>AddLegacyAccountDialog</name>
     <message>
         <source>Append</source>

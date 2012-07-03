@@ -44,11 +44,6 @@
      <property name="contextMenuPolicy">
       <enum>Qt::NoContextMenu</enum>
      </property>
-     <property name="url">
-      <url>
-       <string>about:blank</string>
-      </url>
-     </property>
     </widget>
    </item>
   </layout>
