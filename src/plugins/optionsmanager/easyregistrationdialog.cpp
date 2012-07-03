@@ -13,6 +13,10 @@
 #include <utils/stylestorage.h>
 #include <utils/customborderstorage.h>
 
+#ifdef Q_OS_DARWIN
+# include <utils/macwidgets.h>
+#endif
+
 #include <QKeyEvent>
 #include <QWebFrame>
 #include <QWebHistory>
@@ -64,6 +68,10 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 		setAttribute(Qt::WA_DeleteOnClose,true);
 		//ui->caption->setVisible(false);
 		layout()->setContentsMargins(0, 0, 0, 0);
+#ifdef Q_OS_DARWIN
+		setWindowGrowButtonEnabled(this, false);
+#endif
+
 	}
 
 	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
@@ -105,9 +113,7 @@ void EasyRegistrationDialog::closeEvent(QCloseEvent *ce)
 void EasyRegistrationDialog::keyPressEvent(QKeyEvent *ke)
 {
 	if (ke->key() == Qt::Key_Escape)
-	{
 		close();
-	}
 	QDialog::keyPressEvent(ke);
 }
 
