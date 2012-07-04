@@ -28,6 +28,7 @@ protected:
 	void setError(bool on);
 	void parseSize(const QString &sizeString);
 	void updateWindowSize();
+	QSize neededSize();
 protected slots:
 	void onWindowAnimationComplete();
 	void onLoaded(bool ok);

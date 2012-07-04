@@ -78,13 +78,14 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 	ui->easyRegWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 	connect(ui->easyRegWebView, SIGNAL(loadFinished(bool)), SLOT(onLoaded(bool)));
-	connect(ui->easyRegWebView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
+	connect(ui->easyRegWebView->page(), SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
+
+	recommendedWebViewSize = QSize(400, 550);
 
 	window()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	window()->setWindowModality(Qt::ApplicationModal);
-	window()->resize(450, 450);
 
-	recommendedWebViewSize = QSize(400, 400);
+	window()->resize(neededSize());
 
 	startLoading();
 }
@@ -184,23 +185,13 @@ void EasyRegistrationDialog::updateWindowSize()
 	{
 		ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 	}
-	int neededWidth = layout()->contentsMargins().left() + layout()->contentsMargins().right() + recommendedWebViewSize.width();
-	int neededHeight = layout()->contentsMargins().top() + layout()->contentsMargins().bottom() + recommendedWebViewSize.height() + ui->caption->sizeHint().height();
-	QSize neededSize(neededWidth, neededHeight);
-	CustomBorderContainer *border = CustomBorderStorage::widgetBorder(this);
-	if (border)
-	{
-		neededSize += QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth());
-	}
 	if (errorSet)
 	{
-		int errWidgetHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_WIDGET_HEIGHT);
-		neededSize += QSize(0, errWidgetHeight);
 		ui->errWidget->setVisible(true);
 	}
 	//window()->setMaximumSize(neededSize);
 	QRect neededGeom = window()->geometry();
-	neededGeom.setSize(neededSize);
+	neededGeom.setSize(neededSize());
 	//ui->errWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Ignored);
 	//ui->errWidget->setMinimumSize(0, 0);
 	if (neededGeom != window()->geometry())
@@ -221,6 +212,27 @@ void EasyRegistrationDialog::updateWindowSize()
 	}
 	else
 		onWindowAnimationComplete();
+}
+
+QSize EasyRegistrationDialog::neededSize()
+{
+	int neededWidth = layout()->contentsMargins().left() + layout()->contentsMargins().right() + recommendedWebViewSize.width();
+	int neededHeight = layout()->contentsMargins().top() + layout()->contentsMargins().bottom() + recommendedWebViewSize.height() + ui->caption->sizeHint().height();
+	QSize ns(neededWidth, neededHeight);
+	CustomBorderContainer *border = CustomBorderStorage::widgetBorder(this);
+	if (border)
+	{
+		ns += QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth());
+	}
+	if (errorSet)
+	{
+		int errWidgetHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_WIDGET_HEIGHT);
+		ns += QSize(0, errWidgetHeight);
+	}
+#ifdef DEBUG_ENABLED
+	qDebug() << "*** needed size:" << ns;
+#endif
+	return ns;
 }
 
 void EasyRegistrationDialog::onWindowAnimationComplete()
