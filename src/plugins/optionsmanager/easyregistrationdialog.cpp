@@ -80,7 +80,9 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 	connect(ui->easyRegWebView, SIGNAL(loadFinished(bool)), SLOT(onLoaded(bool)));
 	connect(ui->easyRegWebView->page(), SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
 
-	recommendedWebViewSize = QSize(400, 550);
+	int recommendedWebViewWidth = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_WV_DEF_WIDTH, 365);
+	int recommendedWebViewHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_WV_DEF_HEIGHT, 335);
+	recommendedWebViewSize = QSize(recommendedWebViewWidth, recommendedWebViewHeight);
 
 	window()->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	window()->setWindowModality(Qt::ApplicationModal);
@@ -203,9 +205,7 @@ void EasyRegistrationDialog::updateWindowSize()
 		QPropertyAnimation *animation = new QPropertyAnimation(window(), "geometry");
 		animation->setStartValue(window()->geometry());
 		animation->setEndValue(neededGeom);
-		int animationDuration = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_GLOBAL_ANIMATION_DURATION);
-		if (animationDuration < 0)
-			animationDuration = 300;
+		int animationDuration = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_GLOBAL_ANIMATION_DURATION, 300);
 		animation->setDuration(animationDuration);
 		connect(animation, SIGNAL(finished()), SLOT(onWindowAnimationComplete()));
 		animation->start(QAbstractAnimation::DeleteWhenStopped);
@@ -226,7 +226,7 @@ QSize EasyRegistrationDialog::neededSize()
 	}
 	if (errorSet)
 	{
-		int errWidgetHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_WIDGET_HEIGHT);
+		int errWidgetHeight = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_WIDGET_HEIGHT, 60);
 		ns += QSize(0, errWidgetHeight);
 	}
 #ifdef DEBUG_ENABLED
@@ -289,7 +289,7 @@ void EasyRegistrationDialog::onLoaded(bool ok)
 					QString alinkcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name();
 					QString fontface = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleValue(SV_GLOBAL_FONT_FACE).toString();
 					QString fontcolor = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_TEXT_COLOR).name();
-					QString fontsize = QString::number(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_FONT_SIZE));
+					QString fontsize = QString::number(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_EASYREG_ERROR_FONT_SIZE, 18));
 					// link
 					QString link = QString("<a href=\"%1\" target=_blank>http://rambler.ru</a>").arg(FULL_REGISTER_URL);
 					// error html

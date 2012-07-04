@@ -23,6 +23,8 @@
 	<stylevalue key="loginDialogCompleterMinRowHeight" type="int" value="27" />
 	<stylevalue key="easyregErrorWidgetHeight" type="int" value="65" />
 	<stylevalue key="easyregErrorFontSize" type="int" value="18" />
+	<stylevalue key="easyregWebViewDefWidth" type="int" value="365" />
+	<stylevalue key="easyregWebViewDefHeight" type="int" value="335" />
 	<stylevalue key="rostersViewDelegateMarginH" type="int" value="7" />
 	<stylevalue key="rostersViewDelegateMarginV" type="int" value="2" />
 	<stylevalue key="rostersViewDelegateMarginDrawH" type="int" value="7" />

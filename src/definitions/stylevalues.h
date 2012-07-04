@@ -19,6 +19,8 @@
 // easy registration dialog
 #define SV_EASYREG_ERROR_WIDGET_HEIGHT         "easyregErrorWidgetHeight"
 #define SV_EASYREG_ERROR_FONT_SIZE             "easyregErrorFontSize"
+#define SV_EASYREG_WV_DEF_WIDTH                "easyregWebViewDefWidth"
+#define SV_EASYREG_WV_DEF_HEIGHT               "easyregWebViewDefHeight"
 
 // about dialog
 #define SV_ABOUT_TEXT_COLOR                    "aboutDialogTextColor"
