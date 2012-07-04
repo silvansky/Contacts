@@ -61,11 +61,12 @@ EasyRegistrationDialog::EasyRegistrationDialog(QWidget *parent) :
 		connect(this, SIGNAL(aborted()), border, SLOT(close()));
 		connect(this, SIGNAL(registered(const Jid &user)), border, SLOT(close()));
 		border->setResizable(false);
-		border->setMaximumSize(size() + QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth()));
+		//border->setMaximumSize(size() + QSize(border->leftBorderWidth() + border->rightBorderWidth(), border->topBorderWidth() + border->bottomBorderWidth()));
 	}
 	else
 	{
-		setAttribute(Qt::WA_DeleteOnClose,true);
+		setAttribute(Qt::WA_DeleteOnClose, true);
+		ui->easyRegWebView->setAttribute(Qt::WA_TranslucentBackground, true);
 		//ui->caption->setVisible(false);
 		layout()->setContentsMargins(0, 0, 0, 0);
 #ifdef Q_OS_DARWIN
@@ -132,6 +133,7 @@ void EasyRegistrationDialog::startLoading()
 		if (loader.isEmpty())
 			loader = QString("<html><body><p align=center><h1><font color=white>%1</font></h1></p></body></html>").arg(tr("Connecting..."));
 	}
+	qDebug() << loader;
 	ui->easyRegWebView->setHtml(loader);
 }
 
