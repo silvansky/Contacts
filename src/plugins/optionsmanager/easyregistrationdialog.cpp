@@ -133,7 +133,6 @@ void EasyRegistrationDialog::startLoading()
 		if (loader.isEmpty())
 			loader = QString("<html><body><p align=center><h1><font color=white>%1</font></h1></p></body></html>").arg(tr("Connecting..."));
 	}
-	qDebug() << loader;
 	ui->easyRegWebView->setHtml(loader);
 }
 
