@@ -14,7 +14,9 @@
 #include <QDomDocument>
 #include <QApplication>
 #include <QTextDocument>
+#include <QWebElement>
 #include <QWebHitTestResult>
+#include <utils/log.h>
 
 #define SHARED_STYLE_PATH                   RESOURCES_DIR"/"RSR_STORAGE_ADIUMMESSAGESTYLES"/"STORAGE_SHARED_DIR
 #define STYLE_CONTENTS_PATH                 "Contents"
@@ -213,9 +215,11 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				if (AOptions.kind == IMessageContentOptions::Topic)
 					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
 				html.replace("%message%",prepareMessageHtml(AHtml,AOptions));
-
 				escapeStringForScript(html);
-				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(contentIndex).arg(actionCommand);
+
+				QString script = scriptForAppendContent(AOptions,sameSender);
+				LogDetail(QString("[AdiumMessageStyle] Evaluting stript: %3, index=%1, command=%2").arg(contentIndex).arg(actionCommand).arg(script));
+				script = script.arg(html).arg(contentIndex).arg(actionCommand);
 				view->page()->mainFrame()->evaluateJavaScript(script);
 			}
 			else
@@ -223,8 +227,12 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				QList<ContentParams> &content = FWidgetStatus[AWidget].content;
 				contentId = content.value(contentIndex).contentId;
 				content.removeAt(contentIndex);
+				LogDetail(QString("[AdiumMessageStyle] Evaluting stript: %2, index=%1").arg(contentIndex).arg(QString(DELETE_MESSAGE)));
 				view->page()->mainFrame()->evaluateJavaScript(QString(DELETE_MESSAGE).arg(contentIndex));
 			}
+			QDomDocument doc;
+			doc.setContent(view->page()->mainFrame()->findFirstElement("body").toOuterXml());
+			LogDetail(QString("[AdiumMessageStyle] BODY after script:\n %1").arg(doc.toString()));
 			emit contentChanged(AWidget,contentId,AHtml,AOptions);
 			return contentId;
 		}

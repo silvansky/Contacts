@@ -934,6 +934,8 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 		options.type |= IMessageContentOptions::History;
 	}
 
+	options.extensions |= IMessageContentOptions::Offline;
+
 	if (message.type() == Message::Error)
 	{
 		ErrorHandler err(message.stanza().element());
@@ -971,7 +973,11 @@ QUuid ChatMessageHandler::showStyledMessage(IChatWindow *AWindow, const Message 
 
 	fillContentOptions(AWindow,options);
 	showDateSeparator(AWindow,message.dateTime().date());
-	return AWindow->viewWidget()->changeContentMessage(message,options);
+
+	QUuid id = AWindow->viewWidget()->changeContentMessage(message,options);
+	message.setData(MDR_STYLE_CONTENT_ID,id.toString());
+	FWindowStatus[AWindow].offline.append(message);
+	return id;
 }
 
 bool ChatMessageHandler::eventFilter(QObject *AObject, QEvent *AEvent)
