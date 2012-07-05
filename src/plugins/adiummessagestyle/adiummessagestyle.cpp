@@ -209,10 +209,10 @@ QUuid AdiumMessageStyle::changeContent(QWidget *AWidget, const QString &AHtml, c
 				QString html = makeContentTemplate(AOptions,sameSender);
 				fillContentKeywords(html,AOptions,sameSender);
 
-				html.replace("%message%",prepareMessageHtml(AHtml,AOptions));
+				html.replace("%contentId%",cparams.contentId);
 				if (AOptions.kind == IMessageContentOptions::Topic)
 					html.replace("%topic%",QString(TOPIC_INDIVIDUAL_WRAPPER).arg(AHtml));
-				html.replace("%contentId%",cparams.contentId);
+				html.replace("%message%",prepareMessageHtml(AHtml,AOptions));
 
 				escapeStringForScript(html);
 				QString script = scriptForAppendContent(AOptions,sameSender).arg(html).arg(contentIndex).arg(actionCommand);
