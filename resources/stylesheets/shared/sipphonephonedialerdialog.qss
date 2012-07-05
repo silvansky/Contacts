@@ -19,17 +19,17 @@ QPushButton
 	min-width: 40px;
 }
 
-QPushButton#pbtCall
+QPushButton#pbtCall:enabled
 {
 	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
 }
 
-QPushButton#pbtCall:hover
+QPushButton#pbtCall:hover:enabled
 {
 	border-image: url(%IMAGES_PATH%/sipcallnbtnokhover.png);
 }
 
-QPushButton#pbtCall:pressed
+QPushButton#pbtCall:pressed:enabled
 {
 	border-image: url(%IMAGES_PATH%/sipcallnbtnokclick.png);
 }
@@ -54,7 +54,7 @@ CustomLabel#lblFullHistory
 
 QTableWidget
 {
-	max-width: 190px;
+	max-width: 210px;
 	color: black;
 	background-color: white;
 	selection-color: white;

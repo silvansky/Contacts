@@ -8,17 +8,40 @@
 
 #define SIPMANAGER_UUID "{582D16F6-FDB1-4ADF-9555-17B99234179E}"
 
+#define SIP_BALANCE_EPSILON         0.0001
+#define SIPPHONE_SERVICE_JID        "phone.rambler.ru"
+
+struct ISipCurrency
+{
+	int exp;
+	QString code;
+};
+
+struct ISipBalance
+{
+	ISipBalance() {
+		balance = -1.0;
+	}
+	float balance;
+	ISipCurrency currency;
+	ErrorHandler error;
+};
+
 struct ISipCallCost
 {
+	ISipCallCost() {
+		cost = -1.0;
+	}
 	float cost;
+	ISipCurrency currency;
 	QString phone;
 	QDateTime start;
 	qint64 duration;
-	QString currency;
 	QString city;
 	QString cityCode;
 	QString country;
 	QString countryCode;
+	ErrorHandler error;
 };
 
 struct ISipDevice
@@ -175,12 +198,15 @@ public:
 	virtual ISipCall *newCall(const Jid &AStreamJid, const Jid &APhoneJid) =0;
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations) = 0;
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
+	// call dialogs
+	virtual QWidget *showCallWindow(ISipCall *ACall) =0;
+	virtual QWidget *showPhoneDialerDialog(const Jid &AStreamJid) =0;
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const =0;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered) =0;
 	// balance
-	virtual bool requestAccountBalance(const Jid &AStreamJid) =0;
-	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration) =0;
+	virtual bool requestBalance(const Jid &AStreamJid) =0;
+	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &APhone, const QDateTime &AStart, qint64 ADuration) =0;
 	// devices
 	virtual bool updateAvailDevices() =0;
 	virtual bool isDevicePresent(ISipDevice::Type AType) const =0;
@@ -199,8 +225,8 @@ protected:
 	virtual void sipAccountRegistrationChanged(int AAccountId, bool ARegistered) =0;
 	virtual void sipCallHandlerInserted(int AOrder, ISipCallHandler *AHandler) = 0;
 	virtual void sipCallHandlerRemoved(int AOrder, ISipCallHandler *AHandler) = 0;
-	virtual void accountBalanceRecieved(const Jid &AStreamJid, float ABalance, const QString &ACurrency) =0;
-	virtual void callCostRecieved(const QString &AId, const ISipCallCost &ACost, const ErrorHandler &AError) =0;
+	virtual void sipBalanceRecieved(const Jid &AStreamJid, const ISipBalance &ABalance) =0;
+	virtual void sipCallCostRecieved(const QString &ARequestId, const ISipCallCost &ACost) =0;
 };
 
 Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")

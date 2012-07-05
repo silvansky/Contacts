@@ -1,6 +1,7 @@
 #ifndef SIPMANAGER_H
 #define SIPMANAGER_H
 
+#include <QPointer>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/isipphone.h>
 #include <interfaces/istanzaprocessor.h>
@@ -21,15 +22,7 @@
 #include <interfaces/imessageprocessor.h>
 #include <interfaces/inotifications.h>
 #include <interfaces/imainwindow.h>
-
-struct AccountBalance
-{
-	AccountBalance() {
-		balance = -1.0;
-	}
-	float balance;
-	QString currency;
-};
+#include "phonedialerdialog.h"
 
 struct CallNotifyParams
 {
@@ -66,12 +59,15 @@ public:
 	virtual ISipCall *newCall(const Jid &AStreamJid, const Jid &APhoneJid);
 	virtual ISipCall *newCall(const Jid &AStreamJid, const QList<Jid> &ADestinations);
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
+	// call dialogs
+	virtual QWidget *showCallWindow(ISipCall *ACall);
+	virtual QWidget *showPhoneDialerDialog(const Jid &AStreamJid);
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered);
 	// balance
-	virtual bool requestAccountBalance(const Jid &AStreamJid);
-	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration);
+	virtual bool requestBalance(const Jid &AStreamJid);
+	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &APhone, const QDateTime &AStart, qint64 ADuration);
 	// devices
 	virtual bool updateAvailDevices();
 	virtual bool isDevicePresent(ISipDevice::Type AType) const;
@@ -90,8 +86,8 @@ signals:
 	void sipAccountRegistrationChanged(int AAccountId, bool ARegistered);
 	void sipCallHandlerInserted(int AOrder, ISipCallHandler * AHandler);
 	void sipCallHandlerRemoved(int AOrder, ISipCallHandler * AHandler);
-	void accountBalanceRecieved(const Jid &AStreamJid, float ABalance, const QString &ACurrency);
-	void callCostRecieved(const QString &AId, const ISipCallCost &ACost, const ErrorHandler &AError);
+	void sipBalanceRecieved(const Jid &AStreamJid, const ISipBalance &ABalance);
+	void sipCallCostRecieved(const QString &AId, const ISipCallCost &ACost);
 public:
 	// ISipCallHandler
 	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
@@ -167,6 +163,7 @@ private:
 	QMultiMap<int, ISipCallHandler*> FCallHandlers;
 	QMap<ISipCall *, CallNotifyParams> FCallNotifyParams;
 	QMap<int, IChatWindow *> FMissedCallNotifies;
+	QPointer<PhoneDialerDialog> FPhoneDialerDialog;
 private:
 	static SipManager *inst;
 };

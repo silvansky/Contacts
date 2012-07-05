@@ -32,7 +32,6 @@
 
 #include "videocallwindow.h"
 #include "phonecallwindow.h"
-#include "phonedialerdialog.h"
 
 #if defined(Q_WS_WIN)
 # include <windows.h>
@@ -49,7 +48,6 @@
 
 #define COST_TIMEOUT             10000
 #define BALANCE_TIMEOUT          30000
-#define PHONE_SERVICE_JID        "phone.rambler.ru"
 
 #define SHC_SIP_QUERY            "/iq[@type='set']/query[@type='request'][@xmlns='" NS_RAMBLER_PHONE "']"
 
@@ -285,6 +283,37 @@ bool SipManager::isCallSupported(const Jid &AStreamJid, const Jid &AContactJid) 
 	return FDiscovery && FDiscovery->discoInfo(AStreamJid, AContactJid).features.contains(NS_RAMBLER_PHONE);
 }
 
+QWidget *SipManager::showCallWindow(ISipCall *ACall)
+{
+	QWidget *window = NULL;
+	if (!ACall->isPhoneCall())
+	{
+		window = new VideoCallWindow(FPluginManager,ACall);
+		connect(window,SIGNAL(chatWindowRequested()),SLOT(onVideoCallChatWindowRequested()));
+	}
+	else
+	{
+		window = new PhoneCallWindow(FPluginManager,ACall);
+	}
+	WidgetManager::showActivateRaiseWindow(window->window());
+	WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+	return window->window();
+}
+
+QWidget *SipManager::showPhoneDialerDialog(const Jid &AStreamJid)
+{
+	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
+	if (xmppStream)
+	{
+		if (FPhoneDialerDialog.isNull())
+			FPhoneDialerDialog = new PhoneDialerDialog(FPluginManager,this,xmppStream);
+		WidgetManager::showActivateRaiseWindow(FPhoneDialerDialog->window());
+		WidgetManager::alignWindow(FPhoneDialerDialog->window(),Qt::AlignCenter);
+		return FPhoneDialerDialog->window();
+	}
+	return NULL;
+}
+
 ISipCall *SipManager::newCall(const Jid &AStreamJid, const Jid &APhoneJid)
 {
 	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
@@ -402,12 +431,12 @@ bool SipManager::setSipAccountRegistration(const Jid &AStreamJid, bool ARegister
 	return true;
 }
 
-bool SipManager::requestAccountBalance(const Jid &AStreamJid)
+bool SipManager::requestBalance(const Jid &AStreamJid)
 {
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setTo(PHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
+		request.setType("get").setTo(SIPPHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
 		request.addElement("query",NS_RAMBLER_PHONE_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
@@ -418,15 +447,15 @@ bool SipManager::requestAccountBalance(const Jid &AStreamJid)
 	return false;
 }
 
-QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurrency, const QString &APhone, const QDateTime &AStart, qint64 ADuration)
+QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &APhone, const QDateTime &AStart, qint64 ADuration)
 {
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
-		request.setType("get").setTo(PHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
+		request.setType("get").setTo(SIPPHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
 		QDomElement callElem = request.addElement("query",NS_RAMBLER_PHONE_COST).appendChild(request.createElement("call")).toElement();
 		callElem.setAttribute("phone",APhone);
-		callElem.setAttribute("currency",ACurrency);
+		callElem.setAttribute("currencyCode",ACurrencyCode);
 		callElem.setAttribute("start",DateTime(AStart).toX85DateTime());
 		callElem.setAttribute("duration",ADuration);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,COST_TIMEOUT))
@@ -664,27 +693,32 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 {
 	if (FBalanceRequests.contains(AStanza.id()))
 	{
-		float balance = -1.0;
-		QString currency;
+		ISipBalance balance;
 		if (AStanza.type() == "result")
 		{
 			QDomElement balanceElem = AStanza.firstElement("query",NS_RAMBLER_PHONE_BALANCE).firstChildElement("balance");
-			balance = balanceElem.text().toFloat();
-			currency = balanceElem.attribute("currency");
+			balance.balance = balanceElem.text().toFloat();
+			balance.currency.code = balanceElem.attribute("currencyCode");
+			balance.currency.exp = balanceElem.attribute("currencyExp").toInt();
 		}
-		emit accountBalanceRecieved(AStreamJid,balance,currency);
+		else
+		{
+			balance.balance = -1.0;
+			balance.error.parseElement(AStanza.element(),NS_RAMBLER_PHONE_BALANCE);
+		}
+		emit sipBalanceRecieved(AStreamJid,balance);
 		FBalanceRequests.remove(AStanza.id());
 	}
 	else if (FCostRequests.contains(AStanza.id()))
 	{
 		ISipCallCost cost;
-		ErrorHandler err(AStanza.element());
 		if (AStanza.type() == "result")
 		{
 			QDomElement callElem = AStanza.firstElement("query",NS_RAMBLER_PHONE_COST).firstChildElement("call");
 			cost.cost = callElem.attribute("cost","-1.0").toFloat();
 			cost.phone = callElem.attribute("phone");
-			cost.currency = callElem.attribute("currency");
+			cost.currency.code = callElem.attribute("currencyCode");
+			cost.currency.exp = callElem.attribute("currencyExp").toInt();
 			cost.start = DateTime::dtFromX85(callElem.attribute("start"));
 			cost.duration = callElem.attribute("duration").toInt();
 			cost.city = callElem.firstChildElement("city").text();
@@ -695,8 +729,9 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		else
 		{
 			cost.cost = -1.0;
+			cost.error.parseElement(AStanza.element(),NS_RAMBLER_PHONE_COST);
 		}
-		emit callCostRecieved(AStanza.id(),cost,err);
+		emit sipCallCostRecieved(AStanza.id(),cost);
 		FCostRequests.remove(AStanza.id());
 	}
 }
@@ -1236,12 +1271,9 @@ void SipManager::onStartVideoCall()
 		if (call)
 		{
 			registerCallNotify(call);
-			VideoCallWindow *window = new VideoCallWindow(FPluginManager,call);
-			connect(window,SIGNAL(chatWindowRequested()),SLOT(onVideoCallChatWindowRequested()));
-			WidgetManager::showActivateRaiseWindow(window->window());
-			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
-			window->sipCall()->setDeviceProperty(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::LCP_AUTO_START,action->data(ADR_AUTO_START_VIDEO).toBool());
-			window->sipCall()->startCall();
+			showCallWindow(call);
+			call->setDeviceProperty(ISipDevice::DT_LOCAL_CAMERA,ISipDevice::LCP_AUTO_START,action->data(ADR_AUTO_START_VIDEO).toBool());
+			call->startCall();
 		}
 	}
 }
@@ -1257,10 +1289,8 @@ void SipManager::onStartPhoneCall()
 		ISipCall *call = newCall(streamJid,phoneJid);
 		if (call)
 		{
-			PhoneCallWindow *window = new PhoneCallWindow(FPluginManager,call);
-			window->sipCall()->startCall();
-			WidgetManager::showActivateRaiseWindow(window->window());
-			WidgetManager::alignWindow(window->window(),Qt::AlignCenter);
+			showCallWindow(call);
+			call->startCall();
 		}
 	}
 }
@@ -1307,9 +1337,17 @@ void SipManager::onShowAddContactDialog()
 
 void SipManager::onShowPhoneDialerDialog()
 {
-	PhoneDialerDialog *dialog = new PhoneDialerDialog(this);
-	WidgetManager::showActivateRaiseWindow(dialog->window());
-	WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
+	if (FXmppStreams)
+	{
+		foreach(IXmppStream *xmppStream, FXmppStreams->xmppStreams())
+		{
+			if (FXmppStreams->isActive(xmppStream))
+			{
+				showPhoneDialerDialog(xmppStream->streamJid());
+				break;
+			}
+		}
+	}
 }
 
 void SipManager::onCallMenuAboutToShow()
@@ -1426,6 +1464,8 @@ void SipManager::onXmppStreamRemoved(IXmppStream *AXmppStream)
 {
 	foreach(ISipCall *call, SipCall::findCalls(AXmppStream->streamJid()))
 		call->rejectCall(ISipCall::RC_BYUSER);
+	if (!FPhoneDialerDialog.isNull() && FPhoneDialerDialog->streamJid()==AXmppStream->streamJid())
+		FPhoneDialerDialog->reject();
 	setSipAccountRegistration(AXmppStream->streamJid().bare(),false);
 }
 

@@ -751,7 +751,7 @@ Jid Gateways::gateDescriptorRegistrator(const Jid &AStreamJid, const IGateServic
 QString Gateways::formattedContactLogin(const IGateServiceDescriptor &ADescriptor, const QString &AContact) const
 {
 	QString contact = normalizedContactLogin(ADescriptor,AContact,true);
-	if (ADescriptor.id==GSID_SMS && contact.length()==12)
+	if ((ADescriptor.id==GSID_SMS || ADescriptor.id==GSID_PHONE) && contact.length()==12)
 	{
 		// +7 (XXX) XXX-XX-XX
 		contact.insert(2," (");
@@ -782,7 +782,7 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 	QString contact = AContact.trimmed();
 	if (!contact.isEmpty())
 	{
-		if (ADescriptor.id == GSID_SMS)
+		if (ADescriptor.id==GSID_SMS || ADescriptor.id==GSID_PHONE)
 		{
 			QString number;
 			for (int i=0; i<contact.length(); i++)
@@ -792,19 +792,27 @@ QString Gateways::normalizedContactLogin(const IGateServiceDescriptor &ADescript
 					number += ch;
 				else if (i==0 && ch=='+')
 					number += ch;
+				else if (ADescriptor.id==GSID_PHONE && (ch=='*' || ch=='#'))
+					number += ch;
 			}
 			contact = number;
 
 			if (!contact.isEmpty())
 			{
-				if ( contact.length()==11 && (contact.startsWith('8') || contact.startsWith('7')) )
+				if (contact.startsWith('8') || contact.startsWith('7'))
 				{
-					contact.remove(0,1);
-					contact.prepend("+7");
+					if (contact.length()==11)
+					{
+						contact.remove(0,1);
+						contact.prepend("+7");
+					}
 				}
-				else if (contact.length()==10 && !contact.startsWith('+'))
+				else if (!contact.startsWith('+'))
 				{
-					contact.prepend("+7");
+					if (contact.length()==10)
+					{
+						contact.prepend("+7");
+					}
 				}
 			}
 		}
