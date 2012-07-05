@@ -17,6 +17,7 @@
 # include <utils/macwidgets.h>
 #endif
 
+#include <QFile>
 #include <QKeyEvent>
 #include <QWebFrame>
 #include <QWebHistory>
