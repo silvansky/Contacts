@@ -999,7 +999,11 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 	// Win7 Aero Peek close action
 	if (message->message == WM_SYSCOMMAND)
 		if (message->wParam == SC_CLOSE)
-			emit closeClicked();
+		{
+			closeAction->trigger();
+			*result = 0;
+			return true;
+		}
 	return QWidget::winEvent(message, result);
 }
 #endif
