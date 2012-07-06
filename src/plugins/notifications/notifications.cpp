@@ -333,7 +333,8 @@ int Notifications::appendNotification(const INotification &ANotification)
 			}
 			foreach(Action *action, record.notification.actions)
 			{
-				record.popupWidget->appendAction(action);
+				if (!record.popupWidget.isNull())
+					record.popupWidget->appendAction(action);
 			}
 		}
 	}
