@@ -272,7 +272,7 @@ bool Gateways::initObjects()
 	twitter.loginLabel = tr("Login");
 	twitter.loginField = "username";
 	twitter.passwordField = "password";
-	twitter.homeContactPattern = "^[a-zA-Z0-9_]+";
+	twitter.homeContactPattern = "^@[a-zA-Z0-9_]+";
 	twitter.availContactPattern = twitter.homeContactPattern;
 	FGateDescriptors.append(twitter);
 
