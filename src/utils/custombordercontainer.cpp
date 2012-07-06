@@ -995,6 +995,11 @@ bool CustomBorderContainer::winEvent(MSG *message, long *result)
 	// WARNING: works only on XP and earlier
 	if (message->message == 0x0313) // undocumented message - context menu for window on rightclick in taskbar
 		showWindowMenu(QCursor::pos());
+
+	// Win7 Aero Peek close action
+	if (message->message == WM_SYSCOMMAND)
+		if (message->wParam == SC_CLOSE)
+			emit closeClicked();
 	return QWidget::winEvent(message, result);
 }
 #endif
