@@ -868,6 +868,7 @@ void OptionsManager::onPrivateStorageDataLoaded(const QString &AId, const Jid &A
 		LogDetail(QString("[OptionsManager] Importing options from server"));
 		foreach(QString path, FServerOptions)
 			Options::importNode(path,AElement);
+		FServerOptionsTimer.stop();
 	}
 }
 
