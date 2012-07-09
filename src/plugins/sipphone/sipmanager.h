@@ -67,7 +67,7 @@ public:
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered);
 	// balance
 	virtual bool requestBalance(const Jid &AStreamJid);
-	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &APhone, const QDateTime &AStart, qint64 ADuration);
+	virtual QString requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &ANumber, const QDateTime &AStart, qint64 ADuration);
 	// devices
 	virtual bool updateAvailDevices();
 	virtual bool isDevicePresent(ISipDevice::Type AType) const;
@@ -90,7 +90,7 @@ signals:
 	void sipCallCostRecieved(const QString &AId, const ISipCallCost &ACost);
 public:
 	// ISipCallHandler
-	virtual bool handleSipCall(int AOrder, ISipCall * ACall);
+	virtual bool handleSipCall(int AOrder, ISipCall *ACall);
 	// IStanzaHandler
 	virtual bool stanzaReadWrite(int AHandleId, const Jid &AStreamJid, Stanza &AStanza, bool &AAccept);
 	// IStanzaRequestOwner
@@ -151,6 +151,7 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	INotifications *FNotifications;
 	IMainWindowPlugin *FMainWindowPlugin;
+	IOptionsManager *FOptionsManager;
 private:
 	int FSHISipQuery;
 	QMap<QString, Jid> FCostRequests;

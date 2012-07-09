@@ -253,16 +253,21 @@ ISipCall::RejectionCode SipCall::rejectCode() const
 	return FRejectCode;
 }
 
-quint32 SipCall::callTime() const
+QDateTime SipCall::callStartTime() const
+{
+	return FStartCallTime;
+}
+
+quint32 SipCall::callDuration() const
 {
 	if (!FStartCallTime.isNull())
 		return FStartCallTime.msecsTo(FStopCallTime.isNull() ? QDateTime::currentDateTime() : FStopCallTime);
 	return 0;
 }
 
-QString SipCall::callTimeString() const
+QString SipCall::callDurationString() const
 {
-	QTime time = QTime(0, 0, 0, 0).addMSecs(callTime());
+	QTime time = QTime(0, 0, 0, 0).addMSecs(callDuration());
 	return time.toString(time.hour()>0 ? "h:mm:ss" : "m:ss");
 }
 

@@ -51,4 +51,7 @@
 #define SV_RS_SEARCHEDIT_RIGHT_MARGIN          "rosterSearchSearchEditRightMargin"
 #define SV_RS_SEARCHEDIT_BOTTOM_MARGIN         "rosterSearchSearchEditBottomMargin"
 
+// sipphone dialer dialog
+#define SV_SDD_HISTORY_START_COLOR             "sipPhoneDialerDialogHistoryStartColor"
+
 #endif // STYLEVALUES_H

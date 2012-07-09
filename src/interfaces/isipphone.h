@@ -34,7 +34,7 @@ struct ISipCallCost
 	}
 	float cost;
 	ISipCurrency currency;
-	QString phone;
+	QString number;
 	QDateTime start;
 	qint64 duration;
 	QString city;
@@ -166,8 +166,9 @@ public:
 	virtual ErrorCode errorCode() const = 0;
 	virtual QString errorString() const = 0;
 	virtual RejectionCode rejectCode() const =0;
-	virtual quint32 callTime() const = 0;
-	virtual QString callTimeString() const = 0;
+	virtual QDateTime callStartTime() const =0;
+	virtual quint32 callDuration() const = 0;
+	virtual QString callDurationString() const = 0;
 	virtual bool sendDTMFSignal(QChar ASignal) = 0;
 	// devices
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const = 0;

@@ -384,7 +384,9 @@ QString AddContactDialog::confirmDescriptorText(const IGateServiceDescriptor &AD
 	if (ADescriptor.id == GSID_ICQ)
 		text = tr("This is an ICQ number");
 	else if (ADescriptor.id == GSID_SMS)
-		text = tr("This is a phone number");
+		text = tr("This is a phone number for SMS");
+	else if (ADescriptor.id == GSID_PHONE)
+		text = tr("This is a phone number for calls");
 	else if (ADescriptor.id == GSID_MAIL)
 		text = tr("This is a e-mail address");
 	else

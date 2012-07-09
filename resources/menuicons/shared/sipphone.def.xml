@@ -9,6 +9,10 @@
     <object mime="image/png">sipphonedialercall.png</object>
   </icon>
   <icon>
+    <key>sipDialerError</key>
+    <object mime="image/png">sipphonedialererror.png</object>
+  </icon>
+  <icon>
     <key>sipCallButton</key>
     <object mime="image/png">sipphonebutton.png</object>
     <object mime="image/png">sipphonebutton_click.png</object>

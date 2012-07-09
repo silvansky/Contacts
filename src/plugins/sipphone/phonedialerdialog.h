@@ -3,12 +3,22 @@
 
 #include <QDialog>
 #include <QSignalMapper>
+#include <QTableWidgetItem>
 #include <interfaces/isipphone.h>
 #include <interfaces/iroster.h>
 #include <interfaces/igateways.h>
 #include <interfaces/ixmppstreams.h>
+#include <interfaces/imetacontacts.h>
 #include <interfaces/ipluginmanager.h>
 #include "ui_phonedialerdialog.h"
+
+struct CallHistoryItem
+{
+	QString number;
+	QDateTime start;
+	qint64 duration;
+	bool callFailed;
+};
 
 class PhoneDialerDialog : 
 	public QDialog
@@ -20,20 +30,36 @@ public:
 	Jid streamJid() const;
 protected:
 	void initialize(IPluginManager *APluginManager);
-	bool requestBalance();
-	bool requestCallCost();
+	void requestBalance();
+	void requestCallCost();
 	void updateDialogState();
+	void showErrorBalloon(const QString &AHtml);
+protected:
+	Jid findPhoneContact(const QString &ANumber) const;
+	QString startTimeString(const QDateTime &AStart) const;
+	QString numberContactName(const QString &ANumber) const;
+	void prependCallHistory(const CallHistoryItem &AItem);
 protected:
 	bool isCallEnabled() const;
 	QString formattedNumber(const QString &AText) const;
 	QString normalizedNumber(const QString &AText) const;
-	QString currncyValue(float AValue, const ISipCurrency &ACurrency);
+	QString currncyValue(float AValue, const ISipCurrency &ACurrency) const;
 protected slots:
+	void saveCallHistory();
+	void loadCallHistory();
+protected slots:
+	void onXmppStreamOpened();
+	void onXmppStreamClosed();
 	void onCallButtonClicked();
 	void onCostRequestTimerTimeout();
 	void onNumberButtonMapped(const QString &AText);
 	void onNumberTextChanged(const QString &AText);
+	void onOptionsChanged(const OptionsNode &ANode);
 protected slots:
+	void onHistoryCellDoubleClicked(int ARow, int AColumn);
+protected slots:
+	void onCallWindowDestroyed();
+	void onCallStateChanged(int AState);
 	void onSipBalanceRecieved(const Jid &AStreamJid, const ISipBalance &ABalance);
 	void onSipCallCostRecieved(const QString &AId, const ISipCallCost &ACost);
 private:
@@ -43,6 +69,7 @@ private:
 	ISipManager *FSipManager;
 	IXmppStream *FXmppStream;
 	IRosterPlugin *FRosterPlugin;
+	IMetaContacts *FMetaContacts;
 private:
 	QTimer FCostRequestTimer;
 	QString FCallCostRequestId;
@@ -50,6 +77,11 @@ private:
 	ISipBalance FBalance;
 	ISipCallCost FCallCost;
 	QSignalMapper FNumberMapper;
+private:
+	bool FAutoStartCall;
+	QTimer FLoadHistoryTimer;
+	QList<Jid> FPhoneContacts;
+	QMap<QTableWidgetItem *,CallHistoryItem> FCallHistory;
 };
 
 #endif // PHONEDIALERDIALOG_H

@@ -462,7 +462,7 @@ void CallControlWidget::onRemoteMicrophoneVolumeChanged(qreal AVolume)
 
 void CallControlWidget::onCallTimerTimeout()
 {
-	ui.lblNotice->setText(FSipCall->callTimeString());
+	ui.lblNotice->setText(FSipCall->callDurationString());
 }
 
 void CallControlWidget::onAnimateNoticeTimeout()

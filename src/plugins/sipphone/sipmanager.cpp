@@ -9,6 +9,7 @@
 #include <definitions/menuicons.h>
 #include <definitions/soundfiles.h>
 #include <definitions/namespaces.h>
+#include <definitions/optionvalues.h>
 #include <definitions/actiongroups.h>
 #include <definitions/toolbargroups.h>
 #include <definitions/notificationtypes.h>
@@ -19,6 +20,7 @@
 #include <definitions/sipcallhandlerorders.h>
 #include <definitions/gateserviceidentifiers.h>
 #include <utils/log.h>
+#include <utils/options.h>
 #include <utils/datetime.h>
 #include <utils/iconstorage.h>
 #include <utils/errorhandler.h>
@@ -92,6 +94,7 @@ SipManager::SipManager() :
 	FMessageProcessor = NULL;
 	FNotifications = NULL;
 	FMainWindowPlugin = NULL;
+	FOptionsManager = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -207,6 +210,10 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	if (plugin)
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 
+	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
+	if (plugin)
+		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
+
 	connect(FPluginManager->instance(), SIGNAL(shutdownStarted()), SLOT(onShutDownStarted()));
 
 	return FStanzaProcessor;
@@ -250,6 +257,11 @@ bool SipManager::initObjects()
 		connect(dialAction,SIGNAL(triggered()),SLOT(onShowPhoneDialerDialog()));
 		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(dialAction,TBG_MWTTB_SIPPHONE_DIAL);
 		button->setObjectName("tlbShowPhoneDialer");
+	}
+
+	if (FOptionsManager)
+	{
+		FOptionsManager->insertServerOption(OPV_SIPPHONE_DIALER_HISTORY_ROOT);
 	}
 
 	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS, this);
@@ -447,14 +459,14 @@ bool SipManager::requestBalance(const Jid &AStreamJid)
 	return false;
 }
 
-QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &APhone, const QDateTime &AStart, qint64 ADuration)
+QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurrencyCode, const QString &ANumber, const QDateTime &AStart, qint64 ADuration)
 {
 	if (FStanzaProcessor)
 	{
 		Stanza request("iq");
 		request.setType("get").setTo(SIPPHONE_SERVICE_JID).setId(FStanzaProcessor->newId());
 		QDomElement callElem = request.addElement("query",NS_RAMBLER_PHONE_COST).appendChild(request.createElement("call")).toElement();
-		callElem.setAttribute("phone",APhone);
+		callElem.setAttribute("phone",ANumber);
 		callElem.setAttribute("currencyCode",ACurrencyCode);
 		callElem.setAttribute("start",DateTime(AStart).toX85DateTime());
 		callElem.setAttribute("duration",ADuration);
@@ -716,7 +728,7 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 		{
 			QDomElement callElem = AStanza.firstElement("query",NS_RAMBLER_PHONE_COST).firstChildElement("call");
 			cost.cost = callElem.attribute("cost","-1.0").toFloat();
-			cost.phone = callElem.attribute("phone");
+			cost.number = callElem.attribute("phone");
 			cost.currency.code = callElem.attribute("currencyCode");
 			cost.currency.exp = callElem.attribute("currencyExp").toInt();
 			cost.start = DateTime::dtFromX85(callElem.attribute("start"));
@@ -1175,8 +1187,8 @@ void SipManager::onCallStateChanged(int AState)
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
-				if (call->callTime() > 0)
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call finished (duration: %1).").arg(call->callTimeString()));
+				if (call->callDuration() > 0)
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call finished (duration: %1).").arg(call->callDurationString()));
 				else
 					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_OUT,tr("Call canceled."));
 			}
@@ -1210,9 +1222,9 @@ void SipManager::onCallStateChanged(int AState)
 			}
 			else if (AState == ISipCall::CS_FINISHED)
 			{
-				if (call->callTime() > 0)
+				if (call->callDuration() > 0)
 				{
-					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call finished (duration: %1).").arg(call->callTimeString()));
+					showNotifyInChatWindow(call,MNI_SIPPHONE_CALL_IN,tr("Call finished (duration: %1).").arg(call->callDurationString()));
 				}
 				else if (call->rejectCode() == ISipCall::RC_EMPTY)
 				{

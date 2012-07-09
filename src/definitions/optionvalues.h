@@ -23,7 +23,7 @@
 #define OPV_ACCOUNT_STATUS_ISMAIN                       "accounts.account.status.is-main"
 #define OPV_ACCOUNT_STATUS_LASTONLINE                   "accounts.account.status.last-online"
 
-//BirthdayReminder
+// BirthdayReminder
 #define OPV_BIRTHDAY_NOTICE_SHOWCOUNT                   "birthday.notice.show-count"
 #define OPV_BIRTHDAY_NOTICE_SHOWLAST                    "birthday.notice.show-last"
 
@@ -36,7 +36,7 @@
 #define OPV_CONSOLE_CONTEXT_HIGHLIGHTXML                "console.context.highlight-xml"
 #define OPV_CONSOLE_CONTEXT_WORDWRAP                    "console.context.word-wrap"
 
-//Gateways
+// Gateways
 #define OPV_GATEWAYS_NOTICE_SHOWCOUNT                   "gateways.notice.show-count"
 #define OPV_GATEWAYS_NOTICE_SHOWLAST                    "gateways.notice.show-last"
 #define OPV_GATEWAYS_NOTICE_REMOVECOUNT                 "gateways.notice.remove-count"
@@ -159,5 +159,13 @@
 #define OPV_STATUSICONS_RULE_ITEM                       "statusicons.rules.rule"
 #define OPV_STATUSICONS_RULE_PATTERN                    "statusicons.rules.rule.pattern"
 #define OPV_STATUSICONS_RULE_ICONSET                    "statusicons.rules.rule.iconset"
+
+// SipPhone
+#define OPV_SIPPHONE_DIALER_HISTORY_ROOT                "sipphone.phone-dialer-dialog.history"
+#define OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM           "sipphone.phone-dialer-dialog.history.call"
+#define OPV_SIPPHONE_DIALER_HISTORY_CALL_NUMBER         "sipphone.phone-dialer-dialog.history.call.number"
+#define OPV_SIPPHONE_DIALER_HISTORY_CALL_START          "sipphone.phone-dialer-dialog.history.call.start"
+#define OPV_SIPPHONE_DIALER_HISTORY_CALL_DURATION       "sipphone.phone-dialer-dialog.history.call.duration"
+#define OPV_SIPPHONE_DIALER_HISTORY_CALL_FAILED         "sipphone.phone-dialer-dialog.history.call.failed"
 
 #endif // DEF_OPTIONVALUES_H

@@ -47,9 +47,7 @@ QLabel#lblBalance
 
 CustomLabel#lblFullHistory 
 {
-	color: black;
 	qproperty-shadow: 0;
-	text-decoration: underline;
 } 
 
 QTableWidget

@@ -240,7 +240,7 @@ bool Gateways::initObjects()
 	phone.needLogin = false;
 	phone.autoLogin = true;
 	phone.type = "phone";
-	phone.name = tr("Phone");
+	phone.name = tr("Calls");
 	phone.iconKey = MNI_GATEWAYS_SERVICE_PHONE;
 	phone.loginLabel = tr("Phone");
 	phone.homeContactPattern = "^\\+\\d{11,}[\\d|\\*|\\#]*$";

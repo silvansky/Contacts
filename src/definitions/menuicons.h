@@ -166,6 +166,7 @@
 //SipPhone
 #define MNI_SIPPHONE_DIALER                      "sipDialer"
 #define MNI_SIPPHONE_DIALER_CALL                 "sipDialerCall"
+#define MNI_SIPPHONE_DIALER_ERROR                "sipDialerError"
 #define MNI_SIPPHONE_CALL_IN                     "sipCallIn"
 #define MNI_SIPPHONE_CALL_OUT                    "sipCallOut"
 #define MNI_SIPPHONE_CALL_MISSED                 "sipCallMissed"

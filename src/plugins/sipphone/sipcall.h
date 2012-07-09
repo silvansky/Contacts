@@ -36,8 +36,9 @@ public:
 	virtual ErrorCode errorCode() const;
 	virtual QString errorString() const;
 	virtual RejectionCode rejectCode() const;
-	virtual quint32 callTime() const; // in milliseconds
-	virtual QString callTimeString() const;
+	virtual QDateTime callStartTime() const;
+	virtual quint32 callDuration() const;
+	virtual QString callDurationString() const;
 	virtual bool sendDTMFSignal(QChar ASignal);
 	// devices
 	virtual ISipDevice::State deviceState(ISipDevice::Type AType) const;
