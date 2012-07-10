@@ -129,10 +129,14 @@ void PrivateStorage::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AS
 	}
 }
 
-
-bool PrivateStorage::hasData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const
+bool PrivateStorage::isOpen(const Jid &AStreamJid) const
 {
-	return getData(AStreamJid,ATagName,ANamespace).hasChildNodes();
+	return FStreamElements.contains(AStreamJid);
+}
+
+bool PrivateStorage::isLoaded(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const
+{
+	return !getData(AStreamJid,ATagName,ANamespace).isNull();
 }
 
 QDomElement PrivateStorage::getData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const
@@ -145,13 +149,13 @@ QDomElement PrivateStorage::getData(const Jid &AStreamJid, const QString &ATagNa
 
 QString PrivateStorage::saveData(const Jid &AStreamJid, const QDomElement &AElement)
 {
-	if (AStreamJid.isValid() && !AElement.namespaceURI().isEmpty())
+	if (FStanzaProcessor && isOpen(AStreamJid) && AStreamJid.isValid() && !AElement.namespaceURI().isEmpty())
 	{
 		Stanza stanza("iq");
 		stanza.setType("set").setId(FStanzaProcessor->newId());
 		QDomElement elem = stanza.addElement("query",NS_JABBER_PRIVATE);
 		elem.appendChild(AElement.cloneNode(true));
-		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
 			LogDetail(QString("[PrivateStorage] Private data '%1' save request sent").arg(AElement.namespaceURI()));
 			FSaveRequests.insert(stanza.id(),insertElement(AStreamJid,AElement));
@@ -167,13 +171,13 @@ QString PrivateStorage::saveData(const Jid &AStreamJid, const QDomElement &AElem
 
 QString PrivateStorage::loadData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
 {
-	if (AStreamJid.isValid() && !ATagName.isEmpty() && !ANamespace.isEmpty())
+	if (FStanzaProcessor && isOpen(AStreamJid) && AStreamJid.isValid() && !ATagName.isEmpty() && !ANamespace.isEmpty())
 	{
 		Stanza stanza("iq");
 		stanza.setType("get").setId(FStanzaProcessor->newId());
 		QDomElement elem = stanza.addElement("query",NS_JABBER_PRIVATE);
 		QDomElement dataElem = elem.appendChild(stanza.createElement(ATagName,ANamespace)).toElement();
-		if (FStanzaProcessor && FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
+		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,stanza,PRIVATE_STORAGE_TIMEOUT))
 		{
 			LogDetail(QString("[PrivateStorage] Private data '%1' load request sent").arg(ANamespace));
 			FLoadRequests.insert(stanza.id(),dataElem);
@@ -212,25 +216,10 @@ QString PrivateStorage::removeData(const Jid &AStreamJid, const QString &ATagNam
 	return QString::null;
 }
 
-QDomElement PrivateStorage::getStreamElement(const Jid &AStreamJid)
-{
-	if (!FStreamElements.contains(AStreamJid))
-	{
-		QDomElement elem = FStorage.appendChild(FStorage.createElement("stream")).toElement();
-		FStreamElements.insert(AStreamJid,elem);
-	}
-	return FStreamElements.value(AStreamJid);
-}
-
-void PrivateStorage::removeStreamElement(const Jid &AStreamJid)
-{
-	FStreamElements.remove(AStreamJid);
-}
-
 QDomElement PrivateStorage::insertElement(const Jid &AStreamJid, const QDomElement &AElement)
 {
 	removeElement(AStreamJid,AElement.tagName(),AElement.namespaceURI());
-	QDomElement streamElem = getStreamElement(AStreamJid);
+	QDomElement streamElem = FStreamElements.value(AStreamJid);
 	return streamElem.appendChild(AElement.cloneNode(true)).toElement();
 }
 
@@ -261,6 +250,7 @@ void PrivateStorage::notifyDataChanged(const Jid &AStreamJid, const QString &ATa
 
 void PrivateStorage::onStreamOpened(IXmppStream *AXmppStream)
 {
+	FStreamElements.insert(AXmppStream->streamJid(),FStorage.appendChild(FStorage.createElement("stream")).toElement());
 	emit storageOpened(AXmppStream->streamJid());
 }
 
@@ -272,7 +262,7 @@ void PrivateStorage::onStreamAboutToClose(IXmppStream *AXmppStream)
 void PrivateStorage::onStreamClosed(IXmppStream *AXmppStream)
 {
 	emit storageClosed(AXmppStream->streamJid());
-	removeStreamElement(AXmppStream->streamJid());
+	FStreamElements.remove(AXmppStream->streamJid());
 }
 
 Q_EXPORT_PLUGIN2(plg_privatestorage, PrivateStorage)

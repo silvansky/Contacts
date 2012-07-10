@@ -10,7 +10,8 @@ class IPrivateStorage
 {
 public:
 	virtual QObject *instance() =0;
-	virtual bool hasData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const =0;
+	virtual bool isOpen(const Jid &AStreamJid) const =0;
+	virtual bool isLoaded(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const =0;
 	virtual QDomElement getData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const =0;
 	virtual QString saveData(const Jid &AStreamJid, const QDomElement &AElement) =0;
 	virtual QString loadData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) =0;
