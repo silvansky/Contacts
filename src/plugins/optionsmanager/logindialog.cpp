@@ -205,6 +205,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneRegFullName->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneRegLogin->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneRegPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
+	ui.lneRegConfirmPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 
 	FActiveErrorType = NoActiveError;
 	FDomainPrevIndex = 0;
@@ -233,6 +237,10 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FDomainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomain->setMenu(FDomainsMenu);
 
+	FRegDomainsMenu = new Menu(this);
+	FRegDomainsMenu->setObjectName("domainsMenu");
+	ui.pbtRegDomain->setMenu(FRegDomainsMenu);
+
 	ui.cmbDomain->setView(new QListView(ui.cmbDomain));
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 
@@ -247,11 +255,15 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
 
+#if 0
 	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
 		.arg("<a href='rambler.easy.registration'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
 		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
 		.arg(tr("register")));
+#else
+	ui.lblRegister->setText(tr("Log in"));
+#endif
 	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
 		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
@@ -285,6 +297,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	action->setData(Action::DR_UserDefined + 1, QString("rambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 	action->trigger();
 
 	action = new Action(FDomainsMenu);
@@ -292,32 +305,37 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	action->setData(Action::DR_UserDefined + 1, QString("lenta.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 
 	action = new Action(FDomainsMenu);
 	action->setText("@myrambler.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("myrambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 
 	action = new Action(FDomainsMenu);
 	action->setText("@autorambler.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("autorambler.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 
 	action = new Action(FDomainsMenu);
 	action->setText("@ro.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("ro.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 
 	action = new Action(FDomainsMenu);
 	action->setText("@r0.ru");
 	action->setData(Action::DR_UserDefined + 1, QString("r0.ru"));
 	connect(action, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 	FDomainsMenu->addAction(action);
+	FRegDomainsMenu->addAction(action);
 
-#ifndef DEBUG_ENABLED
+#if 1
 	ui.cmbDomain->setVisible(false);
 #else
 	ui.tlbDomain->setVisible(false);

@@ -7,7 +7,7 @@ QDialog
 	background-color: rgba(65, 70, 77, 250);
 }
 
-#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox, #connectionErrorWidget
+#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox, #connectionErrorWidget, #wdtEasyReg
 {
 	background-color: transparent;
 }
@@ -39,7 +39,17 @@ QComboBox[error="true"]:!editable
 
 QPushButton#tlbDomain
 {
-	margin-top: 1px;
+	margin-top: 0px;
+	min-width: 100px;
+	max-width: 100px;
+	width: 100px;
+	text-align: left;
+	min-height: 25px;
+}
+
+QPushButton#pbtRegDomain
+{
+	margin-top: 6px;
 	min-width: 100px;
 	max-width: 100px;
 	width: 100px;
@@ -52,11 +62,12 @@ Menu#domainsMenu::item
 	padding-left: 8px;
 }
 
-/******************
- * Connect Button *
- ******************/
+/**********************
+ * Connect/Reg Button *
+ **********************/
 
-QPushButton#pbtConnect
+QPushButton#pbtConnect,
+QPushButton#pbtRegister
 {
 	font-size: 16px;
 	min-height: 31px;
@@ -64,7 +75,8 @@ QPushButton#pbtConnect
 	margin-left: 2px;
 }
 
-QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect
+QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect,
+QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtRegister
 {
 	color: white;
 	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
@@ -100,9 +112,54 @@ QListView#completerPopUp::item:hover
 	background-color: #c8d9e1;
 }
 
+/**********
+ * Labels *
+ **********/
+
+QLabel#lblRegNameHelp,
+QLabel#lblRegPasswordHelp,
+QLabel#lblRegConfirmPasswordHelp
+{
+	color: #acacac;
+	min-width: 110px;
+	max-width: 110px;
+	width: 110px;
+}
+
+QLabel#lblRegister
+{
+	font-size: 16px;
+}
+
+/**************
+ * Split line *
+ **************/
+
+#splitLine
+{
+	width: 0px;
+	min-width: 0px;
+	max-width: 0px;
+	border-left: 1px solid rgb(47, 52, 59);
+	border-right: 1px solid rgb(94, 99, 105);
+	margin-top: 60px;
+	margin-bottom: 16px;
+	margin-right: 10px;
+}
+
 /****************************
  * sizes, margins, paddings *
  ****************************/
+
+#lneRegFullName,
+#lneRegLogin,
+#lneRegPassword,
+#lneRegConfirmPassword
+{
+	min-width: 215px;
+	max-width: 215px;
+	width: 215px;
+}
 
 #chbAutoRun
 {
@@ -112,11 +169,13 @@ QListView#completerPopUp::item:hover
 #lblRegister
 {
 	margin-left: 1px;
+	padding-top: 0px;
 }
 
-#lblRegister
+#lblRegistration
 {
-	padding-top: 10px;
+	padding-left: 1px;
+	font-size: 16px;
 }
 
 #lblLogo
@@ -131,7 +190,7 @@ QCheckBox
 
 #frmLogin
 {
-	margin-top: 6px;
+	margin-top: 0px;
 	padding-right: 3px;
 	padding-bottom: 0px;
 }

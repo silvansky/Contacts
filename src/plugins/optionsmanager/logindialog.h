@@ -115,6 +115,7 @@ private:
 	int FActiveErrorType;
 	QUuid FAccountId;
 	Menu *FDomainsMenu;
+	Menu *FRegDomainsMenu;
 	QTimer FAbortTimer;
 	QTimer FReconnectTimer;
 	QWidget *FConnectionErrorWidget;
