@@ -302,7 +302,7 @@ QWidget *SipManager::showCallWindow(ISipCall *ACall)
 	return window->window();
 }
 
-QWidget *SipManager::showPhoneDialerDialog(const Jid &AStreamJid)
+ISipPhoneDialerDialog *SipManager::showPhoneDialerDialog(const Jid &AStreamJid)
 {
 	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (xmppStream)
@@ -311,7 +311,7 @@ QWidget *SipManager::showPhoneDialerDialog(const Jid &AStreamJid)
 			FPhoneDialerDialog = new PhoneDialerDialog(FPluginManager,this,xmppStream);
 		WidgetManager::showActivateRaiseWindow(FPhoneDialerDialog->window());
 		WidgetManager::alignWindow(FPhoneDialerDialog->window(),Qt::AlignCenter);
-		return FPhoneDialerDialog->window();
+		return FPhoneDialerDialog;
 	}
 	return NULL;
 }
@@ -1288,11 +1288,11 @@ void SipManager::onStartPhoneCall()
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		Jid phoneJid = action->data(ADR_PHONE_JID).toString();
 
-		ISipCall *call = newCall(streamJid,phoneJid);
-		if (call)
+		ISipPhoneDialerDialog *dialog = showPhoneDialerDialog(streamJid);
+		if (dialog && dialog->isReady())
 		{
-			showCallWindow(call);
-			call->startCall();
+			dialog->setCurrentNumber(FGateways!=NULL ? FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_PHONE),phoneJid.uNode()) : phoneJid.uNode());
+			dialog->startCall();
 		}
 	}
 }

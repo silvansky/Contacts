@@ -36,6 +36,7 @@
 	<stylevalue key="rosterSearchSearchEditRightMargin_mac" type="int" value="26" />
 	<stylevalue key="rosterSearchSearchEditBottomMargin" type="int" value="16" />
 	<stylevalue key="sipPhoneDialerDialogHistoryStartColor" type="color" value="#acacac" />
+	<stylevalue key="sipPhoneDialerDialogHistoryFailedColor" type="color" value="firebrick" />
 <!--
 	<stylevalue key="" type="int" value="0" />
 	<stylevalue key="" type="int" value="0" />

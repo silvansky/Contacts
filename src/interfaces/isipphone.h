@@ -2,6 +2,7 @@
 #define ISIPPHONE_H
 
 #include <QUuid>
+#include <QDialog>
 #include <QDateTime>
 #include <utils/jid.h>
 #include <utils/errorhandler.h>
@@ -189,6 +190,23 @@ public:
 	virtual bool handleSipCall(int AOrder, ISipCall *ACall) = 0;
 };
 
+class ISipPhoneDialerDialog
+{
+public:
+	virtual QDialog *instance() =0;
+	virtual Jid streamJid() const =0;
+	virtual bool isReady() const =0;
+	virtual bool isCallEnabled() const =0;
+	virtual ISipCall *activeCall() const =0;
+	virtual ISipBalance currentBalance() const =0;
+	virtual ISipCallCost currentCallCost() const =0;
+	virtual QString currentNumber() const =0;
+	virtual void setCurrentNumber(const QString &ANumber) =0;
+	virtual void startCall() =0;
+protected:
+	virtual void dialogStateChanged() =0;
+};
+
 class ISipManager
 {
 public:
@@ -201,7 +219,7 @@ public:
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// call dialogs
 	virtual QWidget *showCallWindow(ISipCall *ACall) =0;
-	virtual QWidget *showPhoneDialerDialog(const Jid &AStreamJid) =0;
+	virtual ISipPhoneDialerDialog *showPhoneDialerDialog(const Jid &AStreamJid) =0;
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const =0;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered) =0;
@@ -232,6 +250,7 @@ protected:
 
 Q_DECLARE_INTERFACE(ISipCall,"Virtus.Plugin.ISipCall/1.0")
 Q_DECLARE_INTERFACE(ISipCallHandler,"Virtus.Plugin.ISipCallHandler/1.0")
+Q_DECLARE_INTERFACE(ISipPhoneDialerDialog,"Virtus.Plugin.ISipPhoneDialerDialog/1.0")
 Q_DECLARE_INTERFACE(ISipManager,"Virtus.Plugin.ISipManager/1.0")
 
 #endif //ISIPPHONE_H

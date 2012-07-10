@@ -1,6 +1,7 @@
 #include "phonedialerdialog.h"
 
 #include <QString>
+#include <QShowEvent>
 #include <QCompleter>
 #include <QClipboard>
 #include <QDataStream>
@@ -23,6 +24,8 @@
 
 #define PST_CALL_HISTORY          "calls"
 #define PSN_CALL_HISTORY          "rambler:sipphone:calls-history"
+
+#define ADR_NUMBER                Action::DR_Parametr1
 
 enum HistoryTableColumns {
 	HTC_NAME,
@@ -56,11 +59,13 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	FSipManager = ASipManager;
 	FXmppStream = AXmppStream;
 
+	FActiveCall = NULL;
 	FAutoStartCall = false;
 
 	FGateways = NULL;
 	FRosterPlugin = NULL;
 	FMetaContacts = NULL;
+	FRosterChanger = NULL;
 	FPrivateStorage = NULL;
 	initialize(APluginManager);
 
@@ -97,10 +102,7 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	ui.lblBalance->setElideMode(Qt::ElideRight);
 	ui.lblFullHistory->setElideMode(Qt::ElideRight);
 	ui.lblFullHistory->setText(QString("<a href='http://contacts.rambler.ru'><span style='text-decoration: underline; color:%1;'>%2</span></a>")
-		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name(), tr("Complete call history")));
-
-	//QRegExp phoneNumber("\\+?[\\d|\\*|\\#]+");
-	//ui.lneNumber->setValidator(new QRegExpValidator(phoneNumber,ui.lneNumber));
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_DARK_LINK_COLOR).name(), tr("Complete calls history")));
 
 	IRoster *roster = FRosterPlugin!=NULL ? FRosterPlugin->findRoster(streamJid()) : NULL;
 	if (FGateways && roster)
@@ -137,6 +139,7 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtCall,MNI_SIPPHONE_DIALER_CALL);
 
 	connect(ui.tbwHistory,SIGNAL(cellDoubleClicked(int,int)),SLOT(onHistoryCellDoubleClicked(int,int)));
+	connect(ui.tbwHistory,SIGNAL(customContextMenuRequested(const QPoint &)),SLOT(onHistoryCustomContextMenuRequested(const QPoint &)));
 
 	connect(FXmppStream->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 	connect(FXmppStream->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
@@ -160,6 +163,58 @@ PhoneDialerDialog::~PhoneDialerDialog()
 Jid PhoneDialerDialog::streamJid() const
 {
 	return FXmppStream->streamJid();
+}
+
+bool PhoneDialerDialog::isCallEnabled() const
+{
+	return isReady() && FBalance.balance>SIP_BALANCE_EPSILON && FCallCost.cost>SIP_BALANCE_EPSILON && FCallCost.cost<=FBalance.balance;
+}
+
+ISipCall *PhoneDialerDialog::activeCall() const
+{
+	return FActiveCall;
+}
+
+ISipBalance PhoneDialerDialog::currentBalance() const
+{
+	return FBalance;
+}
+
+bool PhoneDialerDialog::isReady() const
+{
+	return FActiveCall==NULL;
+}
+
+ISipCallCost PhoneDialerDialog::currentCallCost() const
+{
+	return FCallCost;
+}
+
+QString PhoneDialerDialog::currentNumber() const
+{
+	return normalizedNumber(ui.lneNumber->text());
+}
+
+void PhoneDialerDialog::setCurrentNumber(const QString &ANumber)
+{
+	if (isReady())
+		ui.lneNumber->setText(normalizedNumber(ANumber));
+}
+
+void PhoneDialerDialog::startCall()
+{
+	if (isReady())
+	{
+		if (!isCallEnabled())
+		{
+			requestCallCost();
+			FAutoStartCall = true;
+		}
+		else
+		{
+			onCallButtonClicked();
+		}
+	}
 }
 
 void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
@@ -192,6 +247,12 @@ void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
 	{
 		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
 	}
+
+	plugin = APluginManager->pluginInterface("IRosterChanger").value(0);
+	if (plugin)
+	{
+		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+	}
 }
 
 void PhoneDialerDialog::requestBalance()
@@ -209,10 +270,9 @@ void PhoneDialerDialog::requestCallCost()
 {
 	if (FXmppStream->isOpen())
 	{
-		FAutoStartCall = false;
 		FCallCost = ISipCallCost();
-		QString number = normalizedNumber(ui.lneNumber->text());
-		if (!FBalance.currency.code.isEmpty() && number.length() >= 3)
+		QString number = currentNumber();
+		if (FBalance.balance>SIP_BALANCE_EPSILON && number.length()>=3)
 		{
 			FCostRequestTimer.stop();
 			FCallCostRequestId = FSipManager->requestCallCost(streamJid(),FBalance.currency.code,number,QDateTime::currentDateTime(),60000);
@@ -251,7 +311,7 @@ void PhoneDialerDialog::updateDialogState()
 	else if (costErrCond=="invalid-phone-number" || costErrCond=="incomplete-phone-number")
 	{
 		ui.lblCity->setText(QString::null);
-		ui.lblCost->setText(tr("Incorrect number"));
+		ui.lblCost->setText(tr("Unsupported number"));
 	}
 	else if (!costErrCond.isEmpty())
 	{
@@ -265,6 +325,8 @@ void PhoneDialerDialog::updateDialogState()
 	}
 
 	ui.pbtCall->setEnabled(isCallEnabled());
+
+	emit dialogStateChanged();
 }
 
 void PhoneDialerDialog::showErrorBalloon(const QString &AHtml)
@@ -350,7 +412,15 @@ void PhoneDialerDialog::prependCallHistory(const CallHistoryItem &AItem)
 		QTableWidgetItem *itemName = new QTableWidgetItem;
 		itemName->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		itemName->setText(numberContactName(AItem.number));
-		itemName->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(AItem.callFailed ? MNI_SIPPHONE_CALL_MISSED : MNI_SIPPHONE_CALL_OUT));
+		if (AItem.callFailed)
+		{
+			itemName->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_MISSED));
+			itemName->setTextColor(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_SDD_HISTORY_FAILED_COLOR));
+		}
+		else
+		{
+			itemName->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_OUT));
+		}
 
 		QTableWidgetItem *itemStart = new QTableWidgetItem;
 		itemStart->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
@@ -375,11 +445,6 @@ void PhoneDialerDialog::prependCallHistory(const CallHistoryItem &AItem)
 	}
 }
 
-bool PhoneDialerDialog::isCallEnabled() const
-{
-	return FBalance.balance>SIP_BALANCE_EPSILON && FCallCost.cost>SIP_BALANCE_EPSILON && FCallCost.cost<=FBalance.balance;
-}
-
 QString PhoneDialerDialog::formattedNumber(const QString &AText) const
 {
 	QString number = FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_PHONE),AText) : AText;
@@ -394,12 +459,21 @@ QString PhoneDialerDialog::normalizedNumber(const QString &AText) const
 
 QString PhoneDialerDialog::currncyValue(float AValue, const ISipCurrency &ACurrency) const
 {
-	return QString("%1 %2").arg(AValue,0,'f',qMax(-ACurrency.exp,0)).arg(ACurrency.code);
+	QString currency = ACurrency.code.toLower();
+	return QString("%1 %2").arg(AValue,0,'f',qMax(-ACurrency.exp,0)).arg(currency);
+}
+
+void PhoneDialerDialog::showEvent(QShowEvent *AEvent)
+{
+	if (isReady())
+		QDialog::showEvent(AEvent);
+	else
+		AEvent->ignore();
 }
 
 void PhoneDialerDialog::saveCallHistory()
 {
-	if (FPrivateStorage)
+	if (FPrivateStorage && FPrivateStorage->isOpen(streamJid()))
 	{
 		QDomDocument doc;
 		QDomElement rootElem = doc.appendChild(doc.createElement("history")).appendChild(doc.createElementNS(PSN_CALL_HISTORY,PST_CALL_HISTORY)).toElement();
@@ -418,7 +492,7 @@ void PhoneDialerDialog::saveCallHistory()
 
 void PhoneDialerDialog::loadCallHistory()
 {
-	if (FPrivateStorage)
+	if (FPrivateStorage && FPrivateStorage->isOpen(streamJid()))
 		FPrivateStorage->loadData(streamJid(),PST_CALL_HISTORY,PSN_CALL_HISTORY);
 }
 
@@ -444,15 +518,16 @@ void PhoneDialerDialog::onCallButtonClicked()
 			number.remove(0,1);
 
 		Jid phoneJid(number,SIPPHONE_SERVICE_JID,QString::null);
-		ISipCall *call = FSipManager->newCall(streamJid(),phoneJid);
-		if (call)
+		FActiveCall = FSipManager->newCall(streamJid(),phoneJid);
+		if (FActiveCall)
 		{
-			QWidget *callWindow = FSipManager->showCallWindow(call);
+			QWidget *callWindow = FSipManager->showCallWindow(FActiveCall);
 			connect(callWindow,SIGNAL(destroyed()),SLOT(onCallWindowDestroyed()));
-			connect(call->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
-			call->startCall();
+			connect(FActiveCall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
+			FActiveCall->startCall();
 			window()->hide();
 		}
+		updateDialogState();
 	}
 }
 
@@ -463,8 +538,6 @@ void PhoneDialerDialog::onCostRequestTimerTimeout()
 
 void PhoneDialerDialog::onNumberButtonMapped(const QString &AText)
 {
-	if (ui.lneNumber->hasSelectedText())
-		ui.lneNumber->del();
 	ui.lneNumber->insert(AText);
 	ui.lneNumber->setFocus();
 }
@@ -474,6 +547,7 @@ void PhoneDialerDialog::onNumberTextChanged(const QString &AText)
 	QString phone = normalizedNumber(AText);
 	if (FCallCost.number != phone)
 	{
+		FAutoStartCall = false;
 		FCallCost = ISipCallCost();
 		updateDialogState();
 		FCostRequestTimer.start();
@@ -483,6 +557,7 @@ void PhoneDialerDialog::onNumberTextChanged(const QString &AText)
 
 void PhoneDialerDialog::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
+	Q_UNUSED(AId);
 	if (AStreamJid==streamJid() && AElement.tagName()==PST_CALL_HISTORY && AElement.namespaceURI()==PSN_CALL_HISTORY)
 	{
 		FCallHistory.clear();
@@ -516,15 +591,75 @@ void PhoneDialerDialog::onPrivateStorageDataChanged(const Jid &AStreamJid, const
 		loadCallHistory();
 }
 
+void PhoneDialerDialog::onAddContactByAction()
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (FRosterChanger && action)
+	{
+		QWidget *widget = FRosterChanger->showAddContactDialog(streamJid());
+		IAddContactDialog *dialog = qobject_cast<IAddContactDialog *>(CustomBorderStorage::isBordered(widget) ? CustomBorderStorage::widgetBorder(widget)->widget() : widget);
+		if (dialog)
+		{
+			dialog->setContactText(action->data(ADR_NUMBER).toString());
+			dialog->executeRequiredContactChecks();
+		}
+	}
+}
+
+void PhoneDialerDialog::onStartAutoCallByAction()
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (action)
+	{
+		setCurrentNumber(action->data(ADR_NUMBER).toString());
+		startCall();
+	}
+}
+
 void PhoneDialerDialog::onHistoryCellDoubleClicked(int ARow, int AColumn)
 {
 	Q_UNUSED(AColumn);
 	CallHistoryItem historyItem = FCallHistory.value(ui.tbwHistory->item(ARow,HTC_NAME));
-	if (!historyItem.number.isEmpty())
+	setCurrentNumber(historyItem.number);
+	startCall();
+}
+
+void PhoneDialerDialog::onHistoryCustomContextMenuRequested(const QPoint &APos)
+{
+	QTableWidgetItem *tableItem = ui.tbwHistory->itemAt(APos);
+	if (tableItem)
 	{
-		ui.lneNumber->setText(historyItem.number);
-		requestCallCost();
-		FAutoStartCall = true;
+		CallHistoryItem historyItem = FCallHistory.value(ui.tbwHistory->item(tableItem->row(),HTC_NAME));
+
+		Menu *menu = new Menu(ui.tbwHistory);
+		menu->setAttribute(Qt::WA_DeleteOnClose,true);
+
+		if (FRosterChanger && findPhoneContact(historyItem.number).isEmpty())
+		{
+			Action *addAction = new Action(menu);
+			addAction->setText(tr("Add Contact..."));
+			addAction->setData(ADR_NUMBER,historyItem.number);
+			connect(addAction,SIGNAL(triggered()),SLOT(onAddContactByAction()));
+			menu->addAction(addAction);
+		}
+
+		Action *callAction = new Action(menu);
+		callAction->setText(tr("Call"));
+		callAction->setData(ADR_NUMBER,historyItem.number);
+		connect(callAction,SIGNAL(triggered()),SLOT(onStartAutoCallByAction()));
+		menu->addAction(callAction);
+
+		Action *smsAction = new Action(menu);
+		smsAction->setText(tr("Write Message"));
+		smsAction->setData(ADR_NUMBER,historyItem.number);
+		menu->addAction(smsAction);
+
+		Action *historyAction = new Action(menu);
+		historyAction->setText(tr("Show History"));
+		historyAction->setData(ADR_NUMBER,historyItem.number);
+		menu->addAction(historyAction);
+
+		menu->popup(mapToGlobal(APos));
 	}
 }
 
@@ -539,18 +674,22 @@ void PhoneDialerDialog::onCallStateChanged(int AState)
 	if (AState==ISipCall::CS_FINISHED || AState==ISipCall::CS_ERROR)
 	{
 		ISipCall *call = qobject_cast<ISipCall *>(sender());
-		if (call)
+		if (FActiveCall!=NULL && call==FActiveCall)
 		{
+			if (AState == ISipCall::CS_FINISHED)
+				setCurrentNumber(QString::null);
+
 			CallHistoryItem histItem;
 			histItem.callFailed = AState==ISipCall::CS_ERROR;
-			histItem.number = normalizedNumber(call->contactJid().uNode());
-			histItem.start = !histItem.callFailed ? call->callStartTime() : QDateTime::currentDateTime();
-			histItem.duration = call->callDuration();
+			histItem.number = normalizedNumber(FActiveCall->contactJid().uNode());
+			histItem.start = !histItem.callFailed ? FActiveCall->callStartTime() : QDateTime::currentDateTime();
+			histItem.duration = FActiveCall->callDuration();
 			prependCallHistory(histItem);
 			saveCallHistory();
+
+			FActiveCall = NULL;
+			updateDialogState();
 		}
-		if (AState == ISipCall::CS_FINISHED)
-			ui.lneNumber->clear();
 	}
 }
 
@@ -573,9 +712,10 @@ void PhoneDialerDialog::onSipCallCostRecieved(const QString &AId, const ISipCall
 		{
 			if (FCallCost.cost > FBalance.balance)
 				showErrorBalloon(tr("Insufficient funds in the account")+"\n"+tr("Fill up the balance"));
-			else if (FAutoStartCall)
+			else if (FAutoStartCall && isCallEnabled())
 				QTimer::singleShot(0,this,SLOT(onCallButtonClicked()));
 			ui.lneNumber->setText(formattedNumber(ACost.number));
+			FAutoStartCall = false;
 		}
 		updateDialogState();
 	}

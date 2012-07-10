@@ -9,6 +9,7 @@
 #include <interfaces/igateways.h>
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/imetacontacts.h>
+#include <interfaces/irosterchanger.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iprivatestorage.h>
 #include "ui_phonedialerdialog.h"
@@ -22,13 +23,26 @@ struct CallHistoryItem
 };
 
 class PhoneDialerDialog : 
-	public QDialog
+	public QDialog,
+	public ISipPhoneDialerDialog
 {
 	Q_OBJECT;
+	Q_INTERFACES(ISipPhoneDialerDialog);
 public:
 	PhoneDialerDialog(IPluginManager *APluginManager, ISipManager *ASipManager, IXmppStream *AXmppStream, QWidget *AParent = NULL);
 	~PhoneDialerDialog();
-	Jid streamJid() const;
+	virtual QDialog *instance() { return this; }
+	virtual Jid streamJid() const;
+	virtual bool isReady() const;
+	virtual bool isCallEnabled() const;
+	virtual ISipCall *activeCall() const;
+	virtual ISipBalance currentBalance() const;
+	virtual ISipCallCost currentCallCost() const;
+	virtual QString currentNumber() const;
+	virtual void setCurrentNumber(const QString &ANumber);
+	virtual void startCall();
+signals:
+	void dialogStateChanged();
 protected:
 	void initialize(IPluginManager *APluginManager);
 	void requestBalance();
@@ -41,10 +55,11 @@ protected:
 	QString numberContactName(const QString &ANumber) const;
 	void prependCallHistory(const CallHistoryItem &AItem);
 protected:
-	bool isCallEnabled() const;
 	QString formattedNumber(const QString &AText) const;
 	QString normalizedNumber(const QString &AText) const;
 	QString currncyValue(float AValue, const ISipCurrency &ACurrency) const;
+protected:
+	void showEvent(QShowEvent *AEvent);
 protected slots:
 	void saveCallHistory();
 	void loadCallHistory();
@@ -58,7 +73,10 @@ protected slots:
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 protected slots:
+	void onAddContactByAction();
+	void onStartAutoCallByAction();
 	void onHistoryCellDoubleClicked(int ARow, int AColumn);
+	void onHistoryCustomContextMenuRequested(const QPoint &APos);
 protected slots:
 	void onCallWindowDestroyed();
 	void onCallStateChanged(int AState);
@@ -72,11 +90,13 @@ private:
 	IXmppStream *FXmppStream;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
+	IRosterChanger *FRosterChanger;
 	IPrivateStorage *FPrivateStorage;
 private:
 	QTimer FCostRequestTimer;
 	QString FCallCostRequestId;
 private:
+	ISipCall *FActiveCall;
 	ISipBalance FBalance;
 	ISipCallCost FCallCost;
 	QSignalMapper FNumberMapper;

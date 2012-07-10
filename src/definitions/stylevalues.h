@@ -53,5 +53,6 @@
 
 // sipphone dialer dialog
 #define SV_SDD_HISTORY_START_COLOR             "sipPhoneDialerDialogHistoryStartColor"
+#define SV_SDD_HISTORY_FAILED_COLOR            "sipPhoneDialerDialogHistoryFailedColor"
 
 #endif // STYLEVALUES_H

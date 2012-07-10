@@ -9,14 +9,21 @@ QWidget#wdtHistory
 }
 
 
-QLineEdit
+QLineEdit#lneNumber
 {
 	font-size: 18px;
+	min-height: 35px;
 }
 
 QPushButton
 {
 	min-width: 40px;
+}
+
+QPushButton#pbtCall
+{
+	min-width: 82px;
+	max-width: 82px;
 }
 
 QPushButton#pbtCall:enabled
@@ -54,10 +61,14 @@ QTableWidget
 {
 	max-width: 210px;
 	color: black;
+	padding-top: 2px;
+	padding-left: 5px;
+	padding-right: 5px;
 	background-color: white;
 	selection-color: white;
 	selection-background-color: #275672;
-}
+	alternate-background-color: #f2f9fc;
+} 
 
 QTableWidget::item::selected
 {
