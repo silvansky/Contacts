@@ -36,7 +36,8 @@ public:
 	//IStanzaRequestOwner
 	virtual void stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanza);
 	//IPrivateStorage
-	virtual bool hasData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const;
+	virtual bool isOpen(const Jid &AStreamJid) const;
+	virtual bool isLoaded(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const;
 	virtual QDomElement getData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace) const;
 	virtual QString saveData(const Jid &AStreamJid, const QDomElement &AElement);
 	virtual QString loadData(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
@@ -51,8 +52,6 @@ signals:
 	void storageAboutToClose(const Jid &AStreamJid);
 	void storageClosed(const Jid &AStreamJid);
 protected:
-	QDomElement getStreamElement(const Jid &AStreamJid);
-	void removeStreamElement(const Jid &AStreamJid);
 	QDomElement insertElement(const Jid &AStreamJid, const QDomElement &AElement);
 	void removeElement(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 	void notifyDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);

@@ -737,7 +737,7 @@ bool OptionsManager::saveServerOptions(const Jid &AStreamJid)
 		QDomDocument doc;
 		doc.appendChild(doc.createElement("options"));
 
-		if (FPrivateStorage->hasData(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
+		if (FPrivateStorage->isLoaded(AStreamJid,PST_OPTIONS,PSN_OPTIONS))
 			doc.documentElement().appendChild(FPrivateStorage->getData(AStreamJid,PST_OPTIONS,PSN_OPTIONS).cloneNode(true));
 		else
 			doc.documentElement().appendChild(doc.createElementNS(PSN_OPTIONS,PST_OPTIONS)).toElement();
