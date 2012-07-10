@@ -70,9 +70,9 @@ protected slots:
 		LogDetail(QString("[Statistics::Counter]: Activating counter %1 with url %2").arg(id).arg(url));
 		lastTimeout = QDateTime::currentDateTime();
 		if (image)
-			Networking::httpGetImageAsync(url, NULL, NULL);
+			Networking::httpGetImageAsync(url, NULL, NULL, NULL);
 		else
-			Networking::httpGetStringAsync(url, NULL, NULL);
+			Networking::httpGetStringAsync(url, NULL, NULL, NULL);
 		if (!enabled())
 			deleteLater();
 	}
