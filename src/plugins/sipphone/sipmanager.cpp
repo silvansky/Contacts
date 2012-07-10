@@ -94,7 +94,6 @@ SipManager::SipManager() :
 	FMessageProcessor = NULL;
 	FNotifications = NULL;
 	FMainWindowPlugin = NULL;
-	FOptionsManager = NULL;
 
 	inst = this;
 	FSHISipQuery = -1;
@@ -210,10 +209,6 @@ bool SipManager::initConnections(IPluginManager *APluginManager, int &AInitOrder
 	if (plugin)
 		FMainWindowPlugin = qobject_cast<IMainWindowPlugin *>(plugin->instance());
 
-	plugin = APluginManager->pluginInterface("IOptionsManager").value(0,NULL);
-	if (plugin)
-		FOptionsManager = qobject_cast<IOptionsManager *>(plugin->instance());
-
 	connect(FPluginManager->instance(), SIGNAL(shutdownStarted()), SLOT(onShutDownStarted()));
 
 	return FStanzaProcessor;
@@ -257,11 +252,6 @@ bool SipManager::initObjects()
 		connect(dialAction,SIGNAL(triggered()),SLOT(onShowPhoneDialerDialog()));
 		QToolButton *button = FMainWindowPlugin->mainWindow()->topToolBarChanger()->insertAction(dialAction,TBG_MWTTB_SIPPHONE_DIAL);
 		button->setObjectName("tlbShowPhoneDialer");
-	}
-
-	if (FOptionsManager)
-	{
-		FOptionsManager->insertServerOption(OPV_SIPPHONE_DIALER_HISTORY_ROOT);
 	}
 
 	insertSipCallHandler(SCHO_SIPMANAGER_VIDEOCALLS, this);

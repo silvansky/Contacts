@@ -151,7 +151,6 @@ private:
 	IMessageProcessor *FMessageProcessor;
 	INotifications *FNotifications;
 	IMainWindowPlugin *FMainWindowPlugin;
-	IOptionsManager *FOptionsManager;
 private:
 	int FSHISipQuery;
 	QMap<QString, Jid> FCostRequests;

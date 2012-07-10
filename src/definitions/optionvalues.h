@@ -160,12 +160,4 @@
 #define OPV_STATUSICONS_RULE_PATTERN                    "statusicons.rules.rule.pattern"
 #define OPV_STATUSICONS_RULE_ICONSET                    "statusicons.rules.rule.iconset"
 
-// SipPhone
-#define OPV_SIPPHONE_DIALER_HISTORY_ROOT                "sipphone.phone-dialer-dialog.history"
-#define OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM           "sipphone.phone-dialer-dialog.history.call"
-#define OPV_SIPPHONE_DIALER_HISTORY_CALL_NUMBER         "sipphone.phone-dialer-dialog.history.call.number"
-#define OPV_SIPPHONE_DIALER_HISTORY_CALL_START          "sipphone.phone-dialer-dialog.history.call.start"
-#define OPV_SIPPHONE_DIALER_HISTORY_CALL_DURATION       "sipphone.phone-dialer-dialog.history.call.duration"
-#define OPV_SIPPHONE_DIALER_HISTORY_CALL_FAILED         "sipphone.phone-dialer-dialog.history.call.failed"
-
 #endif // DEF_OPTIONVALUES_H

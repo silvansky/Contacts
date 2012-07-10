@@ -10,10 +10,8 @@
 #include <definitions/menuicons.h>
 #include <definitions/stylevalues.h>
 #include <definitions/stylesheets.h>
-#include <definitions/optionvalues.h>
 #include <definitions/customborder.h>
 #include <definitions/gateserviceidentifiers.h>
-#include <utils/options.h>
 #include <utils/datetime.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
@@ -21,7 +19,10 @@
 #include <utils/widgetmanager.h>
 #include <utils/customborderstorage.h>
 
-#define MAX_HISTORY_ROWS  8
+#define MAX_HISTORY_ROWS          8
+
+#define PST_CALL_HISTORY          "calls"
+#define PSN_CALL_HISTORY          "rambler:sipphone:calls-history"
 
 enum HistoryTableColumns {
 	HTC_NAME,
@@ -60,6 +61,7 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	FGateways = NULL;
 	FRosterPlugin = NULL;
 	FMetaContacts = NULL;
+	FPrivateStorage = NULL;
 	initialize(APluginManager);
 
 	window()->setWindowTitle(tr("Calls"));
@@ -131,10 +133,6 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	FCostRequestTimer.setInterval(1000);
 	connect(&FCostRequestTimer,SIGNAL(timeout()),SLOT(onCostRequestTimerTimeout()));
 
-	FLoadHistoryTimer.setSingleShot(true);
-	FLoadHistoryTimer.setInterval(200);
-	connect(&FLoadHistoryTimer,SIGNAL(timeout()),SLOT(loadCallHistory()));
-
 	connect(ui.pbtCall,SIGNAL(clicked()),SLOT(onCallButtonClicked()));
 	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtCall,MNI_SIPPHONE_DIALER_CALL);
 
@@ -148,10 +146,10 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 
 	connect(ui.lneNumber,SIGNAL(textChanged(const QString &)),SLOT(onNumberTextChanged(const QString &)));
 
-	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
-
-	loadCallHistory();
-	requestBalance();
+	if (FXmppStream->isOpen())
+		onXmppStreamOpened();
+	else
+		onXmppStreamClosed();
 }
 
 PhoneDialerDialog::~PhoneDialerDialog()
@@ -170,6 +168,17 @@ void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IPrivateStorage").value(0);
+	if (plugin)
+	{
+		FPrivateStorage = qobject_cast<IPrivateStorage *>(plugin->instance());
+		if (FPrivateStorage)
+		{
+			connect(FPrivateStorage->instance(),SIGNAL(dataLoaded(const QString &, const Jid &, const QDomElement &)),
+				SLOT(onPrivateStorageDataLoaded(const QString &, const Jid &, const QDomElement &)));
+			connect(FPrivateStorage->instance(),SIGNAL(dataChanged(const Jid &, const QString &, const QString &)),				SLOT(onPrivateStorageDataChanged(const Jid &, const QString &, const QString &)));		}
 	}
 
 	plugin = APluginManager->pluginInterface("IRosterPlugin").value(0);
@@ -390,40 +399,32 @@ QString PhoneDialerDialog::currncyValue(float AValue, const ISipCurrency &ACurre
 
 void PhoneDialerDialog::saveCallHistory()
 {
-	Options::node(OPV_SIPPHONE_DIALER_HISTORY_ROOT).removeChilds();
-	for (int row=0; row<ui.tbwHistory->rowCount(); row++)
+	if (FPrivateStorage)
 	{
-		QString ns = QString::number(row);
-		CallHistoryItem historyItem = FCallHistory.value(ui.tbwHistory->item(row,HTC_NAME));
-		Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).setValue(historyItem.number,"number");
-		Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).setValue(DateTime(historyItem.start).toX85DateTime(),"start");
-		Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).setValue(historyItem.duration,"duration");
-		Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).setValue(historyItem.callFailed,"failed");
+		QDomDocument doc;
+		QDomElement rootElem = doc.appendChild(doc.createElement("history")).appendChild(doc.createElementNS(PSN_CALL_HISTORY,PST_CALL_HISTORY)).toElement();
+		for (int row=0; row<ui.tbwHistory->rowCount(); row++)
+		{
+			QDomElement elem = rootElem.appendChild(doc.createElement("number")).toElement();
+			CallHistoryItem historyItem = FCallHistory.value(ui.tbwHistory->item(row,HTC_NAME));
+			elem.appendChild(doc.createTextNode(historyItem.number));
+			elem.setAttribute("start",DateTime(historyItem.start).toX85DateTime());
+			elem.setAttribute("duration",historyItem.duration);
+			elem.setAttribute("failed",historyItem.callFailed);
+		}
+		FPrivateStorage->saveData(streamJid(),rootElem);
 	}
-	FLoadHistoryTimer.stop();
 }
 
 void PhoneDialerDialog::loadCallHistory()
 {
-	ui.tbwHistory->clear();
-	ui.tbwHistory->setColumnCount(HTC_COUNT);
-	ui.tbwHistory->horizontalHeader()->setResizeMode(HTC_NAME,QHeaderView::Stretch);
-	ui.tbwHistory->horizontalHeader()->setResizeMode(HTC_START,QHeaderView::ResizeToContents);
-
-	for (int row=MAX_HISTORY_ROWS; row>=0; row--)
-	{
-		QString ns = QString::number(row);
-		CallHistoryItem historyItem;
-		historyItem.number = Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).value("number").toString();
-		historyItem.start = DateTime(Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).value("start").toString()).toLocal();
-		historyItem.duration = Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).value("duration").toInt();
-		historyItem.callFailed = Options::node(OPV_SIPPHONE_DIALER_HISTORY_CALL_ITEM,ns).value("failed").toBool();
-		prependCallHistory(historyItem);
-	}
+	if (FPrivateStorage)
+		FPrivateStorage->loadData(streamJid(),PST_CALL_HISTORY,PSN_CALL_HISTORY);
 }
 
 void PhoneDialerDialog::onXmppStreamOpened()
 {
+	loadCallHistory();
 	requestBalance();
 }
 
@@ -480,12 +481,39 @@ void PhoneDialerDialog::onNumberTextChanged(const QString &AText)
 	}
 }
 
-void PhoneDialerDialog::onOptionsChanged(const OptionsNode &ANode)
+void PhoneDialerDialog::onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement)
 {
-	if (Options::node(OPV_SIPPHONE_DIALER_HISTORY_ROOT).isChildNode(ANode))
+	if (AStreamJid==streamJid() && AElement.tagName()==PST_CALL_HISTORY && AElement.namespaceURI()==PSN_CALL_HISTORY)
 	{
-		FLoadHistoryTimer.start();
+		FCallHistory.clear();
+		ui.tbwHistory->clear();
+		ui.tbwHistory->setRowCount(0);
+		ui.tbwHistory->setColumnCount(HTC_COUNT);
+		ui.tbwHistory->horizontalHeader()->setResizeMode(HTC_NAME,QHeaderView::Stretch);
+		ui.tbwHistory->horizontalHeader()->setResizeMode(HTC_START,QHeaderView::ResizeToContents);
+
+		QMap<QDateTime, CallHistoryItem> historyItems;
+		QDomElement elem = AElement.firstChildElement("number");
+		while(!elem.isNull())
+		{
+			CallHistoryItem historyItem;
+			historyItem.number = elem.text();
+			historyItem.start = DateTime(elem.attribute("start")).toLocal();
+			historyItem.duration = elem.attribute("duration").toInt();
+			historyItem.callFailed = QVariant(elem.attribute("failed")).toBool();
+			historyItems.insert(historyItem.start,historyItem);
+			elem = elem.nextSiblingElement("number");
+		}
+
+		for (QMap<QDateTime, CallHistoryItem>::const_iterator it=historyItems.constBegin(); ui.tbwHistory->rowCount()<MAX_HISTORY_ROWS && it!=historyItems.constEnd(); ++it)
+			prependCallHistory(it.value());
 	}
+}
+
+void PhoneDialerDialog::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
+{
+	if (AStreamJid==streamJid() && ATagName==PST_CALL_HISTORY && ANamespace==PSN_CALL_HISTORY)
+		loadCallHistory();
 }
 
 void PhoneDialerDialog::onHistoryCellDoubleClicked(int ARow, int AColumn)

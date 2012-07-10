@@ -10,6 +10,7 @@
 #include <interfaces/ixmppstreams.h>
 #include <interfaces/imetacontacts.h>
 #include <interfaces/ipluginmanager.h>
+#include <interfaces/iprivatestorage.h>
 #include "ui_phonedialerdialog.h"
 
 struct CallHistoryItem
@@ -54,7 +55,8 @@ protected slots:
 	void onCostRequestTimerTimeout();
 	void onNumberButtonMapped(const QString &AText);
 	void onNumberTextChanged(const QString &AText);
-	void onOptionsChanged(const OptionsNode &ANode);
+	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
+	void onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace);
 protected slots:
 	void onHistoryCellDoubleClicked(int ARow, int AColumn);
 protected slots:
@@ -70,6 +72,7 @@ private:
 	IXmppStream *FXmppStream;
 	IRosterPlugin *FRosterPlugin;
 	IMetaContacts *FMetaContacts;
+	IPrivateStorage *FPrivateStorage;
 private:
 	QTimer FCostRequestTimer;
 	QString FCallCostRequestId;
@@ -79,7 +82,6 @@ private:
 	QSignalMapper FNumberMapper;
 private:
 	bool FAutoStartCall;
-	QTimer FLoadHistoryTimer;
 	QList<Jid> FPhoneContacts;
 	QMap<QTableWidgetItem *,CallHistoryItem> FCallHistory;
 };
