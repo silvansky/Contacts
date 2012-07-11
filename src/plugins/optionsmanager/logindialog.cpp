@@ -5,6 +5,7 @@
 #include <definitions/graphicseffects.h>
 
 #include <utils/log.h>
+#include <utils/networking.h>
 #include <utils/iconstorage.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>
@@ -172,6 +173,8 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	// style
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
@@ -191,6 +194,11 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 
+	// logo
+	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
+	ui.lblLogo->setFixedHeight(43);
+
+	// platform specific layouting
 #ifdef Q_WS_MAC
 	setWindowGrowButtonEnabled(this->window(), false);
 	ui.frmLogin->layout()->setSpacing(6);
@@ -203,6 +211,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.chbAutoRun->setVisible(false);
 #endif
 
+	// disable mac focus rect
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneRegFullName->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -210,12 +219,19 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneRegPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lneRegConfirmPassword->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+	// hide registration fields
+	ui.wdtRegFields->setVisible(false);
+
+	// initial state
 	FActiveErrorType = NoActiveError;
 	FDomainPrevIndex = 0;
 	FNewProfile = true;
 	FSavedPasswordCleared = false;
 	FConnectionSettings = CS_DEFAULT;
+	setMode(LogIn);
+	setRegState(NotStarted);
 
+	// connection error
 	FConnectionErrorWidget = new QWidget;
 	FConnectionErrorWidget->setObjectName("connectionErrorWidget");
 	QVBoxLayout *vlayout = new QVBoxLayout;
@@ -227,12 +243,21 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	vlayout->addWidget(ui.lblReconnect);
 	vlayout->addWidget(ui.chbShowPassword);
 	FConnectionErrorWidget->setLayout(vlayout);
+	FConnectionErrorWidget->setStyleSheet(styleSheet());
+	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
 
+	// setting errors...
 	ui.lneNode->setProperty("error", false);
 	ui.lnePassword->setProperty("error", false);
 	ui.cmbDomain->setProperty("error", false);
 	ui.tlbDomain->setProperty("error", false);
+	ui.lneRegFullName->setProperty("error", false);
+	ui.lneRegLogin->setProperty("error", false);
+	ui.lneRegPassword->setProperty("error", false);
+	ui.lneRegConfirmPassword->setProperty("error", false);
+	ui.pbtRegDomain->setProperty("error", false);
 
+	// domains menu
 	FDomainsMenu = new Menu(this);
 	FDomainsMenu->setObjectName("domainsMenu");
 	ui.tlbDomain->setMenu(FDomainsMenu);
@@ -244,46 +269,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->setView(new QListView(ui.cmbDomain));
 	ui.cmbDomain->view()->setItemDelegate(new DomainComboDelegate(ui.cmbDomain->view(), ui.cmbDomain));
 
-	FConnectionErrorWidget->setStyleSheet(styleSheet());
-	connect(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS), SIGNAL(stylePreviewReset()), SLOT(onStylePreviewReset()));
-
-	initialize(APluginManager);
-	FOptionsManager->setCurrentProfile(QString::null,QString::null);
-
-	IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.lblLogo,MNI_OPTIONS_LOGIN_LOGO,0,0,"pixmap");
-	ui.lblLogo->setFixedHeight(43);
-
-	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
-
-#if 0
-	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
-		.arg("<a href='rambler.easy.registration'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
-		.arg(fontSize)
-		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
-		.arg(tr("register")));
-#else
-	ui.lblRegister->setText(tr("Log in"));
-#endif
-	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
-		.arg(fontSize)
-		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
-		.arg(tr("Forgot your password?")));
-	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
-		.arg(fontSize)
-		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
-		.arg(tr("Connection settings")));
-
-	//ui.lblConnectSettings->setFocusPolicy(Qt::StrongFocus);
-	ui.lblConnectSettings->installEventFilter(this);
-
-	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
-
-	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
-	connect(ui.lneNode,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
-	connect(ui.lnePassword,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
-
+	// populating domain menus with actions
 	ui.cmbDomain->addItem("@rambler.ru",QString("rambler.ru"));
 	ui.cmbDomain->addItem("@lenta.ru",QString("lenta.ru"));
 	ui.cmbDomain->addItem("@myrambler.ru",QString("myrambler.ru"));
@@ -341,6 +327,49 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.tlbDomain->setVisible(false);
 #endif
 
+	// initializing...
+	initialize(APluginManager);
+	FOptionsManager->setCurrentProfile(QString::null, QString::null);
+
+
+	// labels texts
+	int fontSize = StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleInt(SV_LOGIN_LABEL_FONT_SIZE);
+
+#if 0
+	ui.lblRegister->setText(tr("Enter your Rambler login and password or %1.")
+		.arg("<a href='rambler.easy.registration'><span style=' font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
+		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
+		.arg(tr("register")));
+#else
+	ui.lblRegister->setText(tr("Log in"));
+#endif
+	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
+		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
+		.arg(tr("Forgot your password?")));
+	ui.lblConnectSettings->setText(QString("<a href='ramblercontacts.connection.settings'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
+		.arg(fontSize)
+		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_LOGIN_LINK_COLOR).name())
+		.arg(tr("Connection settings")));
+
+	ui.lblConnectSettings->installEventFilter(this);
+
+	// connecting signals
+	connect(ui.lblRegister,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
+	connect(ui.lblForgotPassword,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
+	connect(ui.lblConnectSettings,SIGNAL(linkActivated(const QString &)),SLOT(onLabelLinkActivated(const QString &)));
+
+	connect(ui.chbShowPassword, SIGNAL(stateChanged(int)), SLOT(onShowPasswordToggled(int)));
+	connect(ui.lneNode,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
+	connect(ui.lnePassword,SIGNAL(textChanged(const QString &)),SLOT(onLoginOrPasswordTextChanged()));
+
+	connect(ui.lneRegFullName, SIGNAL(textChanged(const QString &)), SLOT(onRegistrationDataChanged()));
+	connect(ui.lneRegLogin, SIGNAL(textChanged(const QString &)), SLOT(onRegistrationDataChanged()));
+	connect(ui.lneRegPassword, SIGNAL(textChanged(const QString &)), SLOT(onRegistrationDataChanged()));
+	connect(ui.lneRegConfirmPassword, SIGNAL(textChanged(const QString &)), SLOT(onRegistrationDataChanged()));
+
+	// getting available profiles
 	QStringList profiles;
 	foreach(QString profile, FOptionsManager->profiles())
 	{
@@ -356,6 +385,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.cmbDomain->insertSeparator(ui.cmbDomain->count() - 1);
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
+	// setting login completer
 	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
@@ -369,8 +399,26 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	//connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
 	ui.lneNode->setCompleter(completer);
 	ui.lneNode->completer()->popup()->viewport()->installEventFilter(this);
+
+	// setting login suggests completer
+	completer = new QCompleter(profiles, ui.lneRegLogin);
+	completer->setCaseSensitivity(Qt::CaseInsensitive);
+	completer->setCompletionMode(QCompleter::PopupCompletion);
+	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	completer->popup()->setObjectName("completerPopUp");
+	completer->popup()->setMouseTracking(true);
+	completer->popup()->setAlternatingRowColors(true);
+	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
+	connect(completer, SIGNAL(activated(const QString &)), SLOT(onSuggestCompleterActivated(const QString &)));
+	//connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
+	ui.lneRegLogin->setCompleter(completer);
+	ui.lneRegLogin->completer()->popup()->viewport()->installEventFilter(this);
+
+	// resetting style (??)
 	onStylePreviewReset();
 
+	// installing event filters
 	ui.lneNode->installEventFilter(this);
 	ui.lneNode->completer()->popup()->installEventFilter(this);
 	if (ui.lneNode->completer()->popup()->parentWidget())
@@ -383,22 +431,38 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lblForgotPassword->installEventFilter(this);
 	ui.lblRegister->installEventFilter(this);
 	ui.wdtContent->installEventFilter(this);
+	ui.lneRegFullName->installEventFilter(this);
+	ui.lneRegLogin->installEventFilter(this);
+	ui.lneRegPassword->installEventFilter(this);
+	ui.lneRegConfirmPassword->installEventFilter(this);
 
+	// timers
 	FReconnectTimer.setSingleShot(true);
 	connect(&FReconnectTimer,SIGNAL(timeout()),SLOT(onReconnectTimerTimeout()));
 
 	FAbortTimer.setSingleShot(true);
 	connect(&FAbortTimer,SIGNAL(timeout()),SLOT(onAbortTimerTimeout()));
 
+	// main buttons
 	ui.pbtConnect->setFocus();
 	connect(ui.pbtConnect,SIGNAL(clicked()),SLOT(onConnectClicked()));
 
+	connect(ui.pbtRegister, SIGNAL(clicked()), SLOT(onRegisterClicked()));
+
+	// setting initial state (part 2)
 	hideXmppStreamError();
 	hideConnectionError();
 	setConnectEnabled(true);
 	onLoginOrPasswordTextChanged();
 
 	LogDetail(QString("[LoginDialog] Login dialog created"));
+
+#ifdef DEBUG_ENABLED
+	qDebug() << "sending sample post request...";
+	QUrl url("http://reg.tx.xmpp.rambler.ru/?f=xml");
+	QString data = "login=mons&domain=rambler.ru&password=123&name=Mons+Anderson";
+	Networking::httpPostAsync(url, data.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
+#endif
 }
 
 LoginDialog::~LoginDialog()
@@ -431,7 +495,7 @@ void LoginDialog::connectIfReady()
 		{
 			LogDetail("[LoginDialog::showEvent]: First launch!");
 			Options::setGlobalValue("firstRunCheck", true);
-			QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
+			//QTimer::singleShot(10, this, SLOT(askUserIfHeHasAccount()));
 		}
 	}
 }
@@ -486,8 +550,16 @@ void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
 {
 	if (AEvent->key()==Qt::Key_Return || AEvent->key()==Qt::Key_Enter)
 	{
-		if (ui.pbtConnect->isEnabled())
-			QTimer::singleShot(0,this,SLOT(onConnectClicked()));
+		if (mode() ==  LogIn)
+		{
+			if (ui.pbtConnect->isEnabled())
+				QTimer::singleShot(0, this, SLOT(onConnectClicked()));
+		}
+		else
+		{
+			if (ui.pbtRegister->isEnabled())
+				QTimer::singleShot(0, this, SLOT(onRegisterClicked()));
+		}
 	}
 	QDialog::keyPressEvent(AEvent);
 }
@@ -529,6 +601,18 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
 			showCapsLockBalloon(p);
+		}
+
+		if ((AWatched == ui.lneRegFullName) ||
+			 (AWatched == ui.lneRegLogin) ||
+			 (AWatched == ui.lneRegPassword) ||
+			 (AWatched == ui.lneRegConfirmPassword))
+		{
+			setMode(Registration);
+		}
+		else
+		{
+			setMode(LogIn);
 		}
 	}
 	else if (AEvent->type() == QEvent::FocusOut)
@@ -1100,6 +1184,30 @@ void LoginDialog::onConnectClicked()
 	}
 }
 
+void LoginDialog::onRegisterClicked()
+{
+	if (!ui.wdtRegFields->isVisible())
+	{
+		ui.wdtRegFields->setVisible(true);
+		ui.pbtRegister->setEnabled(false);
+		ui.lneRegFullName->setFocus();
+	}
+	else
+	{
+		// sending registration request
+		QUrl request("http://reg.tx.xmpp.rambler.ru/?f=xml");
+		Jid user = ui.lneRegLogin->text() + ui.pbtRegDomain->text();
+		QString userFullName = ui.lneRegFullName->text();
+		userFullName.replace(' ', '+');
+		QString postData = QString("login=%1&domain=%2&password=%3&name=%4").arg(user.node(), user.domain(), ui.lneRegPassword->text(), userFullName);
+		setRegState(RequestSent);
+#ifdef DEBUG_ENABLED
+		qDebug() << "Starting registration for " << user.full();
+#endif
+		Networking::httpPostAsync(request, postData.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
+	}
+}
+
 void LoginDialog::onAbortTimerTimeout()
 {
 	if (ui.pbtConnect->property("connecting").toBool())
@@ -1210,6 +1318,21 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 	loadCurrentProfileSettings();
 }
 
+void LoginDialog::onSuggestCompleterActivated(const QString &AText)
+{
+	Jid selected = AText;
+	int domainIndex = ui.cmbDomain->findData(selected.pDomain());
+	if (!selected.pDomain().isEmpty() && domainIndex>=0)
+	{
+		ui.lneRegLogin->setText(selected.node());
+		ui.cmbDomain->setCurrentIndex(domainIndex);
+		ui.tlbDomain->setText("@" + selected.pDomain());
+		ui.tlbDomain->setProperty("domain", selected.pDomain());
+		ui.pbtRegDomain->setText("@" + selected.pDomain());
+		ui.pbtRegDomain->setProperty("domain", selected.pDomain());
+	}
+}
+
 void LoginDialog::onDomainCurrentIntexChanged(int AIndex)
 {
 	hideXmppStreamError();
@@ -1245,6 +1368,8 @@ void LoginDialog::onDomainActionTriggered()
 		QString domain = action->data(Action::DR_UserDefined + 1).toString();
 		ui.tlbDomain->setText(action->text());
 		ui.tlbDomain->setProperty("domain", domain);
+		ui.pbtRegDomain->setText(action->text());
+		ui.pbtRegDomain->setProperty("domain", domain);
 	}
 }
 
@@ -1289,6 +1414,18 @@ void LoginDialog::onLoginOrPasswordTextChanged()
 	hideConnectionError();
 	hideXmppStreamError();
 	ui.pbtConnect->setEnabled(!ui.lneNode->text().isEmpty() && !ui.lnePassword->text().isEmpty());
+}
+
+void LoginDialog::onRegistrationDataChanged()
+{
+	bool allFieldsReady =
+			!(ui.lneRegFullName->text().isEmpty() ||
+			  ui.lneRegLogin->text().isEmpty() ||
+			  ui.lneRegPassword->text().isEmpty() ||
+			  ui.lneRegConfirmPassword->text().isEmpty())
+			&& (ui.lneRegPassword->text() == ui.lneRegConfirmPassword->text());
+	// TODO: login and password regexp check
+	ui.pbtRegister->setEnabled(allFieldsReady);
 }
 
 void LoginDialog::onShowCancelButton()
@@ -1362,6 +1499,115 @@ void LoginDialog::onEasyRegDialogRegistered(const Jid &user)
 	ui.tlbDomain->setText("@" + user.pDomain());
 	ui.tlbDomain->setProperty("domain", user.pDomain());
 	loadCurrentProfileSettings();
+}
+
+void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << "network request finished! " << url << " result:\n" << result;
+#endif
+	Q_UNUSED(url)
+	QDomDocument doc;
+	doc.setContent(result);
+	QStringList suggests;
+	bool userRegistered = false;
+	bool gotErrors = false;
+	QString errorSummary, loginError, passwordError;
+	QDomElement resultEl = doc.firstChildElement("result");
+	if (!resultEl.isNull())
+	{
+		QDomElement successEl = resultEl.firstChildElement("success");
+		if (!successEl.isNull())
+		{
+			userRegistered = (successEl.text().toLower() == "true");
+		}
+		QDomElement errorsEl = resultEl.firstChildElement("errors");
+		if (!errorsEl.isNull())
+		{
+			gotErrors = true;
+			QDomElement summaryEl = errorsEl.firstChildElement("summary");
+			if (!summaryEl.isNull())
+			{
+				errorSummary = summaryEl.text();
+			}
+			QDomElement loginEl = errorsEl.firstChildElement("login");
+			if (!loginEl.isNull())
+			{
+				loginError = loginEl.text();
+			}
+			QDomElement passwordEl = errorsEl.firstChildElement("password");
+			if (!loginEl.isNull())
+			{
+				passwordError = passwordEl.text();
+			}
+		}
+		QDomElement suggestsEl = resultEl.firstChildElement("suggests");
+		if (!suggestsEl.isNull())
+		{
+			QDomElement suggestEl = suggestsEl.firstChildElement("suggest");
+			while (!suggestEl.isNull())
+			{
+				Jid suggestedUser;
+				QDomElement loginEl = suggestEl.firstChildElement("login");
+				if (!loginEl.isNull())
+				{
+					suggestedUser.setNode(loginEl.text());
+				}
+				QDomElement domainEl = suggestEl.firstChildElement("domain");
+				if (!loginEl.isNull())
+				{
+					suggestedUser.setDomain(domainEl.text());
+				}
+				if (!(suggestedUser.node().isEmpty() || suggestedUser.domain().isEmpty()))
+				{
+					suggests.append(suggestedUser.full());
+				}
+				suggestEl = suggestEl.nextSiblingElement("suggest");
+			}
+		}
+	}
+	if (!suggests.isEmpty())
+	{
+		// TODO: add suggests to completer
+	}
+}
+
+void LoginDialog::onRequestFailed(const QUrl &url, const QString &error)
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << "network request failed! " << url << " error:\n" << error;
+#endif
+	// TODO: show connection error
+}
+
+LoginDialog::Mode LoginDialog::mode() const
+{
+	return mode_;
+}
+
+void LoginDialog::setMode(LoginDialog::Mode newMode)
+{
+	mode_ = newMode;
+	if (mode() == LogIn)
+	{
+		ui.pbtRegister->setDefault(false);
+		ui.pbtConnect->setDefault(true);
+	}
+	else
+	{
+		ui.pbtConnect->setDefault(false);
+		ui.pbtRegister->setDefault(true);
+	}
+}
+
+LoginDialog::RegistrationState LoginDialog::regState() const
+{
+	return regState_;
+}
+
+void LoginDialog::setRegState(LoginDialog::RegistrationState state)
+{
+	regState_ = state;
 }
 
 #include "logindialog.moc"

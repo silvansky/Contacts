@@ -2,7 +2,7 @@ TARGET = optionsmanager
 unix:!macx:{
  CONFIG      += x11
 }
-QT           += webkit
+QT           += webkit xml
 LIBS         += -L../../libs
 LIBS         += -lqtlockedfile
 win32:LIBS   += -luser32

@@ -39,10 +39,12 @@ public:
 	NetworkingPrivate();
 	virtual ~NetworkingPrivate();
 	void httpGetAsync(RequestProperties::Type type, const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
+	void httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot);
 	QImage httpGetImage(const QUrl &src) const;
 	void httpGetImageAsync(const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
 	QString httpGetString(const QUrl &src) const;
 	void httpGetStringAsync(const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
+	//void httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot);
 	void setCookiePath(const QString &path);
 	QString cookiePath() const;
 public slots:

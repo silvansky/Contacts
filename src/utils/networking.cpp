@@ -89,6 +89,20 @@ void NetworkingPrivate::httpGetAsync(NetworkingPrivate::RequestProperties::Type 
 	requests.insert(reply, props);
 }
 
+void NetworkingPrivate::httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot)
+{
+	QNetworkRequest request;
+	request.setUrl(src);
+	RequestProperties props;
+	props.type = RequestProperties::String;
+	props.url = src;
+	props.receiver = receiver;
+	props.slot = slot;
+	props.errorSlot = errorSlot;
+	QNetworkReply *reply = nam->post(request, data);
+	requests.insert(reply, props);
+}
+
 QImage NetworkingPrivate::httpGetImage(const QUrl &src) const
 {
 	QNetworkRequest request;
@@ -290,6 +304,11 @@ QString Networking::httpGetString(const QUrl& src)
 void Networking::httpGetStringAsync(const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot)
 {
 	p()->httpGetStringAsync(src, receiver, slot, errorSlot);
+}
+
+void Networking::httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot)
+{
+	p()->httpPostAsync(src, data, receiver, slot, errorSlot);
 }
 
 QString Networking::cookiePath()

@@ -36,6 +36,22 @@ class LoginDialog :
 	public QDialog
 {
 	Q_OBJECT
+private:
+	enum Mode
+	{
+		LogIn,
+		Registration
+	};
+
+	enum RegistrationState
+	{
+		NotStarted,
+		RequestSent,
+		ConnectionError,
+		RegistrationError,
+		Success
+	};
+
 public:
 	LoginDialog(IPluginManager *APluginManager, QWidget *AParent = NULL);
 	~LoginDialog();
@@ -74,18 +90,21 @@ protected slots:
 	void showEasyRegDialog();
 	void onAskDialogRejected();
 	void onConnectClicked();
+	void onRegisterClicked();
 	void onAbortTimerTimeout();
 	void onXmppStreamOpened();
 	void onXmppStreamClosed();
 	void onReconnectTimerTimeout();
 	void onCompleterHighLighted(const QString &AText);
 	void onCompleterActivated(const QString &AText);
+	void onSuggestCompleterActivated(const QString &AText);
 	void onDomainCurrentIntexChanged(int AIndex);
 	void onDomainActionTriggered();
 	void onNewDomainSelected(const QString &newDomain);
 	void onNewDomainRejected();
 	void onLabelLinkActivated(const QString &ALink);
 	void onLoginOrPasswordTextChanged();
+	void onRegistrationDataChanged();
 	void onShowCancelButton();
 	void onAdjustDialogSize();
 	void onNotificationAppend(int ANotifyId, INotification &ANotification);
@@ -95,6 +114,15 @@ protected slots:
 	void onStylePreviewReset();
 	void onEasyRegDialogAborted();
 	void onEasyRegDialogRegistered(const Jid &user);
+protected slots:
+	// for http requests
+	void onRequestFinished(const QUrl &url, const QString &result);
+	void onRequestFailed(const QUrl &url, const QString &error);
+private:
+	Mode mode() const;
+	void setMode(Mode newMode);
+	RegistrationState regState() const;
+	void setRegState(RegistrationState state);
 private:
 	Ui::LoginDialogClass ui;
 private:
@@ -105,6 +133,9 @@ private:
 	IConnectionManager *FConnectionManager;
 	INotifications *FNotifications;
 	ITrayManager *FTrayManager;
+private:
+	Mode mode_;
+	RegistrationState regState_;
 private:
 	bool FNewProfile;
 	bool FFirstConnect;
