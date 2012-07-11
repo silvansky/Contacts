@@ -110,6 +110,7 @@ private:
 	IAvatars *FAvatars;
 	IGateways *FGateways;
 	IMetaRoster *FMetaRoster;
+	IMetaContacts *FMetaContacts;
 	IRostersView *FRostersView;
 	IVCardPlugin *FVcardPlugin;
 	IRosterChanger *FRosterChanger;

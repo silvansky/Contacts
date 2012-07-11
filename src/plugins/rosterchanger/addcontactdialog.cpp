@@ -59,6 +59,7 @@ AddContactDialog::AddContactDialog(IRoster *ARoster, IRosterChanger *ARosterChan
 	FGateways = NULL;
 	FAvatars = NULL;
 	FMetaRoster = NULL;
+	FMetaContacts = NULL;
 	FRostersView = NULL;
 	FVcardPlugin = NULL;
 	FOptionsManager = NULL;
@@ -263,8 +264,8 @@ void AddContactDialog::initialize(IPluginManager *APluginManager)
 	plugin = APluginManager->pluginInterface("IMetaContacts").value(0,NULL);
 	if (plugin)
 	{
-		IMetaContacts *mcontacts = qobject_cast<IMetaContacts *>(plugin->instance());
-		FMetaRoster = mcontacts!=NULL ? mcontacts->findMetaRoster(streamJid()) : NULL;
+		FMetaContacts = qobject_cast<IMetaContacts *>(plugin->instance());
+		FMetaRoster = FMetaContacts!=NULL ? FMetaContacts->findMetaRoster(streamJid()) : NULL;
 		if (FMetaRoster)
 		{
 			connect(FMetaRoster->instance(),SIGNAL(metaActionResult(const QString &, const QString &, const QString &)),
@@ -342,7 +343,11 @@ void AddContactDialog::showChatDialogAndAccept()
 {
 	selectRosterIndex();
 	if (FMessageProcessor)
-		FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+	{
+		IMetaItemDescriptor descriptor = FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByItem(contactJid()) : IMetaItemDescriptor();
+		if (!descriptor.hidden)
+			FMessageProcessor->createMessageWindow(streamJid(),contactJid(),Message::Chat,IMessageHandler::SM_SHOW);
+	}
 	accept();
 }
 
@@ -555,13 +560,17 @@ void AddContactDialog::resolveDescriptor()
 	{
 		if (!confirmTypes.contains(descriptor.type) && !confirmLinked.contains(descriptor.id) && !confirmBlocked.contains(descriptor.id))
 		{
-			if (!(FGateways->gateDescriptorRestrictions(streamJid(),descriptor) & GSR_ADD_CONTACT))
-				confirmDescriptors.append(descriptor);
-			else
-				readOnlyDescriptor = descriptor;
-			confirmTypes += descriptor.type;
-			confirmLinked += descriptor.linkedDescriptors;
-			confirmBlocked += descriptor.blockedDescriptors;
+			IMetaItemDescriptor metaDescr = FMetaContacts!=NULL ? FMetaContacts->metaDescriptorByGateId(descriptor.id) : IMetaItemDescriptor();
+			if (!metaDescr.hidden || !FParentMetaId.isEmpty())
+			{
+				if (!(FGateways->gateDescriptorRestrictions(streamJid(),descriptor) & GSR_ADD_CONTACT))
+					confirmDescriptors.append(descriptor);
+				else
+					readOnlyDescriptor = descriptor;
+				confirmTypes += descriptor.type;
+				confirmLinked += descriptor.linkedDescriptors;
+				confirmBlocked += descriptor.blockedDescriptors;
+			}
 		}
 	}
 

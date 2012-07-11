@@ -362,7 +362,7 @@ QString PhoneDialerDialog::startTimeString(const QDateTime &AStart) const
 	}
 	else if (daysLeft == 1)
 	{
-		return tr("Tomorrow");
+		return tr("Yesterday");
 	}
 	else if (daysLeft < 7)
 	{

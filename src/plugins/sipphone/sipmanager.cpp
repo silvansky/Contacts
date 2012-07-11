@@ -44,7 +44,7 @@
 #define ADR_STREAM_JID           Action::DR_StreamJid
 #define ADR_WINDOW_METAID        Action::DR_Parametr1
 #define ADR_DESTINATIONS         Action::DR_Parametr2
-#define ADR_PHONE_JID            Action::DR_Parametr3
+#define ADR_PHONE_NUMBER         Action::DR_Parametr3
 #define ADR_AUTO_START_VIDEO     Action::DR_Parametr4
 #define ADR_STATUS_ICON          Action::DR_Parametr1
 
@@ -1286,12 +1286,12 @@ void SipManager::onStartPhoneCall()
 	if (action)
 	{
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
-		Jid phoneJid = action->data(ADR_PHONE_JID).toString();
+		QString number = action->data(ADR_PHONE_NUMBER).toString();
 
 		ISipPhoneDialerDialog *dialog = showPhoneDialerDialog(streamJid);
 		if (dialog && dialog->isReady())
 		{
-			dialog->setCurrentNumber(FGateways!=NULL ? FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_PHONE),phoneJid.uNode()) : phoneJid.uNode());
+			dialog->setCurrentNumber(number);
 			dialog->startCall();
 		}
 	}
@@ -1360,8 +1360,8 @@ void SipManager::onCallMenuAboutToShow()
 	{
 		menu->setIcon(RSR_STORAGE_MENUICONS, MNI_SIPPHONE_CALL_BUTTON, 1);
 
-		QList<Jid> phoneNumbers;
 		QStringList destinations;
+		QStringList phoneNumbers;
 		IMetaContact contact = window->metaRoster()->metaContact(window->metaId());
 		foreach(Jid itemJid, contact.items)
 		{
@@ -1373,17 +1373,22 @@ void SipManager::onCallMenuAboutToShow()
 
 			IMetaItemDescriptor descriptor = FMetaContacts->metaDescriptorByItem(itemJid);
 			if (descriptor.gateId==GSID_PHONE || descriptor.gateId==GSID_SMS)
-				phoneNumbers.append(itemJid);
+			{
+				QString number = FGateways!=NULL ? FGateways->normalizedContactLogin(FGateways->gateDescriptorById(GSID_PHONE),itemJid.uNode()) : itemJid.uNode();
+				if (!phoneNumbers.contains(number))
+					phoneNumbers.append(number);
+			}
 		}
 
+		qSort(phoneNumbers);
 		bool phoneCallEnabled = isCallsAvailable() && SipCall::findCalls().isEmpty();
-		foreach(Jid phoneJid, phoneNumbers)
+		foreach(QString number, phoneNumbers)
 		{
 			Action *phoneCallAction = new Action(menu);
 			phoneCallAction->setEnabled(phoneCallEnabled);
-			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_SMS),phoneJid.uNode()) : phoneJid.uNode());
+			phoneCallAction->setText(FGateways!=NULL ? FGateways->formattedContactLogin(FGateways->gateDescriptorById(GSID_PHONE),number) : number);
 			phoneCallAction->setData(ADR_STREAM_JID,window->metaRoster()->streamJid().full());
-			phoneCallAction->setData(ADR_PHONE_JID,phoneJid.full());
+			phoneCallAction->setData(ADR_PHONE_NUMBER,number);
 			connect(phoneCallAction,SIGNAL(triggered()),SLOT(onStartPhoneCall()));
 			menu->addAction(phoneCallAction,AG_SPCM_SIPPHONE_PHONE_LIST);
 		}

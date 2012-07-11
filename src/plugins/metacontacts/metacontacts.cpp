@@ -687,6 +687,14 @@ IMetaItemDescriptor MetaContacts::metaDescriptorByItem(const Jid &AItemJid) cons
 	return FDefaultItemDescriptor;
 }
 
+IMetaItemDescriptor MetaContacts::metaDescriptorByGateId(const QString &AGateId) const
+{
+	for (QList<IMetaItemDescriptor>::const_iterator it=FMetaItemDescriptors.constBegin(); it!=FMetaItemDescriptors.constEnd(); it++)
+		if (it->gateId == AGateId)
+			return *it;
+	return IMetaItemDescriptor();
+}
+
 QString MetaContacts::itemFormattedLogin(const Jid &AItemJid) const
 {
 	QString hint = AItemJid.uBare();

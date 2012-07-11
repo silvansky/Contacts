@@ -141,6 +141,7 @@ public:
 	virtual QList<IMetaItemDescriptor> metaDescriptors() const =0;
 	virtual IMetaItemDescriptor metaDescriptorByOrder(int APageOrder) const =0;
 	virtual IMetaItemDescriptor metaDescriptorByItem(const Jid &AItemJid) const =0;
+	virtual IMetaItemDescriptor metaDescriptorByGateId(const QString &AGateId) const =0;
 	virtual QString itemFormattedLogin(const Jid &AItemJid) const =0;
 	virtual QMultiMap<int, Jid> itemOrders(QList<Jid> AItems) const =0;
 	virtual QString metaContactName(const IMetaContact &AContact) const =0;
