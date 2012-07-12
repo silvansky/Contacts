@@ -58,8 +58,6 @@ protected:
 	QString formattedNumber(const QString &AText) const;
 	QString normalizedNumber(const QString &AText) const;
 	QString currncyValue(float AValue, const ISipCurrency &ACurrency) const;
-protected:
-	void showEvent(QShowEvent *AEvent);
 protected slots:
 	void saveCallHistory();
 	void loadCallHistory();
@@ -67,6 +65,7 @@ protected slots:
 	void onXmppStreamOpened();
 	void onXmppStreamClosed();
 	void onCallButtonClicked();
+	void onShowWindowTimerTimeout();
 	void onCostRequestTimerTimeout();
 	void onNumberButtonMapped(const QString &AText);
 	void onNumberTextChanged(const QString &AText);
@@ -102,6 +101,7 @@ private:
 	QSignalMapper FNumberMapper;
 private:
 	bool FAutoStartCall;
+	QTimer FShowWindowTimer;
 	QList<Jid> FPhoneContacts;
 	QMap<QTableWidgetItem *,CallHistoryItem> FCallHistory;
 };

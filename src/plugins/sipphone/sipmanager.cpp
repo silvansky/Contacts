@@ -302,15 +302,20 @@ QWidget *SipManager::showCallWindow(ISipCall *ACall)
 	return window->window();
 }
 
-ISipPhoneDialerDialog *SipManager::showPhoneDialerDialog(const Jid &AStreamJid)
+ISipPhoneDialerDialog *SipManager::showPhoneDialerDialog(const Jid &AStreamJid, bool AHidden)
 {
 	IXmppStream *xmppStream = FXmppStreams!=NULL ? FXmppStreams->xmppStream(AStreamJid) : NULL;
 	if (xmppStream)
 	{
 		if (FPhoneDialerDialog.isNull())
+		{
 			FPhoneDialerDialog = new PhoneDialerDialog(FPluginManager,this,xmppStream);
-		WidgetManager::showActivateRaiseWindow(FPhoneDialerDialog->window());
-		WidgetManager::alignWindow(FPhoneDialerDialog->window(),Qt::AlignCenter);
+			WidgetManager::alignWindow(FPhoneDialerDialog->window(),Qt::AlignCenter);
+		}
+		if (!AHidden && FPhoneDialerDialog->isReady())
+		{
+			WidgetManager::showActivateRaiseWindow(FPhoneDialerDialog->window());
+		}
 		return FPhoneDialerDialog;
 	}
 	return NULL;
@@ -1288,7 +1293,7 @@ void SipManager::onStartPhoneCall()
 		Jid streamJid = action->data(ADR_STREAM_JID).toString();
 		QString number = action->data(ADR_PHONE_NUMBER).toString();
 
-		ISipPhoneDialerDialog *dialog = showPhoneDialerDialog(streamJid);
+		ISipPhoneDialerDialog *dialog = showPhoneDialerDialog(streamJid,true);
 		if (dialog && dialog->isReady())
 		{
 			dialog->setCurrentNumber(number);
@@ -1381,7 +1386,7 @@ void SipManager::onCallMenuAboutToShow()
 		}
 
 		qSort(phoneNumbers);
-		bool phoneCallEnabled = isCallsAvailable() && SipCall::findCalls().isEmpty();
+		bool phoneCallEnabled = window->metaRoster()->isOpen() && isCallsAvailable() && SipCall::findCalls().isEmpty();
 		foreach(QString number, phoneNumbers)
 		{
 			Action *phoneCallAction = new Action(menu);
@@ -1415,6 +1420,7 @@ void SipManager::onCallMenuAboutToShow()
 		if (FRosterChanger)
 		{
 			Action *addContactAction = new Action(menu);
+			addContactAction->setEnabled(window->metaRoster()->isOpen());
 			addContactAction->setText(tr("Add Number..."));
 			addContactAction->setData(ADR_STREAM_JID, window->metaRoster()->streamJid().full());
 			addContactAction->setData(ADR_WINDOW_METAID, window->metaId());

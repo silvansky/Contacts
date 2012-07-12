@@ -61,7 +61,7 @@ public:
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const;
 	// call dialogs
 	virtual QWidget *showCallWindow(ISipCall *ACall);
-	virtual ISipPhoneDialerDialog *showPhoneDialerDialog(const Jid &AStreamJid);
+	virtual ISipPhoneDialerDialog *showPhoneDialerDialog(const Jid &AStreamJid, bool AHidden = false);
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered);

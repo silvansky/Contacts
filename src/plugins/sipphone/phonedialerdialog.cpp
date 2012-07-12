@@ -1,7 +1,6 @@
 #include "phonedialerdialog.h"
 
 #include <QString>
-#include <QShowEvent>
 #include <QCompleter>
 #include <QClipboard>
 #include <QDataStream>
@@ -131,6 +130,10 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 		}
 	}
 
+	FShowWindowTimer.setSingleShot(true);
+	FShowWindowTimer.setInterval(2000);
+	connect(&FShowWindowTimer,SIGNAL(timeout()),SLOT(onShowWindowTimerTimeout()));
+
 	FCostRequestTimer.setSingleShot(true);
 	FCostRequestTimer.setInterval(1000);
 	connect(&FCostRequestTimer,SIGNAL(timeout()),SLOT(onCostRequestTimerTimeout()));
@@ -207,8 +210,9 @@ void PhoneDialerDialog::startCall()
 	{
 		if (!isCallEnabled())
 		{
-			requestCallCost();
 			FAutoStartCall = true;
+			requestCallCost();
+			FShowWindowTimer.start();
 		}
 		else
 		{
@@ -257,28 +261,22 @@ void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
 
 void PhoneDialerDialog::requestBalance()
 {
-	if (FXmppStream->isOpen())
-	{
-		FBalance = ISipBalance();
-		if (!FSipManager->requestBalance(streamJid()))
-			FBalance.error = ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE);
-		updateDialogState();
-	}
+	FBalance = ISipBalance();
+	if (!FSipManager->requestBalance(streamJid()))
+		FBalance.error = ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE);
+	updateDialogState();
 }
 
 void PhoneDialerDialog::requestCallCost()
 {
-	if (FXmppStream->isOpen())
+	FCostRequestTimer.stop();
+	FCallCost = ISipCallCost();
+	QString number = currentNumber();
+	if (!number.isEmpty())
 	{
-		FCallCost = ISipCallCost();
-		QString number = currentNumber();
-		if (FBalance.balance>SIP_BALANCE_EPSILON && number.length()>=3)
-		{
-			FCostRequestTimer.stop();
-			FCallCostRequestId = FSipManager->requestCallCost(streamJid(),FBalance.currency.code,number,QDateTime::currentDateTime(),60000);
-			if (FCallCostRequestId.isEmpty())
-				FCallCost.error = ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE);
-		}
+		FCallCostRequestId = FSipManager->requestCallCost(streamJid(),FBalance.currency.code,number,QDateTime::currentDateTime(),60000);
+		if (FCallCostRequestId.isEmpty())
+			FCallCost.error = ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE);
 		updateDialogState();
 	}
 }
@@ -334,10 +332,8 @@ void PhoneDialerDialog::showErrorBalloon(const QString &AHtml)
 	if (window()->isActiveWindow())
 	{
 		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_DIALER_ERROR);
-		
 		QPoint point = ui.lneNumber->mapToGlobal(ui.lneNumber->rect().topRight());
 		point.setY(point.y() + ui.lneNumber->height() / 2);
-
 		BalloonTip::showBalloon(icon,QString::null,AHtml,point,0,true,BalloonTip::ArrowLeft,window());
 	}
 }
@@ -463,14 +459,6 @@ QString PhoneDialerDialog::currncyValue(float AValue, const ISipCurrency &ACurre
 	return QString("%1 %2").arg(AValue,0,'f',qMax(-ACurrency.exp,0)).arg(currency);
 }
 
-void PhoneDialerDialog::showEvent(QShowEvent *AEvent)
-{
-	if (isReady())
-		QDialog::showEvent(AEvent);
-	else
-		AEvent->ignore();
-}
-
 void PhoneDialerDialog::saveCallHistory()
 {
 	if (FPrivateStorage && FPrivateStorage->isOpen(streamJid()))
@@ -521,6 +509,7 @@ void PhoneDialerDialog::onCallButtonClicked()
 		FActiveCall = FSipManager->newCall(streamJid(),phoneJid);
 		if (FActiveCall)
 		{
+			FShowWindowTimer.stop();
 			QWidget *callWindow = FSipManager->showCallWindow(FActiveCall);
 			connect(callWindow,SIGNAL(destroyed()),SLOT(onCallWindowDestroyed()));
 			connect(FActiveCall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
@@ -529,6 +518,12 @@ void PhoneDialerDialog::onCallButtonClicked()
 		}
 		updateDialogState();
 	}
+}
+
+void PhoneDialerDialog::onShowWindowTimerTimeout()
+{
+	if (isReady())
+		WidgetManager::showActivateRaiseWindow(window());
 }
 
 void PhoneDialerDialog::onCostRequestTimerTimeout()
@@ -682,7 +677,7 @@ void PhoneDialerDialog::onCallStateChanged(int AState)
 			CallHistoryItem histItem;
 			histItem.callFailed = AState==ISipCall::CS_ERROR;
 			histItem.number = normalizedNumber(FActiveCall->contactJid().uNode());
-			histItem.start = !histItem.callFailed ? FActiveCall->callStartTime() : QDateTime::currentDateTime();
+			histItem.start = FActiveCall->callStartTime().isValid() ? FActiveCall->callStartTime() : QDateTime::currentDateTime();
 			histItem.duration = FActiveCall->callDuration();
 			prependCallHistory(histItem);
 			saveCallHistory();
@@ -711,9 +706,15 @@ void PhoneDialerDialog::onSipCallCostRecieved(const QString &AId, const ISipCall
 		if (FCallCost.cost > -SIP_BALANCE_EPSILON)
 		{
 			if (FCallCost.cost > FBalance.balance)
+			{
+				if (FAutoStartCall)
+					WidgetManager::showActivateRaiseWindow(window());
 				showErrorBalloon(tr("Insufficient funds in the account")+"\n"+tr("Fill up the balance"));
+			}
 			else if (FAutoStartCall && isCallEnabled())
+			{
 				QTimer::singleShot(0,this,SLOT(onCallButtonClicked()));
+			}
 			ui.lneNumber->setText(formattedNumber(ACost.number));
 			FAutoStartCall = false;
 		}

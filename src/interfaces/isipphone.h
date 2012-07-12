@@ -219,7 +219,7 @@ public:
 	virtual QList<ISipCall*> findCalls(const Jid &AStreamJid=Jid::null, const Jid &AContactJid=Jid::null, const QString &ASessionId=QString::null) const = 0;
 	// call dialogs
 	virtual QWidget *showCallWindow(ISipCall *ACall) =0;
-	virtual ISipPhoneDialerDialog *showPhoneDialerDialog(const Jid &AStreamJid) =0;
+	virtual ISipPhoneDialerDialog *showPhoneDialerDialog(const Jid &AStreamJid, bool AHidden = false) =0;
 	// SIP registration
 	virtual int sipAccountId(const Jid &AStreamJid) const =0;
 	virtual bool setSipAccountRegistration(const Jid &AStreamJid, bool ARegistered) =0;
