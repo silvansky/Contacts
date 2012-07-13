@@ -43,7 +43,7 @@ HtmlToolButton::HtmlToolButton(QWidget *parent) : QToolButton(parent)
 
 QString HtmlToolButton::html() const
 {
-	return text();
+	return text().replace("&&","&");
 }
 
 QSize HtmlToolButton::sizeHint() const
@@ -97,7 +97,8 @@ QSize HtmlToolButton::sizeHint() const
 
 void HtmlToolButton::setHtml(const QString &AHtml)
 {
-	setText(AHtml);
+	QString escHtml = AHtml;
+	setText(escHtml.replace("&","&&"));
 }
 
 void HtmlToolButton::paintEvent(QPaintEvent *)

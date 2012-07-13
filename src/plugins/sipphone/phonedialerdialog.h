@@ -57,7 +57,8 @@ protected:
 protected:
 	QString formattedNumber(const QString &AText) const;
 	QString normalizedNumber(const QString &AText) const;
-	QString currncyValue(float AValue, const ISipCurrency &ACurrency) const;
+	QString convertTextToNumber(const QString &AText) const;
+	QString currencyValue(float AValue, const ISipCurrency &ACurrency) const;
 protected slots:
 	void saveCallHistory();
 	void loadCallHistory();

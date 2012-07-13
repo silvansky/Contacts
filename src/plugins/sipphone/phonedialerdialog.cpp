@@ -26,6 +26,9 @@
 
 #define ADR_NUMBER                Action::DR_Parametr1
 
+static const QString SubsStringKey   = "0123456789abcdefghijklmnopqrstuvwxyz*#";
+static const QString SubsStringValue = "012345678922233344455566677778889999*#";
+
 enum HistoryTableColumns {
 	HTC_NAME,
 	HTC_START,
@@ -70,28 +73,53 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 
 	window()->setWindowTitle(tr("Calls"));
 
+	static const QString numberTmpl = "<span style=\"color:white;font-size:12px;\">&nbsp;%1</span><span style=\"color:#acacac;font-family:'Courier New';font-size:10px;\">%2</span>";
+	
+	ui.pbtNumber_1->setHtml(numberTmpl.arg("1","&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 	FNumberMapper.setMapping(ui.pbtNumber_1,"1");
 	connect(ui.pbtNumber_1,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_2->setHtml(numberTmpl.arg("2","&nbsp;&nbsp;&nbsp;ABC"));
 	FNumberMapper.setMapping(ui.pbtNumber_2,"2");
 	connect(ui.pbtNumber_2,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_3->setHtml(numberTmpl.arg("3","&nbsp;&nbsp;&nbsp;DEF"));
 	FNumberMapper.setMapping(ui.pbtNumber_3,"3");
 	connect(ui.pbtNumber_3,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_4->setHtml(numberTmpl.arg("4","&nbsp;&nbsp;&nbsp;GHI"));
 	FNumberMapper.setMapping(ui.pbtNumber_4,"4");
 	connect(ui.pbtNumber_4,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_5->setHtml(numberTmpl.arg("5","&nbsp;&nbsp;&nbsp;JKL"));
 	FNumberMapper.setMapping(ui.pbtNumber_5,"5");
 	connect(ui.pbtNumber_5,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+	
+	ui.pbtNumber_6->setHtml(numberTmpl.arg("6","&nbsp;&nbsp;&nbsp;MNO"));
 	FNumberMapper.setMapping(ui.pbtNumber_6,"6");
 	connect(ui.pbtNumber_6,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_7->setHtml(numberTmpl.arg("7","&nbsp;&nbsp;PQRS"));
 	FNumberMapper.setMapping(ui.pbtNumber_7,"7");
 	connect(ui.pbtNumber_7,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_8->setHtml(numberTmpl.arg("8","&nbsp;&nbsp;&nbsp;TUV"));
 	FNumberMapper.setMapping(ui.pbtNumber_8,"8");
 	connect(ui.pbtNumber_8,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_9->setHtml(numberTmpl.arg("9","&nbsp;&nbsp;WXYZ"));
 	FNumberMapper.setMapping(ui.pbtNumber_9,"9");
 	connect(ui.pbtNumber_9,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+	
+	ui.pbtNumber_10->setHtml(numberTmpl.arg("*","&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 	FNumberMapper.setMapping(ui.pbtNumber_10,"*");
 	connect(ui.pbtNumber_10,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+
+	ui.pbtNumber_11->setHtml(numberTmpl.arg("0","&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 	FNumberMapper.setMapping(ui.pbtNumber_11,"0");
 	connect(ui.pbtNumber_11,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
+	
+	ui.pbtNumber_12->setHtml(numberTmpl.arg("#","&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"));
 	FNumberMapper.setMapping(ui.pbtNumber_12,"#");
 	connect(ui.pbtNumber_12,SIGNAL(clicked()),&FNumberMapper,SLOT(map()));
 	connect(&FNumberMapper,SIGNAL(mapped(const QString &)),SLOT(onNumberButtonMapped(const QString &)));
@@ -277,8 +305,8 @@ void PhoneDialerDialog::requestCallCost()
 		FCallCostRequestId = FSipManager->requestCallCost(streamJid(),FBalance.currency.code,number,QDateTime::currentDateTime(),60000);
 		if (FCallCostRequestId.isEmpty())
 			FCallCost.error = ErrorHandler(ErrorHandler::SERVICE_UNAVAILABLE);
-		updateDialogState();
 	}
+	updateDialogState();
 }
 
 void PhoneDialerDialog::updateDialogState()
@@ -287,7 +315,7 @@ void PhoneDialerDialog::updateDialogState()
 		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name());
 
 	if (FBalance.balance > -SIP_BALANCE_EPSILON)
-		ui.lblBalance->setText(balanceTempl.arg(currncyValue(FBalance.balance,FBalance.currency)+"."));
+		ui.lblBalance->setText(balanceTempl.arg(currencyValue(FBalance.balance,FBalance.currency)+"."));
 	else if (!FXmppStream->isOpen())
 		ui.lblBalance->setText(balanceTempl.arg(tr("Disconnected")));
 	else if (!FBalance.error.condition().isEmpty())
@@ -299,7 +327,7 @@ void PhoneDialerDialog::updateDialogState()
 	if (FCallCost.cost > -SIP_BALANCE_EPSILON)
 	{
 		ui.lblCity->setText(!FCallCost.city.isEmpty() ? FCallCost.city +", "+ FCallCost.country : FCallCost.country);
-		ui.lblCost->setText(currncyValue(FCallCost.cost,FCallCost.currency)+"/"+tr("min")+".");
+		ui.lblCost->setText(currencyValue(FCallCost.cost,FCallCost.currency)+"/"+tr("min")+".");
 	}
 	else if (!FCallCostRequestId.isEmpty())
 	{
@@ -453,7 +481,29 @@ QString PhoneDialerDialog::normalizedNumber(const QString &AText) const
 	return number;
 }
 
-QString PhoneDialerDialog::currncyValue(float AValue, const ISipCurrency &ACurrency) const
+QString PhoneDialerDialog::convertTextToNumber(const QString &AText) const
+{
+	static const QString SubsStringKey   = "0123456789abcdefghijklmnopqrstuvwxyz *#+-()";
+	static const QString SubsStringValue = "012345678922233344455566677778889999 *#+-()";
+
+	QString number = AText;
+	for (int i=0; i<number.length(); )
+	{
+		int index = SubsStringKey.indexOf(number.at(i).toLower());
+		if (index >= 0)
+		{
+			number[i] = SubsStringValue[index];
+			i++;
+		}
+		else
+		{
+			number.remove(i,1);
+		}
+	}
+	return number;
+}
+
+QString PhoneDialerDialog::currencyValue(float AValue, const ISipCurrency &ACurrency) const
 {
 	QString currency = ACurrency.code.toLower();
 	return QString("%1 %2").arg(AValue,0,'f',qMax(-ACurrency.exp,0)).arg(currency);
@@ -539,8 +589,12 @@ void PhoneDialerDialog::onNumberButtonMapped(const QString &AText)
 
 void PhoneDialerDialog::onNumberTextChanged(const QString &AText)
 {
-	QString phone = normalizedNumber(AText);
-	if (FCallCost.number != phone)
+	QString number = convertTextToNumber(AText);
+	if (number != AText)
+		ui.lneNumber->setText(number);
+	number = normalizedNumber(number);
+
+	if (FCallCost.number != number)
 	{
 		FAutoStartCall = false;
 		FCallCost = ISipCallCost();
@@ -648,11 +702,6 @@ void PhoneDialerDialog::onHistoryCustomContextMenuRequested(const QPoint &APos)
 		smsAction->setText(tr("Write Message"));
 		smsAction->setData(ADR_NUMBER,historyItem.number);
 		menu->addAction(smsAction);
-
-		Action *historyAction = new Action(menu);
-		historyAction->setText(tr("Show History"));
-		historyAction->setData(ADR_NUMBER,historyItem.number);
-		menu->addAction(historyAction);
 
 		menu->popup(mapToGlobal(APos));
 	}

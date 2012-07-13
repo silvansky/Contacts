@@ -15,9 +15,9 @@ QLineEdit#lneNumber
 	min-height: 35px;
 }
 
-QPushButton
+HtmlToolButton
 {
-	min-width: 40px;
+	min-width: 42px;
 }
 
 QPushButton#pbtCall
