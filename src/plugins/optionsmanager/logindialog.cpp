@@ -551,6 +551,7 @@ bool LoginDialog::event(QEvent *AEvent)
 
 void LoginDialog::showEvent(QShowEvent *AEvent)
 {
+	ui.lneNode->setFocus();
 	QDialog::showEvent(AEvent);
 	if (FMainWindowPlugin)
 	{
@@ -685,12 +686,12 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				BalloonTip::hideBalloon();
 			}
 		}
-		else if ((AWatched==ui.lneNode) && (keyEvent->key()==Qt::Key_Down))
+		else if ((AWatched == ui.lneNode) && (keyEvent->key() == Qt::Key_Down))
 		{
 			if (ui.lneNode->completer()->popup() && !ui.lneNode->completer()->popup()->isVisible())
 				ui.lneNode->completer()->complete();
 		}
-		else if ((AWatched==ui.lneRegLogin) && (keyEvent->key()==Qt::Key_Down))
+		else if ((AWatched == ui.lneRegLogin) && (keyEvent->key() == Qt::Key_Down))
 		{
 			if (ui.lneRegLogin->completer()->popup() && !ui.lneRegLogin->completer()->popup()->isVisible())
 				ui.lneRegLogin->completer()->complete();
@@ -937,6 +938,7 @@ void LoginDialog::setControlsEnabled(bool AEnabled)
 	ui.lnePassword->setEnabled(AEnabled);
 	ui.chbSavePassword->setEnabled(AEnabled);
 	ui.chbAutoRun->setEnabled(AEnabled);
+	setRegControlsEnabled(AEnabled);
 }
 
 void LoginDialog::setRegControlsEnabled(bool AEnabled)
@@ -1387,12 +1389,20 @@ void LoginDialog::onRegisterClicked()
 {
 	if (!ui.wdtRegFields->isVisible())
 	{
+		LogDetail("[LoginDialog::onRegisterClicked]: Showing easy registration form...");
+		ui.lblRegistration->setText(tr("Registration"));
 		ui.wdtRegFields->setVisible(true);
 		ui.pbtRegister->setEnabled(false);
 		ui.lneRegFullName->setFocus();
 	}
 	else
 	{
+		hideConnectionError();
+		hideXmppStreamError();
+		if (ui.lneRegLogin->completer())
+			ui.lneRegLogin->completer()->popup()->hide();
+		setControlsEnabled(false);
+		ui.pbtRegister->setEnabled(false);
 		// sending registration request
 		QUrl request("http://reg.tx.xmpp.rambler.ru/?f=xml");
 		Jid user = ui.lneRegLogin->text() + ui.pbtRegDomain->text();
@@ -1402,6 +1412,7 @@ void LoginDialog::onRegisterClicked()
 #ifdef DEBUG_ENABLED
 		qDebug() << "Starting registration for " << user.full();
 		qDebug() << "post data:" << postData;
+		LogDetail(QString("[LoginDialog::onRegisterClicked]: Sending easy registration request for user %1").arg(user.full()));
 #endif
 		Networking::httpPostAsync(request, postData.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
 	}
@@ -1805,11 +1816,29 @@ void LoginDialog::stopRegDataVerifyTimer()
 
 void LoginDialog::onRotateTimer()
 {
-	// todo
+	// TODO: load image from resources and assign rotated copy to ui.lblLoader->pixmap()
+	qreal angle = FRotateTimer.property("angle").toReal();
+	angle += 0.1;
+	FRotateTimer.setProperty("angle", angle);
+}
+
+void LoginDialog::startLoadAnimation()
+{
+	ui.lblLoader->setVisible(true);
+	FRotateTimer.start(200);
+}
+
+void LoginDialog::stopLoadAnimation()
+{
+	ui.lblLoader->setVisible(false);
+	FRotateTimer.stop();
+	FRotateTimer.setProperty("angle", 0.0);
 }
 
 void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 {
+	setControlsEnabled(true);
+	ui.pbtRegister->setEnabled(readyToRegister());
 #ifdef DEBUG_ENABLED
 	qDebug() << "network request finished! " << url << " result:\n" << result;
 #endif
@@ -1873,24 +1902,18 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 			}
 		}
 	}
-	if (gotErrors)
+
+	if (userRegistered)
 	{
-		if (!loginError.isEmpty())
-		{
-			showRegLoginError(loginError);
-		}
-		else if (!passwordError.isEmpty())
-		{
-			showRegPasswordError(passwordError);
-		}
-		else if (!errorSummary.isEmpty())
-		{
-			showRegLoginError(errorSummary);
-		}
-		else
-			showRegLoginError(tr("Some error occured. Try again."));
+		LogDetail(QString("[LoginDialog::onRequestFinished]: User %1%2 successfully registered with easy registration form!").arg(ui.lneRegLogin->text(), ui.pbtRegDomain->text()));
+		// passing login and pass to login form
+		ui.lneNode->setText(ui.lneRegLogin->text());
+		ui.lnePassword->setText(ui.lneRegPassword->text());
+		onConnectClicked();
+		return;
 	}
-	// removing completer
+
+	// removing old completer if any
 	if (ui.lneRegLogin->completer())
 	{
 		ui.lneRegLogin->setCompleter(NULL);
@@ -1900,7 +1923,6 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 	{
 		// setting login suggests completer
 		QCompleter *completer = new QCompleter(suggests, ui.lneRegLogin);
-		completer->popup()->setStyleSheet(styleSheet());
 		completer->setCaseSensitivity(Qt::CaseInsensitive);
 		completer->setCompletionMode(QCompleter::PopupCompletion);
 		completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -1918,23 +1940,39 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 
 		onStylePreviewReset();
 
+		ui.lneRegLogin->completer()->complete();
+		// la costylle
 		QTimer::singleShot(10, ui.lneRegLogin->completer(), SLOT(complete()));
 	}
-	if (userRegistered)
+
+	if (gotErrors)
 	{
-		// passing login and pass to login form
-		ui.lneNode->setText(ui.lneRegLogin->text());
-		ui.lnePassword->setText(ui.lneRegPassword->text());
-		onConnectClicked();
+		if (!loginError.isEmpty())
+		{
+			showRegLoginError(loginError);
+		}
+		else if (!passwordError.isEmpty())
+		{
+			showRegPasswordError(passwordError);
+		}
+		else if (!errorSummary.isEmpty())
+		{
+			showRegLoginError(errorSummary);
+		}
+		else
+			showRegLoginError(tr("Some error occured. Try again."));
 	}
 }
 
 void LoginDialog::onRequestFailed(const QUrl &url, const QString &error)
 {
+	setControlsEnabled(true);
+	ui.pbtRegister->setEnabled(readyToRegister());
 #ifdef DEBUG_ENABLED
 	qDebug() << "network request failed! " << url << " error:\n" << error;
 #endif
-	// TODO: show connection error
+	LogError(QString("[LoginDialog::onRequestFailed]: Network request for \"%1\" failed with error \"%2\"").arg(url.toString(), error));
+	showRegConnectionError();
 }
 
 LoginDialog::Mode LoginDialog::mode() const

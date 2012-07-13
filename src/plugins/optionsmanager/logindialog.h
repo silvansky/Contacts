@@ -163,6 +163,8 @@ protected slots:
 
 	// rotation timer
 	void onRotateTimer();
+	void startLoadAnimation();
+	void stopLoadAnimation();
 protected slots:
 	// for http requests
 	void onRequestFinished(const QUrl &url, const QString &result);

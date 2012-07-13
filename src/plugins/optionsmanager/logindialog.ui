@@ -399,7 +399,7 @@
       <item>
        <widget class="QLabel" name="lblRegistration">
         <property name="text">
-         <string>Register</string>
+         <string>Yo can register a new Rambler account here</string>
         </property>
        </widget>
       </item>
@@ -651,6 +651,16 @@
   <tabstop>lnePassword</tabstop>
   <tabstop>chbSavePassword</tabstop>
   <tabstop>chbAutoRun</tabstop>
+  <tabstop>chbShowPassword</tabstop>
+  <tabstop>cmbDomain</tabstop>
+  <tabstop>tlbDomain</tabstop>
+  <tabstop>pbtConnect</tabstop>
+  <tabstop>lneRegFullName</tabstop>
+  <tabstop>lneRegLogin</tabstop>
+  <tabstop>lneRegPassword</tabstop>
+  <tabstop>lneRegConfirmPassword</tabstop>
+  <tabstop>pbtRegister</tabstop>
+  <tabstop>pbtRegDomain</tabstop>
  </tabstops>
  <resources/>
  <connections/>
