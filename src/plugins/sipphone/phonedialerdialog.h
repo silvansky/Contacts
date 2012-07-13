@@ -49,8 +49,9 @@ protected:
 	void requestBalance();
 	void requestCallCost();
 	void updateDialogState();
-	void showErrorBalloon(const QString &AHtml);
-	void showSendSmsDialog(const Jid &APhoneJid) const;
+	void showErrorBalloon(const QString &AText);
+	void showSendSmsDialog(const Jid &APhoneJid);
+	void showSendSmsDialog(const QString &ANumber);
 protected:
 	Jid findPhoneContact(const QString &ANumber) const;
 	QString startTimeString(const QDateTime &AStart) const;

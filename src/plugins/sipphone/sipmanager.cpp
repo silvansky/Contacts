@@ -447,8 +447,13 @@ bool SipManager::requestBalance(const Jid &AStreamJid)
 		request.addElement("query",NS_RAMBLER_PHONE_BALANCE);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,BALANCE_TIMEOUT))
 		{
+			LogDetail(QString("[SipManager] Balance request for account='%1' sent, id='%2'").arg(AStreamJid.bare(),request.id()));
 			FBalanceRequests.insert(request.id(),AStreamJid);
 			return true;
+		}
+		else
+		{
+			LogError(QString("[SipManager] Failed to send balance request for account='%1'").arg(AStreamJid.bare()));
 		}
 	}
 	return false;
@@ -467,8 +472,13 @@ QString SipManager::requestCallCost(const Jid &AStreamJid, const QString &ACurre
 		callElem.setAttribute("duration",ADuration);
 		if (FStanzaProcessor->sendStanzaRequest(this,AStreamJid,request,COST_TIMEOUT))
 		{
+			LogDetail(QString("[SipManager] Call cost request sent, account='%1', phone='%2', currencyCode='%3', start='%4', duration='%5', id='%6'").arg(AStreamJid.bare(),ANumber,ACurrencyCode,callElem.attribute("start"),callElem.attribute("duration"),request.id()));
 			FCostRequests.insert(request.id(),AStreamJid);
 			return request.id();
+		}
+		else
+		{
+			LogError(QString("[SipManager] Failed to send call cost request, account='%1', phone='%2', currencyCode='%3', start='%4', duration='%5'").arg(AStreamJid.bare(),ANumber,ACurrencyCode,callElem.attribute("start"),callElem.attribute("duration")));
 		}
 	}
 	return QString::null;
@@ -707,11 +717,13 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			balance.balance = balanceElem.text().toFloat();
 			balance.currency.code = balanceElem.attribute("currencyCode");
 			balance.currency.exp = balanceElem.attribute("currencyExp").toInt();
+			LogDetail(QString("[SipManager] Balance for account='%1' received: balance='%2', currencyCode='%3', currencyExp='%4', id='%5'").arg(AStreamJid.bare()).arg(balance.balance).arg(balance.currency.code).arg(balance.currency.exp).arg(AStanza.id()));
 		}
 		else
 		{
 			balance.balance = -1.0;
 			balance.error.parseElement(AStanza.element(),NS_RAMBLER_PHONE_BALANCE);
+			LogError(QString("[SipManager] Failed to load balance for account='%1', id='%2'").arg(AStreamJid.bare(),AStanza.id()));
 		}
 		emit sipBalanceRecieved(AStreamJid,balance);
 		FBalanceRequests.remove(AStanza.id());
@@ -732,11 +744,14 @@ void SipManager::stanzaRequestResult(const Jid &AStreamJid, const Stanza &AStanz
 			cost.cityCode = callElem.firstChildElement("city-code").text();
 			cost.country = callElem.firstChildElement("country").text();
 			cost.countryCode = callElem.firstChildElement("country-code").text();
+			LogDetail(QString("[SipManager] Call cost received: account='%1', cost='%2', phone='%3', currencyCode='%4', currencyExp='%5', city='%6', city-code='%7', country='%8', country-code='%9' id='%10'")
+				.arg(AStreamJid.bare()).arg(cost.cost).arg(cost.number,cost.currency.code).arg(cost.currency.exp).arg(cost.city,cost.cityCode,cost.country,cost.countryCode,AStanza.id()));
 		}
 		else
 		{
 			cost.cost = -1.0;
 			cost.error.parseElement(AStanza.element(),NS_RAMBLER_PHONE_COST);
+			LogError(QString("[SipManager] Failed to load call cost, account='%1', id='%2'").arg(AStreamJid.bare(),AStanza.id()));
 		}
 		emit sipCallCostRecieved(AStanza.id(),cost);
 		FCostRequests.remove(AStanza.id());

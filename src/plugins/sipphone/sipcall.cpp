@@ -31,7 +31,7 @@ SipCall::SipCall(ISipManager *ASipManager, IXmppStream *AXmppStream, const Jid &
 	FSipPeer = APhoneJid.node()+"@"SIP_DOMAIN;
 	init(ASipManager, NULL, AXmppStream, ASessionId);
 
-	LogDetail(QString("[SipCall] Call created as INITIATOR FOR DIRECT CALL, sid='%1'").arg(sessionId()));
+	LogDetail(QString("[SipCall] Call created as INITIATOR FOR PHONE CALL, sid='%1'").arg(sessionId()));
 }
 
 SipCall::SipCall(ISipManager *ASipManager, IStanzaProcessor *AStanzaProcessor, IXmppStream *AXmppStream, const Jid &AContactJid, const QString &ASessionId)

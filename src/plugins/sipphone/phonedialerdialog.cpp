@@ -12,6 +12,7 @@
 #include <definitions/stylesheets.h>
 #include <definitions/customborder.h>
 #include <definitions/gateserviceidentifiers.h>
+#include <utils/log.h>
 #include <utils/datetime.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
@@ -237,6 +238,7 @@ void PhoneDialerDialog::startCall()
 {
 	if (isReady())
 	{
+		LogDetail(QString("[PhoneDialerDialog] Call auto start requested with number='%1'").arg(currentNumber()));
 		if (!isCallEnabled())
 		{
 			FAutoStartCall = true;
@@ -367,21 +369,58 @@ void PhoneDialerDialog::updateDialogState()
 	emit dialogStateChanged();
 }
 
-void PhoneDialerDialog::showErrorBalloon(const QString &AHtml)
+void PhoneDialerDialog::showErrorBalloon(const QString &AText)
 {
 	if (window()->isActiveWindow())
 	{
 		QIcon icon = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_DIALER_ERROR);
 		QPoint point = ui.lneNumber->mapToGlobal(ui.lneNumber->rect().topRight());
 		point.setY(point.y() + ui.lneNumber->height() / 2);
-		BalloonTip::showBalloon(icon,QString::null,AHtml,point,0,true,BalloonTip::ArrowLeft,window());
+		BalloonTip::showBalloon(icon,QString::null,AText,point,0,true,BalloonTip::ArrowLeft,window());
+		LogDetail(QString("[PhoneDialerDialog] Error balloon shown with message='%1'").arg(AText));
 	}
 }
 
-void PhoneDialerDialog::showSendSmsDialog(const Jid &APhoneJid) const
+void PhoneDialerDialog::showSendSmsDialog(const Jid &APhoneJid)
 {
 	if (FMessageProcessor)
+	{
+		LogDetail(QString("[PhoneDialerDialog] Opening SMS dialog for phoneJid='%1'").arg(APhoneJid.full()));
 		FMessageProcessor->createMessageWindow(streamJid(),APhoneJid,Message::Chat,IMessageHandler::SM_SHOW);
+	}
+}
+
+void PhoneDialerDialog::showSendSmsDialog(const QString &ANumber)
+{
+	if (FGateways)
+	{
+		Jid phoneJid = findPhoneContact(ANumber);
+		if (phoneJid.isEmpty())
+		{
+			Jid gateJid = FGateways->gateDescriptorServices(streamJid(),FGateways->gateDescriptorById(GSID_SMS),true).value(0);
+			if (FGateways->isServiceEnabled(streamJid(),gateJid))
+			{
+				QString requestId = FGateways->sendUserJidRequest(streamJid(),gateJid,ANumber);
+				if (!requestId.isEmpty())
+				{
+					LogDetail(QString("[PhoneDialerDialog] PhoneJid request for number='%1' sent, id='%2'").arg(ANumber,requestId));
+					FSmsJidRequests.append(requestId);
+				}
+				else
+				{
+					LogDetail(QString("[PhoneDialerDialog] Failed to send phoneJid request for number='%1'").arg(ANumber));
+				}
+			}
+			else
+			{
+				LogDetail(QString("[PhoneDialerDialog] Failed to request phoneJid for number='%1': SMS service is not enabled").arg(ANumber));
+			}
+		}
+		else
+		{
+			showSendSmsDialog(phoneJid);
+		}
+	}
 }
 
 Jid PhoneDialerDialog::findPhoneContact(const QString &ANumber) const
@@ -438,6 +477,8 @@ void PhoneDialerDialog::prependCallHistory(const CallHistoryItem &AItem)
 {
 	if (!AItem.number.isEmpty() && AItem.start.isValid())
 	{
+		LogDetail(QString("[PhoneDialerDialog] Prepending call history item, number='%1', start='%2', duration='%3', failed='%4'").arg(AItem.number,AItem.start.toString()).arg(AItem.duration).arg(AItem.callFailed));
+
 		for (QMap<QTableWidgetItem *, CallHistoryItem>::iterator it=FCallHistory.begin(); it!=FCallHistory.end(); )
 		{
 			if (it->number == AItem.number)
@@ -543,14 +584,20 @@ void PhoneDialerDialog::saveCallHistory()
 			elem.setAttribute("duration",historyItem.duration);
 			elem.setAttribute("failed",historyItem.callFailed);
 		}
-		FPrivateStorage->saveData(streamJid(),rootElem);
+		LogDetail(QString("[PhoneDialerDialog] Saving call history of account='%1'").arg(streamJid().bare()));
+		if (FPrivateStorage->saveData(streamJid(),rootElem).isEmpty())
+			LogError(QString("[PhoneDialerDialog] Failed to save call history of account='%1'").arg(streamJid().bare()));
 	}
 }
 
 void PhoneDialerDialog::loadCallHistory()
 {
 	if (FPrivateStorage && FPrivateStorage->isOpen(streamJid()))
-		FPrivateStorage->loadData(streamJid(),PST_CALL_HISTORY,PSN_CALL_HISTORY);
+	{
+		LogDetail(QString("[PhoneDialerDialog] Loading call history of account='%1'").arg(streamJid().bare()));
+		if (FPrivateStorage->loadData(streamJid(),PST_CALL_HISTORY,PSN_CALL_HISTORY).isEmpty())
+			LogError(QString("[PhoneDialerDialog] Failed to send load request for call history of account='%1' ").arg(streamJid().bare()));
+	}
 }
 
 void PhoneDialerDialog::onXmppStreamOpened()
@@ -570,11 +617,13 @@ void PhoneDialerDialog::onCallButtonClicked()
 {
 	if (isCallEnabled())
 	{
+
 		QString number = FCallCost.number;
 		if (number.startsWith('+'))
 			number.remove(0,1);
 
 		Jid phoneJid(number,SIPPHONE_SERVICE_JID,QString::null);
+		LogDetail(QString("[PhoneDialerDialog] Starting call to phoneJid='%1'").arg(phoneJid.full()));
 		FActiveCall = FSipManager->newCall(streamJid(),phoneJid);
 		if (FActiveCall)
 		{
@@ -584,6 +633,10 @@ void PhoneDialerDialog::onCallButtonClicked()
 			connect(FActiveCall->instance(),SIGNAL(stateChanged(int)),SLOT(onCallStateChanged(int)));
 			FActiveCall->startCall();
 			window()->hide();
+		}
+		else
+		{
+			LogError(QString("[PhoneDialerDialog] Failed to create SipCall for phoneJid='%1'").arg(phoneJid.full()));
 		}
 		updateDialogState();
 	}
@@ -648,6 +701,7 @@ void PhoneDialerDialog::onPrivateStorageDataLoaded(const QString &AId, const Jid
 			elem = elem.nextSiblingElement("number");
 		}
 
+		LogDetail(QString("[PhoneDialerDialog] Call history of account='%1' loaded").arg(AStreamJid.bare()));
 		for (QMap<QDateTime, CallHistoryItem>::const_iterator it=historyItems.constBegin(); ui.tbwHistory->rowCount()<MAX_HISTORY_ROWS && it!=historyItems.constEnd(); ++it)
 			prependCallHistory(it.value());
 	}
@@ -656,7 +710,10 @@ void PhoneDialerDialog::onPrivateStorageDataLoaded(const QString &AId, const Jid
 void PhoneDialerDialog::onPrivateStorageDataChanged(const Jid &AStreamJid, const QString &ATagName, const QString &ANamespace)
 {
 	if (AStreamJid==streamJid() && ATagName==PST_CALL_HISTORY && ANamespace==PSN_CALL_HISTORY)
+	{
+		LogDetail(QString("[PhoneDialerDialog] Call history of account='%1' changed").arg(AStreamJid.bare()));
 		loadCallHistory();
+	}
 }
 
 void PhoneDialerDialog::onAddContactByAction()
@@ -687,24 +744,9 @@ void PhoneDialerDialog::onStartAutoCallByAction()
 void PhoneDialerDialog::onShowSendSmsDialogByAction()
 {
 	Action *action = qobject_cast<Action *>(sender());
-	if (FGateways && action)
+	if (action)
 	{
-		QString number = action->data(ADR_NUMBER).toString();
-		Jid phoneJid = findPhoneContact(number);
-		if (phoneJid.isEmpty())
-		{
-			Jid gateJid = FGateways->gateDescriptorServices(streamJid(),FGateways->gateDescriptorById(GSID_SMS),true).value(0);
-			if (FGateways->isServiceEnabled(streamJid(),gateJid))
-			{
-				QString requestId = FGateways->sendUserJidRequest(streamJid(),gateJid,number);
-				if (!requestId.isEmpty())
-					FSmsJidRequests.append(requestId);
-			}
-		}
-		else
-		{
-			showSendSmsDialog(phoneJid);
-		}
+		showSendSmsDialog(action->data(ADR_NUMBER).toString());
 	}
 }
 
@@ -758,6 +800,7 @@ void PhoneDialerDialog::onGateUserJidReceived(const QString &AId, const Jid &AUs
 {
 	if (FSmsJidRequests.contains(AId))
 	{
+		LogDetail(QString("[PhoneDialerDialog] PhoneJid='%1' for SMS dialog received, id='%2'").arg(AUserJid.full(),AId));
 		if (AUserJid.isValid())
 			showSendSmsDialog(AUserJid);
 		FSmsJidRequests.removeAll(AId);
@@ -766,9 +809,9 @@ void PhoneDialerDialog::onGateUserJidReceived(const QString &AId, const Jid &AUs
 
 void PhoneDialerDialog::onGateErrorReceived(const QString &AId, const QString &AError)
 {
-	Q_UNUSED(AError);
 	if (FSmsJidRequests.contains(AId))
 	{
+		LogError(QString("[PhoneDialerDialog] Failed to receive phoneJid for SMS dialog, id='%1', error='%2'").arg(AId,AError));
 		FSmsJidRequests.removeAll(AId);
 	}
 }
@@ -783,6 +826,7 @@ void PhoneDialerDialog::onCallStateChanged(int AState)
 {
 	if (AState==ISipCall::CS_FINISHED || AState==ISipCall::CS_ERROR)
 	{
+		LogDetail(QString("[PhoneDialerDialog] Active call state changed to %1").arg(AState));
 		ISipCall *call = qobject_cast<ISipCall *>(sender());
 		if (FActiveCall!=NULL && call==FActiveCall)
 		{
