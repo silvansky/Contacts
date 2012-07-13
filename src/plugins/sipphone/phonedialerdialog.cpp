@@ -69,6 +69,7 @@ PhoneDialerDialog::PhoneDialerDialog(IPluginManager *APluginManager, ISipManager
 	FMetaContacts = NULL;
 	FRosterChanger = NULL;
 	FPrivateStorage = NULL;
+	FMessageProcessor = NULL;
 	initialize(APluginManager);
 
 	window()->setWindowTitle(tr("Calls"));
@@ -255,6 +256,11 @@ void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+		if (FGateways)
+		{
+			connect(FGateways->instance(),SIGNAL(userJidReceived(const QString &, const Jid &)),SLOT(onGateUserJidReceived(const QString &, const Jid &)));
+			connect(FGateways->instance(),SIGNAL(errorReceived(const QString &, const QString &)),SLOT(onGateErrorReceived(const QString &, const QString &)));
+		}
 	}
 
 	plugin = APluginManager->pluginInterface("IPrivateStorage").value(0);
@@ -284,6 +290,12 @@ void PhoneDialerDialog::initialize(IPluginManager *APluginManager)
 	if (plugin)
 	{
 		FRosterChanger = qobject_cast<IRosterChanger *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IMessageProcessor").value(0);
+	if (plugin)
+	{
+		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 	}
 }
 
@@ -366,6 +378,12 @@ void PhoneDialerDialog::showErrorBalloon(const QString &AHtml)
 	}
 }
 
+void PhoneDialerDialog::showSendSmsDialog(const Jid &APhoneJid) const
+{
+	if (FMessageProcessor)
+		FMessageProcessor->createMessageWindow(streamJid(),APhoneJid,Message::Chat,IMessageHandler::SM_SHOW);
+}
+
 Jid PhoneDialerDialog::findPhoneContact(const QString &ANumber) const
 {
 	QString number = normalizedNumber(ANumber);
@@ -436,6 +454,7 @@ void PhoneDialerDialog::prependCallHistory(const CallHistoryItem &AItem)
 		QTableWidgetItem *itemName = new QTableWidgetItem;
 		itemName->setFlags(Qt::ItemIsEnabled|Qt::ItemIsSelectable);
 		itemName->setText(numberContactName(AItem.number));
+		itemName->setToolTip(formattedNumber(AItem.number));
 		if (AItem.callFailed)
 		{
 			itemName->setIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_SIPPHONE_CALL_MISSED));
@@ -665,6 +684,30 @@ void PhoneDialerDialog::onStartAutoCallByAction()
 	}
 }
 
+void PhoneDialerDialog::onShowSendSmsDialogByAction()
+{
+	Action *action = qobject_cast<Action *>(sender());
+	if (FGateways && action)
+	{
+		QString number = action->data(ADR_NUMBER).toString();
+		Jid phoneJid = findPhoneContact(number);
+		if (phoneJid.isEmpty())
+		{
+			Jid gateJid = FGateways->gateDescriptorServices(streamJid(),FGateways->gateDescriptorById(GSID_SMS),true).value(0);
+			if (FGateways->isServiceEnabled(streamJid(),gateJid))
+			{
+				QString requestId = FGateways->sendUserJidRequest(streamJid(),gateJid,number);
+				if (!requestId.isEmpty())
+					FSmsJidRequests.append(requestId);
+			}
+		}
+		else
+		{
+			showSendSmsDialog(phoneJid);
+		}
+	}
+}
+
 void PhoneDialerDialog::onHistoryCellDoubleClicked(int ARow, int AColumn)
 {
 	Q_UNUSED(AColumn);
@@ -698,12 +741,35 @@ void PhoneDialerDialog::onHistoryCustomContextMenuRequested(const QPoint &APos)
 		connect(callAction,SIGNAL(triggered()),SLOT(onStartAutoCallByAction()));
 		menu->addAction(callAction);
 
-		Action *smsAction = new Action(menu);
-		smsAction->setText(tr("Write Message"));
-		smsAction->setData(ADR_NUMBER,historyItem.number);
-		menu->addAction(smsAction);
+		if (FGateways && FGateways->gateDescriptorStatus(streamJid(),FGateways->gateDescriptorById(GSID_SMS))==IGateways::GDS_ENABLED)
+		{
+			Action *smsAction = new Action(menu);
+			smsAction->setText(tr("Send SMS"));
+			smsAction->setData(ADR_NUMBER,historyItem.number);
+			connect(smsAction,SIGNAL(triggered()),SLOT(onShowSendSmsDialogByAction()));
+			menu->addAction(smsAction);
+		}
 
 		menu->popup(mapToGlobal(APos));
+	}
+}
+
+void PhoneDialerDialog::onGateUserJidReceived(const QString &AId, const Jid &AUserJid)
+{
+	if (FSmsJidRequests.contains(AId))
+	{
+		if (AUserJid.isValid())
+			showSendSmsDialog(AUserJid);
+		FSmsJidRequests.removeAll(AId);
+	}
+}
+
+void PhoneDialerDialog::onGateErrorReceived(const QString &AId, const QString &AError)
+{
+	Q_UNUSED(AError);
+	if (FSmsJidRequests.contains(AId))
+	{
+		FSmsJidRequests.removeAll(AId);
 	}
 }
 

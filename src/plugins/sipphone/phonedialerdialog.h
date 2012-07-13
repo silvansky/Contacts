@@ -12,6 +12,7 @@
 #include <interfaces/irosterchanger.h>
 #include <interfaces/ipluginmanager.h>
 #include <interfaces/iprivatestorage.h>
+#include <interfaces/imessageprocessor.h>
 #include "ui_phonedialerdialog.h"
 
 struct CallHistoryItem
@@ -49,6 +50,7 @@ protected:
 	void requestCallCost();
 	void updateDialogState();
 	void showErrorBalloon(const QString &AHtml);
+	void showSendSmsDialog(const Jid &APhoneJid) const;
 protected:
 	Jid findPhoneContact(const QString &ANumber) const;
 	QString startTimeString(const QDateTime &AStart) const;
@@ -75,8 +77,12 @@ protected slots:
 protected slots:
 	void onAddContactByAction();
 	void onStartAutoCallByAction();
+	void onShowSendSmsDialogByAction();
 	void onHistoryCellDoubleClicked(int ARow, int AColumn);
 	void onHistoryCustomContextMenuRequested(const QPoint &APos);
+protected slots:
+	void onGateUserJidReceived(const QString &AId, const Jid &AUserJid);
+	void onGateErrorReceived(const QString &AId, const QString &AError);
 protected slots:
 	void onCallWindowDestroyed();
 	void onCallStateChanged(int AState);
@@ -92,9 +98,11 @@ private:
 	IMetaContacts *FMetaContacts;
 	IRosterChanger *FRosterChanger;
 	IPrivateStorage *FPrivateStorage;
+	IMessageProcessor *FMessageProcessor;
 private:
 	QTimer FCostRequestTimer;
 	QString FCallCostRequestId;
+	QList<QString> FSmsJidRequests;
 private:
 	ISipCall *FActiveCall;
 	ISipBalance FBalance;
