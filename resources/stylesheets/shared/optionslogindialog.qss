@@ -87,7 +87,8 @@ QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtRegister
  * Completer Popup *
  *******************/
 
-QListView#completerPopUp
+QListView#completerPopUp,
+QListView#regCompleterPopUp
 {
 	background-color: white;
 	alternate-background-color: white;
@@ -97,17 +98,20 @@ QListView#completerPopUp
 	font-size: 11px;
 }
 
-QListView#completerPopUp:disabled
+QListView#completerPopUp:disabled,
+QListView#regCompleterPopUp:disabled
 {
 	selection-color: #acacac;
 }
 
-QListView#completerPopUp:!active
+QListView#completerPopUp:!active,
+QListView#regCompleterPopUp:!active
 {
 	color: #acacac;
 }
 
-QListView#completerPopUp::item:hover
+QListView#completerPopUp::item:hover,
+QListView#regCompleterPopUp::item:hover
 {
 	background-color: #c8d9e1;
 }

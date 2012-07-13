@@ -45,6 +45,14 @@
 #define FILE_LOGIN            "login.xml"
 #define ABORT_TIMEOUT         2000
 
+#define LOGIN_CHECK_REGEX     "^[A-Za-z0-9]+(?:[.\\-_][A-Za-z0-9]+)*[A-Za-z0-9]*$"
+#define PASSWORD_CHECK_REGEX  "^[a-z0-9_\\.-]+$"
+
+QString urlencode(const QString &s)
+{
+	return QString::fromUtf8(QUrl::toPercentEncoding(s).data());
+}
+
 enum ConnectionSettings {
 	CS_DEFAULT,
 	CS_IE_PROXY,
@@ -55,7 +63,28 @@ enum ConnectionSettings {
 enum ActiveErrorType {
 	NoActiveError,
 	ActiveXmppError,
-	ActiveConnectionError
+	ActiveConnectionError,
+	ActiveRegConnectionError,
+	ActiveRegLoginError,
+	ActiveRegPasswordError,
+	ActiveRegConfirmPasswordError
+};
+
+enum PasswordError {
+	PasswordOk = 0,
+	PasswordIsEmpty,
+	PasswordTooShort,
+	PasswordTooLong,
+	PasswordIncorrect
+};
+
+enum LoginError {
+	LoginOk = 0,
+	LoginIsEmpty,
+	LoginTooShort,
+	LoginTooLong,
+	LoginIncorrect,
+	LoginExists
 };
 
 class CompleterDelegate :
@@ -173,6 +202,9 @@ private:
 LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDialog(AParent)
 {
 	ui.setupUi(this);
+
+	// initializing...
+	initialize(APluginManager);
 
 	// style
 	StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->insertAutoStyle(this,STS_OPTIONS_LOGINDIALOG);
@@ -327,8 +359,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.tlbDomain->setVisible(false);
 #endif
 
-	// initializing...
-	initialize(APluginManager);
 	FOptionsManager->setCurrentProfile(QString::null, QString::null);
 
 
@@ -386,7 +416,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(ui.cmbDomain,SIGNAL(currentIndexChanged(int)),SLOT(onDomainCurrentIntexChanged(int)));
 
 	// setting login completer
-	QCompleter *completer = new QCompleter(profiles,ui.lneNode);
+	QCompleter *completer = new QCompleter(profiles, ui.lneNode);
 	completer->setCaseSensitivity(Qt::CaseInsensitive);
 	completer->setCompletionMode(QCompleter::PopupCompletion);
 	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -399,21 +429,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	//connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
 	ui.lneNode->setCompleter(completer);
 	ui.lneNode->completer()->popup()->viewport()->installEventFilter(this);
-
-	// setting login suggests completer
-	completer = new QCompleter(profiles, ui.lneRegLogin);
-	completer->setCaseSensitivity(Qt::CaseInsensitive);
-	completer->setCompletionMode(QCompleter::PopupCompletion);
-	completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	completer->popup()->setObjectName("completerPopUp");
-	completer->popup()->setMouseTracking(true);
-	completer->popup()->setAlternatingRowColors(true);
-	completer->popup()->setItemDelegate(new CompleterDelegate(completer));
-	connect(completer, SIGNAL(activated(const QString &)), SLOT(onSuggestCompleterActivated(const QString &)));
-	//connect(completer,SIGNAL(highlighted(const QString &)),SLOT(onCompleterHighLighted(const QString &)));
-	ui.lneRegLogin->setCompleter(completer);
-	ui.lneRegLogin->completer()->popup()->viewport()->installEventFilter(this);
 
 	// resetting style (??)
 	onStylePreviewReset();
@@ -438,14 +453,21 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	// timers
 	FReconnectTimer.setSingleShot(true);
-	connect(&FReconnectTimer,SIGNAL(timeout()),SLOT(onReconnectTimerTimeout()));
+	connect(&FReconnectTimer, SIGNAL(timeout()), SLOT(onReconnectTimerTimeout()));
 
 	FAbortTimer.setSingleShot(true);
-	connect(&FAbortTimer,SIGNAL(timeout()),SLOT(onAbortTimerTimeout()));
+	connect(&FAbortTimer, SIGNAL(timeout()), SLOT(onAbortTimerTimeout()));
+
+	FRegDataVerifyTimer.setSingleShot(true);
+	connect(&FRegDataVerifyTimer, SIGNAL(timeout()), SLOT(onRegDataVerifyTimer()));
+
+	FRotateTimer.setSingleShot(false);
+	FRotateTimer.setProperty("angle", 0.0);
+	connect(&FRotateTimer, SIGNAL(timeout()), SLOT(onRotateTimer()));
 
 	// main buttons
 	ui.pbtConnect->setFocus();
-	connect(ui.pbtConnect,SIGNAL(clicked()),SLOT(onConnectClicked()));
+	connect(ui.pbtConnect, SIGNAL(clicked()), SLOT(onConnectClicked()));
 
 	connect(ui.pbtRegister, SIGNAL(clicked()), SLOT(onRegisterClicked()));
 
@@ -456,13 +478,6 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	onLoginOrPasswordTextChanged();
 
 	LogDetail(QString("[LoginDialog] Login dialog created"));
-
-#ifdef DEBUG_ENABLED
-	qDebug() << "sending sample post request...";
-	QUrl url("http://reg.tx.xmpp.rambler.ru/?f=xml");
-	QString data = "login=mons&domain=rambler.ru&password=123&name=Mons+Anderson";
-	Networking::httpPostAsync(url, data.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
-#endif
 }
 
 LoginDialog::~LoginDialog()
@@ -514,7 +529,7 @@ void LoginDialog::reject()
 {
 	if (!FAccountId.isNull())
 	{
-		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		IAccount *account = FAccountManager ? FAccountManager->accountById(FAccountId) : NULL;
 		if (!account || !account->isActive() || !account->xmppStream()->isOpen())
 			closeCurrentProfile();
 	}
@@ -543,12 +558,12 @@ void LoginDialog::showEvent(QShowEvent *AEvent)
 		FMainWindowPlugin->mainWindowTopWidget()->installEventFilter(this);
 		FMainWindowPlugin->mainWindowTopWidget()->close();
 	}
-	WidgetManager::alignWindow(window(),Qt::AlignCenter);
+	WidgetManager::alignWindow(window(), Qt::AlignCenter);
 }
 
 void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
 {
-	if (AEvent->key()==Qt::Key_Return || AEvent->key()==Qt::Key_Enter)
+	/*if ((AEvent->key() == Qt::Key_Return) || (AEvent->key() == Qt::Key_Enter))
 	{
 		if (mode() ==  LogIn)
 		{
@@ -560,7 +575,7 @@ void LoginDialog::keyPressEvent(QKeyEvent *AEvent)
 			if (ui.pbtRegister->isEnabled())
 				QTimer::singleShot(0, this, SLOT(onRegisterClicked()));
 		}
-	}
+	}*/
 	QDialog::keyPressEvent(AEvent);
 }
 
@@ -568,7 +583,11 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 {
 	if (AEvent->type() == QEvent::MouseButtonPress)
 	{
-		if (AWatched == ui.lneNode || AWatched == ui.tlbDomain || AWatched == ui.lnePassword || AWatched == ui.chbSavePassword || AWatched == ui.chbAutoRun)
+		if ((AWatched == ui.lneNode) ||
+				(AWatched == ui.tlbDomain) ||
+				(AWatched == ui.lnePassword) ||
+				(AWatched == ui.chbSavePassword) ||
+				(AWatched == ui.chbAutoRun))
 		{
 			stopReconnection();
 		}
@@ -576,9 +595,19 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	else if (AEvent->type() == QEvent::MouseMove)
 	{
 		QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(AEvent);
-		if (ui.lneNode->completer()->popup() && (AWatched == ui.lneNode->completer()->popup()->viewport()))
+		if (ui.lneNode->completer() && ui.lneNode->completer()->popup() && (AWatched == ui.lneNode->completer()->popup()->viewport()))
 		{
 			QListView *view = qobject_cast<QListView*>(ui.lneNode->completer()->popup());
+			if (view)
+			{
+				QModelIndex index = view->indexAt(mouseEvent->pos());
+				if (index.isValid() && index != view->currentIndex())
+					view->setCurrentIndex(index);
+			}
+		}
+		if (ui.lneRegLogin->completer() && ui.lneRegLogin->completer()->popup() && (AWatched == ui.lneRegLogin->completer()->popup()->viewport()))
+		{
+			QListView *view = qobject_cast<QListView*>(ui.lneRegLogin->completer()->popup());
 			if (view)
 			{
 				QModelIndex index = view->indexAt(mouseEvent->pos());
@@ -590,13 +619,21 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 	else if (AEvent->type() == QEvent::FocusIn)
 	{
 		QFocusEvent *focusEvent = static_cast<QFocusEvent *>(AEvent);
-		if (AWatched==ui.lneNode && focusEvent->reason()==Qt::MouseFocusReason)
+		if ((AWatched==ui.lneNode) && (focusEvent->reason()==Qt::MouseFocusReason))
 		{
 			ui.lneNode->event(AEvent);
-			ui.lneNode->completer()->complete();
+			if (ui.lneNode->completer())
+				ui.lneNode->completer()->complete();
 			return true;
 		}
-		else if (AWatched==ui.lnePassword && isCapsLockOn())
+		else if ((AWatched==ui.lneRegLogin) && (focusEvent->reason()==Qt::MouseFocusReason))
+		{
+			ui.lneRegLogin->event(AEvent);
+			if (ui.lneRegLogin->completer())
+				ui.lneRegLogin->completer()->complete();
+			return true;
+		}
+		else if ((AWatched==ui.lnePassword) && isCapsLockOn())
 		{
 			QPoint p = ui.lnePassword->mapToGlobal(ui.lnePassword->rect().bottomLeft());
 			p.setY(p.y() - ui.lnePassword->height() / 2);
@@ -623,7 +660,13 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		}
 		else if (AWatched == ui.lneNode)
 		{
-			ui.lneNode->completer()->popup()->hide();
+			if (ui.lneNode->completer())
+				ui.lneNode->completer()->popup()->hide();
+		}
+		else if (AWatched == ui.lneRegLogin)
+		{
+			if (ui.lneRegLogin->completer())
+				ui.lneRegLogin->completer()->popup()->hide();
 		}
 	}
 	else if (AEvent->type() == QEvent::KeyPress)
@@ -642,23 +685,35 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 				BalloonTip::hideBalloon();
 			}
 		}
-		else if (AWatched==ui.lneNode && keyEvent->key()==Qt::Key_Down)
+		else if ((AWatched==ui.lneNode) && (keyEvent->key()==Qt::Key_Down))
 		{
 			if (ui.lneNode->completer()->popup() && !ui.lneNode->completer()->popup()->isVisible())
 				ui.lneNode->completer()->complete();
 		}
+		else if ((AWatched==ui.lneRegLogin) && (keyEvent->key()==Qt::Key_Down))
+		{
+			if (ui.lneRegLogin->completer()->popup() && !ui.lneRegLogin->completer()->popup()->isVisible())
+				ui.lneRegLogin->completer()->complete();
+		}
 	}
 	else if (AEvent->type() == QEvent::Show)
 	{
-		if (AWatched == ui.lneNode->completer()->popup())
+		if (ui.lneNode->completer() && (AWatched == ui.lneNode->completer()->popup()))
 		{
 			ui.lneNode->completer()->popup()->setFixedWidth(ui.frmLogin->width()-2);
 			ui.lneNode->completer()->popup()->move(ui.lneNode->completer()->popup()->pos() + QPoint(1,1));
+		}
+		else if (ui.lneRegLogin->completer() && (AWatched == ui.lneRegLogin->completer()->popup()))
+		{
+			ui.lneRegLogin->completer()->popup()->setFixedWidth(ui.lneRegLogin->width());
+			ui.lneRegLogin->completer()->popup()->move(ui.lneRegLogin->completer()->popup()->pos() + QPoint(1,1));
 		}
 	}
 
 	if (ui.lneNode->completer())
 		disconnect(ui.lneNode->completer(),NULL,ui.lneNode,NULL);
+	if (ui.lneRegLogin->completer())
+		disconnect(ui.lneRegLogin->completer(),NULL,ui.lneRegLogin,NULL);
 
 	return QDialog::eventFilter(AWatched, AEvent);
 }
@@ -755,6 +810,7 @@ void LoginDialog::showCapsLockBalloon(const QPoint &APoint)
 
 void LoginDialog::showErrorBalloon()
 {
+	// TODO: if-else -> switch
 	if (FActiveErrorType == ActiveXmppError)
 	{
 		QPoint point;
@@ -782,6 +838,34 @@ void LoginDialog::showErrorBalloon()
 		point.setY(point.y() + ui.pbtConnect->height() / 2);
 		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
 			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
+	}
+	else if (FActiveErrorType == ActiveRegConnectionError)
+	{
+		QPoint point = ui.pbtRegister->mapToGlobal(ui.pbtRegister->rect().topRight());
+		point.setY(point.y() + ui.pbtRegister->height() / 2);
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
+	}
+	else if (FActiveErrorType == ActiveRegLoginError)
+	{
+		QPoint point = ui.lneRegLogin->mapToGlobal(ui.lneRegLogin->rect().topRight());
+		point.setY(point.y() + ui.lneRegLogin->height() / 2);
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
+	}
+	else if (FActiveErrorType == ActiveRegPasswordError)
+	{
+		QPoint point = ui.lneRegPassword->mapToGlobal(ui.lneRegPassword->rect().topRight());
+		point.setY(point.y() + ui.lneRegPassword->height() / 2);
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
+	}
+	else if (FActiveErrorType == ActiveRegConfirmPasswordError)
+	{
+		QPoint point = ui.lneRegConfirmPassword->mapToGlobal(ui.lneRegConfirmPassword->rect().topRight());
+		point.setY(point.y() + ui.lneRegConfirmPassword->height() / 2);
+		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
+			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowLeft, parentWidget() ? parentWidget() : this);
 	}
 }
 
@@ -855,6 +939,15 @@ void LoginDialog::setControlsEnabled(bool AEnabled)
 	ui.chbAutoRun->setEnabled(AEnabled);
 }
 
+void LoginDialog::setRegControlsEnabled(bool AEnabled)
+{
+	ui.lneRegFullName->setEnabled(AEnabled);
+	ui.lneRegLogin->setEnabled(AEnabled);
+	ui.pbtRegDomain->setEnabled(AEnabled);
+	ui.lneRegPassword->setEnabled(AEnabled);
+	ui.lneRegConfirmPassword->setEnabled(AEnabled);
+}
+
 void LoginDialog::setConnectEnabled(bool AEnabled)
 {
 	if (!AEnabled)
@@ -881,7 +974,7 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 
 void LoginDialog::stopReconnection()
 {
-	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+	IAccount *account = FAccountManager ? FAccountManager->accountById(FAccountId) : NULL;
 	if (FStatusChanger && account && account->isActive())
 		FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(),STATUS_OFFLINE);
 
@@ -1022,6 +1115,78 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	showErrorBalloon();
 }
 
+void LoginDialog::showRegConnectionError()
+{
+	LogError(QString("[LoginDialog]: Connection error on Registration!"));
+	hideErrorBallon();
+	FActiveErrorType = ActiveRegConnectionError;
+	ui.lblConnectError->setText(tr("Connection error! Try again later."));
+
+	ui.lblConnectError->setVisible(true);
+	ui.lblReconnect->setVisible(false);
+	ui.lblConnectSettings->setVisible(false);
+	ui.chbShowPassword->setVisible(false);
+
+	showErrorBalloon();
+}
+
+void LoginDialog::showRegLoginError(const QString &text)
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << QString("[LoginDialog]: Login error \"%1\" on Registration!").arg(text);
+#endif
+	LogError(QString("[LoginDialog]: Login error \"%1\" on Registration!").arg(text));
+
+	hideErrorBallon();
+	FActiveErrorType = ActiveRegLoginError;
+	ui.lblConnectError->setText(text);
+
+	ui.lblConnectError->setVisible(true);
+	ui.lblReconnect->setVisible(false);
+	ui.lblConnectSettings->setVisible(false);
+	ui.chbShowPassword->setVisible(false);
+
+	showErrorBalloon();
+}
+
+void LoginDialog::showRegPasswordError(const QString &text)
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << QString("[LoginDialog]: Password error \"%1\" on Registration!").arg(text);
+#endif
+	LogError(QString("[LoginDialog]: Password error \"%1\" on Registration!").arg(text));
+
+	hideErrorBallon();
+	FActiveErrorType = ActiveRegPasswordError;
+	ui.lblConnectError->setText(text);
+
+	ui.lblConnectError->setVisible(true);
+	ui.lblReconnect->setVisible(false);
+	ui.lblConnectSettings->setVisible(false);
+	ui.chbShowPassword->setVisible(false);
+
+	showErrorBalloon();
+}
+
+void LoginDialog::showRegConfirmPasswordError(const QString &text)
+{
+#ifdef DEBUG_ENABLED
+	qDebug() << QString("[LoginDialog]: Confirm password error \"%1\" on Registration!").arg(text);
+#endif
+	LogError(QString("[LoginDialog]: Confirm password error \"%1\" on Registration!").arg(text));
+
+	hideErrorBallon();
+	FActiveErrorType = ActiveRegConfirmPasswordError;
+	ui.lblConnectError->setText(text);
+
+	ui.lblConnectError->setVisible(true);
+	ui.lblReconnect->setVisible(false);
+	ui.lblConnectSettings->setVisible(false);
+	ui.chbShowPassword->setVisible(false);
+
+	showErrorBalloon();
+}
+
 void LoginDialog::saveCurrentProfileSettings()
 {
 	QString profile = Jid::encode(currentStreamJid().pBare());
@@ -1061,6 +1226,40 @@ void LoginDialog::loadCurrentProfileSettings()
 bool LoginDialog::readyToConnect() const
 {
 	return ui.chbSavePassword->isChecked() && !ui.lnePassword->text().isEmpty();
+}
+
+bool LoginDialog::readyToRegister() const
+{
+	return
+			(checkLogin(ui.lneRegLogin->text()) == LoginOk) &&
+			(checkPassword(ui.lneRegPassword->text()) == PasswordOk) &&
+			(ui.lneRegPassword->text() == ui.lneRegConfirmPassword->text());
+}
+
+int LoginDialog::checkPassword(const QString &password) const
+{
+	static QRegExp passRe(PASSWORD_CHECK_REGEX);
+	if (password.isEmpty())
+		return PasswordIsEmpty;
+	if (password.length() < 6)
+		return PasswordTooShort;
+	if (password.length() > 16)
+		return PasswordTooLong;
+	if (!passRe.exactMatch(password))
+		return PasswordIncorrect;
+	return PasswordOk;
+}
+
+int LoginDialog::checkLogin(const QString &login) const
+{
+	static QRegExp loginRe(LOGIN_CHECK_REGEX);
+	if (login.isEmpty())
+		return LoginIsEmpty;
+	if (login.length() > 32)
+		return LoginTooLong;
+	if (!loginRe.exactMatch(login))
+		return LoginIncorrect;
+	return LoginOk;
 }
 
 void LoginDialog::askUserIfHeHasAccount()
@@ -1198,11 +1397,11 @@ void LoginDialog::onRegisterClicked()
 		QUrl request("http://reg.tx.xmpp.rambler.ru/?f=xml");
 		Jid user = ui.lneRegLogin->text() + ui.pbtRegDomain->text();
 		QString userFullName = ui.lneRegFullName->text();
-		userFullName.replace(' ', '+');
-		QString postData = QString("login=%1&domain=%2&password=%3&name=%4").arg(user.node(), user.domain(), ui.lneRegPassword->text(), userFullName);
+		QString postData = QString("login=%1&domain=%2&password=%3&name=%4").arg(urlencode(user.node()), urlencode(user.domain()), urlencode(ui.lneRegPassword->text()), urlencode(userFullName));
 		setRegState(RequestSent);
 #ifdef DEBUG_ENABLED
 		qDebug() << "Starting registration for " << user.full();
+		qDebug() << "post data:" << postData;
 #endif
 		Networking::httpPostAsync(request, postData.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
 	}
@@ -1320,7 +1519,11 @@ void LoginDialog::onCompleterActivated(const QString &AText)
 
 void LoginDialog::onSuggestCompleterActivated(const QString &AText)
 {
+	// suggest activated
 	Jid selected = AText;
+#ifdef DEBUG_ENABLED
+	qDebug() << "Suggest completer activated!" << AText << selected.node() << selected.domain();
+#endif
 	int domainIndex = ui.cmbDomain->findData(selected.pDomain());
 	if (!selected.pDomain().isEmpty() && domainIndex>=0)
 	{
@@ -1418,14 +1621,15 @@ void LoginDialog::onLoginOrPasswordTextChanged()
 
 void LoginDialog::onRegistrationDataChanged()
 {
-	bool allFieldsReady =
-			!(ui.lneRegFullName->text().isEmpty() ||
-			  ui.lneRegLogin->text().isEmpty() ||
-			  ui.lneRegPassword->text().isEmpty() ||
-			  ui.lneRegConfirmPassword->text().isEmpty())
-			&& (ui.lneRegPassword->text() == ui.lneRegConfirmPassword->text());
-	// TODO: login and password regexp check
-	ui.pbtRegister->setEnabled(allFieldsReady);
+	hideErrorBallon();
+	if ((sender() == ui.lneRegLogin) ||
+			(sender() == ui.lneRegPassword) ||
+			(sender() == ui.lneRegConfirmPassword))
+	{
+		stopRegDataVerifyTimer();
+		startRegDataVerifyTimer();
+	}
+	ui.pbtRegister->setEnabled(readyToRegister());
 }
 
 void LoginDialog::onShowCancelButton()
@@ -1483,6 +1687,9 @@ void LoginDialog::onStylePreviewReset()
 {
 	if (ui.lneNode->completer())
 		ui.lneNode->completer()->popup()->setStyleSheet(styleSheet());
+
+	if (ui.lneRegLogin->completer())
+		ui.lneRegLogin->completer()->popup()->setStyleSheet(styleSheet());
 }
 
 void LoginDialog::onEasyRegDialogAborted()
@@ -1499,6 +1706,106 @@ void LoginDialog::onEasyRegDialogRegistered(const Jid &user)
 	ui.tlbDomain->setText("@" + user.pDomain());
 	ui.tlbDomain->setProperty("domain", user.pDomain());
 	loadCurrentProfileSettings();
+}
+
+void LoginDialog::onRegDataVerifyTimer()
+{
+	hideErrorBallon();
+	QString login = ui.lneRegLogin->text();
+	QString pass = ui.lneRegPassword->text();
+	QString repass = ui.lneRegConfirmPassword->text();
+	// verify login
+	int loginErrCode = checkLogin(login);
+#ifdef DEBUG_ENABLED
+	qDebug() << "check login: " << loginErrCode;
+#endif
+	if (loginErrCode != LoginOk)
+	{
+		QString loginErrorText;
+		switch (loginErrCode)
+		{
+		case LoginIsEmpty:
+			loginErrorText = tr("You must enter login");
+			break;
+		case LoginTooShort:
+			loginErrorText = tr("Login is too short");
+			break;
+		case LoginTooLong:
+			loginErrorText = tr("Login must be shorter than 32 symbols");
+			break;
+		case LoginIncorrect:
+			{
+				QRegExp loginRe(LOGIN_CHECK_REGEX);
+				loginRe.exactMatch(login);
+				QString incorrectSymbol = login.at(loginRe.matchedLength());
+				loginErrorText = tr("Symbol \"%1\" is not supported").arg(incorrectSymbol);
+			}
+			break;
+		case LoginExists:
+			loginErrorText = tr("Login already exists");
+			break;
+		default:
+			loginErrorText = tr("Common login error");
+			break;
+		}
+		showRegLoginError(loginErrorText);
+		return;
+	}
+	// verify password
+	int passErrCode = checkPassword(pass);
+#ifdef DEBUG_ENABLED
+	qDebug() << "check pass: " << passErrCode;
+#endif
+
+	if (passErrCode != PasswordOk)
+	{
+		QString passErrorText;
+		switch (passErrCode)
+		{
+		case PasswordIsEmpty:
+			passErrorText = tr("You must enter password");
+			break;
+		case PasswordTooShort:
+			passErrorText = tr("Password must be at least 6 symbols");
+			break;
+		case PasswordTooLong:
+			passErrorText = tr("Password must be shorter than 16 symbols");
+			break;
+		case PasswordIncorrect:
+			{
+				QRegExp passRe(PASSWORD_CHECK_REGEX);
+				passRe.exactMatch(pass);
+				QString incorrectSymbol = pass.at(passRe.matchedLength());
+				passErrorText = tr("Symbol \"%1\" is not supported").arg(incorrectSymbol);
+			}
+			break;
+		default:
+			passErrorText = tr("Common password error");
+			break;
+		}
+		showRegPasswordError(passErrorText);
+		return;
+	}
+	// verify password confirmation
+	if (pass != repass)
+	{
+		showRegConfirmPasswordError(tr("Passwords mismatch"));
+	}
+}
+
+void LoginDialog::startRegDataVerifyTimer()
+{
+	FRegDataVerifyTimer.start(1000);
+}
+
+void LoginDialog::stopRegDataVerifyTimer()
+{
+	FRegDataVerifyTimer.stop();
+}
+
+void LoginDialog::onRotateTimer()
+{
+	// todo
 }
 
 void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
@@ -1566,9 +1873,59 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 			}
 		}
 	}
+	if (gotErrors)
+	{
+		if (!loginError.isEmpty())
+		{
+			showRegLoginError(loginError);
+		}
+		else if (!passwordError.isEmpty())
+		{
+			showRegPasswordError(passwordError);
+		}
+		else if (!errorSummary.isEmpty())
+		{
+			showRegLoginError(errorSummary);
+		}
+		else
+			showRegLoginError(tr("Some error occured. Try again."));
+	}
+	// removing completer
+	if (ui.lneRegLogin->completer())
+	{
+		ui.lneRegLogin->setCompleter(NULL);
+	}
+	// adding new completer if needed
 	if (!suggests.isEmpty())
 	{
-		// TODO: add suggests to completer
+		// setting login suggests completer
+		QCompleter *completer = new QCompleter(suggests, ui.lneRegLogin);
+		completer->popup()->setStyleSheet(styleSheet());
+		completer->setCaseSensitivity(Qt::CaseInsensitive);
+		completer->setCompletionMode(QCompleter::PopupCompletion);
+		completer->popup()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		completer->popup()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+		completer->popup()->setObjectName("regCompleterPopUp");
+		completer->popup()->setMouseTracking(true);
+		completer->popup()->setAlternatingRowColors(true);
+		completer->popup()->setItemDelegate(new CompleterDelegate(completer));
+		connect(completer, SIGNAL(activated(const QString &)), SLOT(onSuggestCompleterActivated(const QString &)));
+		ui.lneRegLogin->setCompleter(completer);
+		ui.lneRegLogin->completer()->popup()->viewport()->installEventFilter(this);
+		ui.lneRegLogin->completer()->popup()->installEventFilter(this);
+		if (ui.lneRegLogin->completer()->popup()->parentWidget())
+			ui.lneRegLogin->completer()->popup()->parentWidget()->installEventFilter(this);
+
+		onStylePreviewReset();
+
+		QTimer::singleShot(10, ui.lneRegLogin->completer(), SLOT(complete()));
+	}
+	if (userRegistered)
+	{
+		// passing login and pass to login form
+		ui.lneNode->setText(ui.lneRegLogin->text());
+		ui.lnePassword->setText(ui.lneRegPassword->text());
+		onConnectClicked();
 	}
 }
 
