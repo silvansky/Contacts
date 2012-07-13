@@ -335,10 +335,9 @@ QString getHtmlBody(const QString &AHtml)
 	QString html = AHtml.indexOf(body)>=0 ? body.cap(1).trimmed() : AHtml;
 
 	// XXX Replace <P> inserted by QTextDocument with <SPAN>
-	if (html.leftRef(3).compare("<p ", Qt::CaseInsensitive) == 0 &&
-		html.rightRef(4).compare("</p>", Qt::CaseInsensitive) == 0)
+	if (html.leftRef(3).compare("<p ", Qt::CaseInsensitive)==0 && html.rightRef(4).compare("</p>", Qt::CaseInsensitive)==0)
 	{
-		html.replace(1, 1, "span");
+		html.replace(1, html.indexOf('>')-1, "span");
 		html.replace(html.length() - 2, 1, "span");
 	}
 
