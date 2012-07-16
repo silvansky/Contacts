@@ -247,6 +247,11 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.chbAutoRun->setVisible(false);
 #endif
 
+#ifdef Q_WS_WIN
+	ui.registerLayout->setVerticalSpacing(8);
+	ui.wdtEasyReg->layout()->setSpacing(8);
+#endif
+
 	// disable mac focus rect
 	ui.lneNode->setAttribute(Qt::WA_MacShowFocusRect, false);
 	ui.lnePassword->setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -1466,7 +1471,7 @@ void LoginDialog::onXmppStreamOpened()
 		FMainWindowPlugin->mainWindowTopWidget()->removeEventFilter(this);
 		if (FMainWindowVisible || Options::node(OPV_MAINWINDOW_SHOW).value().toBool())
 			FMainWindowPlugin->showMainWindow();
-		else 
+		else
 			FMainWindowPlugin->hideMainWindow();
 	}
 
