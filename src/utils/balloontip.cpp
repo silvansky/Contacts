@@ -69,7 +69,7 @@ void BalloonTip::init()
 	setAttribute(Qt::WA_DeleteOnClose, true);
 	setAttribute(Qt::WA_TranslucentBackground, true);
 	setMaximumWidth(250);
-	setMinimumSize(230, 90);
+	setMinimumSize(230, 120);
 	if (_p)
 	{
 		_p->installEventFilter(this);

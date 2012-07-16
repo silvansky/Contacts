@@ -7,6 +7,7 @@
 #include <utils/log.h>
 #include <utils/networking.h>
 #include <utils/iconstorage.h>
+#include <utils/imagemanager.h>
 #include <utils/customlistview.h>
 #include <utils/custominputdialog.h>
 #include <utils/customborderstorage.h>
@@ -203,6 +204,9 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 {
 	ui.setupUi(this);
 
+	ui.pbtRegister->setProperty("initial", true);
+	ui.pbtRegister->setText(tr("Sign Up %1").arg(QChar(8595)));
+
 	// initializing...
 	initialize(APluginManager);
 
@@ -253,6 +257,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	// hide registration fields
 	ui.wdtRegFields->setVisible(false);
+	ui.lblLoader->setVisible(false);
 
 	// initial state
 	FActiveErrorType = NoActiveError;
@@ -688,12 +693,12 @@ bool LoginDialog::eventFilter(QObject *AWatched, QEvent *AEvent)
 		}
 		else if ((AWatched == ui.lneNode) && (keyEvent->key() == Qt::Key_Down))
 		{
-			if (ui.lneNode->completer()->popup() && !ui.lneNode->completer()->popup()->isVisible())
+			if (ui.lneNode->completer() && ui.lneNode->completer()->popup() && !ui.lneNode->completer()->popup()->isVisible())
 				ui.lneNode->completer()->complete();
 		}
 		else if ((AWatched == ui.lneRegLogin) && (keyEvent->key() == Qt::Key_Down))
 		{
-			if (ui.lneRegLogin->completer()->popup() && !ui.lneRegLogin->completer()->popup()->isVisible())
+			if (ui.lneRegLogin->completer() && ui.lneRegLogin->completer()->popup() && !ui.lneRegLogin->completer()->popup()->isVisible())
 				ui.lneRegLogin->completer()->complete();
 		}
 	}
@@ -1036,7 +1041,7 @@ void LoginDialog::showConnectionSettings()
 		dialog->setWindowTitle(tr("Connection settings"));
 
 		WidgetManager::showActivateRaiseWindow(dialog->window());
-		WidgetManager::alignWindow(dialog->window(),Qt::AlignCenter);
+		WidgetManager::alignWindow(dialog->window(), Qt::AlignCenter);
 	}
 }
 
@@ -1052,9 +1057,11 @@ void LoginDialog::hideConnectionError()
 void LoginDialog::showConnectionError(const QString &ACaption, const QString &AError)
 {
 	LogError(QString("[LoginDialog] Connection error '%1': %2").arg(ACaption,AError));
-	ReportError("CONNECT-ERROR",QString("[LoginDialog] Connection error '%1': %2").arg(ACaption,AError));
+	ReportError("CONNECT-ERROR", QString("[LoginDialog] Connection error '%1': %2").arg(ACaption, AError));
 
 	hideXmppStreamError();
+
+	ui.pbtRegister->setEnabled(ui.wdtRegFields->isVisible() ? readyToRegister() : true);
 
 	QString message = ACaption;
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
@@ -1096,6 +1103,7 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 {
 	LogError(QString("[LoginDialog] Stream error '%1': %2").arg(ACaption, AHint));
 	hideConnectionError();
+	ui.pbtRegister->setEnabled(ui.wdtRegFields->isVisible() ? readyToRegister() : true);
 
 	QString message = ACaption;
 	message += message.isEmpty() || AError.isEmpty() ? AError : "<br>" + AError;
@@ -1305,6 +1313,7 @@ void LoginDialog::onConnectClicked()
 		ui.lneNode->completer()->popup()->hide();
 		bool connecting = false;
 		setConnectEnabled(false);
+		ui.pbtRegister->setEnabled(false);
 		QApplication::processEvents();
 
 		LogDetail(QString("[LoginDialog] Starting login"));
@@ -1375,7 +1384,7 @@ void LoginDialog::onConnectClicked()
 	}
 	else
 	{
-		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		IAccount *account = FAccountManager ? FAccountManager->accountById(FAccountId) : NULL;
 		if (account && account->isActive())
 		{
 			LogDetail(QString("[LoginDialog] Terminating login"));
@@ -1390,13 +1399,18 @@ void LoginDialog::onRegisterClicked()
 	if (!ui.wdtRegFields->isVisible())
 	{
 		LogDetail("[LoginDialog::onRegisterClicked]: Showing easy registration form...");
-		ui.lblRegistration->setText(tr("Registration"));
+		ui.lblRegistrationHint->setVisible(false);
 		ui.wdtRegFields->setVisible(true);
 		ui.pbtRegister->setEnabled(false);
 		ui.lneRegFullName->setFocus();
+		ui.pbtRegister->setProperty("initial", false);
+		ui.pbtRegister->setText(tr("Sign Up"));
+		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->updateStyle(this);
+		Networking::httpGetStringAsync(QUrl("http://reg.tx.xmpp.rambler.ru/regcounter"), NULL, NW_SLOT_NONE, NW_SLOT_NONE);
 	}
 	else
 	{
+		startLoadAnimation();
 		hideConnectionError();
 		hideXmppStreamError();
 		if (ui.lneRegLogin->completer())
@@ -1412,8 +1426,8 @@ void LoginDialog::onRegisterClicked()
 #ifdef DEBUG_ENABLED
 		qDebug() << "Starting registration for " << user.full();
 		qDebug() << "post data:" << postData;
-		LogDetail(QString("[LoginDialog::onRegisterClicked]: Sending easy registration request for user %1").arg(user.full()));
 #endif
+		LogDetail(QString("[LoginDialog::onRegisterClicked]: Sending easy registration request for user %1").arg(user.full()));
 		Networking::httpPostAsync(request, postData.toUtf8(), this, NW_SLOT(onRequestFinished), NW_SLOT(onRequestFailed));
 	}
 }
@@ -1816,8 +1830,9 @@ void LoginDialog::stopRegDataVerifyTimer()
 
 void LoginDialog::onRotateTimer()
 {
-	// TODO: load image from resources and assign rotated copy to ui.lblLoader->pixmap()
+	static QImage loader = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_OPTIONS_LOGIN_LOADER);
 	qreal angle = FRotateTimer.property("angle").toReal();
+	ui.lblLoader->setPixmap(QPixmap::fromImage(ImageManager::rotatedImage(loader, angle)));
 	angle += 0.1;
 	FRotateTimer.setProperty("angle", angle);
 }
@@ -1839,6 +1854,7 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 {
 	setControlsEnabled(true);
 	ui.pbtRegister->setEnabled(readyToRegister());
+	stopLoadAnimation();
 #ifdef DEBUG_ENABLED
 	qDebug() << "network request finished! " << url << " result:\n" << result;
 #endif
@@ -1968,6 +1984,7 @@ void LoginDialog::onRequestFailed(const QUrl &url, const QString &error)
 {
 	setControlsEnabled(true);
 	ui.pbtRegister->setEnabled(readyToRegister());
+	stopLoadAnimation();
 #ifdef DEBUG_ENABLED
 	qDebug() << "network request failed! " << url << " error:\n" << error;
 #endif

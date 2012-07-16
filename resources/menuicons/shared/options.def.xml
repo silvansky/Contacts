@@ -14,6 +14,10 @@
     <object mime="image/png">optionsloginlogo.png</object>
   </icon>
   <icon>
+    <key>optionsLoginLoader</key>
+    <object mime="image/png">optionsloginloader.png</object>
+  </icon>
+  <icon>
     <key>optionsLoginAnimation</key>
     <object mime="image/gif">optionsloginanimation.gif</object>
   </icon>

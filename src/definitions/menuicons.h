@@ -122,6 +122,7 @@
 #define MNI_OPTIONS_DIALOG                       "optionsDialog"
 #define MNI_OPTIONS_LOGIN_HELP                   "optionsLoginHelp"
 #define MNI_OPTIONS_LOGIN_LOGO                   "optionsLoginLogo"
+#define MNI_OPTIONS_LOGIN_LOADER                 "optionsLoginLoader"
 #define MNI_OPTIONS_LOGIN_ANIMATION              "optionsLoginAnimation"
 #define MNI_OPTIONS_ERROR_ALERT                  "optionsErrorAlert"
 

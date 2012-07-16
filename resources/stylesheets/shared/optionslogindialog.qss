@@ -75,6 +75,13 @@ QPushButton#pbtRegister
 	margin-left: 2px;
 }
 
+QPushButton#pbtRegister[initial="true"]
+{
+	font-size: 12px;
+	min-width: 80px;
+	min-height: 26px;
+}
+
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect,
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtRegister
 {
@@ -180,6 +187,11 @@ QLabel#lblRegister
 {
 	padding-left: 1px;
 	font-size: 16px;
+}
+
+#lblRegistrationHint
+{
+	padding-left: 1px;
 }
 
 #lblLogo
