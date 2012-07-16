@@ -1838,14 +1838,14 @@ void LoginDialog::onRotateTimer()
 	static QImage loader = IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_OPTIONS_LOGIN_LOADER);
 	qreal angle = FRotateTimer.property("angle").toReal();
 	ui.lblLoader->setPixmap(QPixmap::fromImage(ImageManager::rotatedImage(loader, angle)));
-	angle += 0.1;
+	angle += 10.0;
 	FRotateTimer.setProperty("angle", angle);
 }
 
 void LoginDialog::startLoadAnimation()
 {
 	ui.lblLoader->setVisible(true);
-	FRotateTimer.start(200);
+	FRotateTimer.start(100);
 }
 
 void LoginDialog::stopLoadAnimation()
