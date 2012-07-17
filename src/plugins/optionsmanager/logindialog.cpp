@@ -49,6 +49,14 @@
 #define LOGIN_CHECK_REGEX     "^[A-Za-z0-9]+(?:[.\\-_][A-Za-z0-9]+)*[A-Za-z0-9]*$"
 #define PASSWORD_CHECK_REGEX  "^[a-z0-9_\\.-]+$"
 
+#define REG_SERVER_PROTOCOL   "https"
+#define REG_SERVER            "reg.tx.xmpp.rambler.ru"
+#define REG_SERVER_PARAMS     "f=xml"
+#define REG_SERVER_COUNTER    "counter"
+
+#define REG_SERVER_QUERY              REG_SERVER_PROTOCOL"://"REG_SERVER"/?"REG_SERVER_PARAMS
+#define REG_SERVER_COUNTER_QUERY      REG_SERVER_PROTOCOL"://"REG_SERVER"/"REG_SERVER_COUNTER
+
 QString urlencode(const QString &s)
 {
 	return QString::fromUtf8(QUrl::toPercentEncoding(s).data());
@@ -382,7 +390,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 		.arg(StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->getStyleColor(SV_GLOBAL_LINK_COLOR).name())
 		.arg(tr("register")));
 #else
-	ui.lblRegister->setText(tr("Log in"));
+	ui.lblRegister->setText(tr("Sign In"));
 #endif
 	ui.lblForgotPassword->setText(QString("<a href='http://id.rambler.ru/script/reminder.cgi'><span style='font-size:%1pt; text-decoration: underline; color:%2;'>%3</span></a>")
 		.arg(fontSize)
@@ -1411,7 +1419,7 @@ void LoginDialog::onRegisterClicked()
 		ui.pbtRegister->setProperty("initial", false);
 		ui.pbtRegister->setText(tr("Sign Up"));
 		StyleStorage::staticStorage(RSR_STORAGE_STYLESHEETS)->updateStyle(this);
-		Networking::httpGetStringAsync(QUrl("http://reg.tx.xmpp.rambler.ru/regcounter"), NULL, NW_SLOT_NONE, NW_SLOT_NONE);
+		Networking::httpGetStringAsync(QUrl(REG_SERVER_COUNTER_QUERY), NULL, NW_SLOT_NONE, NW_SLOT_NONE);
 	}
 	else
 	{
@@ -1423,7 +1431,7 @@ void LoginDialog::onRegisterClicked()
 		setControlsEnabled(false);
 		ui.pbtRegister->setEnabled(false);
 		// sending registration request
-		QUrl request("http://reg.tx.xmpp.rambler.ru/?f=xml");
+		QUrl request(REG_SERVER_QUERY);
 		Jid user = ui.lneRegLogin->text() + ui.pbtRegDomain->text();
 		QString userFullName = ui.lneRegFullName->text();
 		QString postData = QString("login=%1&domain=%2&password=%3&name=%4").arg(urlencode(user.node()), urlencode(user.domain()), urlencode(ui.lneRegPassword->text()), urlencode(userFullName));

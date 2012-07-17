@@ -243,6 +243,10 @@ which is linked to Rambler</source>
         <source>Some error occured. Try again.</source>
         <translation>Произошла ошибка. Попробуйте ещё раз.</translation>
     </message>
+    <message>
+        <source>Sign In</source>
+        <translation>Вход</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>

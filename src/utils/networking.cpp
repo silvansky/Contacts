@@ -1,14 +1,21 @@
 #include "networking.h"
 
+#include "iconstorage.h"
+#include "log.h"
+
 #include <QNetworkRequest>
 #include <QPixmap>
 #include <QImageReader>
 #include <QFile>
 #include <QVariant>
 #include <QApplication>
+#include <QSslError>
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
 #include <definitions/resources.h>
-#include "iconstorage.h"
-#include "log.h"
 
 // internal header
 #include "networking_p.h"
@@ -86,6 +93,7 @@ void NetworkingPrivate::httpGetAsync(NetworkingPrivate::RequestProperties::Type 
 	props.slot = slot;
 	props.errorSlot = errorSlot;
 	QNetworkReply *reply = nam->get(request);
+	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
 	requests.insert(reply, props);
 }
 
@@ -101,6 +109,8 @@ void NetworkingPrivate::httpPostAsync(const QUrl &src, const QByteArray &data, Q
 	props.slot = slot;
 	props.errorSlot = errorSlot;
 	QNetworkReply *reply = nam->post(request, data);
+	//connect(reply, SIGNAL(sslErrors(QList<QSslError>)), SLOT(onSslErrors(QList<QSslError>)));
+	connect(reply, SIGNAL(sslErrors(QList<QSslError>)), reply, SLOT(ignoreSslErrors()));
 	requests.insert(reply, props);
 }
 
@@ -222,34 +232,22 @@ void NetworkingPrivate::onFinished(QNetworkReply *reply)
 					{
 						QImage img;
 						QImageReader reader(reply);
-						if (reply->error() == QNetworkReply::NoError)
-						{
-							reader.read(&img);
-							if (props.receiver && props.slot)
-								QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QImage, img));
-						}
-						else
-							LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+						reader.read(&img);
+						if (props.receiver && props.slot)
+							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QImage, img));
 						break;
 					}
 				case RequestProperties::String:
 					{
 						QString result;
-						if (reply->error() == QNetworkReply::NoError)
-						{
-							result = QString::fromUtf8(reply->readAll().constData());
-							if (props.receiver && props.slot)
-								QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QString, result));
-						}
-						else
-							LogError(QString("[NetworkingPrivate] Reply error: %1").arg(reply->error()));
+						result = QString::fromUtf8(reply->readAll().constData());
+						if (props.receiver && props.slot)
+							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QString, result));
 						break;
 					}
 				default:
 					break;
 				}
-
-
 			}
 			requests.remove(reply);
 			reply->deleteLater();
@@ -269,7 +267,28 @@ void NetworkingPrivate::onFinished(QNetworkReply *reply)
 
 void NetworkingPrivate::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+#ifdef DEBUG_ENABLED
+	QStringList errorList;
+	foreach (QSslError err, errors)
+		errorList << err.errorString();
+	qDebug() << QString("[NetworkingPrivate]: Got SSL errors: \n\t%1").arg(errorList.join("\n\t"));
+#endif
 	reply->ignoreSslErrors(errors);
+}
+
+void NetworkingPrivate::onSslErrors(const QList<QSslError> &errors)
+{
+	Q_UNUSED(errors)
+#ifdef DEBUG_ENABLED
+	QStringList errorList;
+	foreach (QSslError err, errors)
+		errorList << err.errorString();
+	qDebug() << QString("[NetworkingPrivate]: Got SSL errors: \n\t%1").arg(errorList.join("\n\t"));
+#endif
+	if (QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender()))
+	{
+		reply->ignoreSslErrors(errors);
+	}
 }
 
 // Networking class

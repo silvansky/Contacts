@@ -50,6 +50,7 @@ public:
 public slots:
 	void onFinished(QNetworkReply *reply);
 	void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+	void onSslErrors(const QList<QSslError> &errors);
 private:
 	QNetworkAccessManager * nam;
 	QEventLoop * loop;
