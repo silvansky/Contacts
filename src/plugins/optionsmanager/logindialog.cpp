@@ -51,6 +51,7 @@
 
 #define REG_SERVER_PROTOCOL   "https"
 #define REG_SERVER            "reg.tx.xmpp.rambler.ru"
+
 #define REG_SERVER_PARAMS     "f=xml"
 #define REG_SERVER_COUNTER    "counter"
 
@@ -1138,12 +1139,13 @@ void LoginDialog::showXmppStreamError(const QString &ACaption, const QString &AE
 	showErrorBalloon();
 }
 
-void LoginDialog::showRegConnectionError()
+void LoginDialog::showRegConnectionError(const QString &text)
 {
 	LogError(QString("[LoginDialog]: Connection error on Registration!"));
 	hideErrorBallon();
 	FActiveErrorType = ActiveRegConnectionError;
-	ui.lblConnectError->setText(tr("Connection error! Try again later."));
+	QString msg = text.isEmpty() ? tr("Connection error! Try again later.") : text;
+	ui.lblConnectError->setText(msg);
 
 	ui.lblConnectError->setVisible(true);
 	ui.lblReconnect->setVisible(false);
@@ -1930,6 +1932,11 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 				suggestEl = suggestEl.nextSiblingElement("suggest");
 			}
 		}
+	}
+	else
+	{
+		LogError(QString("[LoginDialog::onRequestFinished]: Invalid server response: %1").arg(result));
+		showRegConnectionError(tr("Connection error. Server is unavailable. Please, try again later."));
 	}
 
 	if (userRegistered)

@@ -28,7 +28,14 @@ class NetworkingPrivate : public QObject
 			String,
 			Image
 		};
+		enum ReqType
+		{
+			PostReq,
+			GetReq
+		};
 		Type type;
+		ReqType requestType;
+		QByteArray postData;
 		QUrl url;
 		QObject *receiver;
 		const char *slot;

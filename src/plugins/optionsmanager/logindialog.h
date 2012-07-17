@@ -83,7 +83,7 @@ protected:
 	void hideXmppStreamError();
 	void showXmppStreamError(const QString &ACaption, const QString &AError, const QString &AHint, bool showPasswordEnabled = true);
 	// reg errors
-	void showRegConnectionError();
+	void showRegConnectionError(const QString &text = QString::null);
 	void showRegLoginError(const QString &text);
 	void showRegPasswordError(const QString &text);
 	void showRegConfirmPasswordError(const QString &text);

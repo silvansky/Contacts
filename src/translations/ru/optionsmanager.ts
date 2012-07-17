@@ -247,6 +247,10 @@ which is linked to Rambler</source>
         <source>Sign In</source>
         <translation>Вход</translation>
     </message>
+    <message>
+        <source>Connection error. Server is unavailable. Please, try again later.</source>
+        <translation>Ошибка подключения. Сервер временно недоступен. Пожалуйста, попробуйте ещё раз позже.</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>

@@ -87,6 +87,7 @@ void NetworkingPrivate::httpGetAsync(NetworkingPrivate::RequestProperties::Type 
 	QNetworkRequest request;
 	request.setUrl(src);
 	RequestProperties props;
+	props.requestType = RequestProperties::GetReq;
 	props.type = type;
 	props.url = src;
 	props.receiver = receiver;
@@ -103,6 +104,8 @@ void NetworkingPrivate::httpPostAsync(const QUrl &src, const QByteArray &data, Q
 	request.setUrl(src);
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
 	RequestProperties props;
+	props.requestType = RequestProperties::PostReq;
+	props.postData = data;
 	props.type = RequestProperties::String;
 	props.url = src;
 	props.receiver = receiver;
@@ -217,7 +220,23 @@ void NetworkingPrivate::onFinished(QNetworkReply *reply)
 				// guard from infinite redirect loop
 				if (redirectedTo != reply->request().url())
 				{
-					httpGetImageAsync(redirectedTo, props.receiver, props.slot, props.errorSlot);
+					if (props.requestType == RequestProperties::PostReq)
+					{
+						httpPostAsync(redirectedTo, props.postData, props.receiver, props.slot, props.errorSlot);
+					}
+					else
+					{
+						switch (props.type)
+						{
+						case RequestProperties::Image:
+							httpGetImageAsync(redirectedTo, props.receiver, props.slot, props.errorSlot);
+							break;
+						case RequestProperties::String:
+						default:
+							httpGetStringAsync(redirectedTo, props.receiver, props.slot, props.errorSlot);
+							break;
+						}
+					}
 				}
 				else
 				{
@@ -233,6 +252,9 @@ void NetworkingPrivate::onFinished(QNetworkReply *reply)
 						QImage img;
 						QImageReader reader(reply);
 						reader.read(&img);
+#ifdef DEBUG_ENABLED
+						qDebug() << "[NetworkingPrivate]: Image loaded!";
+#endif
 						if (props.receiver && props.slot)
 							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QImage, img));
 						break;
@@ -241,6 +263,9 @@ void NetworkingPrivate::onFinished(QNetworkReply *reply)
 					{
 						QString result;
 						result = QString::fromUtf8(reply->readAll().constData());
+#ifdef DEBUG_ENABLED
+						qDebug() << "[NetworkingPrivate]: String loaded!" << result;
+#endif
 						if (props.receiver && props.slot)
 							QMetaObject::invokeMethod(props.receiver, props.slot, Qt::AutoConnection, Q_ARG(QUrl, props.url), Q_ARG(QString, result));
 						break;
