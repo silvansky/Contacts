@@ -1,5 +1,8 @@
 #include "logindialog.h"
+
 #include "easyregistrationdialog.h"
+#include "addaccountwidget.h"
+#include "profilewidget.h"
 
 #include <definitions/customborder.h>
 #include <definitions/graphicseffects.h>
@@ -58,10 +61,7 @@
 #define REG_SERVER_QUERY              REG_SERVER_PROTOCOL"://"REG_SERVER"/?"REG_SERVER_PARAMS
 #define REG_SERVER_COUNTER_QUERY      REG_SERVER_PROTOCOL"://"REG_SERVER"/"REG_SERVER_COUNTER
 
-QString urlencode(const QString &s)
-{
-	return QString::fromUtf8(QUrl::toPercentEncoding(s).data());
-}
+extern QString urlencode(const QString &s);
 
 enum ConnectionSettings {
 	CS_DEFAULT,
@@ -215,6 +215,8 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 
 	ui.pbtRegister->setProperty("initial", true);
 	ui.pbtRegister->setText(tr("Sign Up %1").arg(QChar(8595)));
+
+	serverApiHandler = new ServerApiHandler;
 
 	// initializing...
 	initialize(APluginManager);
@@ -428,6 +430,19 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 			if (ui.cmbDomain->findData(streamJid.pDomain())<0)
 				ui.cmbDomain->insertItem(0,"@"+streamJid.pDomain(),streamJid.pDomain());
 			profiles.append(streamJid.bare());
+			ProfileWidget *pw = new ProfileWidget(ui.scrollAreaWidgetContents);
+			ui.profileWidgetsLayout->insertWidget(0, pw);
+			QString displayName = FOptionsManager->profileData(profile).value("displayName").toString();
+			if (displayName.isEmpty())
+				displayName = streamJid.pBare();
+			pw->setName(displayName);
+			pw->setJid(streamJid);
+			QImage photo = FOptionsManager->profileData(profile).value("avatar").value<QImage>();
+			if (photo.isNull())
+			{
+				photo = FAvatars->avatarImage(streamJid, false, false);
+			}
+			pw->setPhoto(photo);
 		}
 	}
 	ui.cmbDomain->addItem(tr("Custom domain..."));
@@ -797,6 +812,13 @@ void LoginDialog::initialize(IPluginManager *APluginManager)
 			connect(FNotifications->instance(),SIGNAL(notificationAppend(int, INotification &)),SLOT(onNotificationAppend(int, INotification &)));
 			connect(FNotifications->instance(),SIGNAL(notificationAppended(int, const INotification &)),SLOT(onNotificationAppended(int, const INotification &)));
 		}
+	}
+
+	FAvatars = NULL;
+	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
+	if (plugin)
+	{
+		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
 	}
 }
 

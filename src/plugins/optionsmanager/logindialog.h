@@ -1,36 +1,42 @@
 #ifndef LOGINDIALOG_H
 #define LOGINDIALOG_H
 
-#include <QUuid>
-#include <QEvent>
-#include <QTimer>
-#include <QDialog>
+#include "ui_logindialog.h"
+#include "serverapihandler.h"
+
 #include <definitions/version.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+#include <definitions/optionnodes.h>
 #include <definitions/stylesheets.h>
 #include <definitions/optionvalues.h>
-#include <definitions/optionnodes.h>
 #include <definitions/optionwidgetorders.h>
+
+#include <interfaces/iavatars.h>
+#include <interfaces/ipresence.h>
+#include <interfaces/imainwindow.h>
+#include <interfaces/ixmppstreams.h>
+#include <interfaces/itraymanager.h>
+#include <interfaces/istatuschanger.h>
 #include <interfaces/ipluginmanager.h>
+#include <interfaces/inotifications.h>
 #include <interfaces/ioptionsmanager.h>
 #include <interfaces/iaccountmanager.h>
-#include <interfaces/ipresence.h>
-#include <interfaces/istatuschanger.h>
-#include <interfaces/ixmppstreams.h>
 #include <interfaces/iconnectionmanager.h>
-#include <interfaces/imainwindow.h>
 #include <interfaces/iconnectionmanager.h>
 #include <interfaces/idefaultconnection.h>
-#include <interfaces/itraymanager.h>
-#include <interfaces/inotifications.h>
+
 #include <utils/menu.h>
 #include <utils/options.h>
 #include <utils/balloontip.h>
 #include <utils/iconstorage.h>
 #include <utils/stylestorage.h>
 #include <utils/widgetmanager.h>
-#include "ui_logindialog.h"
+
+#include <QUuid>
+#include <QEvent>
+#include <QTimer>
+#include <QDialog>
 
 class LoginDialog :
 	public QDialog
@@ -184,6 +190,7 @@ private:
 	IConnectionManager *FConnectionManager;
 	INotifications *FNotifications;
 	ITrayManager *FTrayManager;
+	IAvatars *FAvatars;
 private:
 	Mode mode_;
 	RegistrationState regState_;
@@ -203,6 +210,7 @@ private:
 	QTimer FRegDataVerifyTimer;
 	QTimer FRotateTimer;
 	QWidget *FConnectionErrorWidget;
+	ServerApiHandler *serverApiHandler;
 };
 
 #endif // LOGINDIALOG_H

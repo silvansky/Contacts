@@ -21,6 +21,8 @@
 #include <interfaces/itraymanager.h>
 #include <interfaces/iprivatestorage.h>
 #include <interfaces/isystemintegration.h>
+#include <interfaces/ivcard.h>
+#include <interfaces/iavatars.h>
 #include <utils/log.h>
 #include <utils/action.h>
 #include <utils/widgetmanager.h>
@@ -115,12 +117,16 @@ protected slots:
 	void onPrivateStorageDataLoaded(const QString &AId, const Jid &AStreamJid, const QDomElement &AElement);
 	void onPrivateStorageAboutToClose(const Jid &AStreamJid);
 	void onAboutToQuit();
+	void onVCardReceived(const Jid &AContactJid);
+	void onAvatarChanged(const Jid &AContactJid);
 private:
 	IPluginManager *FPluginManager;
 	ITrayManager *FTrayManager;
 	IMainWindowPlugin *FMainWindowPlugin;
 	IPrivateStorage *FPrivateStorage;
 	ISystemIntegration * FSystemIntegration;
+	IVCardPlugin *FVCardPlugin;
+	IAvatars *FAvatars;
 private:
 	QDir FProfilesDir;
 	QTimer FAutoSaveTimer;

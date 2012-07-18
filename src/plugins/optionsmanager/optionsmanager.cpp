@@ -1,13 +1,18 @@
 #include "optionsmanager.h"
 
+#include <QBuffer>
 #include <QFileInfo>
 #include <QDateTime>
 #include <QApplication>
 #include <QCryptographicHash>
 #include <definitions/customborder.h>
-
+#include <definitions/vcardvaluenames.h>
 #ifdef Q_WS_WIN
 # include <QSettings>
+#endif
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
 #endif
 
 #define DIR_PROFILES                    "profiles"
@@ -36,6 +41,8 @@ OptionsManager::OptionsManager()
 	FOptionsDialog = NULL;
 	FLoginDialog = NULL;
 	FSystemIntegration = NULL;
+	FVCardPlugin = NULL;
+	FAvatars = NULL;
 
 	FAutoSaveTimer.setInterval(30*1000);
 	FAutoSaveTimer.setSingleShot(true);
@@ -95,6 +102,26 @@ bool OptionsManager::initConnections(IPluginManager *APluginManager, int &AInitO
 	if (plugin)
 	{
 		FSystemIntegration = qobject_cast<ISystemIntegration *>(plugin->instance());
+	}
+
+	plugin = APluginManager->pluginInterface("IVCardPlugin").value(0,NULL);
+	if (plugin)
+	{
+		FVCardPlugin = qobject_cast<IVCardPlugin *>(plugin->instance());
+		if (FVCardPlugin)
+		{
+			connect(FVCardPlugin->instance(), SIGNAL(vcardReceived(const Jid &)), SLOT(onVCardReceived(const Jid &)));
+		}
+	}
+
+	plugin = APluginManager->pluginInterface("IAvatars").value(0,NULL);
+	if (plugin)
+	{
+		FAvatars = qobject_cast<IAvatars *>(plugin->instance());
+		if (FAvatars)
+		{
+			connect(FAvatars->instance(), SIGNAL(avatarChanged(const Jid &)), SLOT(onAvatarChanged(const Jid &)));
+		}
 	}
 
 	connect(Options::instance(),SIGNAL(optionsChanged(const OptionsNode &)),SLOT(onOptionsChanged(const OptionsNode &)));
@@ -349,7 +376,23 @@ QMap<QString, QVariant> OptionsManager::profileData(const QString &AProfile) con
 			QDomElement elem = doc.documentElement().firstChildElement();
 			while(!elem.isNull())
 			{
-				data.insert(elem.tagName(),elem.text());
+				if (elem.attribute("type") != "image")
+					data.insert(elem.tagName(),elem.text());
+				else
+				{
+					QString base64Image = elem.text();
+					QByteArray rawImageData = QByteArray::fromBase64(base64Image.toLatin1());
+					QBuffer b(&rawImageData);
+					if (b.open(QIODevice::ReadOnly))
+					{
+						QImageReader ir(&b);
+						QImage img = ir.read();
+						if (!img.isNull())
+						{
+							data.insert(elem.tagName(), img);
+						}
+					}
+				}
 				elem = elem.nextSiblingElement();
 			}
 		}
@@ -369,7 +412,26 @@ bool OptionsManager::setProfileData(const QString &AProfile, const QMap<QString,
 			doc.appendChild(doc.createElement("profile-data"));
 
 			for(QMap<QString, QVariant>::const_iterator it=AData.constBegin(); it!=AData.constEnd(); it++)
-				doc.documentElement().appendChild(doc.createElement(it.key())).appendChild(doc.createTextNode(it->toString()));
+			{
+				QString stringData = it->toString();
+				QString type;
+				if (it->type() == QVariant::Image)
+				{
+					QByteArray rawImageData;
+					QBuffer b(&rawImageData);
+					if (b.open(QIODevice::WriteOnly))
+					{
+						QImage img = it->value<QImage>();
+						img.save(&b, "PNG");
+						stringData = rawImageData.toBase64();
+						type = "image";
+					}
+				}
+				QDomElement keyElement = doc.createElement(it.key());
+				if (!type.isEmpty())
+					keyElement.setAttribute("type", type);
+				doc.documentElement().appendChild(keyElement).appendChild(doc.createTextNode(stringData));
+			}
 
 			login.write(doc.toByteArray());
 			login.close();
@@ -845,6 +907,40 @@ void OptionsManager::onPrivateStorageAboutToClose(const Jid &AStreamJid)
 void OptionsManager::onAboutToQuit()
 {
 	closeProfile();
+}
+
+void OptionsManager::onVCardReceived(const Jid &AContactJid)
+{
+	foreach(QString profile, profiles())
+	{
+		Jid streamJid = Jid::decode(profile);
+		if (streamJid.isValid() && !streamJid.node().isEmpty() && (AContactJid && streamJid))
+		{
+			IVCard *vcard = FVCardPlugin->vcard(AContactJid);
+			QString name = vcard->value(VVN_NICKNAME);
+			if (name.isEmpty())
+				name = vcard->value(VVN_FULL_NAME);
+			if (name.isEmpty())
+				name = vcard->value(VVN_GIVEN_NAME);
+			if (name.isEmpty())
+				name = vcard->contactJid().node();
+			setProfileData(profile, "displayName", name);
+			break;
+		}
+	}
+}
+
+void OptionsManager::onAvatarChanged(const Jid &AContactJid)
+{
+	foreach(QString profile, profiles())
+	{
+		Jid streamJid = Jid::decode(profile);
+		if (streamJid.isValid() && !streamJid.node().isEmpty() && (AContactJid && streamJid))
+		{
+			setProfileData(profile, "avatar", FAvatars->avatarImage(AContactJid, true, false));
+			break;
+		}
+	}
 }
 
 Q_EXPORT_PLUGIN2(plg_optionsmanager, OptionsManager)

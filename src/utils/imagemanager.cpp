@@ -36,7 +36,7 @@ QImage ImageManager::grayscaled(const QImage & image)
 	return img;
 }
 
-QImage ImageManager::squared(const QImage & image, int size)
+QImage ImageManager::squared(const QImage & image, int size, bool canCrop)
 {
 	if (!image.isNull())
 	{
@@ -46,14 +46,23 @@ QImage ImageManager::squared(const QImage & image, int size)
 		squaredImage.fill(QColor(0, 0, 0, 0).rgba());
 		int w = image.width(), h = image.height();
 		QPainter p(&squaredImage);
-		QPoint offset(0,0);
-		QImage copy = (w < h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
-		w = copy.width();
-		h = copy.height();
-		if (w > h)
-			offset.setY((size - h) / 2);
-		else if (h > w)
-			offset.setX((size - w) / 2);
+		QPoint offset(0, 0);
+		QImage copy;
+		if (!canCrop)
+		{
+			copy = (w < h) ? ((h == size) ? image : image.scaledToHeight(size, Qt::SmoothTransformation)) : ((w == size) ? image : image.scaledToWidth(size, Qt::SmoothTransformation));
+			w = copy.width();
+			h = copy.height();
+			if (w > h)
+				offset.setY((size - h) / 2);
+			else if (h > w)
+				offset.setX((size - w) / 2);
+			p.drawImage(offset, copy);
+		}
+		else
+		{
+			copy = (w < h) ? image.scaledToWidth(size, Qt::SmoothTransformation) : image.scaledToHeight(size, Qt::SmoothTransformation);
+		}
 		p.drawImage(offset, copy);
 		p.end();
 		return squaredImage;
@@ -61,7 +70,7 @@ QImage ImageManager::squared(const QImage & image, int size)
 	return QImage();
 }
 
-QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
+QImage ImageManager::roundSquared(const QImage & image, int size, int radius, bool canCrop)
 {
 	if (!image.isNull())
 	{
@@ -80,7 +89,7 @@ QImage ImageManager::roundSquared(const QImage & image, int size, int radius)
 		p.fillRect(0, 0, size, size, Qt::transparent);
 		p.drawImage(0, 0, shapeImg);
 		p.setCompositionMode(QPainter::CompositionMode_SourceIn);
-		p.drawImage(0, 0, squared(image, size));
+		p.drawImage(0, 0, squared(image, size, canCrop));
 		p.end();
 		return roundSquaredImage;
 	}

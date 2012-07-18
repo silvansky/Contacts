@@ -7,9 +7,16 @@ QDialog
 	background-color: rgba(65, 70, 77, 250);
 }
 
-#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox, #connectionErrorWidget, #wdtEasyReg, #wdtRegFields
+#wdtContent, #wdtHelp, QFrame, QLabel, QCheckBox, QDialogButtonBox, #connectionErrorWidget, #wdtEasyReg, #wdtRegFields, #ProfileWidget
 {
 	background-color: transparent;
+}
+
+#ProfileWidget:hover
+{
+	background-color: rgba(255, 255, 255, 100);
+	border: 0px solid transparent;
+	border-radius: 5px;
 }
 
 /********************
