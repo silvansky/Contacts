@@ -4,7 +4,9 @@ FORMS = \
 	easyregistrationdialog.ui \
 	profilewidget.ui \
 	addaccountwidget.ui \
-	addsimpleaccountdialog.ui
+	addsimpleaccountdialog.ui \
+	addrambleraccountdialog.ui \
+	addfacebookaccountdialog.ui
 
 HEADERS = \
 	optionsmanager.h \
@@ -16,7 +18,9 @@ HEADERS = \
 	profilewidget.h \
 	serverapihandler.h \
 	addaccountwidget.h \
-	addsimpleaccountdialog.h
+	addsimpleaccountdialog.h \
+	addrambleraccountdialog.h \
+	addfacebookaccountdialog.h
 
 SOURCES = \
 	optionsmanager.cpp \
@@ -28,4 +32,6 @@ SOURCES = \
 	profilewidget.cpp \
 	serverapihandler.cpp \
 	addaccountwidget.cpp \
-	addsimpleaccountdialog.cpp
+	addsimpleaccountdialog.cpp \
+	addrambleraccountdialog.cpp \
+	addfacebookaccountdialog.cpp
