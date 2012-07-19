@@ -17,7 +17,7 @@ class ProfileWidget : public QWidget
 	Q_PROPERTY(QImage photo READ photo WRITE setPhoto)
 public:
 	explicit ProfileWidget(QWidget *parent = 0);
-	~ProfileWidget();
+	virtual ~ProfileWidget();
 	// props
 	QString name() const;
 	void setName(const QString &newName);

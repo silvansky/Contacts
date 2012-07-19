@@ -14,7 +14,8 @@ QDialog
 
 #ProfileWidget:hover
 {
-	background-color: rgba(255, 255, 255, 100);
+	/*background-color: rgba(255, 255, 255, 100);*/
+	background-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(255, 255, 255, 80), stop:1 rgba(255, 255, 255, 150));
 	border: 0px solid transparent;
 	border-radius: 5px;
 }
@@ -74,7 +75,8 @@ Menu#domainsMenu::item
  **********************/
 
 QPushButton#pbtConnect,
-QPushButton#pbtRegister
+QPushButton#pbtRegister,
+QPushButton#signInButton
 {
 	font-size: 16px;
 	min-height: 31px;
@@ -91,6 +93,7 @@ QPushButton#pbtRegister[initial="true"]
 
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtConnect,
 QPushButton[connecting="true"][default="true"]:!hover:!enabled#pbtRegister
+QPushButton[connecting="true"][default="true"]:!hover:!enabled#signInButton
 {
 	color: white;
 	border-image: url(%IMAGES_PATH%/buttonborderdefaultclick.png);
@@ -163,6 +166,19 @@ QLabel#lblRegister
 	margin-top: 60px;
 	margin-bottom: 16px;
 	margin-right: 10px;
+}
+
+/*******************
+ * service buttons *
+ *******************/
+
+#serviceButton
+{
+	min-height: 31px;
+	max-height: 31px;
+	height: 31px;
+	text-align: left;
+	font-size: 16px;
 }
 
 /****************************

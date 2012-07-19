@@ -3,6 +3,7 @@
 
 #include "ui_logindialog.h"
 #include "serverapihandler.h"
+#include "addaccountwidget.h"
 
 #include <definitions/version.h>
 #include <definitions/resources.h>
@@ -46,7 +47,9 @@ private:
 	enum Mode
 	{
 		LogIn,
-		Registration
+		Registration,
+		SelectProfile,
+		CreateAccounts
 	};
 
 	enum RegistrationState
@@ -211,6 +214,7 @@ private:
 	QTimer FRotateTimer;
 	QWidget *FConnectionErrorWidget;
 	ServerApiHandler *serverApiHandler;
+	QList<AddAccountWidget *> addAccountWidgets;
 };
 
 #endif // LOGINDIALOG_H

@@ -3,7 +3,8 @@ FORMS = \
         optionsdialog.ui \
 	easyregistrationdialog.ui \
 	profilewidget.ui \
-	addaccountwidget.ui
+	addaccountwidget.ui \
+	addsimpleaccountdialog.ui
 
 HEADERS = \
 	optionsmanager.h \
@@ -14,7 +15,8 @@ HEADERS = \
 	easyregistrationdialog.h \
 	profilewidget.h \
 	serverapihandler.h \
-	addaccountwidget.h
+	addaccountwidget.h \
+	addsimpleaccountdialog.h
 
 SOURCES = \
 	optionsmanager.cpp \
@@ -25,4 +27,5 @@ SOURCES = \
 	easyregistrationdialog.cpp \
 	profilewidget.cpp \
 	serverapihandler.cpp \
-	addaccountwidget.cpp
+	addaccountwidget.cpp \
+	addsimpleaccountdialog.cpp

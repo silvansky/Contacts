@@ -281,7 +281,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	FNewProfile = true;
 	FSavedPasswordCleared = false;
 	FConnectionSettings = CS_DEFAULT;
-	setMode(LogIn);
+	setMode(CreateAccounts);
 	setRegState(NotStarted);
 
 	// connection error
@@ -430,7 +430,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 			if (ui.cmbDomain->findData(streamJid.pDomain())<0)
 				ui.cmbDomain->insertItem(0,"@"+streamJid.pDomain(),streamJid.pDomain());
 			profiles.append(streamJid.bare());
-			ProfileWidget *pw = new ProfileWidget(ui.scrollAreaWidgetContents);
+			ProfileWidget *pw = new ProfileWidget(ui.profilesScrollContents);
 			ui.profileWidgetsLayout->insertWidget(0, pw);
 			QString displayName = FOptionsManager->profileData(profile).value("displayName").toString();
 			if (displayName.isEmpty())
@@ -464,7 +464,32 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.lneNode->setCompleter(completer);
 	ui.lneNode->completer()->popup()->viewport()->installEventFilter(this);
 
-	// resetting style (??)
+	// adding account buttons
+	// FB, VK, ICQ, Mail.ru, Rambler
+	AddAccountWidget *FBAccWidget = new AddAccountWidget(AW_Facebook, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(FBAccWidget);
+
+	AddAccountWidget *VKAccWidget = new AddAccountWidget(AW_Vkontakte, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(VKAccWidget);
+
+	AddAccountWidget *ICQAccWidget = new AddAccountWidget(AW_ICQ, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(ICQAccWidget);
+
+	AddAccountWidget *MRIMAccWidget = new AddAccountWidget(AW_MRIM, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(MRIMAccWidget);
+
+	AddAccountWidget *YandexAccWidget = new AddAccountWidget(AW_Yandex, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(YandexAccWidget);
+
+	AddAccountWidget *RamblerAccWidget = new AddAccountWidget(AW_Rambler, ui.accountsScrollContents);
+	ui.accountsLayout->addWidget(RamblerAccWidget);
+
+	addAccountWidgets << FBAccWidget << VKAccWidget << ICQAccWidget << MRIMAccWidget << YandexAccWidget << RamblerAccWidget;
+
+	QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
+	ui.accountsLayout->addItem(spacer);
+
+	// resetting style
 	onStylePreviewReset();
 
 	// installing event filters
@@ -585,7 +610,7 @@ bool LoginDialog::event(QEvent *AEvent)
 
 void LoginDialog::showEvent(QShowEvent *AEvent)
 {
-	ui.lneNode->setFocus();
+	///ui.lneNode->setFocus();
 	QDialog::showEvent(AEvent);
 	if (FMainWindowPlugin)
 	{
@@ -2042,15 +2067,37 @@ LoginDialog::Mode LoginDialog::mode() const
 void LoginDialog::setMode(LoginDialog::Mode newMode)
 {
 	mode_ = newMode;
-	if (mode() == LogIn)
+	switch (mode())
 	{
+	case LogIn:
 		ui.pbtRegister->setDefault(false);
 		ui.pbtConnect->setDefault(true);
+		ui.signInButton->setDefault(false);
+		break;
+	case Registration:
+		ui.pbtRegister->setDefault(true);
+		ui.pbtConnect->setDefault(false);
+		ui.signInButton->setDefault(false);
+		break;
+	case SelectProfile:
+		ui.pbtRegister->setDefault(false);
+		ui.pbtConnect->setDefault(false);
+		ui.signInButton->setDefault(false);
+		break;
+	case CreateAccounts:
+		ui.pbtRegister->setDefault(true);
+		ui.pbtConnect->setDefault(false);
+		ui.signInButton->setDefault(true);
+		break;
+	}
+
+	if (mode() == LogIn)
+	{
+
 	}
 	else
 	{
-		ui.pbtConnect->setDefault(false);
-		ui.pbtRegister->setDefault(true);
+
 	}
 }
 

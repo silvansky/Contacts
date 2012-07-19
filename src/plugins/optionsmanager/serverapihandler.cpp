@@ -2,6 +2,9 @@
 
 #include <utils/networking.h>
 
+#include <QDomDocument>
+#include <QTextDocument>
+
 // server defines
 
 #define REG_SERVER_PROTOCOL   "https"
@@ -27,34 +30,108 @@ ServerApiHandler::ServerApiHandler() :
 {
 }
 
-void ServerApiHandler::sendRegistrationRequest(const Jid &user, const QString &password, const QString &userName)
+ServerApiHandler::~ServerApiHandler()
 {
-	QUrl request(REG_SERVER_QUERY);
-	QString postData = QString("login=%1&domain=%2&password=%3&name=%4").arg(urlencode(user.node()), urlencode(user.domain()), urlencode(password), urlencode(userName));
-	Networking::httpPostAsync(request, postData.toUtf8(), this, NW_SLOT(onNetworkRequestFinished), NW_SLOT(onNetworkRequestFailed));
 }
 
-void ServerApiHandler::sendCheckAuthRequest(const QString &service, const QString &login, const QString &password)
+void ServerApiHandler::sendRegistrationRequest(const Jid &user, const QString &password, const QString &userName)
 {
-	Q_UNUSED(service)
-	Q_UNUSED(login)
-	Q_UNUSED(password)
+	QDomDocument doc;
+	QDomElement root = doc.createElement("register");
+	doc.appendChild(root);
+
+	QDomElement loginEl = doc.createElement("login");
+	loginEl.appendChild(doc.createTextNode(Qt::escape(user.node())));
+	root.appendChild(loginEl);
+
+	QDomElement domainEl = doc.createElement("domain");
+	domainEl.appendChild(doc.createTextNode(Qt::escape(user.domain())));
+	root.appendChild(domainEl);
+
+	QDomElement nameEl = doc.createElement("name");
+	nameEl.appendChild(doc.createTextNode(Qt::escape(userName)));
+	root.appendChild(nameEl);
+
+	QDomElement passEl = doc.createElement("password");
+	passEl.appendChild(doc.createTextNode(Qt::escape(password)));
+	root.appendChild(passEl);
+
+	sendData(doc.toString().toUtf8());
+}
+
+void ServerApiHandler::sendCheckAuthRequest(const QString &service, const QString &user, const QString &password)
+{
+	QDomDocument doc;
+	QDomElement root = doc.createElement("authcheck");
+	doc.appendChild(root);
+
+	QDomElement serviceEl = doc.createElement("service");
+	serviceEl.appendChild(doc.createTextNode(Qt::escape(service)));
+	root.appendChild(serviceEl);
+
+	QDomElement userEl = doc.createElement("user");
+	userEl.appendChild(doc.createTextNode(Qt::escape(user)));
+	root.appendChild(userEl);
+
+	QDomElement passEl = doc.createElement("password");
+	passEl.appendChild(doc.createTextNode(Qt::escape(password)));
+	root.appendChild(passEl);
+
+	sendData(doc.toString().toUtf8());
 }
 
 void ServerApiHandler::sendAuthRequest(const QList<ServiceAuthInfo> &services)
 {
-	Q_UNUSED(services)
+	if (services.isEmpty())
+	{
+		emit requestFailed(tr("No accounts provided"));
+		return;
+	}
+
+	QDomDocument doc;
+	QDomElement root = doc.createElement("fastregister");
+	doc.appendChild(root);
+
+	foreach (ServiceAuthInfo info, services)
+	{
+		if (info.authorized)
+		{
+			QDomElement accountEl = doc.createElement("account");
+
+			QDomElement serviceEl = doc.createElement("service");
+			serviceEl.appendChild(doc.createTextNode(Qt::escape(info.service)));
+			accountEl.appendChild(serviceEl);
+
+			QDomElement userEl = doc.createElement("user");
+			userEl.appendChild(doc.createTextNode(Qt::escape(info.user)));
+			accountEl.appendChild(userEl);
+
+			QDomElement authtokenEl = doc.createElement("authtoken");
+			authtokenEl.appendChild(doc.createTextNode(Qt::escape(info.authToken)));
+			accountEl.appendChild(authtokenEl);
+
+			root.appendChild(accountEl);
+		}
+	}
+
+	sendData(doc.toString().toUtf8());
 }
 
+
+void ServerApiHandler::sendData(const QByteArray &data)
+{
+	Networking::httpPostAsync(QUrl(REG_SERVER_QUERY), data, this, NW_SLOT(onNetworkRequestFinished), NW_SLOT(onNetworkRequestFailed));
+}
 
 void ServerApiHandler::onNetworkRequestFinished(const QUrl &url, const QString &result)
 {
 	Q_UNUSED(url)
 	Q_UNUSED(result)
+	// TODO: parse resulting XML...
 }
 
 void ServerApiHandler::onNetworkRequestFailed(const QUrl &url, const QString &errorString)
 {
 	Q_UNUSED(url)
-	Q_UNUSED(errorString)
+	emit requestFailed(errorString);
 }
