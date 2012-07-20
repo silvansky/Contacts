@@ -2,10 +2,16 @@
 #include "ui_addaccountwidget.h"
 
 #include "addsimpleaccountdialog.h"
+#include "addfacebookaccountdialog.h"
+#include "addrambleraccountdialog.h"
 
 #include <utils/iconstorage.h>
 #include <definitions/resources.h>
 #include <definitions/menuicons.h>
+
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
 
 AddAccountWidget::AddAccountWidget(AccountWidgetType accWidgetType, QWidget *parent) :
 	QWidget(parent),
@@ -95,15 +101,18 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 		QStringList domains;
 		QString caption;
 		QString loginPlaceholder = tr("Login");
+		QString dialogService;
 		switch (type())
 		{
 		case AW_Vkontakte:
 			caption = tr("Enter your Vkontakte ID and password");
 			loginPlaceholder = tr("ID");
+			dialogService = "vk";
 			break;
 		case AW_ICQ:
 			caption = tr("Enter your ICQ UIN or login and password");
 			loginPlaceholder = tr("UIN or login");
+			dialogService = "icq";
 			break;
 		case AW_MRIM:
 			caption = tr("Enter your Mail.ru Agent login and password");
@@ -112,6 +121,7 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 				   "list.ru" <<
 				   "bk.ru" <<
 				   "inbox.ru";
+			dialogService = "mrim";
 
 			break;
 		case AW_Yandex:
@@ -120,17 +130,24 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 				   "yandex.ru" <<
 				   "ya.ru" <<
 				   "narod.ru";
+			dialogService = "ya";
 			break;
 		default:
 			break;
 		}
 		if (type() == AW_Facebook)
 		{
-			// TODO: show facebook auth dialog
+			AddFacebookAccountDialog *dialog = new AddFacebookAccountDialog;
+			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
+			dialog->showDialog();
 		}
 		else if (type() == AW_Rambler)
 		{
-			// TODO: show rambler auth/reg dialog
+			AddRamblerAccountDialog *dialog = new AddRamblerAccountDialog;
+			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
+			dialog->showDialog();
 		}
 		else
 		{
@@ -138,7 +155,9 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 			dialog->setCaption(caption);
 			dialog->setLoginPlaceholder(loginPlaceholder);
 			dialog->setDomainList(domains);
+			dialog->setService(dialogService);
 			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
 			dialog->showDialog();
 		}
 	}
@@ -147,16 +166,33 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 
 void AddAccountWidget::onDialogAccepted()
 {
-	AddSimpleAccountDialog *simpleDialog = qobject_cast<AddSimpleAccountDialog *>(sender());
-	if (simpleDialog)
+	QDialog *addDialog = qobject_cast<QDialog *>(sender());
+	if (addDialog)
 	{
-		_authInfo.authorized = simpleDialog->succeeded();
-		_authInfo.authToken = simpleDialog->authToken();
-		_authInfo.user = simpleDialog->selectedUserId();
-		if (simpleDialog->succeeded())
+		_authInfo.authorized = addDialog->property("succeeded").toBool();
+		_authInfo.authToken = addDialog->property("authToken").toString();
+		_authInfo.user = addDialog->property("selectedUserId").toString();
+		if (_authInfo.authorized)
+		{
 			emit authChecked();
+		}
 		else
+		{
+			ui->serviceButton->setChecked(false);
 			emit authCheckFailed();
+		}
+		addDialog->deleteLater();
+#ifdef DEBUG_ENABLED
+		qDebug() << QString("got account %1 at %2 with token %3").arg(_authInfo.user, _authInfo.service, _authInfo.authToken);
+#endif
 		return;
 	}
+}
+
+void AddAccountWidget::onDialogRejected()
+{
+	QDialog *addDialog = qobject_cast<QDialog *>(sender());
+	if (addDialog)
+		addDialog->deleteLater();
+	ui->serviceButton->setChecked(false);
 }

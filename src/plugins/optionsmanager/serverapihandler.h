@@ -48,7 +48,7 @@ signals:
 	void authRequestFailed(const QString &reason);
 
 protected slots:
-	void sendData(const QByteArray &data);
+	void sendData(const QUrl &url, const QByteArray &data);
 	// for Networking callbacks
 	void onNetworkRequestFinished(const QUrl &url, const QString &result);
 	void onNetworkRequestFailed(const QUrl &url, const QString &errorString);

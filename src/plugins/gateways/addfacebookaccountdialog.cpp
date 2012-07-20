@@ -139,10 +139,7 @@ void AddFacebookAccountDialog::setWaitMode(bool AWait, const QString &AMessage)
 	if (AWait && !AMessage.isEmpty())
 		ui.lblCaption->setText(ui.lblCaption->text()+" - "+AMessage);
 
-	if (parentWidget())
-		parentWidget()->setWindowTitle(ui.lblCaption->text());
-	else
-		setWindowTitle(ui.lblCaption->text());
+	window()->setWindowTitle(ui.lblCaption->text());
 
 	ui.wbvView->setEnabled(!AWait);
 }

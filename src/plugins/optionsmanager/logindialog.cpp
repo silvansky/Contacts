@@ -218,7 +218,7 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.wdtEasyReg->setVisible(false);
 	ui.splitLine->setVisible(false);
 
-	setFixedSize(350, 450);
+	setFixedSize(300, 450);
 
 	ui.pbtRegister->setProperty("initial", true);
 	ui.pbtRegister->setText(tr("Sign Up %1").arg(QChar(8595)));

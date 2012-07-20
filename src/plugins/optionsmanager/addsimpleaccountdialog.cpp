@@ -21,7 +21,7 @@ AddSimpleAccountDialog::AddSimpleAccountDialog() :
 	_serverApiHandler = new ServerApiHandler;
 	connect(_serverApiHandler, SIGNAL(checkAuthRequestSucceeded(const QString &, const QString &)), SLOT(onCheckAuthRequestSucceeded(const QString &, const QString &)));
 	connect(_serverApiHandler, SIGNAL(checkAuthRequestFailed(const QString &, const QString &)), SLOT(onCheckAuthRequestFailed(const QString &, const QString &)));
-	connect(_serverApiHandler, SIGNAL(checkAuthRequestRequestFailed(const QString &)), SLOT(onCheckAuthRequestRequestFailed(const QString &)));
+	connect(_serverApiHandler, SIGNAL(requestFailed(const QString &)), SLOT(onCheckAuthRequestRequestFailed(const QString &)));
 	_succeeded = false;
 
 	connect(ui->acceptButton, SIGNAL(clicked()), SLOT(onAcceptClicked()));
@@ -146,14 +146,19 @@ void AddSimpleAccountDialog::setDomainList(const QStringList &newList)
 			if (domainsMenu)
 				domainsMenu->deleteLater();
 			domainsMenu = new Menu;
+			Action *firstAction = NULL;
 			foreach (QString domain, _domainList)
 			{
 				Action *domainAction = new Action(domainsMenu);
 				domainAction->setText("@" + domain);
 				domainAction->setData(Action::DR_UserDefined + 1, domain);
+				connect(domainAction, SIGNAL(triggered()), SLOT(onDomainActionTriggered()));
 				domainsMenu->addAction(domainAction);
+				if (!firstAction)
+					firstAction = domainAction;
 			}
 			ui->domains->setMenu(domainsMenu);
+			firstAction->trigger();
 		}
 	}
 	else

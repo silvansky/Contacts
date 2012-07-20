@@ -63,12 +63,12 @@ private:
 	QString _loginPlaceholder;
 	QString _passwordPlaceholder;
 	QStringList _domainList;
-private:
-	Menu *domainsMenu;
-	ServerApiHandler *_serverApiHandler;
 	QString _selectedUserId;
 	QString _authToken;
 	bool _succeeded;
+private:
+	Menu *domainsMenu;
+	ServerApiHandler *_serverApiHandler;
 };
 
 #endif // ADDSIMPLEACCOUNTDIALOG_H

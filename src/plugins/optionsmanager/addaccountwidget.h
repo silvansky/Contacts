@@ -37,6 +37,7 @@ public:
 protected slots:
 	void onServiceButtonToggled(bool on);
 	void onDialogAccepted();
+	void onDialogRejected();
 signals:
 	void authChecked();
 	void authCheckFailed();

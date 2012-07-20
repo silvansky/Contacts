@@ -17,6 +17,10 @@ class NetworkingPrivate;
 #define NW_SLOT(func)    #func
 #define NW_SLOT_NONE     NULL
 
+// set receiver's property NW_CONTENT_TYPE_PROP to content type to use
+// default is "application/octet-stream"
+#define NW_CONTENT_TYPE_PROP   "nwContentType"
+
 class UTILS_EXPORT Networking
 {
 public:

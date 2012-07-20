@@ -102,7 +102,10 @@ void NetworkingPrivate::httpPostAsync(const QUrl &src, const QByteArray &data, Q
 {
 	QNetworkRequest request;
 	request.setUrl(src);
-	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/octet-stream");
+	QString contentType = "application/octet-stream";
+	if (receiver && receiver->property(NW_CONTENT_TYPE_PROP).toString().isEmpty())
+		contentType = receiver->property(NW_CONTENT_TYPE_PROP).toString();
+	request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
 	RequestProperties props;
 	props.requestType = RequestProperties::PostReq;
 	props.postData = data;
