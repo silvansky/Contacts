@@ -1,0 +1,37 @@
+QFrame#frmContents
+{
+	background-color: white;
+}
+
+QFrame#frmContents QWidget
+{
+	background-color: transparent;
+}
+
+CustomLabel#lblInfo
+{
+	color: black;
+	qproperty-shadow: 0;
+} 
+
+QPushButton#pbtContinue
+{
+	color: black;
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#pbtContinue:disabled
+{
+	color: #acacac;
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#pbtContinue:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#pbtContinue:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}

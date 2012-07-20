@@ -1,0 +1,51 @@
+/* background */
+
+MainWindow
+{
+	background-color: rgba(65, 70, 77, 250);
+}
+
+#upperWidget, #rostersWidget, #bottomWidget, #noticeWidget, #StatusWidgetClass, #searchFrame
+{
+	background-color: transparent;
+}
+
+/************
+ * QToolBar *
+ ************/
+
+QToolBar
+{
+	background-color: transparent;
+}
+
+QToolBar#statusToolBar
+{
+	border: 0px solid transparent;
+	padding: 2px;
+	spacing: 2px;
+	background-color: transparent;
+	min-height: 40px;
+}
+
+CustomBorderContainer QToolBar#statusToolBar
+{
+	min-height: 55px;
+}
+
+/********************
+ * Main Menu Button *
+ ********************/
+
+QToolButton#mainMenuButton
+{
+	margin-top: 2px;
+	margin-right: 7px;
+	height: 20px;
+	min-height: 20px;
+	max-height: 20px;
+	width: 25px;
+	min-width: 25px;
+	max-width: 25px;
+}
+

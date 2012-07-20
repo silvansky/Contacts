@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>rchangerAddContactDialog</key>
+    <object mime='text/css'>rchangeraddcontactdialog.qss</object>
+  </file>
+  <file>
+    <key>rchangerAddMetaContactDialog</key>
+    <object mime='text/css'>rchangeraddmetacontactdialog.qss</object>
+  </file>
+  <file>
+    <key>rchangerTabBarItemSubscription</key>
+    <object mime='text/css'>rchangertabbaritemsubscription.qss</object>
+  </file>
+  <file>
+    <key>rchangerNotifyWidgetSubscription</key>
+    <object mime='text/css'>notificationsnotifywidget.qss</object>
+  </file>
+  <file>
+    <key>rchangerWelcomeScreen</key>
+    <object mime='text/css'>rchangerwelcomescreen.qss</object>
+  </file>
+</styledef>

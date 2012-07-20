@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>emoticonsSelectIconWidget</key>
+    <object mime='text/css'>emoticonsselecticonwidget.qss</object>
+  </file>
+  <file>
+    <key>emoticonsSelectIconMenu</key>
+    <object mime='text/css'>emoticonsselecticonmenu.qss</object>
+  </file>
+</styledef>

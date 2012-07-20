@@ -1,0 +1,78 @@
+QWidget#SipCallNotifyer
+{
+	background-color: rgba(0, 0, 0, 220);
+}
+
+QLabel
+{
+	font-size: 11px;
+}
+
+QLabel#notice
+{
+	color: grey;
+}
+
+QToolButton
+{
+	min-height: 20px;
+	max-height: 20px;
+	height: 20px;
+	padding: 0px;
+	padding-top: -2px;
+	min-width: 28px;
+}
+
+QToolButton:hover
+{
+	padding: -2px;
+	padding-top: -4px;
+}
+
+QToolButton#accept
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnok.png);
+}
+
+QToolButton#accept:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokhover.png);
+}
+
+QToolButton#accept:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtnokclick.png);
+}
+
+QToolButton#reject
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancel.png);
+}
+
+QToolButton#reject:hover
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelhover.png);
+}
+
+QToolButton#reject:pressed
+{
+	border-image: url(%IMAGES_PATH%/sipcallnbtncancelclick.png);
+}
+
+QToolButton#mute
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancel.png);
+	min-width: 20px;
+	max-width: 20px;
+	width: 20px;
+}
+
+QToolButton#mute:hover
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelhover.png);
+}
+
+QToolButton#mute:pressed
+{
+	border-image: url(%IMAGES_PATH%/nwbuttoncancelclick.png);
+}

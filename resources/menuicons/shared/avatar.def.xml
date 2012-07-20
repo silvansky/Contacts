@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>avatarEmptyMale</key>
+    <object mime="image/png">avataremptymale24.png</object>
+    <object mime="image/png">avataremptymale48.png</object>
+  </icon>
+  <icon>
+    <key>avatarEmptyFemale</key>
+    <object mime="image/png">avataremptyfemale24.png</object>
+    <object mime="image/png">avataremptyfemale48.png</object>
+  </icon>
+  <icon>
+    <key>avatarEmptyMaleOffline</key>
+    <object mime="image/png">avataremptymale24.png</object>
+  </icon>
+  <icon>
+    <key>avatarEmptyFemaleOffline</key>
+    <object mime="image/png">avataremptyfemale24.png</object>
+  </icon>
+</icondef>

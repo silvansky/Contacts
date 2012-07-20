@@ -1,0 +1,16 @@
+QDialog
+{
+	background-color: rgba(65, 70, 77, 250);
+}
+
+
+QScrollArea#scaItems, QScrollArea#scaItems QWidget
+{
+	background-color: transparent;
+}
+
+
+QLabel#lblCaption
+{
+	font-size: 18px;
+}

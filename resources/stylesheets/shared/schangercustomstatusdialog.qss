@@ -1,0 +1,11 @@
+QLabel#lblCaption 
+{
+	font-size: 12px;
+	font-weight: bold;
+}
+
+QLabel#lblExample
+{
+	font-style: italic;
+	qproperty-enabled: false;
+}

@@ -1,0 +1,27 @@
+QLabel#optionsCaptionLabel
+{
+	font-size: 18px;
+}
+
+#wdtOptionsHeader
+{
+	background-color: transparent;
+}
+
+QGroupBox
+{
+	border: none;
+	margin-top: 10px;
+}
+
+QGroupBox#gbManualProxySettings
+{
+	margin-left: 14px;
+}
+
+QLineEdit#lneProxyPort
+{
+	min-width: 34px;
+	max-width: 34px;
+	width: 34px;
+}

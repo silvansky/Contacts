@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<borderdef>
+  <file>
+    <key>dialog</key>
+    <object mime="text/xml">dialog.xml</object>
+  </file>
+  <file>
+    <key>roster</key>
+    <object mime="text/xml">roster.xml</object>
+  </file>
+  <file>
+    <key>window</key>
+    <object mime="text/xml">window.xml</object>
+  </file>
+  <file>
+    <key>optionsDialog</key>
+    <object mime="text/xml">optionsdialog.xml</object>
+  </file>
+  <file>
+    <key>messageWindow</key>
+    <object mime="text/xml">messagewindow.xml</object>
+  </file>
+  <file>
+    <key>notification</key>
+    <object mime="text/xml">notification.xml</object>
+  </file>
+  <file>
+    <key>videoCall</key>
+    <object mime="text/xml">videocall.xml</object>
+  </file>
+  <file>
+    <key>menu</key>
+    <object mime="text/xml">menu.xml</object>
+  </file>
+</borderdef>

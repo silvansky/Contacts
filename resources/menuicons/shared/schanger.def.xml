@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>schangerConnecting</key>
+    <object mime="image/png">schangerconnecting.png</object>
+  </icon>
+  <icon>
+    <key>schangerConnectionError</key>
+    <object mime="image/png">schangerconnectionerror.png</object>
+  </icon>
+  <icon>
+    <key>schangerConnectionRestore</key>
+    <object mime="image/png">schangerconnectionrestore.png</object>
+  </icon>
+</icondef>

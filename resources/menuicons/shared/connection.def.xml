@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>connectionOptions</key>
+    <object mime="image/png">connectionoptions.png</object>
+    <object mime="image/png">connectionoptions_click.png</object>
+  </icon>
+</icondef>

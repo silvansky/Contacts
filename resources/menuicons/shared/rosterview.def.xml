@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>rosterviewOptions</key>
+    <object mime="image/png">rosterviewoptions.png</object>
+    <object mime="image/png">rosterviewoptions_click.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewViewFull</key>
+    <object mime="image/png">rosterviewviewfull.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewViewSimplified</key>
+    <object mime="image/png">rosterviewviewsimplified.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewViewCompact</key>
+    <object mime="image/png">rosterviewviewcompact.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewGroupOpenedIndicator</key>
+    <object mime="image/png">rosterviewgroupopenedindicator.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewGroupClosedIndicator</key>
+    <object mime="image/png">rosterviewgroupclosedindicator.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewDraggedItem</key>
+    <object mime="image/png">rosterviewdraggeditem.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewHighlightedItem</key>
+    <object mime="image/png">rosterviewhighlighteditem.png</object>
+    <object mime="image/png">rosterviewhighlighteditem_alpha.png</object>
+  </icon>
+  <icon>
+    <key>rosterviewDragShadow</key>
+    <object mime="image/png">rosterviewdragshadow.png</object>
+  </icon>
+</icondef>

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>ramblermailnotifyMailNotifyPage</key>
+    <object mime='text/css'>ramblermailnotifymailnotifypage.qss</object>
+  </file>
+  <file>
+    <key>ramblermailnotifyMailInfoWidget</key>
+    <object mime='text/css'>ramblermailnotifymailinfowidget.qss</object>
+  </file>
+  <file>
+    <key>ramblermailnotifyCustomMailPage</key>
+    <object mime='text/css'>ramblermailnotifycustommailpage.qss</object>
+  </file>
+</styledef>

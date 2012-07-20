@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>optionsLoginDialog</key>
+    <object mime='text/css'>optionslogindialog.qss</object>
+  </file>
+  <file>
+    <key>optionsOptionsDialog</key>
+    <object mime='text/css'>optionsoptionsdialog.qss</object>
+  </file>
+  <file>
+    <key>optionsConnectionSettings</key>
+    <object mime='text/css'>optionsconnectionsettings.qss</object>
+  </file>
+  <file>
+    <key>optionsEasyRegistrationDialog</key>
+    <object mime='text/css'>optionseasyregistrationdialog.qss</object>
+  </file>
+</styledef>

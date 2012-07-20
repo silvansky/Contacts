@@ -1,0 +1,59 @@
+QDialog
+{
+	background-color: rgba(65, 70, 77, 250);
+}
+
+QWidget#wdtPageAddress, QWidget#wdtPageConfirm, QWidget#wdtPageParams, QWidget#wdtSelectProfile, QWidget#wdtConfirmAddresses, QWidget#wdtProfiles,
+QFrame#contentsFrame
+{
+	background-color: transparent;
+}
+
+QLabel#lblCaption
+{
+	font-size: 18px;
+}
+
+QLabel#lblError
+{
+	font-size: 11px;
+}
+
+QLabel
+{
+	margin-left: 1px;
+}
+
+QComboBox
+{
+	margin-left: 2px;
+	margin-right: 3px;
+}
+
+QComboBox::drop-down
+{
+	right: 6px;
+}
+
+QPushButton#pbtBack
+{
+	border-image: url(%IMAGES_PATH%/backbutton.png);
+	border-left: 10px;
+	padding-left: 0px;
+	min-width: 38px;
+	max-width: 38px;
+	width: 38px;
+}
+
+QPushButton#pbtBack:hover
+{
+	border-image: url(%IMAGES_PATH%/backbutton_hover.png);
+	border-left: 12px;
+	padding-left: -2px;
+}
+
+QPushButton#pbtBack:pressed
+{
+	border-image: url(%IMAGES_PATH%/backbutton_click.png);
+	border-left: 12px;
+}

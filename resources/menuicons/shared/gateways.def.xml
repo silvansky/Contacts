@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>gatewaysServiceSms</key>
+    <object mime="image/png">gatewaysservicesms23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceIcq</key>
+    <object mime="image/png">gatewaysserviceicq23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceYOnline</key>
+    <object mime="image/png">gatewaysserviceyonline23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceOdnoklasniki</key>
+    <object mime="image/png">gatewaysserviceodnoklasniki23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceMAgent</key>
+    <object mime="image/png">gatewaysservicemagent23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceGTalk</key>
+    <object mime="image/png">gatewaysservicegtalk23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceRambler</key>
+    <object mime="image/png">gatewaysservicerambler23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceFacebook</key>
+    <object mime="image/png">gatewaysservicefacebook23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceQip</key>
+    <object mime="image/png">gatewaysserviceqip23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceJabber</key>
+    <object mime="image/png">gatewaysservicejabber23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceMail</key>
+    <object mime="image/png">gatewaysservicemail23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceTwitter</key>
+    <object mime="image/png">gatewaysservicetwitter23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceVKontakte</key>
+    <object mime="image/png">gatewaysservicevkontakte23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceLiveJournal</key>
+    <object mime="image/png">gatewaysservicelivejournal23.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysAddAccountError</key>
+    <object mime="image/png">gatewaysaddaccounterror.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysConnectingAnimation</key>
+    <object mime="image/gif">gatewaysconnectinganimation.gif</object>
+  </icon>
+  <icon>
+    <key>gatewaysAccountsOptions</key>
+    <object mime="image/png">gatewaysaccountsoptions.png</object>
+    <object mime="image/png">gatewaysaccountsoptions_click.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysAllServices</key>
+    <object mime="image/png">gatewaysallservices.png</object>
+  </icon>
+</icondef>

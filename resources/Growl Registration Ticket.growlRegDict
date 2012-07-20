@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+<dict>
+  <key>TicketVersion</key>
+  <integer>1</integer>
+  <key>AllNotifications</key>
+  <array>
+	<string>New Message</string>
+	<string>Mood Changed</string>
+	<string>Status Changed</string>
+	<string>Birthday Reminder</string>
+	<string>New E-Mail</string>
+	<string>Error</string>
+	<string>Subscription Message</string>
+  </array>
+  <key>DefaultNotifications</key>
+  <array>
+	<string>New Message</string>
+	<string>Birthday Reminder</string>
+	<string>New E-Mail</string>
+	<string>Error</string>
+	<string>Subscription Message</string>
+  </array>
+</dict>
+</plist>
+

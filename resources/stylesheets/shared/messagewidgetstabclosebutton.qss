@@ -1,0 +1,19 @@
+CloseButton[isActive="false"][isHover="false"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebutton.png);
+}
+
+CloseButton[isActive="false"][isHover="true"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/closebuttonhover.png);
+}
+
+CloseButton[isActive="true"][isHover="false"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/activeclosebutton.png);
+}
+
+CloseButton[isActive="true"][isHover="true"]
+{
+	qproperty-icon: url(%IMAGES_PATH%/activeclosebuttonhover.png);
+}

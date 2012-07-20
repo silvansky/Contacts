@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LSHasLocalizedDisplayName</key>
+	<true/>
+	<key>CFBundleIconFile</key>
+	<string>virtus.icns</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Rambler Contacts</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleExecutable</key>
+	<string>Contacts</string>
+	<key>CFBundleIdentifier</key>
+	<string>ru.rambler.contacts</string>
+	<key>NOTE</key>
+	<string>Good news, everyone!</string>
+	<key>CFBundleVersion</key>
+	<string>0.6.9.1825</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2010-2012 Rambler Internet Holding LLC.
+All Rights Reserved.</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.6.7</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en_US</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.social-networking</string>
+	<key>CFBundleName</key>
+	<string>Contacts</string>
+</dict>
+</plist>

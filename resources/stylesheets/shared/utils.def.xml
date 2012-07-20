@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>utilsCustomInputDialog</key>
+    <object mime='text/css'>utilscustominputdialog.qss</object>
+  </file>
+  <file>
+    <key>utilsCloseButton</key>
+    <object mime='text/css'>utilsclosebutton.qss</object>
+  </file>
+</styledef>

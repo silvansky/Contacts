@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+    <key>mainwindowWindow</key>
+    <object mime='text/css'>mainwindowwindow.qss</object>
+  </file>
+  <file>
+    <key>mainwindowNoticeWidget</key>
+    <object mime='text/css'>mainwindownoticewidget.qss</object>
+  </file>
+  <file>
+    <key>mainwindowNoticeCloseButton</key>
+    <object mime='text/css'>mainwindownoticeclosebutton.qss</object>
+  </file>
+</styledef>

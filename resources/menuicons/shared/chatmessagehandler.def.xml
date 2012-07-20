@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>chatmessagehandlerMessage</key>
+    <object mime="image/png">chatmessagehandlermessage.png</object>
+  </icon>
+  <icon>
+    <key>chatmessagehandlerOptions</key>
+    <object mime="image/png">chatmessagehandleroptions.png</object>
+    <object mime="image/png">chatmessagehandleroptions_click.png</object>
+  </icon>
+</icondef>

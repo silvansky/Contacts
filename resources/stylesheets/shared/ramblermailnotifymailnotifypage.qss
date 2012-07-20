@@ -1,0 +1,78 @@
+QFrame#frmContents
+{
+	background-color: white;
+}
+
+QFrame#frmContents QWidget
+{
+	background-color: transparent;
+}
+
+CustomLabel#lblNoMail, 
+CustomLabel#lblIncoming
+{
+	color: black;
+	qproperty-shadow: 0;
+} 
+
+QHeaderView
+{
+	border-bottom: 1px solid black;
+}
+
+QHeaderView::section
+{
+	background-color: transparent;
+}
+
+QTableWidget
+{
+	color: black;
+	background-color: white;
+	selection-color: white;
+	selection-background-color: #275672;
+}
+
+QTableWidget::item
+{
+	border-bottom: 1px solid gray;
+}
+
+QTableWidget::item::selected
+{
+	background-color: #275672;
+}
+
+QPushButton#pbtNewMail
+{
+	color: black;
+	border-image: url(%IMAGES_PATH%/whitebutton.png);
+}
+
+QPushButton#pbtNewMail:disabled
+{
+	color: #acacac;
+	border-image: url(%IMAGES_PATH%/whitebutton_disabled.png);
+}
+
+QPushButton#pbtNewMail:hover
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_hover.png);
+}
+
+QPushButton#pbtNewMail:pressed
+{
+	border-image: url(%IMAGES_PATH%/whitebutton_click.png);
+}
+
+QPushButton#pbtGoToEmail
+{
+	color: black;
+	border-image: none;
+	text-decoration: underline;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+} 

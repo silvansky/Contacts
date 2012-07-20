@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<effectsdef>
+  <file>
+    <key>labels</key>
+    <object mime="text/xml">labels.xml</object>
+  </file>
+  <file>
+    <key>statusIcons</key>
+    <object mime="text/xml">statusicons.xml</object>
+  </file>
+  <file>
+    <key>textShadows</key>
+    <object mime="text/xml">textshadows.xml</object>
+  </file>
+  <file>
+    <key>noticeWidget</key>
+    <object mime="text/xml">noticewidget.xml</object>
+  </file>
+</effectsdef>

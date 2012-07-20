@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graphics-effects>
+  <effect type="shadow">
+    <names>
+      <name>lblRegister</name>
+      <name>lblForgotPassword</name>
+      <name>lblCopyright</name>
+      <name>lblHomePage</name>
+      <name>lblFontInfo</name>
+      <name>lblAboutQt</name>
+      <name>lblAboutQtText</name>
+    </names>
+    <classes>
+	<class>QLabel</class>
+	<class>QCheckBox</class>
+	<class>QRadioButton</class>
+    </classes>
+    <color>#333333</color>
+    <offset x="0" y="-1" />
+    <blur radius="0" />
+  </effect>
+</graphics-effects>

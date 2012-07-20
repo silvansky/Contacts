@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<styledef>
+  <file>
+	<key>multiuserchatWindow</key>
+	<object mime='text/css'>multiuserchatwindow.qss</object>
+  </file>
+</styledef>

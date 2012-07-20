@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>rchangerSubscription</key>
+    <object mime="image/png">rchangersubscription.png</object>
+  </icon>
+  <icon>
+    <key>rchangerAddContactError</key>
+    <object mime="image/png">rchangeraddcontacterror.png</object>
+  </icon>
+</icondef>

@@ -1,0 +1,29 @@
+QPushButton#tlbDomain
+{
+	margin-bottom: 2px;
+}
+
+QComboBox
+{
+	padding-top: -1px;
+}
+
+QCheckBox
+{
+	margin-left: 4px;
+}
+
+QLabel#lblRegistration
+{
+	margin-top: 3px;
+}
+
+#wdtRegFields
+{
+	padding-top: 6px;
+}
+
+QPushButton#pbtRegister
+{
+	margin-top: 2px;
+}

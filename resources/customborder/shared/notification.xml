@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window-border-style>
+ <left-border>
+   <width>9</width>
+   <resize-width>5</resize-width>
+   <resize-margin>9</resize-margin>
+   <image src="customborder/leftShadowNotification" />
+ </left-border>
+ <top-border>
+   <width>9</width>
+   <resize-width>5</resize-width>
+   <resize-margin>9</resize-margin>
+   <image src="customborder/topShadowNotification" />
+ </top-border>
+ <right-border>
+   <width>9</width>
+   <resize-width>5</resize-width>
+   <resize-margin>9</resize-margin>
+   <image src="customborder/rightShadowNotification" />
+ </right-border>
+ <bottom-border>
+   <width>9</width>
+   <resize-width>5</resize-width>
+   <resize-margin>9</resize-margin>
+   <image src="customborder/bottomShadowNotification" />
+ </bottom-border>
+ <top-left-corner>
+   <width>34</width>
+   <height>34</height>
+   <radius>4</radius>
+   <resize-left>9</resize-left>
+   <resize-width>10</resize-width>
+   <resize-top>9</resize-top>
+   <resize-height>10</resize-height>
+   <image src="customborder/topLeftShadowNotification" />
+   <mask src="customborder/topLeftMaskNotification" />
+ </top-left-corner>
+ <top-right-corner>
+   <width>34</width>
+   <height>34</height>
+   <radius>4</radius>
+   <resize-right>9</resize-right>
+   <resize-width>10</resize-width>
+   <resize-top>9</resize-top>
+   <resize-height>10</resize-height>
+   <image src="customborder/topRightShadowNotification" />
+   <mask src="customborder/topRightMaskNotification" />
+ </top-right-corner>
+ <bottom-left-corner>
+   <width>34</width>
+   <height>34</height>
+   <radius>4</radius>
+   <resize-left>9</resize-left>
+   <resize-width>10</resize-width>
+   <resize-bottom>9</resize-bottom>
+   <resize-height>10</resize-height>
+   <image src="customborder/bottomLeftShadowNotification" />
+   <mask src="customborder/bottomLeftMaskNotification" />
+ </bottom-left-corner>
+ <bottom-right-corner>
+   <width>34</width>
+   <height>34</height>
+   <radius>4</radius>
+   <resize-right>9</resize-right>
+   <resize-width>10</resize-width>
+   <resize-bottom>9</resize-bottom>
+   <resize-height>10</resize-height>
+   <image src="customborder/bottomRightShadowNotification" />
+   <mask src="customborder/bottomRightMaskNotification" />
+ </bottom-right-corner>
+ <header>
+   <spacing>5</spacing>
+   <height>0</height>
+   <move-height>0</move-height>
+   <move-left>0</move-left>
+   <margins left="5" right="2" top="1" bottom="2" />
+   <gradient type="linear">
+     <direction x1="0" y1="0" x2="0" y2="26" />
+     <gradient-stop at="0.0" color="#00FF0032" />
+     <gradient-stop at="0.5" color="#96FF0096" />
+     <gradient-stop at="1.0" color="#00FF0032" />
+   </gradient>
+ </header>
+ <title color="#FF00FF" />
+ <window-controls spacing="2" />
+ <minimize-button>
+   <width>17</width>
+   <height>17</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/minimizeButtonNormalNotification" />
+   <image-hover src="customborder/minimizeButtonHighlightedNotification" />
+ </minimize-button>
+ <maximize-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/maximizeButtonNormal" />
+   <image-hover src="customborder/maximizeButtonHighlighted" />
+ </maximize-button>
+ <close-button>
+   <width>17</width>
+   <height>17</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/closeButtonNormalNotification" />
+   <image-hover src="customborder/closeButtonHighlightedNotification" />
+ </close-button>
+ <restore-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/restoreButtonNormal" />
+   <image-hover src="customborder/restoreButtonHighlighted" />
+ </restore-button>
+</window-border-style>

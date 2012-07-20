@@ -1,0 +1,40 @@
+QPushButton#pbtRegDomain
+{
+	margin-top: 2px;
+	min-width: 93px;
+	max-width: 93px;
+	width: 93px;
+	text-align: left;
+	min-height: 25px;
+}
+
+QPushButton#tlbDomain
+{
+	margin-top: 1px;
+	min-width: 100px;
+	max-width: 100px;
+	width: 100px;
+	text-align: left;
+	min-height: 25px;
+}
+
+QLabel#lblRegNameHelp
+{
+	margin-top: -2px;
+}
+
+QLabel#lblRegistration
+{
+	margin-top: 3px;
+	margin-bottom: 0px;
+}
+
+#splitLine
+{
+	margin-left: 8px;
+}
+
+QPushButton#pbtRegister[initial="false"]
+{
+	margin-top: 18px;
+}

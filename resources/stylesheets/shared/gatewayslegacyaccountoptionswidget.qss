@@ -1,0 +1,14 @@
+QLabel#lblInfo[state="connected"]
+{
+	color: #85b336;
+}
+
+QLabel#lblInfo[state="disconnected"]
+{
+	color: yellow;
+}
+
+QLabel#lblInfo[state="error"]
+{
+	color: #f46c6c;
+}

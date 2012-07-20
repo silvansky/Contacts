@@ -1,0 +1,42 @@
+QTreeView#rostersView
+{
+	background-color: white;
+	alternate-background-color: #f2f9fc;
+	color: black;
+	selection-color: white;
+	selection-background-color: #275672;
+	qproperty-groupBorderImage: url(%IMAGES_PATH%/groups-border.png);
+	qproperty-groupColor: white;
+	qproperty-groupFontSize: 11;
+	qproperty-footerColor: #acacac;
+	font-size: 12px;
+}
+
+
+QLineEdit#lneEditIndex
+{
+	border-left: 0px;
+	border-top: 0px;
+	border-right: 0px;
+	border-bottom: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-height: 0px;
+	background-color: white;
+	border-image: none;
+	color: #333333;
+	font-size: 11px;
+	selection-background-color: #cddde4;
+	selection-color: #333333;
+}
+
+QLineEdit#lneEditIndex:!enabled
+{
+	color: #acacac;
+	border-image: none;
+}
+
+QLineEdit#lneEditIndex:focus
+{
+	border-image: none;
+} 

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>optionsDialog</key>
+    <object mime="image/png">optionsdialog.png</object>
+    <object mime="image/png">optionsdialog_click.png</object>
+  </icon>
+  <icon>
+    <key>optionsLoginHelp</key>
+    <object mime="image/png">optionsloginhelp.png</object>
+  </icon>
+  <icon>
+    <key>optionsLoginLogo</key>
+    <object mime="image/png">optionsloginlogo.png</object>
+  </icon>
+  <icon>
+    <key>optionsLoginLoader</key>
+    <object mime="image/png">optionsloginloader.png</object>
+  </icon>
+  <icon>
+    <key>optionsLoginAnimation</key>
+    <object mime="image/gif">optionsloginanimation.gif</object>
+  </icon>
+  <icon>
+    <key>optionsErrorAlert</key>
+    <object mime="image/png">optionserroralert.png</object>
+  </icon>
+</icondef>

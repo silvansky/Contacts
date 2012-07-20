@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<sounddef>
+  <name>Default sounds</name>
+  <file>
+    <key>default</key>
+    <key>rchangerSubscription</key>
+    <key>presenceMoodChanged</key>
+    <key>presenceStateChanged</key>
+    <key>rosterContactAdded</key>
+    <key>schangerConnectionRestore</key>
+    <key>birthdayreminderRemind</key>
+    <object mime='sound/wav'>default.wav</object>
+  </file>
+
+  <file>
+    <key>chatmessagehandlerMessage</key>
+    <key>normalmessagehandlerMessage</key>
+    <key>sipphoneCall</key>
+    <key>ramblermailnotifyNotify</key>
+    <object mime='sound/wav'>message.wav</object>
+  </file>
+
+  <file>
+    <key>sipphoneCallWait</key>
+    <object mime='sound/wav'>wait.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallBusy</key>
+    <object mime='sound/wav'>busy.wav</object>
+  </file>
+  <file>
+    <key>sipphoneCallRinging</key>
+    <object mime='sound/wav'>ring.wav</object>
+  </file>
+
+  <file>
+    <key>schangerConnectionError</key>
+    <object mime='sound/wav'>error.wav</object>
+  </file>
+</sounddef>

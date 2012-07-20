@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<graphics-effects>
+  <effect type="shadow">
+    <names>
+      <name>statusIconLabel</name>
+      <name>lblStatusIcon</name>
+    </names>
+    <color>#00000066</color>
+    <offset x="0" y="-1" />
+    <blur radius="0" />
+  </effect>
+</graphics-effects>

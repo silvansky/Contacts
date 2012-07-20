@@ -1,0 +1,37 @@
+CustomLabel
+{
+	font-size: 11px;
+	color: #435660;
+	qproperty-shadow: 2;
+}
+
+CustomLabel#lblCaption
+{
+	font-size: 13px;
+}
+
+InternalNoticeWidget
+{
+	background-color: #d1dce2;
+}
+
+ActionButton
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton.png);
+	color: #24485d;
+}
+
+ActionButton:hover
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_hover.png);
+}
+
+ActionButton:pressed
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_click.png);
+}
+
+QLabel, CloseButton, #wdtActions
+{
+	background-color: transparent;
+}

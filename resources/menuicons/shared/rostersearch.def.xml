@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>rostersearchMenu</key>
+    <object mime="image/png">rostersearch.png</object>
+  </icon>
+  <icon>
+    <key>rostersearchIconGlass</key>
+    <object mime="image/png">rostersearchiconglass.png</object>
+  </icon>
+  <icon>
+    <key>rostersearchIconCross</key>
+    <object mime="image/png">rostersearchiconcross.png</object>
+    <object mime="image/png">rostersearchiconcross_hover.png</object>
+  </icon>
+</icondef>

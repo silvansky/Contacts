@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icondef>
+  <icon>
+    <key>minimizeButtonNormal</key>
+    <object mime="image/png">minimizebutton.png</object>
+  </icon>
+  <icon>
+    <key>minimizeButtonHighlighted</key>
+    <object mime="image/png">minimizebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>maximizeButtonNormal</key>
+    <object mime="image/png">maximizebutton.png</object>
+  </icon>
+  <icon>
+    <key>maximizeButtonHighlighted</key>
+    <object mime="image/png">maximizebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonNormal</key>
+    <object mime="image/png">closebutton.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonHighlighted</key>
+    <object mime="image/png">closebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>restoreButtonNormal</key>
+    <object mime="image/png">restorebutton.png</object>
+  </icon>
+  <icon>
+    <key>restoreButtonHighlighted</key>
+    <object mime="image/png">restorebuttonhighlighted.png</object>
+  </icon>
+  <icon>
+    <key>leftShadow</key>
+    <object mime="image/png">leftshadow.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadow</key>
+    <object mime="image/png">topleftshadow.png</object>
+  </icon>
+  <icon>
+    <key>topShadow</key>
+    <object mime="image/png">topshadow.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadow</key>
+    <object mime="image/png">toprightshadow.png</object>
+  </icon>
+  <icon>
+    <key>rightShadow</key>
+    <object mime="image/png">rightshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadow</key>
+    <object mime="image/png">bottomrightshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadow</key>
+    <object mime="image/png">bottomshadow.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadow</key>
+    <object mime="image/png">bottomleftshadow.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowWhite</key>
+    <object mime="image/png">topleftshadow_white.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowWhite</key>
+    <object mime="image/png">toprightshadow_white.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowWhite</key>
+    <object mime="image/png">bottomleftshadow_white.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowWhite</key>
+    <object mime="image/png">bottomrightshadow_white.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowTransparent</key>
+    <object mime="image/png">bottomleftshadow_transparent.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowTransparent</key>
+    <object mime="image/png">bottomrightshadow_transparent.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMask</key>
+    <object mime="image/png">topleftmask.png</object>
+  </icon>
+  <icon>
+    <key>topRightMask</key>
+    <object mime="image/png">toprightmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMask</key>
+    <object mime="image/png">bottomleftmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskTransparent</key>
+    <object mime="image/png">bottomleftmask_transparent.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMask</key>
+    <object mime="image/png">bottomrightmask.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskTransparent</key>
+    <object mime="image/png">bottomrightmask_transparent.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskSquare</key>
+    <object mime="image/png">bottomleftmask_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskSquare</key>
+    <object mime="image/png">bottomrightmask_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowSquare</key>
+    <object mime="image/png">bottomleftshadow_square.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowSquare</key>
+    <object mime="image/png">bottomrightshadow_square.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMaskSquare</key>
+    <object mime="image/png">topleftmask_square.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskSquare</key>
+    <object mime="image/png">toprightmask_square.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowSquare</key>
+    <object mime="image/png">topleftshadow_square.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowSquare</key>
+    <object mime="image/png">toprightshadow_square.png</object>
+  </icon>
+
+  <icon>
+    <key>leftShadowMenu</key>
+    <object mime="image/png">leftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowMenu</key>
+    <object mime="image/png">topleftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topShadowMenu</key>
+    <object mime="image/png">topshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowMenu</key>
+    <object mime="image/png">toprightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>rightShadowMenu</key>
+    <object mime="image/png">rightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowMenu</key>
+    <object mime="image/png">bottomrightshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadowMenu</key>
+    <object mime="image/png">bottomshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowMenu</key>
+    <object mime="image/png">bottomleftshadow_menu.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMaskMenu</key>
+    <object mime="image/png">topleftmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskMenu</key>
+    <object mime="image/png">toprightmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskMenu</key>
+    <object mime="image/png">bottomleftmask_menu.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskMenu</key>
+    <object mime="image/png">bottomrightmask_menu.png</object>
+  </icon>
+
+  <icon>
+    <key>leftShadowNotification</key>
+    <object mime="image/png">leftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topLeftShadowNotification</key>
+    <object mime="image/png">topleftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topShadowNotification</key>
+    <object mime="image/png">topshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topRightShadowNotification</key>
+    <object mime="image/png">toprightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>rightShadowNotification</key>
+    <object mime="image/png">rightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightShadowNotification</key>
+    <object mime="image/png">bottomrightshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomShadowNotification</key>
+    <object mime="image/png">bottomshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftShadowNotification</key>
+    <object mime="image/png">bottomleftshadow_notification.png</object>
+  </icon>
+  <icon>
+    <key>topLeftMaskNotification</key>
+    <object mime="image/png">topleftmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>topRightMaskNotification</key>
+    <object mime="image/png">toprightmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomLeftMaskNotification</key>
+    <object mime="image/png">bottomleftmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>bottomRightMaskNotification</key>
+    <object mime="image/png">bottomrightmask_notification.png</object>
+  </icon>
+  <icon>
+    <key>minimizeButtonNormalNotification</key>
+    <object mime="image/png">minimizebutton_notification.png</object>
+  </icon>
+  <icon>
+    <key>minimizeButtonHighlightedNotification</key>
+    <object mime="image/png">minimizebuttonhighlighted_notification.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonNormalNotification</key>
+    <object mime="image/png">closebutton_notification.png</object>
+  </icon>
+  <icon>
+    <key>closeButtonHighlightedNotification</key>
+    <object mime="image/png">closebuttonhighlighted_notification.png</object>
+  </icon></icondef>

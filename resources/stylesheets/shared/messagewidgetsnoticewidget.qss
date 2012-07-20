@@ -1,0 +1,32 @@
+ChatNoticeWidget
+{
+	background-color: #d1dce2;
+}
+
+QFrame#frmFrame, QWidget#wdtButtons
+{
+	background-color: transparent;
+}
+
+CustomLabel
+{
+	color: #435660;
+	font-size: 11px;
+	qproperty-shadow: 2;
+}
+
+ActionButton
+{
+	color: #24485d;
+	border-image: url(%IMAGES_PATH%/reminderbutton.png);
+}
+
+ActionButton:hover
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_hover.png);
+}
+
+ActionButton:pressed
+{
+	border-image: url(%IMAGES_PATH%/reminderbutton_click.png);
+}

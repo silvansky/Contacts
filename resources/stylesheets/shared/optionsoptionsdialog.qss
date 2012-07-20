@@ -1,0 +1,247 @@
+/**************
+ * background *
+ **************/
+
+#scrollAreaWidgetContents, QFrame, QDialogButtonBox, NotifyKindsWidget,
+#wdtNodeWidget, QScrollArea, QSplitter, ProxyOptionsWidget, AddLegacyAccountOptions,
+ManageLegacyAccountsOptions, StyleOptionsWidget, OptionsWidget,
+RosterContactOrderOptions, RosterContactViewOptions, MessengerOptions,
+#wdtManualProxy, #wdtGateways, #wdtStyleOptions, AdiumOptionsWidget, QSplitterHandle,
+#qt_scrollarea_viewport, #sprSplitter, #wdtRightWidget,
+#wdtGateways > .QWidget,
+LegacyAccountOptions, ManageLegacyAccountsOptions, #grbAccount, #wdtAccounts, #cbtDelete,
+QGroupBox, StyleOptionsWidget, .QWidget
+{
+	background-color: transparent;
+}
+
+QGroupBox
+{
+	background-color: transparent;
+	border: 0px;
+}
+
+OptionsDialog
+{
+	background-color: rgba(65, 70, 77, 250);
+}
+
+/*************
+ * #trvNodes *
+ *************/
+
+QTreeView
+{
+	border-left: 0px;
+	border-top: 0px;
+	border-bottom: 0px;
+	border-right: 24px;
+	border-image: url(%IMAGES_PATH%/leftshadow.png);
+	padding-right: -24px;
+	background-color: transparent;
+	font-size: 12px;
+}
+
+QTreeView::item
+{
+	min-height : 34px;
+	background-color: transparent;
+	border-bottom: 2px;
+	border-right: 24px;
+	padding-right: -22px;
+	border-left: 0px;
+	border-top: 0px;
+	border-image: url(%IMAGES_PATH%/treeviewitembottomrightborder.png);
+	color: white;
+	padding-left: 7px;
+}
+
+QTreeView::item:selected
+{
+	min-height : 36px;
+	border-left: 0px;
+	border-right: 24px;
+	border-top: 0px;
+	border-bottom: 0px;
+	border-image: url(%IMAGES_PATH%/leftshadow.png);
+	background-color: rgba(89, 98, 104, 255);
+}
+
+/* margins */
+
+#qt_scrollarea_viewport
+{
+	padding-top: 10px;
+}
+
+QWidget#wdtOptionsHeader
+{
+	margin-left: 19px;
+}
+
+QLabel#optionsCaptionLabel
+{
+	font-size: 18px;
+}
+
+#optionsWidgetCheckBox
+{
+	padding-left: 9px;
+}
+
+OptionsWidget
+{
+	margin-left: 16px;
+}
+
+NotifyKindsWidget QGroupBox
+{
+	margin-left: 22px;
+}
+
+RosterContactViewOptions QGroupBox,
+RosterContactOrderOptions QGroupBox,
+ProxyOptionsWidget QGroupBox,
+MessengerOptions QGroupBox,
+HistoryOptionsWidget QWidget
+{
+	margin-left: 26px;
+	margin-right: 16px;
+}
+
+LegacyAccountOptions QGroupBox
+{
+	margin-left: 16px;
+	margin-right: 16px;
+}
+
+ProxyOptionsWidget QGroupBox#gbManualProxySettings
+{
+	margin-left: 42px;
+	margin-top: 10px;
+}
+
+#chbProxyUserPassword
+{
+	margin-left: 2px;
+}
+
+#grbKinds
+{
+	margin-right: 40px;
+}
+
+QLabel#lblInfo,
+QLabel#lblNoAccount
+{
+	margin-left: 26px;
+	margin-right: 28px;
+}
+
+StyleOptionsWidget > QWidget
+{
+	margin-left: 26px;
+	margin-right: 28px;
+}
+
+AdiumOptionsWidget > QLabel
+{
+	margin-left: 26px;
+}
+
+AdiumOptionsWidget > QComboBox,
+AdiumOptionsWidget > QToolButton
+{
+	margin-right: 28px;
+}
+
+/***************************
+ * change and test buttons *
+ ***************************/
+
+QPushButton#pbtChange:enabled,
+QPushButton#pbtTest:enabled
+{
+	border-image: none;
+	color: #acacac;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+	text-decoration: underline;
+}
+
+QPushButton#pbtChange:!enabled,
+QPushButton#pbtTest:!enabled
+{
+	border-image: none;
+	background-color: transparent;
+	color: #72797f;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	min-width: 10px;
+}
+
+/**********************
+ * service name label *
+ **********************/
+
+QLabel#serviceName
+{
+	font-size: 10px;
+}
+
+/******************
+ * service button *
+ ******************/
+
+QToolButton#serviceButton
+{
+	min-width: 30px;
+	max-width: 30px;
+	width: 30px;
+	min-height: 30px;
+	max-height: 30px;
+	height: 30px;
+	padding: 0px;
+}
+
+QWidget#serviceContainer
+{
+	min-width: 52px;
+	width: 52px;
+}
+
+QFrame#serviceSeparator
+{
+	border-top: 1px solid #2f343b;
+	border-bottom: 1px solid #5e6369;
+	min-height: 0px;
+	max-height: 0px;
+	height: 0px;
+	margin-left: 20px;
+	margin-right: 16px;
+}
+
+/**************
+ * proxy port *
+ **************/
+
+QLineEdit#lneProxyPort
+{
+	min-width: 34px;
+	max-width: 34px;
+	width: 34px;
+}
+
+/*****************************
+ * system notify preferences *
+ *****************************/
+
+SystemNotifyPreferences QPushButton
+{
+	margin-left: 22px;
+}

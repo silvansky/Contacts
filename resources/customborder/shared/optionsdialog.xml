@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window-border-style>
+ <left-border>
+   <width>28</width>
+   <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="customborder/leftShadow" />
+ </left-border>
+ <top-border>
+   <width>28</width>
+   <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="customborder/topShadow" />
+ </top-border>
+ <right-border>
+   <width>28</width>
+   <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="customborder/rightShadow" />
+ </right-border>
+ <bottom-border>
+   <width>28</width>
+   <resize-width>5</resize-width>
+   <resize-margin>28</resize-margin>
+   <image src="customborder/bottomShadow" />
+ </bottom-border>
+ <top-left-corner>
+   <width>55</width>
+   <height>59</height>
+   <radius>4</radius>
+   <resize-left>28</resize-left>
+   <resize-width>10</resize-width>
+   <resize-top>28</resize-top>
+   <resize-height>10</resize-height>
+   <image src="customborder/topLeftShadow" />
+   <mask src="customborder/topLeftMask" />
+ </top-left-corner>
+ <top-right-corner>
+   <width>57</width>
+   <height>61</height>
+   <radius>4</radius>
+   <resize-right>28</resize-right>
+   <resize-width>10</resize-width>
+   <resize-top>28</resize-top>
+   <resize-height>10</resize-height>
+   <image src="customborder/topRightShadow" />
+   <mask src="customborder/topRightMask" />
+ </top-right-corner>
+ <bottom-left-corner>
+   <width>55</width>
+   <height>49</height>
+   <radius>4</radius>
+   <resize-left>28</resize-left>
+   <resize-width>10</resize-width>
+   <resize-bottom>28</resize-bottom>
+   <resize-height>10</resize-height>
+   <image src="customborder/bottomLeftShadow" />
+   <mask src="customborder/bottomLeftMask" />
+ </bottom-left-corner>
+ <bottom-right-corner>
+   <width>57</width>
+   <height>51</height>
+   <radius>4</radius>
+   <resize-right>28</resize-right>
+   <resize-width>10</resize-width>
+   <resize-bottom>28</resize-bottom>
+   <resize-height>10</resize-height>
+   <image src="customborder/bottomRightShadow" />
+   <mask src="customborder/bottomRightMask" />
+ </bottom-right-corner>
+ <header>
+   <spacing>5</spacing>
+   <height>0</height>
+   <move-height>26</move-height>
+   <move-left>100</move-left>
+   <margins left="5" right="5" top="7" bottom="2" />
+   <gradient type="linear">
+     <direction x1="0" y1="0" x2="0" y2="26" />
+     <gradient-stop at="0.0" color="#00FF0032" />
+     <gradient-stop at="0.5" color="#96FF0096" />
+     <gradient-stop at="1.0" color="#00FF0032" />
+   </gradient>
+ </header>
+ <window-icon>
+   <subicon>
+    <width>16</width>
+    <height>16</height>
+    <icon src="menuicons/mainwindowLogo16" />
+   </subicon>
+   <subicon>
+    <width>24</width>
+    <height>24</height>
+    <icon src="menuicons/mainwindowLogo24" />
+   </subicon>
+   <subicon>
+    <width>32</width>
+    <height>32</height>
+    <icon src="menuicons/mainwindowLogo32" />
+   </subicon>
+   <subicon>
+    <width>48</width>
+    <height>48</height>
+    <icon src="menuicons/mainwindowLogo48" />
+   </subicon>
+   <subicon>
+    <width>64</width>
+    <height>64</height>
+    <icon src="menuicons/mainwindowLogo64" />
+   </subicon>
+   <subicon>
+    <width>96</width>
+    <height>96</height>
+    <icon src="menuicons/mainwindowLogo96" />
+   </subicon>
+   <subicon>
+    <width>128</width>
+    <height>128</height>
+    <icon src="menuicons/mainwindowLogo128" />
+   </subicon>
+   <subicon>
+    <width>256</width>
+    <height>256</height>
+    <icon src="menuicons/mainwindowLogo256" />
+   </subicon>
+ </window-icon>
+ <title color="#FF00FF" />
+ <window-controls spacing="2" />
+ <minimize-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/minimizeButtonNormal" />
+   <image-hover src="customborder/minimizeButtonHighlighted" />
+ </minimize-button>
+ <maximize-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/maximizeButtonNormal" />
+   <image-hover src="customborder/maximizeButtonHighlighted" />
+ </maximize-button>
+ <close-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/closeButtonNormal" />
+   <image-hover src="customborder/closeButtonHighlighted" />
+ </close-button>
+ <restore-button>
+   <width>16</width>
+   <height>16</height>
+   <border width="1" color="#000000" radius="0" image="" />
+   <image-normal src="customborder/restoreButtonNormal" />
+   <image-hover src="customborder/restoreButtonHighlighted" />
+ </restore-button>
+ <drag-anywhere enabled="true" />
+</window-border-style>
