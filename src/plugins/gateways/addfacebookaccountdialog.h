@@ -1,7 +1,6 @@
 #ifndef ADDFACEBOOKACCOUNTDIALOG_H
 #define ADDFACEBOOKACCOUNTDIALOG_H
 
-#include <QDialog>
 #include <definitions/resources.h>
 #include <definitions/stylesheets.h>
 #include <definitions/customborder.h>
@@ -15,6 +14,9 @@
 #include <utils/custominputdialog.h>
 #include <utils/customborderstorage.h>
 #include "ui_addfacebookaccountdialog.h"
+
+#include <QDialog>
+#include <QNetworkAccessManager>
 
 class AddFacebookAccountDialog :
 	public QDialog
@@ -34,6 +36,7 @@ protected slots:
 	void onWebViewLoadStarted();
 	void onWebViewLoadFinished(bool AOk);
 	void onWebPageLinkClicked(const QUrl &AUrl);
+	void onNetworkRequestFinished(QNetworkReply *reply);
 private:
 	Ui::AddFacebookAccountDialogClass ui;
 private:
