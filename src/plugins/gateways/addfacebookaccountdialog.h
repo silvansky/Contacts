@@ -37,6 +37,7 @@ protected slots:
 	void onWebViewLoadFinished(bool AOk);
 	void onWebPageLinkClicked(const QUrl &AUrl);
 	void onNetworkRequestFinished(QNetworkReply *reply);
+	void onSslErrors(QNetworkReply *reply, QList<QSslError> errors);
 private:
 	Ui::AddFacebookAccountDialogClass ui;
 private:

@@ -67,6 +67,7 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 	connect(ui.wbvView,SIGNAL(loadFinished(bool)),SLOT(onWebViewLoadFinished(bool)));
 	connect(ui.wbvView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
 	connect(ui.wbvView->page()->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(onNetworkRequestFinished(QNetworkReply*)));
+	connect(ui.wbvView->page()->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
 
 	connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
@@ -244,4 +245,19 @@ void AddFacebookAccountDialog::onNetworkRequestFinished(QNetworkReply *reply)
 		}
 #endif
 	}
+}
+
+void AddFacebookAccountDialog::onSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+{
+	QStringList sslErrors;
+	foreach (QSslError error, errors)
+	{
+		sslErrors << QString("(%1) %2").arg(error.error()).arg(error.errorString());
+	}
+	QString logString = QString("[AddFacebookAccountDialog]: Got SSL Errors:\n%1").arg(sslErrors.join("\n"));
+	LogError(logString);
+#ifdef DEBUG_ENABLED
+	qDebug() << logString;
+#endif
+	reply->ignoreSslErrors(errors);
 }
