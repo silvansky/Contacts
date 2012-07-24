@@ -47,7 +47,7 @@
 #define ABORT_TIMEOUT         2000
 
 #define LOGIN_CHECK_REGEX     "^[A-Za-z0-9]+(?:[.\\-_][A-Za-z0-9]+)*[A-Za-z0-9]*$"
-#define PASSWORD_CHECK_REGEX  "^[A-Za-z0-9_\\.-]+$"
+#define PASSWORD_CHECK_REGEX  "^[!@$%^*&()+A-Za-z0-9_\\.-]+$"
 
 #define REG_SERVER_PROTOCOL   "https"
 #define REG_SERVER            "reg.tx.xmpp.rambler.ru"
@@ -1892,6 +1892,9 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 		if (!errorsEl.isNull())
 		{
 			gotErrors = true;
+#ifdef DEBUG_ENABLED
+			qDebug() << "Got Errors!";
+#endif
 			QDomElement summaryEl = errorsEl.firstChildElement("summary");
 			if (!summaryEl.isNull())
 			{
@@ -1903,10 +1906,14 @@ void LoginDialog::onRequestFinished(const QUrl &url, const QString &result)
 				loginError = loginEl.text();
 			}
 			QDomElement passwordEl = errorsEl.firstChildElement("password");
-			if (!loginEl.isNull())
+			if (!passwordEl.isNull())
 			{
 				passwordError = passwordEl.text();
 			}
+#ifdef DEBUG_ENABLED
+			qDebug() << QString("Summary: %1, login: %2, pass: %3").arg(errorSummary, loginError, passwordError);
+#endif
+
 		}
 		QDomElement suggestsEl = resultEl.firstChildElement("suggests");
 		if (!suggestsEl.isNull())
