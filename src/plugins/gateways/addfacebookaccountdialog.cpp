@@ -235,14 +235,10 @@ void AddFacebookAccountDialog::onNetworkRequestFinished(QNetworkReply *reply)
 		QStringList headers;
 		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs())
 			headers << QString("%1: %2").arg(QString::fromAscii(header.first.data()), QString::fromAscii(header.second.data()));
-		LogError(QString("[AddFacebookAccountDialog]: Network reply error: (%1) %2\nraw headers:\n%3").arg(reply->error()).arg(reply->errorString()).arg(headers.join("\r\n")));
-
+		QString logString = QString("[AddFacebookAccountDialog]: Network reply error: (%1) %2\nraw headers:\n%3").arg(reply->error()).arg(reply->errorString()).arg(headers.join("\r\n"));
+		LogError(logString);
 #ifdef DEBUG_ENABLED
-		qDebug() << QString("request finished! error: (%1) %2").arg(reply->error()).arg(reply->errorString());
-		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs())
-		{
-			qDebug() << QString("%1: %2").arg(QString::fromAscii(header.first.data()), QString::fromAscii(header.second.data()));
-		}
+		qDebug() << logString;
 #endif
 	}
 }
