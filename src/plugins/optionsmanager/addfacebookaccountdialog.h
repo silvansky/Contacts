@@ -13,6 +13,7 @@ class AddFacebookAccountDialog : public QDialog
 	Q_OBJECT
 	Q_PROPERTY(bool succeeded READ succeeded)
 	Q_PROPERTY(QString selectedUserId READ selectedUserId)
+	Q_PROPERTY(QString selectedUserDisplayName READ selectedUserDisplayName)
 	Q_PROPERTY(QString authToken READ authToken)
 public:
 	explicit AddFacebookAccountDialog(QWidget *parent = 0);
@@ -21,6 +22,7 @@ public:
 	// props
 	bool succeeded() const;
 	QString selectedUserId() const;
+	QString selectedUserDisplayName() const;
 	QString authToken() const;
 protected:
 	void abort(const QString &message);
@@ -34,6 +36,7 @@ private:
 	Ui::AddFacebookAccountDialog *ui;
 	// props
 	QString _selectedUserId;
+	QString _selectedUserDisplayName;
 	QString _authToken;
 	bool _succeeded;
 };

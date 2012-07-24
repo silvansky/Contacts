@@ -23,6 +23,7 @@ class AddSimpleAccountDialog : public QDialog
 	Q_PROPERTY(QStringList domainList READ domainList WRITE setDomainList)
 	Q_PROPERTY(bool succeeded READ succeeded)
 	Q_PROPERTY(QString selectedUserId READ selectedUserId)
+	Q_PROPERTY(QString selectedUserDisplayName READ selectedUserDisplayName)
 	Q_PROPERTY(QString authToken READ authToken)
 public:
 	AddSimpleAccountDialog();
@@ -43,6 +44,7 @@ public:
 	void setDomainList(const QStringList &newList);
 	bool succeeded() const;
 	QString selectedUserId() const;
+	QString selectedUserDisplayName() const;
 	QString authToken() const;
 protected slots:
 	void onDomainActionTriggered();
@@ -50,7 +52,7 @@ protected slots:
 	void onAcceptClicked();
 protected slots:
 	// for server api
-	void onCheckAuthRequestSucceeded(const QString &user, const QString &authToken_);
+	void onCheckAuthRequestSucceeded(const QString &user, const QString &displayName, const QString &authToken_);
 	void onCheckAuthRequestFailed(const QString &user, const QString &reason);
 	void onCheckAuthRequestRequestFailed(const QString &error);
 private:
@@ -64,6 +66,7 @@ private:
 	QString _passwordPlaceholder;
 	QStringList _domainList;
 	QString _selectedUserId;
+	QString _selectedUserDisplayName;
 	QString _authToken;
 	bool _succeeded;
 private:

@@ -178,6 +178,11 @@ QString AddSimpleAccountDialog::selectedUserId() const
 	return _selectedUserId;
 }
 
+QString AddSimpleAccountDialog::selectedUserDisplayName() const
+{
+	return _selectedUserDisplayName;
+}
+
 QString AddSimpleAccountDialog::authToken() const
 {
 	return _authToken;
@@ -208,10 +213,13 @@ void AddSimpleAccountDialog::onAcceptClicked()
 	_serverApiHandler->sendCheckAuthRequest(service(), user, ui->password->text());
 }
 
-void AddSimpleAccountDialog::onCheckAuthRequestSucceeded(const QString &user, const QString &authToken_)
+void AddSimpleAccountDialog::onCheckAuthRequestSucceeded(const QString &user, const QString &displayName, const QString &authToken_)
 {
 	_selectedUserId = user;
+	_selectedUserDisplayName = displayName;
 	_authToken = authToken_;
+	_succeeded = true;
+	accept();
 }
 
 void AddSimpleAccountDialog::onCheckAuthRequestFailed(const QString &user, const QString &reason)

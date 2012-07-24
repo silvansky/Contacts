@@ -89,6 +89,11 @@ QString AddFacebookAccountDialog::selectedUserId() const
 	return _selectedUserId;
 }
 
+QString AddFacebookAccountDialog::selectedUserDisplayName() const
+{
+	return _selectedUserDisplayName;
+}
+
 QString AddFacebookAccountDialog::authToken() const
 {
 	return _authToken;

@@ -14,6 +14,7 @@ class AddRamblerAccountDialog : public QDialog
 	Q_OBJECT
 	Q_PROPERTY(bool succeeded READ succeeded)
 	Q_PROPERTY(QString selectedUserId READ selectedUserId)
+	Q_PROPERTY(QString selectedUserDisplayName READ selectedUserDisplayName)
 	Q_PROPERTY(QString authToken READ authToken)
 public:
 	explicit AddRamblerAccountDialog(QWidget *parent = 0);
@@ -22,6 +23,7 @@ public:
 	// props
 	bool succeeded() const;
 	QString selectedUserId() const;
+	QString selectedUserDisplayName() const;
 	QString authToken() const;
 protected slots:
 	void onAdjustWindowSize();
@@ -29,7 +31,7 @@ protected slots:
 	// for server api
 	void onRegistrationSucceeded(const Jid &user);
 	void onRegistrationFailed(const QString &reason, const QString &loginError, const QString &passwordError, const QStringList &suggests);
-	void onCheckAuthRequestSucceeded(const QString &user, const QString &authToken_);
+	void onCheckAuthRequestSucceeded(const QString &user, const QString &displayName, const QString &authToken_);
 	void onCheckAuthRequestFailed(const QString &user, const QString &reason);
 	void onCheckAuthRequestRequestFailed(const QString &error);
 private:
@@ -38,6 +40,7 @@ private:
 private:
 	// props
 	QString _selectedUserId;
+	QString _selectedUserDisplayName;
 	QString _authToken;
 	bool _succeeded;
 };

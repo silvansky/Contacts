@@ -50,7 +50,7 @@
 #define ABORT_TIMEOUT         2000
 
 #define LOGIN_CHECK_REGEX     "^[A-Za-z0-9]+(?:[.\\-_][A-Za-z0-9]+)*[A-Za-z0-9]*$"
-#define PASSWORD_CHECK_REGEX  "^[a-z0-9_\\.-]+$"
+#define PASSWORD_CHECK_REGEX  "^[A-Za-z0-9_\\.-]+$"
 
 #define REG_SERVER_PROTOCOL   "https"
 #define REG_SERVER            "reg.tx.xmpp.rambler.ru"

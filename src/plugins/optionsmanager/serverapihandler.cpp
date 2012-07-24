@@ -159,6 +159,7 @@ void ServerApiHandler::onNetworkRequestFinished(const QUrl &url, const QString &
 			QString errorText;
 			QString user;
 			QString token;
+			QString displayName;
 			QDomElement successEl = verifyEl.firstChildElement("success");
 			if (!successEl.isNull())
 			{
@@ -174,6 +175,11 @@ void ServerApiHandler::onNetworkRequestFinished(const QUrl &url, const QString &
 			{
 				user = loginEl.text();
 			}
+			QDomElement displaynameEl = verifyEl.firstChildElement("name");
+			if (!displaynameEl.isNull())
+			{
+				displayName = displaynameEl.text();
+			}
 			QDomElement tokenEl = verifyEl.firstChildElement("verification-token");
 			if (!tokenEl.isNull())
 			{
@@ -181,7 +187,7 @@ void ServerApiHandler::onNetworkRequestFinished(const QUrl &url, const QString &
 			}
 			if (ok && !user.isEmpty() && !token.isEmpty())
 			{
-				emit checkAuthRequestSucceeded(user, token);
+				emit checkAuthRequestSucceeded(user, displayName, token);
 			}
 			else
 			{

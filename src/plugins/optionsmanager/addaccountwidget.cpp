@@ -22,39 +22,11 @@ AddAccountWidget::AddAccountWidget(AccountWidgetType accWidgetType, QWidget *par
 	_type = accWidgetType;
 	_authInfo.authorized = false;
 
-	switch (type())
-	{
-	case AW_Facebook:
-		setServiceName(tr("Facebook"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_FACEBOOK));
-		break;
-	case AW_Vkontakte:
-		setServiceName(tr("Vkontakte"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_VKONTAKTE));
-		break;
-	case AW_ICQ:
-		setServiceName(tr("ICQ"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_ICQ));
-		break;
-	case AW_MRIM:
-		setServiceName(tr("Mail.ru Agent"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_MAGENT));
-		break;
-	case AW_Yandex:
-		setServiceName(tr("Yandex"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_YONLINE));
-		break;
-	case AW_Rambler:
-		setServiceName(tr("Rambler"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_RAMBLER));
-		break;
-	default:
-		setServiceName(tr("Other"));
-		setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ADD_ACCOUNT_ERROR));
-		break;
-	}
+	updateServiceName();
 
 	connect(ui->serviceButton, SIGNAL(toggled(bool)), SLOT(onServiceButtonToggled(bool)));
+	ui->successIndicator->setVisible(false);
+	ui->removeButton->setVisible(false);
 }
 
 AddAccountWidget::~AddAccountWidget()
@@ -92,6 +64,48 @@ void AddAccountWidget::setServiceIcon(const QImage &newIcon)
 AccountWidgetType AddAccountWidget::type() const
 {
 	return _type;
+}
+
+void AddAccountWidget::updateServiceName()
+{
+	if (_authInfo.authorized)
+	{
+		ui->serviceButton->setText(_authInfo.displayName);
+	}
+	else
+	{
+		switch (type())
+		{
+		case AW_Facebook:
+			setServiceName(tr("Facebook"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_FACEBOOK));
+			break;
+		case AW_Vkontakte:
+			setServiceName(tr("Vkontakte"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_VKONTAKTE));
+			break;
+		case AW_ICQ:
+			setServiceName(tr("ICQ"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_ICQ));
+			break;
+		case AW_MRIM:
+			setServiceName(tr("Mail.ru Agent"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_MAGENT));
+			break;
+		case AW_Yandex:
+			setServiceName(tr("Yandex"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_YONLINE));
+			break;
+		case AW_Rambler:
+			setServiceName(tr("Rambler"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_SERVICE_RAMBLER));
+			break;
+		default:
+			setServiceName(tr("Other"));
+			setServiceIcon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_GATEWAYS_ADD_ACCOUNT_ERROR));
+			break;
+		}
+	}
 }
 
 void AddAccountWidget::onServiceButtonToggled(bool on)
@@ -160,8 +174,13 @@ void AddAccountWidget::onServiceButtonToggled(bool on)
 			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
 			dialog->showDialog();
 		}
+		ui->removeButton->setVisible(true);
 	}
-	ui->successIndicator->setPixmap(on ? style()->standardPixmap(QStyle::SP_DialogApplyButton) : QPixmap());
+	else
+	{
+		ui->removeButton->setVisible(false);
+	}
+	//ui->successIndicator->setPixmap(on ? IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_c : QPixmap());
 }
 
 void AddAccountWidget::onDialogAccepted()
@@ -172,6 +191,8 @@ void AddAccountWidget::onDialogAccepted()
 		_authInfo.authorized = addDialog->property("succeeded").toBool();
 		_authInfo.authToken = addDialog->property("authToken").toString();
 		_authInfo.user = addDialog->property("selectedUserId").toString();
+		_authInfo.displayName = addDialog->property("selectedUserDisplayName").toString();
+		updateServiceName();
 		if (_authInfo.authorized)
 		{
 			emit authChecked();

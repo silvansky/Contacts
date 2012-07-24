@@ -34,6 +34,8 @@ public:
 	QImage serviceIcon() const;
 	void setServiceIcon(const QImage &newIcon);
 	AccountWidgetType type() const;
+protected:
+	void updateServiceName();
 protected slots:
 	void onServiceButtonToggled(bool on);
 	void onDialogAccepted();

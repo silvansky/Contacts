@@ -72,6 +72,11 @@ QString AddRamblerAccountDialog::selectedUserId() const
 	return _selectedUserId;
 }
 
+QString AddRamblerAccountDialog::selectedUserDisplayName() const
+{
+	return _selectedUserDisplayName;
+}
+
 QString AddRamblerAccountDialog::authToken() const
 {
 	return _authToken;
@@ -90,7 +95,7 @@ void AddRamblerAccountDialog::onRegistrationFailed(const QString &reason, const 
 {
 }
 
-void AddRamblerAccountDialog::onCheckAuthRequestSucceeded(const QString &user, const QString &authToken_)
+void AddRamblerAccountDialog::onCheckAuthRequestSucceeded(const QString &user, const QString &displayName, const QString &authToken_)
 {
 }
 

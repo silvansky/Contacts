@@ -11,6 +11,7 @@ struct ServiceAuthInfo
 	bool authorized;
 	QString service;
 	QString user;
+	QString displayName;
 	QString password;
 	QString authToken;
 };
@@ -41,7 +42,7 @@ signals:
 
 	// auth through third-party services response
 
-	void checkAuthRequestSucceeded(const QString &user, const QString &authToken);
+	void checkAuthRequestSucceeded(const QString &user, const QString &displayName, const QString &authToken);
 	void checkAuthRequestFailed(const QString &user, const QString &reason);
 
 	void authRequestSucceeded(const Jid &user, const QString &password);

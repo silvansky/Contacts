@@ -20,6 +20,13 @@ QDialog
 	border-radius: 5px;
 }
 
+QPushButton:checked#serviceButton
+{
+	color: #72797f;
+	background-color: #41464d;
+	border-image: url(%IMAGES_PATH%/buttonborderdisabled.png);
+}
+
 /********************
  * Domain Combo Box *
  ********************/
