@@ -73,4 +73,60 @@
     <key>gatewaysAllServices</key>
     <object mime="image/png">gatewaysallservices.png</object>
   </icon>
+  <icon>
+    <key>gatewaysServiceSms_2</key>
+    <object mime="image/png">gatewaysservicesms23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceIcq_2</key>
+    <object mime="image/png">gatewaysserviceicq23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceYOnline_2</key>
+    <object mime="image/png">gatewaysserviceyonline23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceOdnoklasniki_2</key>
+    <object mime="image/png">gatewaysserviceodnoklasniki23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceMAgent_2</key>
+    <object mime="image/png">gatewaysservicemagent23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceGTalk_2</key>
+    <object mime="image/png">gatewaysservicegtalk23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceRambler_2</key>
+    <object mime="image/png">gatewaysservicerambler23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceFacebook_2</key>
+    <object mime="image/png">gatewaysservicefacebook23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceQip_2</key>
+    <object mime="image/png">gatewaysserviceqip23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceJabber_2</key>
+    <object mime="image/png">gatewaysservicejabber23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceMail_2</key>
+    <object mime="image/png">gatewaysservicemail23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceTwitter_2</key>
+    <object mime="image/png">gatewaysservicetwitter23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceVKontakte_2</key>
+    <object mime="image/png">gatewaysservicevkontakte23_2.png</object>
+  </icon>
+  <icon>
+    <key>gatewaysServiceLiveJournal_2</key>
+    <object mime="image/png">gatewaysservicelivejournal23_2.png</object>
+  </icon>
 </icondef>

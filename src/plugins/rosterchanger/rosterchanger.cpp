@@ -12,6 +12,7 @@
 #include <definitions/internalnoticepriorities.h>
 #include <definitions/statusicons.h>
 #include <utils/customborderstorage.h>
+#include "ui_welcomescreenwidget.h"
 
 #define ADR_STREAM_JID      Action::DR_StreamJid
 #define ADR_CONTACT_JID     Action::DR_Parametr1
@@ -76,6 +77,7 @@ RosterChanger::RosterChanger()
 	FMessageStyles = NULL;
 
 	FWelcomeScreenWidget = NULL;
+	lastRosterWidget = NULL;
 }
 
 RosterChanger::~RosterChanger()
@@ -180,14 +182,109 @@ bool RosterChanger::initConnections(IPluginManager *APluginManager, int &AInitOr
 		FMessageProcessor = qobject_cast<IMessageProcessor *>(plugin->instance());
 
 	plugin = APluginManager->pluginInterface("IGateways").value(0,NULL);
-	if (plugin)
+	if (plugin) {
 		FGateways = qobject_cast<IGateways *>(plugin->instance());
+	}
 
 	plugin = APluginManager->pluginInterface("IMessageStyles").value(0,NULL);
 	if (plugin)
 		FMessageStyles = qobject_cast<IMessageStyles *>(plugin->instance());
 
 	return FRosterPlugin;
+}
+
+#define ADR_GATEJID       Action::DR_Parametr1
+
+void RosterChanger::appendServiceButton(Jid serviceJid)
+{
+  Jid AServiceJid = serviceJid;
+  Jid FStreamJid = FGateways->getOptionsStreamJid();
+  IGateServiceDescriptor descriptor = FGateways->serviceDescriptor(FStreamJid, AServiceJid);
+  if (!FWidgets.contains(AServiceJid) && !descriptor.id.isEmpty() && descriptor.needLogin)
+  {
+    QToolButton* button = new QToolButton(FWelcomeScreenWidget);
+    button->setObjectName(QString::fromUtf8("serviceButton"));
+    //button->setStyleSheet("QToolButton { background-color: white; border: none; }");
+    //button->setStyleSheet("background-color: rgb(255,125,100)");
+    #define BUTTON_IMAGE_PATH "c:/main/share/VirtusDesktop/easyreg/resources/stylesheets/shared/images"
+    button->setStyleSheet(
+           "QToolButton { border-image: url(" BUTTON_IMAGE_PATH "/buttonborder2.png); }"
+      "\n" "QToolButton:enabled:pressed, QToolButton:checked:enabled"
+      "\n" "{"
+      "\n" "   border-image: url(" BUTTON_IMAGE_PATH "/buttonborderclick2.png);"
+      "\n" "}"
+    );
+    #undef BUTTON_IMAGE_PATH
+    button->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    button->setIconSize(QSize(40, 40));
+    Action *action = new Action(button);
+    //  todo
+    //  New icons for these buttons are located in {PROJECT_DIR}/resources/menuicons/shared,
+    //  and their filenames match 'gatewaysservice*23_2.png' pattern.
+    //  Associated resource definitions are located in {PROJECT_DIR}/resources/menuicons/shared/gateways.def.xml
+    //  QString iconKey = descriptor.iconKey + "_2"; - is just a quick hack for having multiple
+    //  icon sets for gateway icons in program settings dialog and rosterchanger dialog.
+    QString iconKey = descriptor.iconKey + "_2";
+    action->setIcon(RSR_STORAGE_MENUICONS, iconKey, 0);
+    action->setText(descriptor.name);
+    action->setData(ADR_GATEJID,AServiceJid.full());
+    connect(action,SIGNAL(triggered(bool)),SLOT(onGateActionTriggeted(bool)));
+    button->setDefaultAction(action);
+    static int row = 0;
+    static int col = 0;
+    const int col_max = 3;
+    if (col >= col_max) {
+      col = 0;
+      ++row;
+    }
+    //FWelcomeScreenWidget->ui->gridLayout->addWidget(button, row, col);
+    if (!FWelcomeScreenWidget) {
+      lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
+      FWelcomeScreenWidget = new WelcomeScreenWidget;
+      connect(FWelcomeScreenWidget, SIGNAL(addressEntered(const QString &)), SLOT(onWelcomeScreenAddressEntered(const QString &)));
+      FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, FWelcomeScreenWidget);
+      FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FWelcomeScreenWidget);
+    }
+    FWelcomeScreenWidget->registerButtonsLayout->addWidget(button, row, col);
+    ++col;
+    //FWelcomeScreenWidget->ui->horizontalLayout_2->addWidget(button);
+    FWidgets.insert(AServiceJid, FWelcomeScreenWidget);
+  }
+}
+
+void RosterChanger::removeServiceButton(const Jid &AServiceJid)
+{
+  if (FWidgets.contains(AServiceJid))
+  {
+    QWidget *widget = FWidgets.take(AServiceJid);
+    FWelcomeScreenWidget->ui->horizontalLayout_2->removeWidget(widget);
+    widget->deleteLater();
+  }
+}
+
+void RosterChanger::onGateActionTriggeted(bool)
+{
+  Action *action = qobject_cast<Action *>(sender());
+  Jid FStreamJid = FGateways->getOptionsStreamJid();
+  if (action)
+  {
+    Jid gateJid = action->data(ADR_GATEJID).toString();
+    FGateways->showAddLegacyAccountDialog(FStreamJid,gateJid);
+  }
+}
+
+void RosterChanger::onServicesChanged(const Jid &AStreamJid)
+{
+  Jid FStreamJid = FGateways->getOptionsStreamJid();
+  if (FStreamJid == AStreamJid)
+  {
+    QList<Jid> availRegisters = FGateways->availRegistrators(AStreamJid,true);
+    foreach(Jid serviceJid, availRegisters.toSet() - FWidgets.keys().toSet())
+      appendServiceButton(serviceJid);
+    foreach(Jid serviceJid, FWidgets.keys().toSet() - availRegisters.toSet())
+      removeServiceButton(serviceJid);
+    //emit updated();
+  }
 }
 
 bool RosterChanger::initObjects()
@@ -1066,8 +1163,7 @@ void RosterChanger::showWelcomeScreenIfNeeded(IRoster *ARoster)
 				}
 			}
 		}
-
-		static QWidget *lastRosterWidget = NULL;
+		//static QWidget *lastRosterWidget = NULL;
 		if (show && !FWelcomeScreenWidget)
 		{
 			lastRosterWidget = FMainWindowPlugin->mainWindow()->rostersWidget()->currentWidget();
@@ -1075,7 +1171,21 @@ void RosterChanger::showWelcomeScreenIfNeeded(IRoster *ARoster)
 			connect(FWelcomeScreenWidget, SIGNAL(addressEntered(const QString &)), SLOT(onWelcomeScreenAddressEntered(const QString &)));
 			FMainWindowPlugin->mainWindow()->rostersWidget()->insertWidget(0, FWelcomeScreenWidget);
 			FMainWindowPlugin->mainWindow()->rostersWidget()->setCurrentWidget(FWelcomeScreenWidget);
-			emit welcomeScreenVisibleChanged(true);
+			
+			if (FGateways) {
+//			  QSpacerItem *verticalSpacer;
+//        verticalSpacer = new QSpacerItem(20, 64, QSizePolicy::Minimum, QSizePolicy::Expanding);
+//        FWelcomeScreenWidget->ui->horizontalLayout_2->addItem(verticalSpacer);
+        
+        connect(FGateways->instance(),SIGNAL(availServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
+        connect(FGateways->instance(),SIGNAL(streamServicesChanged(const Jid &)),SLOT(onServicesChanged(const Jid &)));
+        Jid AStreamJid = FGateways->getOptionsStreamJid();
+        QList<Jid> availRegisters = FGateways->availRegistrators(AStreamJid, true);
+        foreach(Jid serviceJid, availRegisters.toSet())
+          appendServiceButton(serviceJid);
+			}
+			
+      emit welcomeScreenVisibleChanged(true);
 		}
 		else if (!show && FWelcomeScreenWidget)
 		{

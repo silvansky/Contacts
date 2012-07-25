@@ -45,6 +45,8 @@
 #include "addmetacontactdialog.h"
 #include "welcomescreenwidget.h"
 
+#include <vector>
+
 struct AutoSubscription {
 	AutoSubscription() {
 		silent = false;
@@ -206,6 +208,7 @@ protected slots:
 	void onShowPendingChatNotices();
 	void onChatNoticeActionTriggered(bool);
 	void onChatNoticeRemoved(int ANoticeId);
+	
 private:
 	IGateways *FGateways;
 	IPluginManager *FPluginManager;
@@ -230,6 +233,17 @@ private:
 	WelcomeScreenWidget *FWelcomeScreenWidget;
 	QMap<Jid, QMap<Jid, PendingChatNotice> > FPendingChatNotices;
 	QMap<Jid, QMap<Jid, AutoSubscription> > FAutoSubscriptions;
+	
+private:
+  void appendServiceButton(Jid serviceJid);
+  void removeServiceButton(const Jid &AServiceJid);
+	
+	QWidget *lastRosterWidget;
+	QMap<Jid, QWidget *> FWidgets;
+	
+protected slots:
+  void onGateActionTriggeted(bool);
+  void onServicesChanged(const Jid &AStreamJid);
 };
 
 #endif // ROSTERCHANGER_H

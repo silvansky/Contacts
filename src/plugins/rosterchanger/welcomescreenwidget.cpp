@@ -22,6 +22,12 @@ WelcomeScreenWidget::WelcomeScreenWidget(QWidget *parent) :
 	connect(ui->address, SIGNAL(textChanged(const QString &)), SLOT(onTextChanged(const QString &)));
 
 	ui->address->installEventFilter(this);
+	
+	registerButtonsLayout = new QGridLayout();
+  registerButtonsLayout->setSpacing(2);
+  registerButtonsLayout->setObjectName(QString::fromUtf8("layout"));
+  registerButtonsLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
+  ui->horizontalLayout_2->addLayout(registerButtonsLayout);
 }
 
 WelcomeScreenWidget::~WelcomeScreenWidget()

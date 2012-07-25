@@ -158,6 +158,12 @@ protected slots:
 	void onNotificationActivated(int ANotifyId);
 	void onNotificationRemoved(int ANotifyId);
 	void onWelcomeScreenVisibleChanged(bool AVisible);
+	
+	Jid getOptionsStreamJid()
+	{
+	  return FOptionsStreamJid;
+	}
+	
 private:
 	IPluginManager *FPluginManager;
 	IServiceDiscovery *FDiscovery;

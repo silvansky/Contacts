@@ -2,6 +2,7 @@
 #define WELCOMESCREENWIDGET_H
 
 #include <QWidget>
+#include <QGridLayout>
 
 namespace Ui {
 class WelcomeScreenWidget;
@@ -23,8 +24,10 @@ protected slots:
 signals:
 	void addressEntered(const QString & address);
 	
-private:
+//private:
+public:
 	Ui::WelcomeScreenWidget *ui;
+	QGridLayout* registerButtonsLayout;
 };
 
 #endif // WELCOMESCREENWIDGET_H

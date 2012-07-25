@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>251</width>
-    <height>401</height>
+    <width>261</width>
+    <height>411</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,6 +32,19 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout"/>
    </item>
    <item>
     <widget class="CustomLabel" name="caption">
