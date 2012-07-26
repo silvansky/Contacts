@@ -19,7 +19,7 @@ AddSimpleAccountDialog::AddSimpleAccountDialog() :
 	ui->setupUi(this);
 
 	_serverApiHandler = new ServerApiHandler;
-	connect(_serverApiHandler, SIGNAL(checkAuthRequestSucceeded(const QString &, const QString &)), SLOT(onCheckAuthRequestSucceeded(const QString &, const QString &)));
+	connect(_serverApiHandler, SIGNAL(checkAuthRequestSucceeded(const QString, const QString &, const QString &)), SLOT(onCheckAuthRequestSucceeded(const QString &, const QString &, const QString &)));
 	connect(_serverApiHandler, SIGNAL(checkAuthRequestFailed(const QString &, const QString &)), SLOT(onCheckAuthRequestFailed(const QString &, const QString &)));
 	connect(_serverApiHandler, SIGNAL(requestFailed(const QString &)), SLOT(onCheckAuthRequestRequestFailed(const QString &)));
 	_succeeded = false;

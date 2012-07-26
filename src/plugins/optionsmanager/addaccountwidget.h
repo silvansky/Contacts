@@ -38,11 +38,14 @@ protected:
 	void updateServiceName();
 protected slots:
 	void onServiceButtonToggled(bool on);
+	void onServiceButtonClicked();
+	void onRemoveButtonClicked();
 	void onDialogAccepted();
 	void onDialogRejected();
 signals:
 	void authChecked();
 	void authCheckFailed();
+	void authRemoved();
 private:
 	Ui::AddAccountWidget *ui;
 private:

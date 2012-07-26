@@ -83,6 +83,7 @@ protected:
 	bool tryNextConnectionSettings();
 	void setControlsEnabled(bool AEnabled);
 	void setRegControlsEnabled(bool AEnabled);
+	void setSignInControlsEnabled(bool AEnabled);
 	void setConnectEnabled(bool AEnabled);
 	void stopReconnection();
 	void showConnectionSettings();
@@ -101,6 +102,7 @@ protected:
 	void loadCurrentProfileSettings();
 	bool readyToConnect() const;
 	bool readyToRegister() const;
+	bool readyToSignIn() const;
 	// validators
 	int checkPassword(const QString &password) const;
 	int checkLogin(const QString &login) const;
@@ -110,9 +112,10 @@ protected slots:
 	void showEasyRegDialog();
 	void onAskDialogRejected();
 
-	// connect / register buttons
+	// connect / register / sign in buttons
 	void onConnectClicked();
 	void onRegisterClicked();
+	void onSignInClicked();
 
 	// abort timer
 	void onAbortTimerTimeout();
@@ -178,6 +181,12 @@ protected slots:
 	// for http requests
 	void onRequestFinished(const QUrl &url, const QString &result);
 	void onRequestFailed(const QUrl &url, const QString &error);
+	// for server api handler
+	void onAuthRequestSucceeded(const Jid &user, const QString &password);
+	void onAuthRequestFailed(const QString &reason);
+	void onRequestFailed(const QString &error);
+	// for add acc widgets
+	void onAddAccountWidgetAuthInfoChanged();
 private:
 	Mode mode() const;
 	void setMode(Mode newMode);
@@ -215,6 +224,8 @@ private:
 	QWidget *FConnectionErrorWidget;
 	ServerApiHandler *serverApiHandler;
 	QList<AddAccountWidget *> addAccountWidgets;
+	Jid apiJid;
+	QString apiPassword;
 };
 
 #endif // LOGINDIALOG_H

@@ -26,7 +26,7 @@ AddRamblerAccountDialog::AddRamblerAccountDialog(QWidget *parent) :
 	GraphicsEffectsStorage::staticStorage(RSR_STORAGE_GRAPHICSEFFECTS)->installGraphicsEffect(this, GFX_LABELS);
 
 	_serverApiHandler = new ServerApiHandler;
-	connect(_serverApiHandler, SIGNAL(checkAuthRequestSucceeded(const QString &, const QString &)), SLOT(onCheckAuthRequestSucceeded(const QString &, const QString &)));
+	connect(_serverApiHandler, SIGNAL(checkAuthRequestSucceeded(const QString &, const QString &, const QString &)), SLOT(onCheckAuthRequestSucceeded(const QString &, const QString &, const QString &)));
 	connect(_serverApiHandler, SIGNAL(checkAuthRequestFailed(const QString &, const QString &)), SLOT(onCheckAuthRequestFailed(const QString &, const QString &)));
 	connect(_serverApiHandler, SIGNAL(checkAuthRequestRequestFailed(const QString &)), SLOT(onCheckAuthRequestRequestFailed(const QString &)));
 	_succeeded = false;

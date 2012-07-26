@@ -139,6 +139,9 @@ void ServerApiHandler::sendAuthRequest(const QList<ServiceAuthInfo> &services)
 
 void ServerApiHandler::sendData(const QUrl &url, const QByteArray &data)
 {
+#ifdef DEBUG_ENABLED
+	qDebug() << QString("Sending POST request to %1 with data:\n%2").arg(url.toString(), QString::fromUtf8(data.data()));
+#endif
 	Networking::httpPostAsync(url, data, this, NW_SLOT(onNetworkRequestFinished), NW_SLOT(onNetworkRequestFailed));
 }
 

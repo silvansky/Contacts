@@ -24,7 +24,9 @@ AddAccountWidget::AddAccountWidget(AccountWidgetType accWidgetType, QWidget *par
 
 	updateServiceName();
 
-	connect(ui->serviceButton, SIGNAL(toggled(bool)), SLOT(onServiceButtonToggled(bool)));
+	//connect(ui->serviceButton, SIGNAL(toggled(bool)), SLOT(onServiceButtonToggled(bool)));
+	connect(ui->serviceButton, SIGNAL(clicked()), SLOT(onServiceButtonClicked()));
+	connect(ui->removeButton, SIGNAL(clicked()), SLOT(onRemoveButtonClicked()));
 	ui->successIndicator->setVisible(false);
 	ui->removeButton->setVisible(false);
 }
@@ -110,77 +112,83 @@ void AddAccountWidget::updateServiceName()
 
 void AddAccountWidget::onServiceButtonToggled(bool on)
 {
-	if (on)
-	{
-		QStringList domains;
-		QString caption;
-		QString loginPlaceholder = tr("Login");
-		QString dialogService;
-		switch (type())
-		{
-		case AW_Vkontakte:
-			caption = tr("Enter your Vkontakte ID and password");
-			loginPlaceholder = tr("ID");
-			dialogService = "vk";
-			break;
-		case AW_ICQ:
-			caption = tr("Enter your ICQ UIN or login and password");
-			loginPlaceholder = tr("UIN or login");
-			dialogService = "icq";
-			break;
-		case AW_MRIM:
-			caption = tr("Enter your Mail.ru Agent login and password");
-			domains <<
-				   "mail.ru" <<
-				   "list.ru" <<
-				   "bk.ru" <<
-				   "inbox.ru";
-			dialogService = "mrim";
+	Q_UNUSED(on)
+}
 
-			break;
-		case AW_Yandex:
-			caption = tr("Enter your Yandex login and password");
-			domains <<
-				   "yandex.ru" <<
-				   "ya.ru" <<
-				   "narod.ru";
-			dialogService = "ya";
-			break;
-		default:
-			break;
-		}
-		if (type() == AW_Facebook)
-		{
-			AddFacebookAccountDialog *dialog = new AddFacebookAccountDialog;
-			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
-			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
-			dialog->showDialog();
-		}
-		else if (type() == AW_Rambler)
-		{
-			AddRamblerAccountDialog *dialog = new AddRamblerAccountDialog;
-			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
-			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
-			dialog->showDialog();
-		}
-		else
-		{
-			AddSimpleAccountDialog *dialog = new AddSimpleAccountDialog;
-			dialog->setCaption(caption);
-			dialog->setLoginPlaceholder(loginPlaceholder);
-			dialog->setDomainList(domains);
-			dialog->setService(dialogService);
-			connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
-			connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
-			dialog->showDialog();
-		}
-		ui->removeButton->setVisible(true);
+void AddAccountWidget::onServiceButtonClicked()
+{
+	QStringList domains;
+	QString caption;
+	QString loginPlaceholder = tr("Login");
+	QString dialogService;
+	switch (type())
+	{
+	case AW_Vkontakte:
+		caption = tr("Enter your Vkontakte ID and password");
+		loginPlaceholder = tr("ID");
+		dialogService = "vk";
+		break;
+	case AW_ICQ:
+		caption = tr("Enter your ICQ UIN or login and password");
+		loginPlaceholder = tr("UIN or login");
+		dialogService = "icq";
+		break;
+	case AW_MRIM:
+		caption = tr("Enter your Mail.ru Agent login and password");
+		domains <<
+			   "mail.ru" <<
+			   "list.ru" <<
+			   "bk.ru" <<
+			   "inbox.ru";
+		dialogService = "mrim";
+
+		break;
+	case AW_Yandex:
+		caption = tr("Enter your Yandex login and password");
+		domains <<
+			   "yandex.ru" <<
+			   "ya.ru" <<
+			   "narod.ru";
+		dialogService = "ya";
+		break;
+	default:
+		break;
+	}
+	if (type() == AW_Facebook)
+	{
+		AddFacebookAccountDialog *dialog = new AddFacebookAccountDialog;
+		connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+		connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
+		dialog->showDialog();
+	}
+	else if (type() == AW_Rambler)
+	{
+		AddRamblerAccountDialog *dialog = new AddRamblerAccountDialog;
+		connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+		connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
+		dialog->showDialog();
 	}
 	else
 	{
-		ui->removeButton->setVisible(false);
+		AddSimpleAccountDialog *dialog = new AddSimpleAccountDialog;
+		dialog->setCaption(caption);
+		dialog->setLoginPlaceholder(loginPlaceholder);
+		dialog->setDomainList(domains);
+		dialog->setService(dialogService);
+		connect(dialog, SIGNAL(accepted()), SLOT(onDialogAccepted()));
+		connect(dialog, SIGNAL(rejected()), SLOT(onDialogRejected()));
+		dialog->showDialog();
 	}
-	//ui->successIndicator->setPixmap(on ? IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getImage(MNI_c : QPixmap());
+	ui->removeButton->setVisible(true);
+}
+
+void AddAccountWidget::onRemoveButtonClicked()
+{
+	ui->serviceButton->setEnabled(true);
+	ui->removeButton->setVisible(false);
+	_authInfo.authorized = false;
+	updateServiceName();
+	emit authRemoved();
 }
 
 void AddAccountWidget::onDialogAccepted()
@@ -195,11 +203,12 @@ void AddAccountWidget::onDialogAccepted()
 		updateServiceName();
 		if (_authInfo.authorized)
 		{
+			ui->serviceButton->setEnabled(false);
 			emit authChecked();
 		}
 		else
 		{
-			ui->serviceButton->setChecked(false);
+			ui->serviceButton->setEnabled(true);
 			emit authCheckFailed();
 		}
 		addDialog->deleteLater();

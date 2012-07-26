@@ -223,7 +223,11 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	ui.pbtRegister->setProperty("initial", true);
 	ui.pbtRegister->setText(tr("Sign Up %1").arg(QChar(8595)));
 
+	// init server api
 	serverApiHandler = new ServerApiHandler;
+	connect(serverApiHandler, SIGNAL(authRequestSucceeded(const Jid &, const QString &)), SLOT(onAuthRequestSucceeded(const Jid &, const QString &)));
+	connect(serverApiHandler, SIGNAL(authRequestFailed(const QString &)), SLOT(onAuthRequestFailed(const QString &)));
+	connect(serverApiHandler, SIGNAL(requestFailed(const QString &)), SLOT(onRequestFailed(const QString &)));
 
 	// initializing...
 	initialize(APluginManager);
@@ -474,24 +478,44 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	// adding account buttons
 	// FB, VK, ICQ, Mail.ru, Rambler
 	AddAccountWidget *FBAccWidget = new AddAccountWidget(AW_Facebook, ui.accountsScrollContents);
+	connect(FBAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(FBAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(FBAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(FBAccWidget);
 
 	AddAccountWidget *VKAccWidget = new AddAccountWidget(AW_Vkontakte, ui.accountsScrollContents);
+	connect(VKAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(VKAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(VKAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(VKAccWidget);
 
 	AddAccountWidget *ICQAccWidget = new AddAccountWidget(AW_ICQ, ui.accountsScrollContents);
+	connect(ICQAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(ICQAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(ICQAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(ICQAccWidget);
 
 	AddAccountWidget *MRIMAccWidget = new AddAccountWidget(AW_MRIM, ui.accountsScrollContents);
+	connect(MRIMAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(MRIMAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(MRIMAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(MRIMAccWidget);
 
 	AddAccountWidget *YandexAccWidget = new AddAccountWidget(AW_Yandex, ui.accountsScrollContents);
+	connect(YandexAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(YandexAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(YandexAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(YandexAccWidget);
 
 	AddAccountWidget *RamblerAccWidget = new AddAccountWidget(AW_Rambler, ui.accountsScrollContents);
+	connect(RamblerAccWidget, SIGNAL(authChecked()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(RamblerAccWidget, SIGNAL(authCheckFailed()), SLOT(onAddAccountWidgetAuthInfoChanged()));
+	connect(RamblerAccWidget, SIGNAL(authRemoved()), SLOT(onAddAccountWidgetAuthInfoChanged()));
 	ui.accountsLayout->addWidget(RamblerAccWidget);
 
 	addAccountWidgets << FBAccWidget << VKAccWidget << ICQAccWidget << MRIMAccWidget << YandexAccWidget << RamblerAccWidget;
+
+	onAddAccountWidgetAuthInfoChanged();
 
 	QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::Expanding);
 	ui.accountsLayout->addItem(spacer);
@@ -532,10 +556,13 @@ LoginDialog::LoginDialog(IPluginManager *APluginManager, QWidget *AParent) : QDi
 	connect(&FRotateTimer, SIGNAL(timeout()), SLOT(onRotateTimer()));
 
 	// main buttons
-	ui.pbtConnect->setFocus();
+	//ui.pbtConnect->setFocus();
 	connect(ui.pbtConnect, SIGNAL(clicked()), SLOT(onConnectClicked()));
 
 	connect(ui.pbtRegister, SIGNAL(clicked()), SLOT(onRegisterClicked()));
+
+	ui.signInButton->setFocus();
+	connect(ui.signInButton, SIGNAL(clicked()), SLOT(onSignInClicked()));
 
 	// setting initial state (part 2)
 	hideXmppStreamError();
@@ -583,6 +610,8 @@ void LoginDialog::connectIfReady()
 
 Jid LoginDialog::currentStreamJid() const
 {
+	if (apiJid.isValid())
+		return apiJid;
 #ifndef DEBUG_ENABLED
 	Jid streamJid(ui.lneNode->text().trimmed(), ui.tlbDomain->property("domain").toString(), CLIENT_NAME);
 #else
@@ -908,8 +937,8 @@ void LoginDialog::showErrorBalloon()
 	}
 	else if (FActiveErrorType == ActiveConnectionError)
 	{
-		QPoint point = ui.pbtConnect->mapToGlobal(ui.pbtConnect->rect().topLeft());
-		point.setY(point.y() + ui.pbtConnect->height() / 2);
+		QPoint point = ui.signInButton->mapToGlobal(ui.signInButton->rect().topLeft());
+		point.setY(point.y() + ui.signInButton->height() / 2);
 		if (isActiveWindow() || (parentWidget() && parentWidget()->isActiveWindow()))
 			BalloonTip::showBalloon(IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->getIcon(MNI_OPTIONS_ERROR_ALERT), FConnectionErrorWidget, point, 0, true, BalloonTip::ArrowRight, parentWidget() ? parentWidget() : this);
 	}
@@ -1023,6 +1052,12 @@ void LoginDialog::setRegControlsEnabled(bool AEnabled)
 	ui.lneRegConfirmPassword->setEnabled(AEnabled);
 }
 
+void LoginDialog::setSignInControlsEnabled(bool AEnabled)
+{
+	ui.accountsScroll->setEnabled(AEnabled);
+	ui.signInButton->setEnabled(AEnabled);
+}
+
 void LoginDialog::setConnectEnabled(bool AEnabled)
 {
 	if (!AEnabled)
@@ -1035,15 +1070,15 @@ void LoginDialog::setConnectEnabled(bool AEnabled)
 	}
 	else
 	{
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.pbtConnect);
-		ui.pbtConnect->setIcon(QIcon());
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->removeAutoIcon(ui.signInButton);
+		ui.signInButton->setIcon(QIcon());
 	}
 
 	setControlsEnabled(AEnabled);
 
-	ui.pbtConnect->setEnabled(AEnabled);
-	ui.pbtConnect->setProperty("connecting", !AEnabled);
-	ui.pbtConnect->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
+	ui.signInButton->setEnabled(readyToSignIn());
+	ui.signInButton->setProperty("connecting", !AEnabled);
+	ui.signInButton->setText(AEnabled ? tr("Enter") : tr("Connecting..."));
 	StyleStorage::updateStyle(this);
 }
 
@@ -1315,6 +1350,14 @@ bool LoginDialog::readyToRegister() const
 			(ui.lneRegPassword->text() == ui.lneRegConfirmPassword->text());
 }
 
+bool LoginDialog::readyToSignIn() const
+{
+	foreach (AddAccountWidget *aaw, addAccountWidgets)
+		if (aaw->authInfo().authorized)
+			return true;
+	return false;
+}
+
 int LoginDialog::checkPassword(const QString &password) const
 {
 	static QRegExp passRe(PASSWORD_CHECK_REGEX);
@@ -1375,14 +1418,14 @@ void LoginDialog::onAskDialogRejected()
 
 void LoginDialog::onConnectClicked()
 {
-	if (!ui.pbtConnect->property("connecting").toBool())
+	if (!ui.signInButton->property("connecting").toBool())
 	{
 		hideConnectionError();
 		hideXmppStreamError();
-		ui.lneNode->completer()->popup()->hide();
+		//ui.lneNode->completer()->popup()->hide();
 		bool connecting = false;
 		setConnectEnabled(false);
-		ui.pbtRegister->setEnabled(false);
+		//ui.pbtRegister->setEnabled(false);
 		QApplication::processEvents();
 
 		LogDetail(QString("[LoginDialog] Starting login"));
@@ -1425,8 +1468,8 @@ void LoginDialog::onConnectClicked()
 							connect(account->xmppStream()->instance(),SIGNAL(opened()),SLOT(onXmppStreamOpened()));
 							connect(account->xmppStream()->instance(),SIGNAL(closed()),SLOT(onXmppStreamClosed()));
 
-							account->setPassword(ui.chbSavePassword->isChecked() ? ui.lnePassword->text() : QString::null);
-							account->xmppStream()->setPassword(ui.lnePassword->text());
+							account->setPassword(apiPassword);
+							account->xmppStream()->setPassword(apiPassword);
 
 							FStatusChanger->setStreamStatus(account->xmppStream()->streamJid(), STATUS_MAIN_ID);
 
@@ -1501,11 +1544,26 @@ void LoginDialog::onRegisterClicked()
 	}
 }
 
+void LoginDialog::onSignInClicked()
+{
+	startLoadAnimation();
+	hideConnectionError();
+	hideXmppStreamError();
+	setSignInControlsEnabled(false);
+	QList<ServiceAuthInfo> addedAccounts;
+	foreach (AddAccountWidget *aaw, addAccountWidgets)
+	{
+		if (aaw->authInfo().authorized)
+			addedAccounts << aaw->authInfo();
+	}
+	serverApiHandler->sendAuthRequest(addedAccounts);
+}
+
 void LoginDialog::onAbortTimerTimeout()
 {
-	if (ui.pbtConnect->property("connecting").toBool())
+	if (ui.signInButton->property("connecting").toBool())
 	{
-		IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+		IAccount *account = FAccountManager ? FAccountManager->accountById(FAccountId) : NULL;
 		if (account && account->isActive())
 		{
 			account->xmppStream()->abort(tr("Connection terminated by user"));
@@ -1520,7 +1578,7 @@ void LoginDialog::onXmppStreamOpened()
 {
 	hide();
 
-	IAccount *account = FAccountManager!=NULL ? FAccountManager->accountById(FAccountId) : NULL;
+	IAccount *account = FAccountManager ? FAccountManager->accountById(FAccountId) : NULL;
 	if (account && FConnectionSettings!=CS_DEFAULT)
 	{
 		OptionsNode coptions = account->optionsNode().node("connection",account->xmppStream()->connection()->ownerPlugin()->pluginId());
@@ -1728,11 +1786,11 @@ void LoginDialog::onRegistrationDataChanged()
 
 void LoginDialog::onShowCancelButton()
 {
-	if (ui.pbtConnect->property("connecting").toBool())
+	if (ui.signInButton->property("connecting").toBool())
 	{
-		ui.pbtConnect->setEnabled(true);
-		ui.pbtConnect->setText(tr("Cancel"));
-		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.pbtConnect,MNI_OPTIONS_LOGIN_ANIMATION);
+		ui.signInButton->setEnabled(true);
+		ui.signInButton->setText(tr("Cancel"));
+		IconStorage::staticStorage(RSR_STORAGE_MENUICONS)->insertAutoIcon(ui.signInButton,MNI_OPTIONS_LOGIN_ANIMATION);
 	}
 }
 
@@ -2064,6 +2122,35 @@ void LoginDialog::onRequestFailed(const QUrl &url, const QString &error)
 #endif
 	LogError(QString("[LoginDialog::onRequestFailed]: Network request for \"%1\" failed with error \"%2\"").arg(url.toString(), error));
 	showRegConnectionError();
+}
+
+void LoginDialog::onAuthRequestSucceeded(const Jid &user, const QString &password)
+{
+	apiJid = user;
+	apiPassword = password;
+	stopLoadAnimation();
+	onConnectClicked();
+}
+
+void LoginDialog::onAuthRequestFailed(const QString &reason)
+{
+	showConnectionError(tr("Connection error"), reason);
+	setSignInControlsEnabled(true);
+	stopLoadAnimation();
+	ui.signInButton->setEnabled(readyToSignIn());
+}
+
+void LoginDialog::onRequestFailed(const QString &error)
+{
+	showConnectionError(tr("Connection error"), error);
+	setSignInControlsEnabled(true);
+	stopLoadAnimation();
+	ui.signInButton->setEnabled(readyToSignIn());
+}
+
+void LoginDialog::onAddAccountWidgetAuthInfoChanged()
+{
+	ui.signInButton->setEnabled(readyToSignIn());
 }
 
 LoginDialog::Mode LoginDialog::mode() const
