@@ -45,6 +45,7 @@
 #define STS_OPTIONS_LOGINDIALOG                                         "optionsLoginDialog"
 #define STS_OPTIONS_OPTIONSDIALOG                                       "optionsOptionsDialog"
 #define STS_OPTIONS_CONNECTION_SETTINGS                                 "optionsConnectionSettings"
+#define STS_OPTIONS_EASYREGISTRATIONDIALOG                              "optionsEasyRegistrationDialog"
 #define STS_OPTIONS_LOCALE_OPTIONS_WIDGET                               "optionsLocaleOptionsWidget"
 
 //RamblerMailNotify

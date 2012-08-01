@@ -39,6 +39,7 @@ protected:
 	void timerEvent(QTimerEvent *ev);
 	bool event(QEvent * ev);
 	bool eventFilter(QObject *, QEvent *);
+	QSize sizeHint();
 private:
 	int timerId;
 	QPixmap pixmap;

@@ -23,8 +23,8 @@ public:
 	QString fileFullName(const QString AKey, int AIndex, const QString & suffix) const;
 	QVariant getStyleValue(const QString & AKey);
 	QColor getStyleColor(const QString & AKey);
-	int getStyleInt(const QString & AKey);
-	qreal getStyleReal(const QString & AKey);
+	int getStyleInt(const QString & AKey, int ADefaultValue = -1);
+	qreal getStyleReal(const QString & AKey, qreal ADefaultValue = -1.0);
 	bool getStyleBool(const QString & AKey);
 public slots:
 	void previewReset();

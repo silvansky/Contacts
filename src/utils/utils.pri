@@ -37,7 +37,8 @@ HEADERS = utilsexport.h \
 	nonmodalopenfiledialog.h \
 	networking.h \
 	networking_p.h \
-	statistics.h
+	statistics.h \
+	customwebpage.h
 
 SOURCES = jid.cpp \
 	versionparser.cpp \
@@ -74,7 +75,8 @@ SOURCES = jid.cpp \
 	customlabel.cpp \
 	nonmodalopenfiledialog.cpp \
 	networking.cpp \
-	statistics.cpp
+	statistics.cpp \
+	customwebpage.cpp
 
 macx: {
 

@@ -1,11 +1,20 @@
 #include "addfacebookaccountdialog.h"
 
+#include <utils/customwebpage.h>
+
 #include <QWebFrame>
+#include <QWebHistory>
 #include <QTextDocument>
+#include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QDesktopServices>
 
-#define AUTH_HOST "fb.tx.contacts.rambler.ru"
+#ifdef DEBUG_ENABLED
+# include <QDebug>
+#endif
+
+#define AUTH_HOST           "fb.tx.contacts.rambler.ru"
+#define CUSTOM_USER_AGENT   "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU) AppleWebKit/533.3 (KHTML, like Gecko) Chrome/4.7.4 Safari/533.3"
 
 AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegistration *ARegistration, IPresence *APresence, const Jid &AServiceJid, QWidget *AParent) : QDialog(AParent)
 {
@@ -48,11 +57,17 @@ AddFacebookAccountDialog::AddFacebookAccountDialog(IGateways *AGateways, IRegist
 			ui.wbvView->page()->networkAccessManager()->setProxy(defConnection->proxy());
 	}
 
+	CustomWebPage *cwp = new CustomWebPage(ui.wbvView);
+	cwp->setCustomUserAgent(CUSTOM_USER_AGENT);
+	ui.wbvView->setPage(cwp);
+
 	ui.wbvView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-	ui.wbvView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical,Qt::ScrollBarAlwaysOff);
+	ui.wbvView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 	connect(ui.wbvView,SIGNAL(loadStarted()),SLOT(onWebViewLoadStarted()));
 	connect(ui.wbvView,SIGNAL(loadFinished(bool)),SLOT(onWebViewLoadFinished(bool)));
 	connect(ui.wbvView->page(),SIGNAL(linkClicked(const QUrl &)),SLOT(onWebPageLinkClicked(const QUrl &)));
+	connect(ui.wbvView->page()->networkAccessManager(), SIGNAL(finished(QNetworkReply*)), SLOT(onNetworkRequestFinished(QNetworkReply*)));
+	connect(ui.wbvView->page()->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)), SLOT(onSslErrors(QNetworkReply*,QList<QSslError>)));
 
 	connect(FRegistration->instance(),SIGNAL(registerFields(const QString &, const IRegisterFields &)),
 		SLOT(onRegisterFields(const QString &, const IRegisterFields &)));
@@ -155,7 +170,9 @@ void AddFacebookAccountDialog::onRegisterFields(const QString &AId, const IRegis
 		{
 			LogDetail(QString("[AddFacebookAccountDialog][%1] Loading registration web page").arg(FServiceJid.full()));
 			QNetworkRequest request(QUrl("http://"AUTH_HOST"/auth"));
-			request.setRawHeader("Accept-Encoding","identity");
+			request.setRawHeader("Accept-Encoding", "identity");
+			//request.setRawHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; ru-RU) AppleWebKit/533.3 (KHTML, like Gecko) Qt/4.7.4 Safari/533.3");
+			//request.setRawHeader("User-Agent", "HrenKakoyto");
 			ui.wbvView->load(request);
 		}
 		else
@@ -194,6 +211,7 @@ void AddFacebookAccountDialog::onWebViewLoadStarted()
 
 void AddFacebookAccountDialog::onWebViewLoadFinished(bool AOk)
 {
+	ui.wbvView->history()->clear();
 	if (!AOk)
 	{
 		LogError(QString("[AddFacebookAccountDialog][%1] Failed to load web page").arg(FServiceJid.full()));
@@ -208,4 +226,34 @@ void AddFacebookAccountDialog::onWebViewLoadFinished(bool AOk)
 void AddFacebookAccountDialog::onWebPageLinkClicked(const QUrl &ALink)
 {
 	QDesktopServices::openUrl(ALink);
+}
+
+void AddFacebookAccountDialog::onNetworkRequestFinished(QNetworkReply *reply)
+{
+	if (reply->error() != QNetworkReply::NoError)
+	{
+		QStringList headers;
+		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs())
+			headers << QString("%1: %2").arg(QString::fromAscii(header.first.data()), QString::fromAscii(header.second.data()));
+		QString logString = QString("[AddFacebookAccountDialog]: Network reply error: (%1) %2\nraw headers:\n%3").arg(reply->error()).arg(reply->errorString()).arg(headers.join("\r\n"));
+		LogError(logString);
+#ifdef DEBUG_ENABLED
+		qDebug() << logString;
+#endif
+	}
+}
+
+void AddFacebookAccountDialog::onSslErrors(QNetworkReply *reply, QList<QSslError> errors)
+{
+	QStringList sslErrors;
+	foreach (QSslError error, errors)
+	{
+		sslErrors << QString("(%1) %2").arg(error.error()).arg(error.errorString());
+	}
+	QString logString = QString("[AddFacebookAccountDialog]: Got SSL Errors:\n%1").arg(sslErrors.join("\n"));
+	LogError(logString);
+#ifdef DEBUG_ENABLED
+	qDebug() << logString;
+#endif
+	reply->ignoreSslErrors(errors);
 }

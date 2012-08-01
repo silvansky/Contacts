@@ -28,24 +28,36 @@ class NetworkingPrivate : public QObject
 			String,
 			Image
 		};
+		enum ReqType
+		{
+			PostReq,
+			GetReq
+		};
 		Type type;
+		ReqType requestType;
+		QByteArray postData;
 		QUrl url;
 		QObject *receiver;
 		const char *slot;
+		const char *errorSlot;
 	};
 
 public:
 	NetworkingPrivate();
 	virtual ~NetworkingPrivate();
-	void httpGetAsync(RequestProperties::Type type, const QUrl& src, QObject * receiver, const char * slot);
-	QImage httpGetImage(const QUrl& src) const;
-	void httpGetImageAsync(const QUrl& src, QObject * receiver, const char * slot);
-	QString httpGetString(const QUrl& src) const;
-	void httpGetStringAsync(const QUrl& src, QObject * receiver, const char * slot);
-	void setCookiePath(const QString & path);
+	void httpGetAsync(RequestProperties::Type type, const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
+	void httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot);
+	QImage httpGetImage(const QUrl &src) const;
+	void httpGetImageAsync(const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
+	QString httpGetString(const QUrl &src) const;
+	void httpGetStringAsync(const QUrl &src, QObject *receiver, const char *slot, const char *errorSlot);
+	//void httpPostAsync(const QUrl &src, const QByteArray &data, QObject *receiver, const char *slot, const char *errorSlot);
+	void setCookiePath(const QString &path);
 	QString cookiePath() const;
 public slots:
-	void onFinished(QNetworkReply* reply);
+	void onFinished(QNetworkReply *reply);
+	void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+	void onSslErrors(const QList<QSslError> &errors);
 private:
 	QNetworkAccessManager * nam;
 	QEventLoop * loop;

@@ -4,6 +4,10 @@
 // global
 #define SV_GLOBAL_LINK_COLOR                   "globalLinkColor"
 #define SV_GLOBAL_DARK_LINK_COLOR              "globalDarkLinkColor"
+#define SV_GLOBAL_BACKGROUND_COLOR             "globalBackgroundColor"
+#define SV_GLOBAL_TEXT_COLOR                   "globalTextColor"
+#define SV_GLOBAL_FONT_FACE                    "globalFontFace"
+#define SV_GLOBAL_ANIMATION_DURATION           "globalAnimationDuration"
 
 // login dialog
 #define SV_LOGIN_LINK_COLOR                    "loginDialogLinkColor"
@@ -11,6 +15,12 @@
 #define SV_LOGIN_COMPLETER_H_OFFSET            "loginDialogCompleterHOffset"
 #define SV_LOGIN_COMPLETER_V_OFFSET            "loginDialogCompleterVOffset"
 #define SV_LOGIN_COMPLETER_MIN_ROW_HEIGHT      "loginDialogCompleterMinRowHeight"
+
+// easy registration dialog
+#define SV_EASYREG_ERROR_WIDGET_HEIGHT         "easyregErrorWidgetHeight"
+#define SV_EASYREG_ERROR_FONT_SIZE             "easyregErrorFontSize"
+#define SV_EASYREG_WV_DEF_WIDTH                "easyregWebViewDefWidth"
+#define SV_EASYREG_WV_DEF_HEIGHT               "easyregWebViewDefHeight"
 
 // about dialog
 #define SV_ABOUT_TEXT_COLOR                    "aboutDialogTextColor"

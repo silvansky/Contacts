@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<htmldef>
+  <file>
+    <key>optionsEasyRegLoading</key>
+    <object mime='text/html'>optionseasyregloading.html</object>
+  </file>
+  <file>
+    <key>optionsEasyRegError</key>
+    <object mime='text/html'>optionseasyregerror.html</object>
+  </file>
+</htmldef>

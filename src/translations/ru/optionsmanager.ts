@@ -2,14 +2,49 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru_RU" sourcelanguage="en">
 <context>
-    <name>LocaleOptionsWidget</name>
+    <name>EasyRegistrationDialog</name>
     <message>
-        <source>System language</source>
-        <translation>Системный язык</translation>
+        <source>Easy registration</source>
+        <translation>Быстрая регистрация</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;Failed to connect&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Не удалось подключиться&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Check internet connection</source>
+        <translation>Проверьте интернет-соединение</translation>
+    </message>
+    <message>
+        <source>Connecting...</source>
+        <translation>Идёт подключение...</translation>
+    </message>
+    <message>
+        <source>Check internet connection and reload page, or register at &lt;a href=&quot;%1&quot; class=&quot;b-link&quot;&gt;website&lt;/a&gt;.</source>
+        <translation>Проверьте интернет-соединение и обновите страницу или &lt;a href=&quot;%1&quot; class=&quot;b-link&quot;&gt;зарегистрируйтесь на сайте&lt;/a&gt;. </translation>
+    </message>
+    <message>
+        <source>Could not connect</source>
+        <translation>Не удалось подключиться</translation>
+    </message>
+    <message>
+        <source>Reload</source>
+        <translation>Обновить</translation>
+    </message>
+    <message>
+        <source>Registration is tempoprarily unavailable. Please, register online at %1</source>
+        <translation>Регистрация временно недоступна. Пожалуйста, зарегистируйтесь на сайте %1</translation>
+    </message>
+</context>
+<context>
+    <name>LocaleOptionsWidget</name>
     <message>
         <source>*Language settings will be applied on next application launch</source>
         <translation>*Настройки языка интерфейса будут применены при следующем запуске приложения</translation>
+    </message>
+    <message>
+        <source>System language</source>
+        <translation>Системный язык</translation>
     </message>
 </context>
 <context>
@@ -143,6 +178,90 @@ which is linked to Rambler</source>
         <source>Enter your Rambler login and password or %1.</source>
         <translation>Введите ваш логин и пароль на Рамблере или %1.</translation>
     </message>
+    <message>
+        <source>Log in</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <source>Do you have a Rambler account?</source>
+        <translation>У Вас есть логин на Рамблере?</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Да</translation>
+    </message>
+    <message>
+        <source>Sign Up %1</source>
+        <translation>Зарегистрироваться %1</translation>
+    </message>
+    <message>
+        <source>Connection error! Try again later.</source>
+        <translation>Ошибка подключения! Попробуйте ещё раз позже.</translation>
+    </message>
+    <message>
+        <source>Sign Up</source>
+        <translation>Зарегистрироваться</translation>
+    </message>
+    <message>
+        <source>You must enter login</source>
+        <translation>Вы не ввели логин</translation>
+    </message>
+    <message>
+        <source>Login is too short</source>
+        <translation>Логин слишком короткий</translation>
+    </message>
+    <message>
+        <source>Login must be shorter than 32 symbols</source>
+        <translation>Логин не должен быть длиннее 32 знаков</translation>
+    </message>
+    <message>
+        <source>Symbol &quot;%1&quot; is not supported</source>
+        <translation>Символ &quot;%1&quot; не поддерживается</translation>
+    </message>
+    <message>
+        <source>Login already exists</source>
+        <translation>Логин занят</translation>
+    </message>
+    <message>
+        <source>Common login error</source>
+        <translation>Ошибка входа</translation>
+    </message>
+    <message>
+        <source>You must enter password</source>
+        <translation>Пароль не введён</translation>
+    </message>
+    <message>
+        <source>Password must be at least 6 symbols</source>
+        <translation>Пароль должен быть не короче 6 знаков</translation>
+    </message>
+    <message>
+        <source>Password must be shorter than 16 symbols</source>
+        <translation>Пароль должен быть не длиннее 16 знаков</translation>
+    </message>
+    <message>
+        <source>Common password error</source>
+        <translation>Ошибка входа</translation>
+    </message>
+    <message>
+        <source>Passwords mismatch</source>
+        <translation>Пароли не совпадают</translation>
+    </message>
+    <message>
+        <source>Some error occured. Try again.</source>
+        <translation>Произошла ошибка. Попробуйте ещё раз.</translation>
+    </message>
+    <message>
+        <source>Sign In</source>
+        <translation>Вход</translation>
+    </message>
+    <message>
+        <source>Connection error. Server is unavailable. Please, try again later.</source>
+        <translation>Ошибка подключения. Сервер временно недоступен. Пожалуйста, попробуйте ещё раз позже.</translation>
+    </message>
 </context>
 <context>
     <name>LoginDialogClass</name>
@@ -169,6 +288,38 @@ which is linked to Rambler</source>
     <message>
         <source>Display password input</source>
         <translation>Отображать вводимый пароль</translation>
+    </message>
+    <message>
+        <source>Quick Sign Up</source>
+        <translation>Быстрая регистрация</translation>
+    </message>
+    <message>
+        <source>Create a new account in 2 minutes.</source>
+        <translation>Создайте новую учётную запись за 2 минуты.</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <source>Will be displayed to your contacts</source>
+        <translation>Так Вас будут видеть собеседники</translation>
+    </message>
+    <message>
+        <source>@gmail.com</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Confirm password</source>
+        <translation>Подтвердите пароль</translation>
+    </message>
+    <message>
+        <source>6 to 16 symbols</source>
+        <translation>От 6 до 16 знаков, без русских букв</translation>
+    </message>
+    <message>
+        <source>Sign Up</source>
+        <translation>Зарегистрироваться</translation>
     </message>
     <message>
         <source>Rambler-Contacts</source>

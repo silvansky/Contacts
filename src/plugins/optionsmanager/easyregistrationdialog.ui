@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EasyRegistrationDialog</class>
+ <widget class="QDialog" name="EasyRegistrationDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>729</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Easy registration</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="captionLayout">
+     <property name="leftMargin">
+      <number>14</number>
+     </property>
+     <property name="topMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="caption">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Easy registration</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWebView" name="easyRegWebView">
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="errWidgetLayout">
+     <property name="leftMargin">
+      <number>12</number>
+     </property>
+     <property name="topMargin">
+      <number>6</number>
+     </property>
+     <property name="rightMargin">
+      <number>12</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="errWidget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="errorLayout" stretch="0,1">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="leftMargin">
+           <number>7</number>
+          </property>
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <layout class="QVBoxLayout" name="iconLayout">
+            <property name="topMargin">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="errIcon">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>16</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="textLayout">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="errCaption">
+              <property name="text">
+               <string>&lt;b&gt;Failed to connect&lt;/b&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="errText">
+              <property name="text">
+               <string>Check internet connection</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Ignored</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
