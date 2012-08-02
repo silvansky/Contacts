@@ -144,7 +144,7 @@
             <string>Accept call</string>
            </property>
            <property name="text">
-            <string notr="true">Accept</string>
+            <string>Accept</string>
            </property>
           </widget>
          </item>
@@ -154,7 +154,7 @@
             <string>Reject call</string>
            </property>
            <property name="text">
-            <string notr="true">Reject</string>
+            <string>Reject</string>
            </property>
           </widget>
          </item>

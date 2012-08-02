@@ -629,7 +629,7 @@ void SipManager::onSipRegistrationState(int AAccountId)
 		if (info.status == PJSIP_SC_OK)
 			LogDetail(QString("[SipManager]: SIP account '%1' registration changed, registered=%2").arg(accJid.bare()).arg(registered));
 		else
-			LogError(QString("[SipManager]: Failed to change SIP account '%1' registration, registered=%2").arg(accJid.bare()).arg(registered));
+			LogError(QString("[SipManager]: Failed to change SIP account '%1' registration, registered=%2, status=%3").arg(accJid.bare()).arg(registered).arg(info.status));
 		emit sipAccountRegistrationChanged(AAccountId,registered);
 
 		if (!registered)

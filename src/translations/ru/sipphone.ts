@@ -66,6 +66,14 @@
         <source>Mute and hide</source>
         <translation>Отключить звонок и спрятать</translation>
     </message>
+    <message>
+        <source>Accept</source>
+        <translation>Принять</translation>
+    </message>
+    <message>
+        <source>Reject</source>
+        <translation>Отклонить</translation>
+    </message>
 </context>
 <context>
     <name>SipCall</name>
