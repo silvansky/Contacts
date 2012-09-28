@@ -690,15 +690,15 @@ bool SipManager::createSipStack()
 
 			pj_bzero(&ua_cfg.cb, sizeof(ua_cfg.cb));
 			PJCallbacks::registerCallbacks(ua_cfg.cb);
-			ua_cfg.outbound_proxy_cnt = 1;
 
+			ua_cfg.outbound_proxy_cnt = 1;
 			char proxyTmp[512];
 			pj_ansi_snprintf(proxyTmp, sizeof(proxyTmp), "sip:%s", SIP_DOMAIN);
 			ua_cfg.outbound_proxy[0] = pj_str((char*)proxyTmp);
 
 			pjsua_logging_config log_cfg;
 			pjsua_logging_config_default(&log_cfg);
-			log_cfg.log_filename = pj_str((char*)"pjsip.log");
+			log_cfg.log_filename = pj_str((char*)"./pjsip.log");
 
 			pjsua_media_config med_cfg;
 			pjsua_media_config_default(&med_cfg);
